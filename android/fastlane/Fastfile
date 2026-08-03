@@ -1,0 +1,14 @@
+default_platform(:android)
+
+platform :android do
+  desc "Upload a new version to the Google Play Store"
+  lane :upload_play_store do
+    supply(
+      track: "internal",
+      aab: "../build/app/outputs/bundle/release/app-release.aab",
+      skip_upload_metadata: false,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+end

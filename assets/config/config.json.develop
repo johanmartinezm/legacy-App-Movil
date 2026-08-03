@@ -1,0 +1,9 @@
+{
+    "api_url_web": "http://localhost:8080",
+    "api_url_android": "http://10.0.2.2:8080",
+    "api_url_ios": "http://localhost:8080",
+    "graphql_url": "https://lso.school/graphql",
+    "content_graphql_url": "https://legacynetworkco.com/graphql",
+    "graphql_url_dev": "https://lso.school/graphql",
+    "environment": "development"
+}

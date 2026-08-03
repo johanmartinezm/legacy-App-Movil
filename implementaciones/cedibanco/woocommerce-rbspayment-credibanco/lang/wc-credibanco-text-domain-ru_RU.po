@@ -1,0 +1,326 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WooCommerce CredibanCo\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-06-02 10:31+0000\n"
+"PO-Revision-Date: 2020-06-02 10:42+0000\n"
+"Last-Translator: \n"
+"Language-Team: Russian\n"
+"Language: ru_RU\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10 >= 2 && "
+"n%10<=4 &&(n%100<10||n%100 >= 20)? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.4.0; wp-5.2.6"
+
+#: wc-rbspayment.php:63
+msgid "Online payment with Credibanco."
+msgstr "Интернет эквайринг и обработка платежей."
+
+#: wc-rbspayment.php:157
+msgid "Payment successful"
+msgstr "Платеж успешно оплачен"
+
+#: wc-rbspayment.php:179
+msgid "Payment failed"
+msgstr "Платеж не оплачен"
+
+#: wc-rbspayment.php:210
+msgid "Allow customers to conveniently checkout directly with "
+msgstr "Настройка приема электронных платежей через "
+
+#: wc-rbspayment.php:221
+msgid " does not support your currency."
+msgstr " не поддерживает валюту вашего магазина."
+
+#: wc-rbspayment.php:236
+msgid "Enable/Disable"
+msgstr "Включен/Выключен"
+
+#: wc-rbspayment.php:242
+msgid "Title"
+msgstr "Название способа оплаты"
+
+#: wc-rbspayment.php:244
+msgid "Title displayed to your customer when they make their order."
+msgstr "Заголовок, который видит пользователь в процессе оформления заказа."
+
+#: wc-rbspayment.php:249
+msgid "Login-API"
+msgstr "Логин-API"
+
+#: wc-rbspayment.php:256
+msgid "Password"
+msgstr "Пароль"
+
+#: wc-rbspayment.php:263
+msgid "Test mode"
+msgstr "Тестовый режим"
+
+#: wc-rbspayment.php:266
+msgid "In this mode no actual payments are processed."
+msgstr "В этом режиме реальные платежи не обрабатываются."
+
+#: wc-rbspayment.php:270
+msgid "Payments type"
+msgstr "Тип платежей"
+
+#: wc-rbspayment.php:275
+msgid "One-phase payments"
+msgstr "Одностадийные платежи"
+
+#: wc-rbspayment.php:276
+msgid "Two-phase payments"
+msgstr "Двухстадийные платежи"
+
+#: wc-rbspayment.php:280
+msgid "Description"
+msgstr "Описание"
+
+#: wc-rbspayment.php:282
+msgid "Payment description displayed to your customer."
+msgstr "Описание, которое видят ваши покупатели."
+
+#: wc-rbspayment.php:286
+msgid "Payed order status"
+msgstr "Статус оплаченного заказа"
+
+#: wc-rbspayment.php:298
+msgid ""
+"Page your customer will be redirected to after a <b>successful payment</b>."
+"<br/>Leave this field blank, if you want to use default settings."
+msgstr ""
+"Страница, на которую будет перенаправлен пользователь в случае <b>успешной "
+"оплаты</b>.<br/>Оставьте это поле пустым, если хотите использовать настройки "
+"по умолчанию."
+
+#: wc-rbspayment.php:303
+msgid ""
+"Page your customer will be redirected to after an <b>unsuccessful payment</b>"
+".<br/>Leave this field blank, if you want to use default settings."
+msgstr ""
+"Страница, на которую будет перенаправлен пользователь в случае <b>неудачной "
+"оплаты</b>.<br/>Оставьте это поле пустым, если хотите использовать настройки "
+"по умолчанию."
+
+#: wc-rbspayment.php:310
+msgid "Send cart data<br />(including customer info)"
+msgstr "Отправлять данные корзины покупателя на шлюз"
+
+#: wc-rbspayment.php:313
+msgid ""
+"If this option is enabled order receipts will be created and sent to your "
+"customer and to the revenue service.<br/>This is a paid option, contact your "
+"bank to enable it. If you use it, configure VAT settings. VAT is calculated "
+"according to the Russian legislation. VAT amounts calculated by your store "
+"may differ from the actual VAT amounts that can be applied."
+msgstr ""
+"При выборе опции, будет сформирован и отправлен в налоговую и клиенту чек."
+"<br/>Опция платная, за подключением обратитесь в сервисную службу банка. При "
+"использовании необходимо настроить НДС продаваемых товаров. НДС "
+"рассчитывается согласно законодательству РФ, возможны расхождения в размере "
+"НДС с суммой рассчитанной магазином."
+
+#: wc-rbspayment.php:317
+msgid "Tax system"
+msgstr "Система налогообложения"
+
+#: wc-rbspayment.php:321
+msgid "General"
+msgstr "Общая"
+
+#: wc-rbspayment.php:322
+msgid "Simplified, income"
+msgstr "Упрощенная, доход"
+
+#: wc-rbspayment.php:323
+msgid "Simplified, income minus expences"
+msgstr "Упрощённая, доход минус расход"
+
+#: wc-rbspayment.php:324
+msgid "Unified tax on imputed income"
+msgstr "Eдиный налог на вменённый доход"
+
+#: wc-rbspayment.php:325
+msgid "Unified agricultural tax"
+msgstr "Eдиный сельскохозяйственный налог"
+
+#: wc-rbspayment.php:326
+msgid "Patent taxation system"
+msgstr "Патентная система налогообложения"
+
+#: wc-rbspayment.php:330
+msgid "Default VAT"
+msgstr "Ставка НДС по умолчанию"
+
+#: wc-rbspayment.php:334
+msgid "No VAT"
+msgstr "Без НДС"
+
+#: wc-rbspayment.php:335
+msgid "VAT 0%"
+msgstr "НДС 0%"
+
+#: wc-rbspayment.php:336
+msgid "VAT 10%"
+msgstr "НДС 10%"
+
+#: wc-rbspayment.php:337
+msgid "VAT 18%"
+msgstr "НДС 18%"
+
+#: wc-rbspayment.php:338
+msgid "VAT 20%"
+msgstr "НДС 20%"
+
+#: wc-rbspayment.php:339
+msgid "VAT applicable rate 10/110"
+msgstr "НДС чека по расчетной ставке 10/110"
+
+#: wc-rbspayment.php:340
+msgid "VAT applicable rate 18/118"
+msgstr "НДС чека по расчетной ставке 18/118"
+
+#: wc-rbspayment.php:341
+msgid "VAT applicable rate 20/120"
+msgstr "НДС чека по расчетной ставке 20/120"
+
+#: wc-rbspayment.php:345
+msgid "Fiscal document format"
+msgstr "Формат Фискальных Документов"
+
+#: wc-rbspayment.php:350
+msgid "FFD 1.0"
+msgstr "ФФД версии 1.0"
+
+#: wc-rbspayment.php:351
+msgid "FFD 1.05"
+msgstr "ФФД версии 1.05"
+
+#: wc-rbspayment.php:354
+msgid ""
+"Also specify the version in your bank web account and in your fiscal service "
+"web account."
+msgstr ""
+"Формат версии требуется указать в личном кабинете банка и в кабинете сервиса "
+"фискализации."
+
+#: wc-rbspayment.php:357
+msgid "Payment type"
+msgstr "Тип оплаты"
+
+#: wc-rbspayment.php:362 wc-rbspayment.php:378
+msgid "Full prepayment"
+msgstr "Полная предварительная оплата до момента передачи предмета расчёта"
+
+#: wc-rbspayment.php:363 wc-rbspayment.php:379
+msgid "Partial prepayment"
+msgstr "Частичная предварительная оплата до момента передачи предмета расчёта"
+
+#: wc-rbspayment.php:364 wc-rbspayment.php:380
+msgid "Advance payment"
+msgstr "Аванс"
+
+#: wc-rbspayment.php:365 wc-rbspayment.php:381
+msgid "Full payment"
+msgstr "Полная оплата в момент передачи предмета расчёта"
+
+#: wc-rbspayment.php:366 wc-rbspayment.php:382
+msgid "Partial payment with further credit"
+msgstr ""
+"Частичная оплата предмета расчёта в момент его передачи с последующей "
+"оплатой в кредит"
+
+#: wc-rbspayment.php:367 wc-rbspayment.php:383
+msgid "No payment with further credit"
+msgstr ""
+"Передача предмета расчёта без его оплаты в момент его передачи с последующей "
+"оплатой в кредит"
+
+#: wc-rbspayment.php:368 wc-rbspayment.php:384
+msgid "Payment on credit"
+msgstr "Оплата предмета расчёта после его передачи с оплатой в кредит"
+
+#: wc-rbspayment.php:370 wc-rbspayment.php:386 wc-rbspayment.php:408
+msgid "Used in FFD starting from 1.05"
+msgstr "Используется в версих ФФД, начиная с 1.05"
+
+#: wc-rbspayment.php:373
+msgid "Payment type for delivery"
+msgstr "Тип оплаты для доставки"
+
+#: wc-rbspayment.php:389
+msgid "Type of goods and services"
+msgstr "Тип оплачиваемой позиции"
+
+#: wc-rbspayment.php:393
+msgid "Goods"
+msgstr "Товар"
+
+#: wc-rbspayment.php:394
+msgid "Excised goods"
+msgstr "Подакцизный товар"
+
+#: wc-rbspayment.php:395
+msgid "Job"
+msgstr "Работа"
+
+#: wc-rbspayment.php:396
+msgid "Service"
+msgstr "Услуга"
+
+#: wc-rbspayment.php:397
+msgid "Stake in gambling"
+msgstr "Ставка азартной игры"
+
+#: wc-rbspayment.php:399
+msgid "Lottery ticket"
+msgstr "Лотерейный билет"
+
+#: wc-rbspayment.php:401
+msgid "Intellectual property provision"
+msgstr "Предоставление РИД"
+
+#: wc-rbspayment.php:402
+msgid "Payment"
+msgstr "Платёж"
+
+#: wc-rbspayment.php:403
+msgid "Agent's commission"
+msgstr "Агентское вознаграждение"
+
+#: wc-rbspayment.php:404
+msgid "Combined"
+msgstr "Составной предмет расчёта"
+
+#: wc-rbspayment.php:405
+msgid "Other"
+msgstr "Иной предмет расчёта"
+
+#: wc-rbspayment.php:701
+msgid "Proceed with payment"
+msgstr "Перейти к оплате"
+
+#: wc-rbspayment.php:706
+msgid "Cancel payment and return to cart"
+msgstr "Отменить оплату и вернуться в корзину"
+
+#. Name of the plugin
+msgid "WooCommerce RBSPayment Checkout Gateway"
+msgstr "Оплата банковской картой"
+
+#. Description of the plugin
+msgid "Allows to use a payment gateway with the WooCommerce."
+msgstr ""
+"Позволяет использовать платежный шлюз с Инструментом электронной торговли "
+"WooCommerce."
+
+#. Author of the plugin
+msgid "RBSPayment"
+msgstr "RBSPayment"
+
+#. Author URI of the plugin
+msgid "http://www.rbspayment.ru/"
+msgstr "http://www.rbspayment.ru/"

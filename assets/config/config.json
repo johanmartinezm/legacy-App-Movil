@@ -1,0 +1,9 @@
+{
+    "api_url_web": "https://legacy.intelyclick.com",
+    "api_url_android": "https://legacy.intelyclick.com",
+    "api_url_ios": "https://legacy.intelyclick.com",
+    "graphql_url": "https://lso.school/graphql",
+    "content_graphql_url": "https://legacynetworkco.com/graphql",
+    "graphql_url_dev": "https://lso.school/graphql",
+    "environment": "production"
+}

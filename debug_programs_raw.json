@@ -1,0 +1,625 @@
+{
+  "data": {
+    "products": {
+      "nodes": [
+        {
+          "id": "cG9zdDo4NDc=",
+          "name": "Next Generation ¿Empresario o Emprendedor?",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/05/curso-next-generation-empresario-o-emprendedor-LSO-School.webp"
+          },
+          "price": "$300",
+          "regularPrice": "$300",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo4NDU=",
+          "name": "Negociación de Alto Nivel para Empresarios",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/05/curso-negociacion-de-alto-nivel-para-empresarios-LSO-School.webp"
+          },
+          "price": "$300",
+          "regularPrice": "$300",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo4NDM=",
+          "name": "Liderazgo Empresarial para Entornos Volátiles",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/05/curso-liderazgo-empresarial-para-entornos-volatiles-LSO-School.webp"
+          },
+          "price": "$300",
+          "regularPrice": "$300",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo4NTg=",
+          "name": "Gobierno Corporativo para Empresarios: Alto Desempeño en Juntas Directivas",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/05/curso-gobierno-corporativo-para-empresarios-alto-desempeno-en-juntas-directivas-LSO-School.webp"
+          },
+          "price": "$300",
+          "regularPrice": "$300",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDoxMDQ0",
+          "name": "Programa de Formación para Familias Empresarias y Propietarios",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/05/Programa-para-familias-empresarias-y-propietarios-de-empresa-LSO-School.webp"
+          },
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo2NzA5",
+          "name": "Programa de Formación de Consultores en Empresa Familiar",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2026/01/Programa-Formacion-de-consultores-en-empresa-familiar-lso-school-1.webp"
+          },
+          "price": "$1.100",
+          "regularPrice": "$1.100",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo4NTc=",
+          "name": "Gobierno Corporativo Avanzado para Empresarios",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/05/curso-gobierno-corporativo-avanzado-para-empresarios-LSO-School.webp"
+          },
+          "price": "$300",
+          "regularPrice": "$300",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDoxMjI0",
+          "name": "Certificación Internacional en Gobierno Corporativo",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2023/10/certificacion-internacional-en-gobierno-corporativo-LSO-School.webp"
+          },
+          "price": "$2.500",
+          "regularPrice": "$2.500",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo4NDY=",
+          "name": "Estrategias Tributarias para Empresarios",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/05/curso-estrategias-tributarias-para-empresarios-LSO-School.webp"
+          },
+          "price": "$300",
+          "regularPrice": "$300",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo4NTY=",
+          "name": "Construyendo un Legado: Empresa Familiar Sólida",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/05/curso-contruyendo-un-legado-empresa-familiar-solida-LSO-School.webp"
+          },
+          "price": "$300",
+          "regularPrice": "$300",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo4NDQ=",
+          "name": "Asamblea de Accionistas que Generan Valor",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/05/curso-asamblea-de-accionistas-que-generan-valor-LSO-School.webp"
+          },
+          "price": "$300",
+          "regularPrice": "$300",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo2NTA2",
+          "name": "Sostenibilidad como Modelo de Negocio",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/05/curso-sostenibilidad-como-modelo-de-negocio-LSO-School.webp"
+          },
+          "price": "$300",
+          "regularPrice": "$300",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo3ODQ1",
+          "name": "Módulo 4: Estrategia y finanzas para propietarios de empresa familiar",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/10/estrategia-y-finanzas-para-propietarios-de-empresa-familiar-lso-school.webp"
+          },
+          "price": "$750",
+          "regularPrice": "$750",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Módulos",
+                "slug": "modulos"
+              },
+              {
+                "name": "Programas",
+                "slug": "programas"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo3ODQ0",
+          "name": "Módulo 3: Gobierno corporativo y acuerdos familiares",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/10/gobierno-corporativo-y-acuerdos-familiares-lso-school.webp"
+          },
+          "price": "$630",
+          "regularPrice": "$630",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Módulos",
+                "slug": "modulos"
+              },
+              {
+                "name": "Programas",
+                "slug": "programas"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo3ODQz",
+          "name": "Módulo 2: Liderazgo y toma de decisiones estratégicas en la empresa familiar",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/10/liderazgo-y-toma-de-decisiones-estrategicas-en-la-empresa-familiar-lso-school.webp"
+          },
+          "price": "$980",
+          "regularPrice": "$980",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Módulos",
+                "slug": "modulos"
+              },
+              {
+                "name": "Programas",
+                "slug": "programas"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo3ODQy",
+          "name": "Módulo 1: Legado y sostenibilidad de la empresa familiar",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/10/legado-y-sostenibilidad-de-la-empresa-familiar-lso-school-scaled.webp"
+          },
+          "price": "$980",
+          "regularPrice": "$980",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Módulos",
+                "slug": "modulos"
+              },
+              {
+                "name": "Programas",
+                "slug": "programas"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo3NDQy",
+          "name": "Introducción a la Empresa Familiar: Retos y Trampas",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/05/programa-introduccion-a-la-empresa-familiar-retos-y-trampas.webp"
+          },
+          "price": "$300",
+          "regularPrice": "$300",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo2NTQx",
+          "name": "Gestión Patrimonial para Empresarios",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/05/curso-gestion-patrimonial-para-empresarios-LSO-School.webp"
+          },
+          "price": "$300",
+          "regularPrice": "$300",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo4MTQx",
+          "name": "Gestión del Riesgo Cambiario: Conceptos y Herramientas",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/12/Gestion-del-Riesgo-Cambiario-Conceptos-y-Herramientas-LSO-SCHOOL.webp"
+          },
+          "price": "$124",
+          "regularPrice": "$124",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo3NDQ1",
+          "name": "Formulación de la Estrategia e Implementación de la Estrategia",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/05/curso-formulacion-de-la-estrategia-de-implementacion-de-la-estrategia-LSO-School.webp"
+          },
+          "price": "$300",
+          "regularPrice": "$300",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo2MDI0",
+          "name": "Finanzas para Empresarios y Accionistas e Indicadores para Junta Directiva",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/05/curso-finanzas-para-empresarios-y-accionistas-LSO-School.webp"
+          },
+          "price": "$300",
+          "regularPrice": "$300",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo3NDQ0",
+          "name": "Estructuras Legales Nacionales y Internacionales",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/05/curso-estructuras-legales-nacionales-e-internacionales-LSO-School.webp"
+          },
+          "price": "$300",
+          "regularPrice": "$300",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo4MDEw",
+          "name": "Ejecutivo de Gobierno Corporativo para Empresas de Seguros",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/10/Ejecutivo-de-gobierno-corporativo-para-empresas-de-Seguros-LSO-School.webp"
+          },
+          "price": "$1.480",
+          "regularPrice": "$1.480",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo3NDQx",
+          "name": "Curso Sembrando el Legado: Desarrollo de la Persona y en Individuo de las Familias Empresarias",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/05/curso-Sembrando-el-legado-desarrollo-de-la-persona-y-el-infividuo-de-las-familias-empresarias-LSO-School.webp"
+          },
+          "price": "$300",
+          "regularPrice": "$300",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo2OTY2",
+          "name": "Curso de prueba- ciomprix",
+          "description": null,
+          "shortDescription": "",
+          "image": null,
+          "price": "$5",
+          "regularPrice": "$5",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Categoria producto",
+                "slug": "categoria-producto"
+              },
+              {
+                "name": "Programas",
+                "slug": "programas"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo3ODAx",
+          "name": "Control y Riesgo",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/10/curso-control-y-riesgos-LSO-School.webp"
+          },
+          "price": "$300",
+          "regularPrice": "$300",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        },
+        {
+          "id": "cG9zdDo3NDQz",
+          "name": "Continuidad Empresarial: Sucesión y Gobierno Familiar",
+          "description": null,
+          "shortDescription": "",
+          "image": {
+            "sourceUrl": "https://lso.school/wp-content/uploads/2025/05/programa-continuidad-empresarial-sucesion-y-gobierno-familiar-lso-school.webp"
+          },
+          "price": "$300",
+          "regularPrice": "$300",
+          "productCategories": {
+            "nodes": [
+              {
+                "name": "Programas",
+                "slug": "programas"
+              },
+              {
+                "name": "Virtuales en vivo",
+                "slug": "virtuales-en-vivo"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "debug": [
+      {
+        "type": "DEBUG_LOGS_INACTIVE",
+        "message": "GraphQL Debug logging is not active. To see debug logs, GRAPHQL_DEBUG must be enabled."
+      }
+    ]
+  }
+}

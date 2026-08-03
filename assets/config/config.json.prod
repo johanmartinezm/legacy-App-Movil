@@ -1,0 +1,9 @@
+{
+    "api_url_web": "https://legacy.intelyclick.com",
+    "api_url_android": "https://legacy.intelyclick.com",
+    "api_url_ios": "https://legacy.intelyclick.com",
+    "graphql_url": "https://app.legacynetworkco.com/lso-api",
+    "content_graphql_url": "https://app.legacynetworkco.com/content-api",
+    "graphql_url_dev": "https://app.legacynetworkco.com/lso-api",
+    "environment": "production"
+}

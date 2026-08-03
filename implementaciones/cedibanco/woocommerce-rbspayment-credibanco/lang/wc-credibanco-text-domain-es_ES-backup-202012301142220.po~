@@ -1,0 +1,249 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WooCommerce RBSPayment CredibanCo\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-06-02 08:54+0000\n"
+"PO-Revision-Date: 2020-12-30 11:25+0000\n"
+"Last-Translator: \n"
+"Language-Team: Español\n"
+"Language: es_ES\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.4.0; wp-5.5.3"
+
+#: wc-rbspayment.php:63
+msgid "Online acquiring and payment processing."
+msgstr "Adquisición y procesamiento de pagos por Internet."
+
+#: wc-rbspayment.php:209
+msgid "Allow customers to conveniently checkout directly with "
+msgstr "Configurar la aceptación de pagos electrónicos mediante "
+
+#. Name of the plugin
+msgid "WooCommerce RBSPayment Checkout Gateway"
+msgstr "Pago con tarjeta"
+
+#. Description of the plugin
+msgid "Allows to use a payment gateway with the WooCommerce."
+msgstr "Permite utilizar una pasarela de pago con WooCommerce."
+
+#. Author of the plugin
+msgid "RBSPayment"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "http://www.rbspayment.ru/"
+msgstr "http://www.rbspayment.ru/"
+
+msgid "Enable/Disable"
+msgstr "Habilitar/Deshabilitar"
+
+msgid "Enable"
+msgstr "Habilitar"
+
+msgid "In this mode no actual payments are processed."
+msgstr "En este modo, no se procesan los pagos reales."
+
+msgid "Payments type"
+msgstr "Tipo de pago"
+
+msgid "Title"
+msgstr "Nombre del método de pago"
+
+msgid "Title displayed to your customer when they make their order."
+msgstr ""
+
+msgid "Login-API"
+msgstr "API login"
+
+msgid "Password"
+msgstr "Contraseña"
+
+msgid "Test mode"
+msgstr "Modo de prueba"
+
+msgid "One-phase payments"
+msgstr "Pagos en un solo paso"
+
+msgid "Two-phase payments"
+msgstr "Pagos en dos pasos"
+
+msgid "Payed order status"
+msgstr "Estado de pago del pedido"
+
+msgid "Description"
+msgstr "Descripción"
+
+msgid "Payment description displayed to your customer."
+msgstr "Descripción del pago mostrado a sus clientes."
+
+msgid ""
+"Page your customer will be redirected to after a <b>successful payment</b>."
+"<br/>Leave this field blank, if you want to use default settings."
+msgstr ""
+"La página a la que se redirigir al usuario tras el pago exitoso.Deje este "
+"campo en blanco si desea utilizar la configuración predeterminada."
+
+msgid ""
+"Page your customer will be redirected to after an <b>unsuccessful payment</b>"
+".<br/>Leave this field blank, if you want to use default settings."
+msgstr ""
+"La página a la que se redirigir al usuario tras el pago rechazado.Deje este "
+"campo en blanco si desea utilizar la configuración predeterminada."
+
+msgid "Send cart data<br />(including customer info)"
+msgstr ""
+
+msgid ""
+"If this option is enabled order receipts will be created and sent to your "
+"customer and to the revenue service.<br/>This is a paid option, contact your "
+"bank to enable it. If you use it, configure VAT settings. VAT is calculated "
+"according to the Russian legislation. VAT amounts calculated by your store "
+"may differ from the actual VAT amounts that can be applied."
+msgstr ""
+
+msgid "Tax system"
+msgstr ""
+
+msgid "General"
+msgstr ""
+
+msgid "Simplified, income"
+msgstr ""
+
+msgid "Simplified, income minus expences"
+msgstr ""
+
+msgid "Unified tax on imputed income"
+msgstr ""
+
+msgid "Unified agricultural tax"
+msgstr ""
+
+msgid "Patent taxation system"
+msgstr ""
+
+msgid "Default VAT"
+msgstr ""
+
+msgid "No VAT"
+msgstr ""
+
+msgid "VAT 0%"
+msgstr ""
+
+msgid "VAT 10%"
+msgstr ""
+
+msgid "VAT 18%"
+msgstr ""
+
+msgid "VAT applicable rate 10/110"
+msgstr ""
+
+msgid "VAT applicable rate 18/118"
+msgstr ""
+
+msgid "VAT 20%"
+msgstr ""
+
+msgid "VAT applicable rate 20/120"
+msgstr ""
+
+msgid "Fiscal document format"
+msgstr ""
+
+msgid ""
+"Also specify the version in your bank web account and in your fiscal service "
+"web account."
+msgstr ""
+
+msgid "Payment type"
+msgstr ""
+
+msgid "Full prepayment"
+msgstr ""
+
+msgid "Partial prepayment"
+msgstr ""
+
+msgid "Advance payment"
+msgstr ""
+
+msgid "Full payment"
+msgstr ""
+
+msgid "Partial payment with further credit"
+msgstr ""
+
+msgid "No payment with further credit"
+msgstr ""
+
+msgid "Payment on credit"
+msgstr ""
+
+msgid "Used in FFD starting from 1.05"
+msgstr ""
+
+msgid "Payment type for delivery"
+msgstr ""
+
+msgid "Type of goods and services"
+msgstr ""
+
+msgid "Goods"
+msgstr ""
+
+msgid "Excised goods"
+msgstr ""
+
+msgid "Job"
+msgstr ""
+
+msgid "Service"
+msgstr ""
+
+msgid "Stake in gambling"
+msgstr ""
+
+msgid "Gambling gain"
+msgstr ""
+
+msgid "Lottery ticket"
+msgstr ""
+
+msgid "Lottery gain"
+msgstr ""
+
+msgid "Intellectual property provision"
+msgstr ""
+
+msgid "Payment"
+msgstr ""
+
+msgid "Agent's commission"
+msgstr ""
+
+msgid "Combined"
+msgstr ""
+
+msgid "Other"
+msgstr ""
+
+msgid "Payment successful"
+msgstr "Pago aprobado"
+
+msgid "Payment failed"
+msgstr "Pago rechazado"
+
+msgid "There was an error while processing payment<br/>"
+msgstr ""
+
+msgid "fail_url"
+msgstr "URL de falla"
+
+msgid "success_url"
+msgstr "URL de éxito"

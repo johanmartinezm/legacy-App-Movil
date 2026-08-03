@@ -1,0 +1,40 @@
+Asunto: Solicitud de revisión de credenciales y Whitelisting IP - LEGACY NETWORK SAS
+
+Hola Edward,
+
+Estamos realizando la integración directa vía API REST (sin plugins) y estamos obteniendo un rechazo de acceso. Les comparto la traza técnica de nuestra petición generada desde nuestro servidor de producción (IP: 143.198.179.55):
+
+Petición HTTP enviada (Request):
+----------------------------------------
+POST /payment/rest/register.do HTTP/1.1
+Host: ecouat.credibanco.com
+Content-Type: application/x-www-form-urlencoded
+
+userName=LEGACY_NETWORK-api
+password=Colomb1aa77/*
+terminal=000BHWZS
+merchant=092461418
+orderNumber=T-8f92a1
+amount=95000
+currency=170
+returnUrl=https://legacy.intelyclick.com/api/payments/verify/T-8f92a1
+----------------------------------------
+
+
+Respuesta recibida del banco (Response):
+----------------------------------------
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "errorCode": "5",
+  "errorMessage": "Acceso denegado"
+}
+----------------------------------------
+
+
+Consultas:
+1. ¿La IP de nuestro servidor (143.198.179.55) necesita ser añadida a su lista blanca (Whitelisting) para el entorno UAT?
+2. ¿Son correctas estas credenciales para el entorno "ecouat"? (El correo de bienvenida mencionaba "Accesos al ambiente de producción", por lo que tememos que las credenciales no estén habilitadas para el ambiente de pruebas).
+
+Quedamos muy atentos para poder finalizar nuestras pruebas. ¡Muchas gracias!

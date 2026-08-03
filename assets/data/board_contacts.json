@@ -1,0 +1,14 @@
+{
+  "contacts": [
+    {
+      "id": "1",
+      "name": "Luis Carlos Bravo",
+      "position": "Director General"
+    },
+    {
+      "id": "2",
+      "name": "Gonzalo Gomez",
+      "position": "Co-Fundador"
+    }
+  ]
+}

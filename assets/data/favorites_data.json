@@ -1,0 +1,17 @@
+{
+    "favorites": [
+        {
+            "id": "1",
+            "title": "Comunicación Efectiva en la Familia: Claves para el Éxito Empresarial",
+            "type": "Artículo",
+            "category": "Familia",
+            "isFree": true,
+            "imageUrl": "https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=600&auto=format&fit=crop",
+            "author": "Elena Fernández",
+            "date": "8 Oct 2025",
+            "readTime": "5 min lectura",
+            "likes": 125,
+            "comments": 34
+        }
+    ]
+}

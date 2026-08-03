@@ -1,0 +1,33 @@
+
+
+ 
+
+HOLA, LEGACY NETWORK SAS
+¡Bienvenido a CredibanCo!
+Gracias por adquirir nuestro producto IPAY-BOTON DE PAGOS PROPIO CON PLUGIN, a continuación, encontrarás información para iniciar el proceso de certificación en ambiente de pruebas
+
+Accesos al ambiente de producción plataforma Ipay
+
+URL de producción iPay: https://eco.credibanco.com/mportal/#login
+
+Comercio
+
+Código único
+
+Terminal
+
+Usuario API
+
+Usuario Operador
+
+Clave
+
+LEGACY NETWORK SAS
+
+092461418
+
+000BHWZS
+
+LEGACY_NETWORK-api
+
+LEGACY_NETWORK-operator

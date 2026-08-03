@@ -1,0 +1,146 @@
+{
+    "events": [
+        {
+            "id": "m1",
+            "title": "Planificación Patrimonial Efectiva",
+            "category": "masterclass",
+            "date": "15 Octubre 2025",
+            "time": "6:00 PM",
+            "location": null,
+            "speaker": "Dr. Carlos Méndez",
+            "priceLabel": "GRATIS",
+            "price": 0,
+            "isFree": true,
+            "buttonText": "Registrado",
+            "actionStatus": "registered",
+            "imageUrl": "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=800&auto=format&fit=crop",
+            "description": "Aprende las claves para proteger y hacer crecer tu patrimonio familiar con estrategias probadas.",
+            "workshops": [
+                {
+                    "id": "wm1",
+                    "name": "Introducción al Patrimonio",
+                    "room": "Virtual Room 1",
+                    "speaker": "Dr. Carlos Méndez",
+                    "startDateTime": "2025-10-15T18:00:00",
+                    "endDateTime": "2025-10-15T19:00:00"
+                },
+                {
+                    "id": "wm2",
+                    "name": "Estrategias de Inversión",
+                    "room": "Virtual Room 1",
+                    "speaker": "Invitado Especial",
+                    "startDateTime": "2025-10-15T19:00:00",
+                    "endDateTime": "2025-10-15T20:00:00"
+                },
+                {
+                    "id": "wm3",
+                    "name": "Matemáticas Financieras",
+                    "room": "Salón A",
+                    "speaker": "Prof. Juan Pérez",
+                    "startDateTime": "2025-10-15T08:00:00",
+                    "endDateTime": "2025-10-15T09:00:00"
+                },
+                {
+                    "id": "wm4",
+                    "name": "Desarrollo de Empresas",
+                    "room": "Salón B",
+                    "speaker": "Dra. Lucía Gómez",
+                    "startDateTime": "2025-10-15T08:00:00",
+                    "endDateTime": "2025-10-15T09:00:00"
+                },
+                {
+                    "id": "wm5",
+                    "name": "Generación de Valor",
+                    "room": "Salón C",
+                    "speaker": "Mg. Alberto Ruiz",
+                    "startDateTime": "2025-10-15T08:00:00",
+                    "endDateTime": "2025-10-15T09:00:00"
+                }
+            ]
+        },
+        {
+            "id": "m2",
+            "title": "Comunicación en Empresas Familiares",
+            "category": "masterclass",
+            "date": "22 Octubre 2025",
+            "time": "7:00 PM",
+            "location": null,
+            "speaker": "Dra. María Rodríguez",
+            "priceLabel": "GRATIS",
+            "price": 0,
+            "isFree": true,
+            "buttonText": "Recordatorio",
+            "actionStatus": "reminder",
+            "imageUrl": "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=800&auto=format&fit=crop",
+            "description": "Mejora la dinámica y la comunicación efectiva dentro de tu empresa familiar.",
+            "workshops": []
+        },
+        {
+            "id": "s1",
+            "title": "Conferencia Anual Legacy",
+            "category": "summit",
+            "date": "10-12 Noviembre 2025",
+            "time": null,
+            "location": "Hotel Marriott, Bogotá",
+            "speaker": "15+ expertos internacionales",
+            "priceLabel": "$$$",
+            "price": 300,
+            "isFree": false,
+            "buttonText": "Comprar Entrada",
+            "actionStatus": "buy",
+            "imageUrl": "https://images.unsplash.com/photo-1544531696-869d95f7453f?q=80&w=800&auto=format&fit=crop",
+            "description": "El evento más importante del año para familias empresarias.",
+            "workshops": [
+                {
+                    "id": "sw1",
+                    "name": "Bienvenida y Apertura",
+                    "room": "Gran Salón",
+                    "speaker": "CEO Legacy",
+                    "startDateTime": "2025-11-10T09:00:00",
+                    "endDateTime": "2025-11-10T10:00:00"
+                },
+                {
+                    "id": "sw2",
+                    "name": "Panel: Futuro de la Empresa Familiar",
+                    "room": "Gran Salón",
+                    "speaker": "Panel de Expertos",
+                    "startDateTime": "2025-11-10T10:30:00",
+                    "endDateTime": "2025-11-10T12:00:00"
+                },
+                {
+                    "id": "sw3",
+                    "name": "Networking Lunch",
+                    "room": "Restaurante",
+                    "speaker": "Todos",
+                    "startDateTime": "2025-11-10T12:00:00",
+                    "endDateTime": "2025-11-11T14:00:00"
+                },
+                {
+                    "id": "sw4",
+                    "name": "Taller de Liderazgo",
+                    "room": "Salón A",
+                    "speaker": "Coach J. Smith",
+                    "startDateTime": "2025-11-11T09:00:00",
+                    "endDateTime": "2025-11-11T11:00:00"
+                }
+            ]
+        },
+        {
+            "id": "c1",
+            "title": "Networking Empresarial",
+            "category": "coffee",
+            "date": "18 Oct",
+            "time": null,
+            "location": "Café San Alberto",
+            "attendeesCount": 15,
+            "priceLabel": "Consumo",
+            "price": 0,
+            "isFree": true,
+            "buttonText": "Ver detalles",
+            "actionStatus": "details",
+            "imageUrl": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=800&auto=format&fit=crop",
+            "description": "Espacio casual para conectar con otros miembros de la comunidad Legacy.",
+            "workshops": []
+        }
+    ]
+}
