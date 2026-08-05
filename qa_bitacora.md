@@ -2,6 +2,22 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-05]: Histórico de eventos en la pestaña "Pasados" (eventos, fase 2a)
+- **Alcance:**
+  - `Modelo`: `lib/domain/models/event_model.dart` — nuevos `startDate` y `endDate` con la fecha sin formatear. `date` llegaba ya convertida a `dd/MM/yyyy`, así que no había forma de comparar ni ordenar. Nuevo `isPast`: un evento es pasado cuando su último día (`end_date`, o `start_date` si no lo hay) quedó atrás; los de hoy siguen en "Próximos" toda la jornada y los que llegan sin fecha utilizable nunca se ocultan. **Las fechas no se convierten a hora local a propósito:** el backend guarda `start_date`/`end_date` como `date` y las serializa a medianoche UTC, de modo que convertirlas en un huso negativo mostraría el día anterior.
+  - `Pantalla`: `lib/presentation/screens/eventos/eventos_screen.dart` — "Pasados" deja de estar cableada a lista vacía (`filteredEvents = []; // No past events for now`) y "Próximos" deja de incluir los eventos ya terminados, que hasta ahora aparecían mezclados. El histórico se ordena del más reciente al más antiguo (el backend los devuelve por categoría y fecha ascendente). Un evento finalizado muestra la insignia **FINALIZADO** en gris en vez de "ABIERTO"/"GRATIS" y oculta la nota de preventa.
+  - `Provider`: `lib/domain/providers/events_provider.dart` — `registerUserToEvent` reconstruía el `EventModel` a mano y descartaba los campos que no listaba (lugar, conferencista, horario, y ahora también las fechas: un evento pasado habría vuelto a "Próximos" al registrarse). Se reemplaza por un `copyWith`.
+  - `Tests`: `test/models/event_model_test.dart` (nuevo) — 9 casos sobre el criterio de fechas y sobre `copyWith`.
+  - **Sin cambios en el backend:** `GetEvents` ya devolvía todos los eventos sin filtro de fecha; el histórico se descartaba en el cliente.
+- **Criterios de QA:**
+  1. **Histórico visible:** abrir Eventos → pestaña **Pasados**. Con los datos de producción de hoy deben verse **dos** eventos: *Coffee & Networking: CDMX 2026* (12/04/2026) primero y *Planificación Patrimonial en la Era Digital* (20/03/2026) después. Antes la pestaña salía siempre vacía.
+  2. **Próximos ya no mezcla:** la pestaña **Próximos** debe mostrar **solo** *LEGACY SUMMIT 2026* (15/10/2026). Antes aparecían los tres.
+  3. **Orden del histórico:** el más reciente arriba.
+  4. **Insignia:** las tarjetas de Pasados muestran `FINALIZADO` en gris, sin "ABIERTO" ni la línea de preventa.
+  5. **Evento de hoy:** si se crea desde el panel un evento con fecha de hoy, debe salir en **Próximos**, no en Pasados, durante todo el día.
+  6. **Sin regresión al registrarse:** registrarse a un evento desde el detalle y volver al listado; la tarjeta debe conservar fecha y lugar, y el evento no debe cambiar de pestaña.
+  7. **Mis registros:** la pestaña sigue mostrando los eventos con registro o recordatorio, sin cambios.
+
 ### [2026-08-04]: Login con Google operativo y contraseña del registro social
 - **Alcance:**
   - `Firebase`: `android/app/google-services.json` — sustituido por el descargado de la consola. El anterior estaba editado a mano: declaraba el paquete `co.legacynetwork.legacyapp` reusando el app id que Firebase tiene asociado a `com.legacynetworkco.app`, y no existía ningún cliente OAuth de Android para la firma de release. De ahí el `GoogleSignInException [16] Account reauth failed`.

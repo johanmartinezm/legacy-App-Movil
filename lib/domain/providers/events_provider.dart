@@ -81,20 +81,11 @@ class EventsProvider extends ChangeNotifier {
       // Update local state if needed (e.g., change action status)
       final index = _events.indexWhere((e) => e.id == eventId);
       if (index != -1) {
-        final event = _events[index];
-        _events[index] = EventModel(
-          id: event.id,
-          title: event.title,
-          category: event.category,
-          date: event.date,
-          priceLabel: event.priceLabel,
-          price: event.price,
-          isFree: event.isFree,
+        // copyWith y no un EventModel nuevo: reconstruirlo a mano descartaba
+        // la fecha, el lugar, el conferencista y el resto de campos opcionales.
+        _events[index] = _events[index].copyWith(
           buttonText: 'Registrado',
           actionStatus: 'registered',
-          imageUrl: event.imageUrl,
-          description: event.description,
-          workshops: event.workshops,
         );
       }
 

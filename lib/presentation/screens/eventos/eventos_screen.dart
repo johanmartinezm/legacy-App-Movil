@@ -72,9 +72,18 @@ class _EventosScreenState extends State<EventosScreen> {
     // Filter events based on selected tab
     List<EventModel> filteredEvents = [];
     if (_selectedTab == 'próximos') {
-      filteredEvents = events;
+      filteredEvents = events.where((e) => !e.isPast).toList();
     } else if (_selectedTab == 'pasados') {
-      filteredEvents = []; // No past events for now
+      // El backend devuelve todos los eventos, sin filtro de fecha, ordenados
+      // por categoría y start_date ascendente. En el histórico interesa lo más
+      // reciente primero, así que se reordena aquí.
+      filteredEvents = events.where((e) => e.isPast).toList()
+        ..sort((a, b) {
+          final DateTime? fa = a.endDate ?? a.startDate;
+          final DateTime? fb = b.endDate ?? b.startDate;
+          if (fa == null || fb == null) return 0;
+          return fb.compareTo(fa);
+        });
     } else if (_selectedTab == 'mis_registros') {
       filteredEvents = events.where((e) => e.actionStatus == 'registered' || e.actionStatus == 'reminder').toList();
     }
@@ -270,7 +279,7 @@ class _EventosScreenState extends State<EventosScreen> {
   Widget _buildEmptyState() {
     String msg = 'No hay eventos disponibles en esta sección.';
     if (_selectedTab == 'pasados') {
-      msg = 'No tienes eventos pasados registrados.';
+      msg = 'Todavía no hay eventos finalizados.';
     } else if (_selectedTab == 'mis_registros') {
       msg = 'Aún no te has registrado a ningún evento.';
     }
@@ -340,14 +349,17 @@ class _EventosScreenState extends State<EventosScreen> {
                           color: const Color(0xFF90A4BA),
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        isSummit ? 'Preventa hasta 30 jul' : 'Gratis',
-                        style: GoogleFonts.questrial(
-                          fontSize: 11,
-                          color: const Color(0xFF647689),
+                      // En un evento finalizado la nota de preventa no aplica.
+                      if (!event.isPast) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          isSummit ? 'Preventa hasta 30 jul' : 'Gratis',
+                          style: GoogleFonts.questrial(
+                            fontSize: 11,
+                            color: const Color(0xFF647689),
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
@@ -356,7 +368,29 @@ class _EventosScreenState extends State<EventosScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    if (isLSO)
+                    if (event.isPast)
+                      // Finished event: neutral badge, never "ABIERTO"
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF90A4BA).withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: const Color(0xFF90A4BA).withValues(alpha: 0.4),
+                            width: 1,
+                          ),
+                        ),
+                        child: Text(
+                          'FINALIZADO',
+                          style: GoogleFonts.barlow(
+                            color: const Color(0xFF90A4BA),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                      )
+                    else if (isLSO)
                       // Golden "L" Badge
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
