@@ -22,6 +22,13 @@ class ApiConstants {
   static String workshopRatingEndpoint(String id) =>
       '/api/workshops/$id/rating';
 
+  // Encuesta general del evento, distinta de la calificación por charla de
+  // arriba. Una sola respuesta por persona y evento; el backend responde 409 al
+  // segundo envío y 403 a quien no esté registrado.
+  static String eventSurveyEndpoint(String id) => '/api/events/$id/survey';
+  static String myEventSurveyEndpoint(String id) =>
+      '/api/events/$id/survey/me';
+
   static const String getAgendaEndpoint = '/api/events/agenda';
   static String addToAgendaEndpoint(String id) => '/api/workshops/$id/agenda';
   static String removeFromAgendaEndpoint(String id) =>

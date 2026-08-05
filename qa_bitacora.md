@@ -2,6 +2,47 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-05]: Encuesta general del evento (eventos, fase 3)
+
+- **Alcance:**
+  - `Constantes`: `lib/data/config/api_constants.dart` — `eventSurveyEndpoint` y
+    `myEventSurveyEndpoint`. Verificado contra las rutas que registra `main.go` con la skill
+    `verificar-contratos-api`.
+  - `Modelo`: `lib/domain/models/event_survey_model.dart` (nuevo) — `EventSurveyModel` y
+    `EventSurveyException`. **`toJson` omite las preguntas sin responder en vez de mandarlas como
+    `0`:** el backend distingue `null` de una nota baja, y un `0` rompería el `CHECK` de la tabla,
+    que exige entre 1 y 5. Un "no lo recomendaría" sí viaja, como `false`.
+  - `Servicio`: `lib/data/services/event_service.dart` — `submitEventSurvey` y `getMyEventSurvey`.
+    A diferencia de `submitWorkshopRating`, que devuelve un `bool` y borra el motivo del fallo,
+    aquí se lanza `EventSurveyException` con el motivo traducido del código HTTP, porque "no estás
+    registrado" y "ya opinaste" piden mensajes distintos en pantalla.
+  - `Provider`: `lib/domain/providers/events_provider.dart` — `loadMyEventSurvey`,
+    `submitEventSurvey`, `mySurveyFor` y `hasCheckedSurvey`. **Un 409 se trata como éxito:** el
+    objetivo del usuario está cumplido, así que se recarga su respuesta y se le muestra, en vez de
+    darle un error por algo que ya hizo.
+  - `Pantalla`: `lib/presentation/widgets/eventos/event_survey_dialog.dart` y
+    `event_survey_button.dart` (nuevos), enganchados en
+    `lib/presentation/screens/eventos/event_purchase_detail_screen.dart`. En un evento terminado el
+    botón de "reservar cupo" no tiene sentido y se sustituye por el de la encuesta.
+  - `Tests`: `test/models/event_survey_model_test.dart` y `test/screens/event_survey_test.dart`
+    (nuevos) — 16 casos.
+- **Criterios de QA:**
+  1. **Solo en eventos pasados:** abrir un evento de **Próximos** debe seguir mostrando "Reservar
+     cupo"; uno de **Pasados**, el botón **Califica este evento**.
+  2. **Formulario:** el diálogo pide la calificación general (obligatoria, marcada con `*`) más
+     organización, contenido, conferencistas, si lo recomendaría y un comentario libre.
+  3. **Sin calificación general:** pulsar *Enviar opinión* sin marcar estrellas muestra "Danos al
+     menos tu calificación general" y **no** llama al backend.
+  4. **Envío correcto:** con la sesión de alguien registrado, enviar → mensaje verde "¡Gracias por
+     tu opinión!" y el diálogo se cierra.
+  5. **Al reabrir:** el botón pasa a **Ver tu opinión** y el diálogo muestra lo respondido en
+     estrellas, sin formulario.
+  6. **Sin registro previo:** con la sesión de alguien que no se inscribió, enviar debe mostrar
+     "Solo pueden opinar quienes se registraron en el evento", no un error genérico.
+  7. **Comentario en blanco:** escribir solo espacios y enviar; la encuesta se guarda sin
+     comentario, y al reabrir no aparece el recuadro gris del comentario.
+  8. **Sesión caducada:** con el token vencido debe decir que hay que volver a iniciar sesión.
+
 ### [2026-08-05]: Release 1.0.0+9 — endurecimiento previo a la publicación
 
 - **Alcance:**

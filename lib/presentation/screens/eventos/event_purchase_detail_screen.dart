@@ -5,6 +5,7 @@ import 'package:legacy_app/domain/providers/auth_provider.dart';
 import 'package:legacy_app/domain/providers/events_provider.dart';
 import 'package:provider/provider.dart';
 import '../../../data/config/image_helper.dart';
+import '../../widgets/eventos/event_survey_button.dart';
 import 'event_payment_screen.dart';
 
 class EventPurchaseDetailScreen extends StatelessWidget {
@@ -211,6 +212,16 @@ class EventPurchaseDetailScreen extends StatelessWidget {
                   builder: (context, eventsProvider, authProvider, child) {
                     final isRegistered = event.actionStatus == 'registered';
                     final isLoading = eventsProvider.isLoading;
+
+                    // En un evento terminado no cabe "reservar cupo": lo que
+                    // procede es pedir la opinión. El backend rechaza con 403 a
+                    // quien no se registró, y el diálogo lo dice tal cual.
+                    if (event.isPast) {
+                      return EventSurveyButton(
+                        eventId: event.id,
+                        eventTitle: event.title,
+                      );
+                    }
 
                     if (isRegistered) {
                       return Container(
