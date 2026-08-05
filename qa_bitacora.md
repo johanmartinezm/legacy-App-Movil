@@ -2,6 +2,22 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-04]: Login con Google operativo y contraseña del registro social
+- **Alcance:**
+  - `Firebase`: `android/app/google-services.json` — sustituido por el descargado de la consola. El anterior estaba editado a mano: declaraba el paquete `co.legacynetwork.legacyapp` reusando el app id que Firebase tiene asociado a `com.legacynetworkco.app`, y no existía ningún cliente OAuth de Android para la firma de release. De ahí el `GoogleSignInException [16] Account reauth failed`.
+  - `Endpoints`: `lib/data/config/api_constants.dart` (nuevas constantes `socialLoginEndpoint` y `resendVerificationEndpoint`) y `lib/data/services/auth_service.dart` — se llamaba a `/api/auth/social-login` (404 en el backend) y a `/api/resend-verification` (405 en nginx).
+  - `Registro social`: `lib/presentation/screens/register_screen.dart` — el formulario pide y valida una contraseña, pero se enviaba `password: null` cuando el registro venía de Google. La cuenta quedaba sin `password_hash` y el login por correo la rechazaba como "Credenciales inválidas".
+  - `Publicación`: `android/fastlane/Appfile` — `package_name` alineado con el `applicationId` real (`co.legacynetwork.legacyapp`).
+- **Criterios de QA:**
+  1. **Sin error de firma:** con el APK de release instalado, pulsar "Iniciar sesión con Google" y elegir una cuenta no debe producir `GoogleSignInException` ni el código 16. Requiere que la huella SHA-1 de la keystore de release esté registrada en Firebase.
+  2. **Cuenta nueva:** con un correo no registrado, el flujo debe llevar al formulario de registro con el correo y el nombre ya rellenados y el campo de correo en solo lectura.
+  3. **Contraseña guardada:** completar ese registro escribiendo una contraseña y, al terminar, cerrar sesión e **iniciar sesión con ese correo y esa contraseña**. Debe entrar. Antes de este cambio fallaba siempre.
+  4. **Doble vía:** la misma cuenta debe poder entrar tanto con Google como con correo y contraseña.
+  5. **Cuenta existente:** con un correo ya registrado, el login con Google debe entrar directamente sin pasar por el formulario.
+  6. **Reenvío de verificación:** comprobar que la pantalla de verificación de correo reenvía el mensaje sin error de conexión.
+
+---
+
 ### [2026-07-26]: Módulo de Foros Anónimos (App Móvil)
 - **Alcance:**
   - `Modelos y Servicios`: `forum_model.dart`, `forum_service.dart`, `forum_provider.dart`

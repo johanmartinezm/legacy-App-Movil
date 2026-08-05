@@ -101,7 +101,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
           lastName: _lastNameController.text,
           email: _emailController.text,
           phone: _phoneController.text,
-          password: _isSocialLogin ? null : _passwordController.text,
+          // Tambien en el registro social: el formulario pide y valida la contrasena,
+          // asi que se envia. Sin ella la cuenta queda sin password_hash y el login
+          // por correo la rechaza como "Credenciales invalidas".
+          password: _passwordController.text.isEmpty
+              ? null
+              : _passwordController.text,
           googleId: provider == 'google' ? idToken : null,
           appleId: provider == 'apple' ? idToken : null,
           companyName: _companyController.text,

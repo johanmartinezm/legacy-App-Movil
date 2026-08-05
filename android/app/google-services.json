@@ -7,6 +7,50 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:728967438065:android:8ae1e9f68618171d809350",
+        "android_client_info": {
+          "package_name": "co.legacynetwork.legacyapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "728967438065-g2n9dkd43aejgv86asttvq9c5fepk172.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "co.legacynetwork.legacyapp",
+            "certificate_hash": "dad198593d5e5059a58c5794d5d9ed8da3dc789f"
+          }
+        },
+        {
+          "client_id": "728967438065-l1fkjhhnr998gvtrg6oga2somie10tp9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBall8bjn_f_K_PYDLE_dgWDzOtxT_MD5g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "728967438065-l1fkjhhnr998gvtrg6oga2somie10tp9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "728967438065-257e4gl1id0s36ummv4l5598hsqu4mi8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.legacyApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:728967438065:android:75315878f17f46f1809350",
         "android_client_info": {
           "package_name": "com.legacy.applegacy"
@@ -53,7 +97,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:728967438065:android:cbe503a21a43578a809350",
         "android_client_info": {
-          "package_name": "co.legacynetwork.legacyapp"
+          "package_name": "com.legacynetworkco.app"
         }
       },
       "oauth_client": [

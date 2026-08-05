@@ -6,6 +6,8 @@ class ApiConstants {
   static const String registerEndpoint = '/register';
   static const String loginEndpoint = '/login';
   static const String forgotPasswordEndpoint = '/forgot-password';
+  static const String socialLoginEndpoint = '/api/auth/social-login';
+  static const String resendVerificationEndpoint = '/api/auth/resend-verification';
   static const String meEndpoint = '/api/me';
   static const String changePasswordEndpoint = '/api/me/change-password';
   static const String fcmTokenEndpoint = '/api/me/fcm-token';

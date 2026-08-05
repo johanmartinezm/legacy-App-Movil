@@ -94,7 +94,9 @@ class AuthService {
   }
 
   Future<Map<String, dynamic>> socialLogin(String provider, String idToken) async {
-    final url = Uri.parse('${ApiConstants.baseUrl}/api/auth/social-login'); // Requires defining constant or just using string
+    final url = Uri.parse(
+      '${ApiConstants.baseUrl}${ApiConstants.socialLoginEndpoint}',
+    );
 
     final body = {'provider': provider, 'id_token': idToken};
 
@@ -275,7 +277,7 @@ class AuthService {
 
   Future<void> resendVerificationEmail(String email) async {
     final url = Uri.parse(
-      '${ApiConstants.baseUrl}/api/resend-verification',
+      '${ApiConstants.baseUrl}${ApiConstants.resendVerificationEndpoint}',
     );
 
     try {
