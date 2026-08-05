@@ -112,24 +112,19 @@ Necesita `android/api-key.json` (cuenta de servicio de Google Play con permiso d
 `fastlane` instalado. El script sube al canal **interno**; la promoción a producción se hace desde
 Play Console.
 
-**Corrige antes el `package_name`.** Hay una discrepancia verificada:
-
-| Archivo | Valor |
-|---|---|
-| `android/app/build.gradle.kts:37` | `applicationId = "co.legacynetwork.legacyapp"` |
-| `android/fastlane/Appfile` | `package_name("com.legacynetworkco.app")` |
-
-Fastlane usa el del `Appfile`, que **no es el paquete que produce el build**. Tal como está, la
-subida automatizada apunta a una aplicación distinta de la compilada. El valor bueno es el del
-`build.gradle.kts`, porque es el que ya está firmado y publicado.
+El `package_name` del `Appfile` y el `applicationId` de `build.gradle.kts:37` coinciden en
+`co.legacynetwork.legacyapp`, que es el paquete firmado y publicado. Si alguna vez dejan de
+coincidir, la subida automatizada apunta a una aplicación distinta de la compilada sin avisar.
 
 ### Antes de publicar
 
-```bash
-grep -n "usesCleartextTraffic" android/app/src/main/AndroidManifest.xml   # línea 15: true
-```
+Sube el número de versión en `pubspec.yaml`: Play rechaza un `versionCode` repetido, y el `+N`
+del `version:` es exactamente ese `versionCode`.
 
-Está en `true`, lo que permite tráfico HTTP sin cifrar. Como producción es HTTPS, quítalo.
+El tráfico HTTP sin cifrar está permitido **solo en debug**
+(`android/app/src/debug/AndroidManifest.xml`), porque `config.json.develop` apunta el emulador a
+`http://10.0.2.2:8080`. El manifest de `main/` no lleva `usesCleartextTraffic`, así que el release
+es HTTPS de punta a punta. No lo devuelvas a `main/` para depurar un problema de red en release.
 
 ## iOS
 

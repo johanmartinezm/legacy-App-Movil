@@ -1,31 +1,87 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// Smoke test de `MyApp`: comprueba el cableado minimo de la raiz de la app
+// —que el `GoRouter` recibido es el que pinta, y que el tema propio queda
+// aplicado—. Sustituye a la plantilla de contador de `flutter create`, que
+// buscaba un `0` y un boton `+` que esta app nunca tuvo.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:legacy_app/main.dart';
+import 'package:legacy_app/config/theme/app_theme.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    final router = GoRouter(routes: []); // Dummy router for test
+  testWidgets('MyApp pinta la ruta inicial del router que recibe', (
+    WidgetTester tester,
+  ) async {
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) =>
+              const Scaffold(body: Text('pantalla inicial')),
+        ),
+        GoRoute(
+          path: '/otra',
+          builder: (context, state) => const Scaffold(body: Text('otra')),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
     await tester.pumpWidget(MyApp(router: router));
+    await tester.pumpAndSettle();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('pantalla inicial'), findsOneWidget);
+    expect(find.text('otra'), findsNothing);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('MyApp navega cuando el router cambia de ruta', (
+    WidgetTester tester,
+  ) async {
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) =>
+              const Scaffold(body: Text('pantalla inicial')),
+        ),
+        GoRoute(
+          path: '/otra',
+          builder: (context, state) => const Scaffold(body: Text('otra')),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await tester.pumpWidget(MyApp(router: router));
+    await tester.pumpAndSettle();
+
+    router.go('/otra');
+    await tester.pumpAndSettle();
+
+    expect(find.text('otra'), findsOneWidget);
+    expect(find.text('pantalla inicial'), findsNothing);
+  });
+
+  testWidgets('MyApp aplica el tema de la app y oculta la cinta de debug', (
+    WidgetTester tester,
+  ) async {
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const Scaffold(body: Text('inicio')),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(MyApp(router: router));
+    await tester.pumpAndSettle();
+
+    final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
+    expect(app.debugShowCheckedModeBanner, isFalse);
+    expect(app.theme?.colorScheme.primary,
+        AppTheme.lightTheme.colorScheme.primary);
   });
 }

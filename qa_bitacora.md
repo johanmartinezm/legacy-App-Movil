@@ -2,6 +2,46 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-05]: Release 1.0.0+9 — endurecimiento previo a la publicación
+
+- **Alcance:**
+  - `Versión`: `pubspec.yaml` — `1.0.0+8` → `1.0.0+9`. El `+8` ya se usó y Play rechaza un
+    `versionCode` repetido.
+  - `Tráfico sin cifrar`: `android/app/src/main/AndroidManifest.xml` pierde
+    `usesCleartextTraffic="true"`, y `android/app/src/debug/AndroidManifest.xml` lo gana. **No es
+    un simple borrado:** quitarlo a secas habría roto el desarrollo local, porque
+    `config.json.develop` apunta el emulador a `http://10.0.2.2:8080`. Con el atributo en el
+    *source set* de debug, el release queda HTTPS de punta a punta y la depuración sigue igual.
+  - `Configuración`: `assets/config/config.json.prod` — sus dos endpoints GraphQL
+    (`app.legacynetworkco.com/lso-api` y `/content-api`) respondían **404** con la página de
+    mantenimiento de Cloudways. Se alinean con los que sí responden 200 y son los que usa el
+    `config.json` activo: `lso.school/graphql` y `legacynetworkco.com/graphql`. Copiar el `.prod`
+    sobre el activo dejaba cursos y noticias en blanco.
+  - `Tests`: `test/widget_test.dart` — se sustituye la plantilla de contador de `flutter create`
+    (buscaba un `0` y un botón `+` inexistentes, y fallaba desde siempre) por tres casos sobre
+    `MyApp`: que pinta la ruta inicial del `GoRouter` recibido, que navega al cambiar de ruta y
+    que aplica `AppTheme.lightTheme` con la cinta de debug oculta.
+  - `Documentación`: `DESPLIEGUE.md` — se retira la discrepancia del `package_name` del `Appfile`,
+    resuelta el 2026-08-04, y se reescribe el apartado de cleartext para reflejar el nuevo reparto
+    entre `main/` y `debug/`.
+  - **Sin cambios en el backend ni en el panel.**
+- **Criterios de QA:**
+  1. **Suite verde:** `flutter test` → 38 de 38. Antes eran 35 de 36, con `widget_test.dart` en rojo.
+  2. **Análisis:** `flutter analyze` → 49 avisos, todos de nivel `info` y preexistentes; ningún
+     `error` ni `warning`.
+  3. **Release sin cleartext:** tras `./compilar_android.sh`, buscar `usesCleartextTraffic` en
+     `build/app/intermediates/merged_manifests/release/processReleaseManifest/AndroidManifest.xml`
+     no debe dar ninguna ocurrencia.
+  4. **Debug con cleartext:** tras `flutter build apk --debug`, el manifest fusionado equivalente
+     de `debug/` **sí** debe llevar `usesCleartextTraffic="true"`.
+  5. **Desarrollo local intacto:** copiar `config.json.develop` sobre `config.json`, levantar el
+     backend y correr en emulador Android; el login contra `http://10.0.2.2:8080` debe responder.
+  6. **Artefacto:** el `.aab` declara `versionCode 9`, `versionName 1.0.0` y `applicationId`
+     `co.legacynetwork.legacyapp`; `jarsigner -verify` responde `jar verified`. El aviso sobre la
+     cadena de certificados es el esperado en un keystore de upload autofirmado.
+  7. **Cursos y noticias:** en la app compilada, las secciones que consumen los GraphQL externos
+     deben traer contenido, no quedarse vacías.
+
 ### [2026-08-05]: Búsqueda y filtro por categoría en eventos (eventos, fase 2b, opción A)
 - **Alcance:**
   - `Filtros`: `lib/domain/utils/event_filters.dart` (nuevo) — `eventsForTab`, `categoriesOf` y `applyEventFilters` como funciones puras, más las constantes `EventTab` y `kTodasLasCategorias`. **Todo se resuelve en el cliente** sobre la lista ya cargada: `GET /api/events` devuelve todos los eventos, no acepta parámetros y no tiene paginación, así que la lista completa ya está en memoria. Si el backend llegara a aceptar `q`, `category`, `from` y `to` (opción B), este archivo es el único punto a reemplazar.
