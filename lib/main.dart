@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
@@ -70,9 +71,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ConfigService.initialize();
 
-  // Inicialización de Firebase con configuración de FlutterFire
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  // Inicialización de Firebase con configuración de FlutterFire.
+  // firebase_options.dart no tiene configuración para web: DefaultFirebaseOptions
+  // lanza UnsupportedError y, al estar antes de runApp, la app no arrancaba en
+  // Chrome. Se omite en web para poder desarrollar ahí; las notificaciones push
+  // en web quedan fuera hasta que se registre la app web en Firebase.
+  if (!kIsWeb) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  }
 
   final authProvider = AuthProvider();
 
@@ -124,6 +133,10 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
   }
 
   void _initPushNotifications() async {
+    // En web Firebase no se inicializa (ver main): sin esto, FirebaseMessaging
+    // .instance revienta en el initState y la app no llega a pintar.
+    if (kIsWeb) return;
+
     final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
 
     // Solicitar permisos (Crucial para iOS, y para Android 13+)
