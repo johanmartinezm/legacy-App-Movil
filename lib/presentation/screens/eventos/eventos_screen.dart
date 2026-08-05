@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import '../../../config/theme/app_theme.dart';
 import '../../../domain/models/event_model.dart';
+import '../../../domain/utils/event_filters.dart';
 import '../../../domain/providers/events_provider.dart';
 import '../../../domain/providers/auth_provider.dart';
 import 'event_purchase_detail_screen.dart';
@@ -61,7 +62,23 @@ class _EventosScreenState extends State<EventosScreen> {
     }
   }
 
-  String _selectedTab = 'próximos'; // 'próximos', 'pasados', 'mis_registros'
+  String _selectedTab = EventTab.proximos;
+
+  // Búsqueda y filtro por categoría: se resuelven sobre la lista ya cargada,
+  // sin llamadas nuevas al backend. `GET /api/events` no acepta parámetros y
+  // tampoco tiene paginación, así que la lista completa ya está en memoria.
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  String _selectedCategory = kTodasLasCategorias;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  bool get _hasActiveFilters =>
+      _searchQuery.trim().isNotEmpty || _selectedCategory != kTodasLasCategorias;
 
   @override
   Widget build(BuildContext context) {
@@ -69,24 +86,13 @@ class _EventosScreenState extends State<EventosScreen> {
     final events = eventsProvider.events;
     final isLoading = eventsProvider.isLoading;
 
-    // Filter events based on selected tab
-    List<EventModel> filteredEvents = [];
-    if (_selectedTab == 'próximos') {
-      filteredEvents = events.where((e) => !e.isPast).toList();
-    } else if (_selectedTab == 'pasados') {
-      // El backend devuelve todos los eventos, sin filtro de fecha, ordenados
-      // por categoría y start_date ascendente. En el histórico interesa lo más
-      // reciente primero, así que se reordena aquí.
-      filteredEvents = events.where((e) => e.isPast).toList()
-        ..sort((a, b) {
-          final DateTime? fa = a.endDate ?? a.startDate;
-          final DateTime? fb = b.endDate ?? b.startDate;
-          if (fa == null || fb == null) return 0;
-          return fb.compareTo(fa);
-        });
-    } else if (_selectedTab == 'mis_registros') {
-      filteredEvents = events.where((e) => e.actionStatus == 'registered' || e.actionStatus == 'reminder').toList();
-    }
+    final List<EventModel> tabEvents = eventsForTab(events, _selectedTab);
+    final List<String> categories = categoriesOf(tabEvents);
+    final List<EventModel> filteredEvents = applyEventFilters(
+      tabEvents,
+      query: _searchQuery,
+      category: _selectedCategory,
+    );
 
     return Scaffold(
       backgroundColor: AppTheme.legacyBlue1,
@@ -128,8 +134,14 @@ class _EventosScreenState extends State<EventosScreen> {
             // Custom Header Section
             _buildHeader(context),
 
+            // Search field
+            _buildSearchField(),
+
             // Tab Segment Control
             _buildTabSegments(),
+
+            // Category filter
+            _buildCategoryFilter(categories),
             const SizedBox(height: 12),
 
             // Main Content Area
@@ -228,16 +240,130 @@ class _EventosScreenState extends State<EventosScreen> {
     );
   }
 
+  Widget _buildSearchField() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (value) => setState(() => _searchQuery = value),
+        textInputAction: TextInputAction.search,
+        style: GoogleFonts.questrial(fontSize: 14, color: Colors.white),
+        cursorColor: const Color(0xFFE3C272),
+        decoration: InputDecoration(
+          isDense: true,
+          filled: true,
+          fillColor: const Color(0xFF0B1A2E).withValues(alpha: 0.65),
+          hintText: 'Buscar por nombre, lugar o conferencista',
+          hintStyle: GoogleFonts.questrial(
+            fontSize: 13,
+            color: const Color(0xFF647689),
+          ),
+          prefixIcon: const Icon(
+            Icons.search,
+            color: Color(0xFF90A4BA),
+            size: 20,
+          ),
+          suffixIcon: _searchQuery.isEmpty
+              ? null
+              : IconButton(
+                  tooltip: 'Limpiar búsqueda',
+                  icon: const Icon(
+                    Icons.close,
+                    color: Color(0xFF90A4BA),
+                    size: 18,
+                  ),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() => _searchQuery = '');
+                  },
+                ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide(
+              color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+              width: 1.2,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: const BorderSide(color: Color(0xFFE3C272), width: 1.2),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryFilter(List<String> categories) {
+    // Con una sola categoría el filtro no distingue nada.
+    if (categories.length < 2) return const SizedBox.shrink();
+
+    final options = [kTodasLasCategorias, ...categories];
+    return SizedBox(
+      height: 34,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: options.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final option = options[index];
+          final isSelected = _selectedCategory.toLowerCase() == option.toLowerCase();
+          final label = option == kTodasLasCategorias ? 'Todas' : _capitalize(option);
+          return GestureDetector(
+            onTap: () => setState(() => _selectedCategory = option),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? const Color(0xFFE3C272).withValues(alpha: 0.18)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: isSelected
+                      ? const Color(0xFFE3C272)
+                      : Colors.white.withValues(alpha: 0.08),
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                label,
+                style: GoogleFonts.barlow(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected
+                      ? const Color(0xFFE3C272)
+                      : const Color(0xFF90A4BA),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  String _capitalize(String value) {
+    if (value.isEmpty) return value;
+    return value[0].toUpperCase() + value.substring(1);
+  }
+
   Widget _buildTabSegments() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          Expanded(child: _buildTabButton('Próximos', 'próximos')),
+          Expanded(child: _buildTabButton('Próximos', EventTab.proximos)),
           const SizedBox(width: 10),
-          Expanded(child: _buildTabButton('Pasados', 'pasados')),
+          Expanded(child: _buildTabButton('Pasados', EventTab.pasados)),
           const SizedBox(width: 10),
-          Expanded(child: _buildTabButton('Mis registros', 'mis_registros')),
+          Expanded(child: _buildTabButton('Mis registros', EventTab.misRegistros)),
         ],
       ),
     );
@@ -249,6 +375,9 @@ class _EventosScreenState extends State<EventosScreen> {
       onTap: () {
         setState(() {
           _selectedTab = tabValue;
+          // Las categorías disponibles cambian con la pestaña: mantener la
+          // anterior dejaría el listado vacío sin motivo aparente.
+          _selectedCategory = kTodasLasCategorias;
         });
       },
       child: AnimatedContainer(
@@ -278,24 +407,54 @@ class _EventosScreenState extends State<EventosScreen> {
 
   Widget _buildEmptyState() {
     String msg = 'No hay eventos disponibles en esta sección.';
-    if (_selectedTab == 'pasados') {
+    if (_hasActiveFilters) {
+      // Sin esto, un filtro que no encaja se confunde con una sección vacía.
+      msg = 'Ningún evento coincide con la búsqueda.';
+    } else if (_selectedTab == EventTab.pasados) {
       msg = 'Todavía no hay eventos finalizados.';
-    } else if (_selectedTab == 'mis_registros') {
+    } else if (_selectedTab == EventTab.misRegistros) {
       msg = 'Aún no te has registrado a ningún evento.';
     }
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
-        child: Text(
-          msg,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.questrial(
-            fontSize: 14,
-            color: const Color(0xFF90A4BA),
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              msg,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.questrial(
+                fontSize: 14,
+                color: const Color(0xFF90A4BA),
+              ),
+            ),
+            if (_hasActiveFilters) ...[
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: _clearFilters,
+                child: Text(
+                  'Quitar filtros',
+                  style: GoogleFonts.barlow(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFFE3C272),
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );
+  }
+
+  void _clearFilters() {
+    _searchController.clear();
+    setState(() {
+      _searchQuery = '';
+      _selectedCategory = kTodasLasCategorias;
+    });
   }
 
   Widget _buildCompactEventCard(BuildContext context, EventModel event) {

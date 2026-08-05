@@ -2,6 +2,22 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-05]: Búsqueda y filtro por categoría en eventos (eventos, fase 2b, opción A)
+- **Alcance:**
+  - `Filtros`: `lib/domain/utils/event_filters.dart` (nuevo) — `eventsForTab`, `categoriesOf` y `applyEventFilters` como funciones puras, más las constantes `EventTab` y `kTodasLasCategorias`. **Todo se resuelve en el cliente** sobre la lista ya cargada: `GET /api/events` devuelve todos los eventos, no acepta parámetros y no tiene paginación, así que la lista completa ya está en memoria. Si el backend llegara a aceptar `q`, `category`, `from` y `to` (opción B), este archivo es el único punto a reemplazar.
+  - `Pantalla`: `lib/presentation/screens/eventos/eventos_screen.dart` — campo de búsqueda bajo la cabecera y fila de categorías bajo las pestañas. La búsqueda mira título, categoría, lugar, conferencista y fecha mostrada, sin distinguir mayúsculas. Las categorías se derivan de los eventos de la pestaña activa, se ocultan si hay menos de dos y se reinician a "Todas" al cambiar de pestaña, porque una categoría de otra pestaña dejaría el listado vacío sin motivo aparente. El estado vacío distingue "no hay nada en esta sección" de "ningún evento coincide con la búsqueda", y en el segundo caso ofrece **Quitar filtros**.
+  - `Tests`: `test/utils/event_filters_test.dart` (nuevo) — 15 casos sobre pestañas, categorías y búsqueda, con los mismos tres eventos que hay hoy en producción.
+  - **Sin cambios en el backend.**
+- **Criterios de QA:**
+  1. **Búsqueda por título:** en Eventos, escribir `networking` y comprobar que en Pasados queda solo *Coffee & Networking: CDMX 2026*.
+  2. **Búsqueda por lugar y por conferencista:** buscar `méxico` debe encontrar el Coffee & Networking; buscar el nombre de un conferencista debe encontrar su evento aunque no aparezca en el título.
+  3. **Filtro por categoría:** la fila de categorías muestra las de la pestaña activa. Al elegir una, solo quedan esos eventos; "Todas" restablece.
+  4. **Combinación:** con una categoría elegida, escribir texto acota dentro de esa categoría.
+  5. **Sin resultados:** una búsqueda sin coincidencias muestra "Ningún evento coincide con la búsqueda" y el botón **Quitar filtros**, que devuelve el listado completo.
+  6. **Cambio de pestaña:** al cambiar de pestaña la categoría vuelve a "Todas" y el listado no aparece vacío.
+  7. **Limpiar:** la X del campo de búsqueda borra el texto y restaura el listado.
+  8. **Una sola categoría:** si la pestaña activa tiene eventos de una única categoría, la fila de filtros no se muestra.
+
 ### [2026-08-05]: Histórico de eventos en la pestaña "Pasados" (eventos, fase 2a)
 - **Alcance:**
   - `Modelo`: `lib/domain/models/event_model.dart` — nuevos `startDate` y `endDate` con la fecha sin formatear. `date` llegaba ya convertida a `dd/MM/yyyy`, así que no había forma de comparar ni ordenar. Nuevo `isPast`: un evento es pasado cuando su último día (`end_date`, o `start_date` si no lo hay) quedó atrás; los de hoy siguen en "Próximos" toda la jornada y los que llegan sin fecha utilizable nunca se ocultan. **Las fechas no se convierten a hora local a propósito:** el backend guarda `start_date`/`end_date` como `date` y las serializa a medianoche UTC, de modo que convertirlas en un huso negativo mostraría el día anterior.
