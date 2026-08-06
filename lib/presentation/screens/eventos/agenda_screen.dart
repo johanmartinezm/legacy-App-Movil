@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../domain/providers/events_provider.dart';
 import '../../../domain/providers/auth_provider.dart';
 import '../../../config/theme/app_theme.dart';
-import '../../widgets/eventos/qr_attendance_dialog.dart';
 import '../../widgets/eventos/rating_dialog.dart';
 
 class AgendaScreen extends StatelessWidget {
@@ -219,24 +219,19 @@ class AgendaScreen extends StatelessWidget {
                 );
               },
             ),
-      floatingActionButton: agenda.isNotEmpty
-          ? FloatingActionButton.extended(
-              onPressed: () {
-                // Show QR for the first event in agenda as a representative entry
-                showDialog(
-                  context: context,
-                  builder: (context) => QrAttendanceDialog(
-                    eventId: agenda.first.eventId,
-                    eventTitle: agenda.first.eventTitle,
-                  ),
-                );
-              },
-              backgroundColor: AppTheme.legacyBlue1,
-              foregroundColor: Colors.white,
-              label: const Text('Presentar QR'),
-              icon: const Icon(Icons.qr_code),
-            )
-          : null,
+      // Antes este boton abria el QR del PRIMER taller de la agenda y solo
+      // existia si la agenda tenia algo. Como inscribirse a un evento no llena
+      // la agenda (eso lo hace anadir talleres uno a uno), una inscripcion
+      // valida podia quedarse sin ninguna forma de enseñarse. Ahora lleva a
+      // "Mi credencial", que muestra los de todos los eventos inscritos, y se
+      // ofrece siempre.
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => context.push('/mi-credencial'),
+        backgroundColor: AppTheme.legacyBlue1,
+        foregroundColor: Colors.white,
+        label: const Text('Mi credencial'),
+        icon: const Icon(Icons.qr_code),
+      ),
     );
   }
 }

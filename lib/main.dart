@@ -31,6 +31,7 @@ import 'presentation/screens/cart/checkout_screen.dart';
 import 'presentation/screens/cart/confirmation_screen.dart';
 import 'presentation/screens/favorites/favorites_screen.dart';
 import 'presentation/screens/profile/profile_screen.dart';
+import 'presentation/screens/profile/mi_credencial_screen.dart';
 import 'presentation/screens/profile/profile_edit_screen.dart';
 import 'presentation/screens/informandote/article_detail_screen.dart';
 import 'presentation/screens/informandote/video_detail_screen.dart';
@@ -341,6 +342,10 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
             GoRoute(
               path: '/profile-edit',
               builder: (context, state) => const ProfileEditScreen(),
+            ),
+            GoRoute(
+              path: '/mi-credencial',
+              builder: (context, state) => const MiCredencialScreen(),
             ),
             GoRoute(
               path: '/miembros-info',

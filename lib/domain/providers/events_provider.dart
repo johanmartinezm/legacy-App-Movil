@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../data/services/event_service.dart';
 import '../models/event_model.dart';
 import '../models/event_survey_model.dart';
+import '../models/registration_model.dart';
 import '../models/workshop_model.dart';
 
 class EventsProvider extends ChangeNotifier {
@@ -9,44 +10,21 @@ class EventsProvider extends ChangeNotifier {
 
   List<EventModel> _events = [];
   final List<WorkshopModel> _agenda = [];
-  final Map<String, String> _registrationQrs; // Cache for eventId -> qrData
   bool _isLoading = false;
   String? _errorMessage;
 
   EventsProvider({EventService? eventService})
-    : _eventService = eventService ?? EventService(),
-      _registrationQrs = {};
+    : _eventService = eventService ?? EventService();
 
   List<EventModel> get events => _events;
   List<WorkshopModel> get agenda => _agenda;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  Future<String?> getRegistrationQr(String eventId, String token) async {
-    if (_registrationQrs.containsKey(eventId)) {
-      return _registrationQrs[eventId];
-    }
-
-    try {
-      final reg = await _eventService.getRegistration(eventId, token);
-
-      // 1. Validar estado de pago primero
-      if (reg['payment_status'] == 'pending') {
-        throw 'PAYMENT_REQUIRED'; // Esto activará el catch en tu Dialog
-      }
-
-      // 2. Usar la llave correcta (qr_data con guion bajo)
-      final qrData = reg['qr_data'] as String?;
-
-      if (qrData != null) {
-        _registrationQrs[eventId] = qrData;
-      }
-      return qrData;
-    } catch (e) {
-      debugPrint('Error fetching registration QR: $e');
-      rethrow; // IMPORTANTE: Sin esto, el Dialog nunca entra al bloque catch
-    }
-  }
+  // getRegistrationQr se retiró junto con QrAttendanceDialog: obtenía el código
+  // haciendo un POST /register —un endpoint de escritura usado para leer— y solo
+  // servía para un evento a la vez. Lo sustituye loadMyRegistrations, que trae
+  // todas las inscripciones con su QR de una sola llamada.
 
   Future<EventModel?> getEventDetails(String id) async {
     try {
@@ -171,6 +149,31 @@ class EventsProvider extends ChangeNotifier {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
       debugPrint('Error submitting rating: $e');
       return false;
+    }
+  }
+
+  /// Inscripciones del usuario, para la pantalla "Mi credencial".
+  List<RegistrationModel> _myRegistrations = [];
+  bool _loadingRegistrations = false;
+  String? _registrationsError;
+
+  List<RegistrationModel> get myRegistrations => _myRegistrations;
+  bool get loadingRegistrations => _loadingRegistrations;
+  String? get registrationsError => _registrationsError;
+
+  Future<void> loadMyRegistrations(String token) async {
+    _loadingRegistrations = true;
+    _registrationsError = null;
+    notifyListeners();
+
+    try {
+      _myRegistrations = await _eventService.getMyRegistrations(token);
+    } catch (e) {
+      _registrationsError = e.toString().replaceAll('Exception: ', '');
+      debugPrint('Error loading registrations: $e');
+    } finally {
+      _loadingRegistrations = false;
+      notifyListeners();
     }
   }
 

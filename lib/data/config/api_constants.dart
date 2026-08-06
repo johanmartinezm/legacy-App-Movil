@@ -29,6 +29,11 @@ class ApiConstants {
   static String myEventSurveyEndpoint(String id) =>
       '/api/events/$id/survey/me';
 
+  // Todos los eventos en los que el usuario está inscrito, cada uno con su QR.
+  // Alimenta la pantalla "Mi credencial". Cuelga de /api/me y no de /api/events
+  // porque el patrón /api/events/{id} captura cualquier segmento.
+  static const String myRegistrationsEndpoint = '/api/me/registrations';
+
   static const String getAgendaEndpoint = '/api/events/agenda';
   static String addToAgendaEndpoint(String id) => '/api/workshops/$id/agenda';
   static String removeFromAgendaEndpoint(String id) =>

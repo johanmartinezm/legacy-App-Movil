@@ -2,6 +2,35 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-05]: "Mi credencial" — los QR de todos los eventos inscritos
+
+- **Alcance:**
+  - `Pantalla nueva`: `lib/presentation/screens/profile/mi_credencial_screen.dart` y la ruta
+    `/mi-credencial`. **El botón "Mi credencial" del perfil tenía `onTap: () {}`**: no hacía nada,
+    pese a que su subtítulo prometía "QR de acceso a eventos".
+  - `Modelo y servicio`: `registration_model.dart` (nuevo) y `getMyRegistrations` contra
+    `GET /api/me/registrations`; `loadMyRegistrations` en `EventsProvider`.
+  - `Agenda`: el botón flotante mostraba **siempre el QR del primer taller** de la agenda y solo
+    existía si la agenda tenía algo. Como inscribirse a un evento **no** llena la agenda —eso lo
+    hace añadir talleres uno a uno—, una inscripción válida podía quedarse sin ninguna forma de
+    enseñarse. Ahora el botón lleva a "Mi credencial" y se ofrece siempre.
+  - `Código retirado`: `qr_attendance_dialog.dart`, `getRegistrationQr` y `getRegistration`. Solo se
+    usaban entre sí, y `getRegistration` era un alias de `registerToEvent`, es decir, **un `POST` de
+    escritura usado para leer**.
+  - `Tests`: `test/screens/mi_credencial_screen_test.dart` (nuevo, 7 casos).
+- **Criterios de QA:**
+  1. **El botón ya responde:** Perfil → **Mi credencial** abre la pantalla. Antes no pasaba nada.
+  2. **Todos los eventos:** aparece una tarjeta con QR por **cada** evento inscrito, no solo uno.
+  3. **Pendiente de pago:** un evento de pago sin pagar muestra "Pendiente de pago" y **no** enseña
+     QR; el texto explica que el cupo está reservado.
+  4. **Sin eventos:** mensaje "Todavía no tienes eventos" con la explicación, no una pantalla en
+     blanco.
+  5. **Sin conexión:** mensaje de error y el gesto de tirar para recargar debe funcionar igual.
+  6. **Asistencia:** tras el check-in, la tarjeta muestra "Asistencia registrada" en verde.
+  7. **Orden:** los eventos ya pasados van al final, bajo el título "Eventos pasados".
+  8. **Desde la agenda:** el botón flotante dice "Mi credencial" y lleva a la misma pantalla, exista
+     o no agenda.
+
 ### [2026-08-05]: Datos del participante prellenados al reservar cupo
 
 - **Alcance:**

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../domain/models/event_model.dart';
 import '../../domain/models/event_survey_model.dart';
+import '../../domain/models/registration_model.dart';
 import '../config/api_constants.dart';
 
 class EventService {
@@ -74,9 +75,9 @@ class EventService {
     }
   }
 
-  Future<Map<String, dynamic>> getRegistration(String id, String token) async {
-    return registerToEvent(id, token);
-  }
+  // getRegistration se retiró: era un alias de registerToEvent, es decir, un
+  // POST de escritura usado para leer. Su único consumidor era el QR de la
+  // agenda, ahora sustituido por getMyRegistrations.
 
   Future<bool> submitWorkshopRating({
     required String workshopId,
@@ -98,6 +99,37 @@ class EventService {
       );
 
       return response.statusCode == 201 || response.statusCode == 200;
+    } catch (e) {
+      throw Exception('Error de conexión: $e');
+    }
+  }
+
+  /// Todos los eventos en los que el usuario está inscrito, con su QR.
+  ///
+  /// Sustituye al apaño de pedir el QR llamando a `registerToEvent`, que usaba
+  /// un `POST` de escritura para leer y solo servía para un evento a la vez.
+  Future<List<RegistrationModel>> getMyRegistrations(String token) async {
+    final url = Uri.parse(
+      '${ApiConstants.baseUrl}${ApiConstants.myRegistrationsEndpoint}',
+    );
+    try {
+      final response = await _client.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final body = response.body.trim();
+        if (body.isEmpty || body == 'null') return [];
+        final List<dynamic> data = jsonDecode(body);
+        return data
+            .map((json) => RegistrationModel.fromJson(json))
+            .toList();
+      }
+      throw Exception('Error al cargar tus inscripciones (${response.statusCode})');
     } catch (e) {
       throw Exception('Error de conexión: $e');
     }

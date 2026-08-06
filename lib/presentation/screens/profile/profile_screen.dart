@@ -140,7 +140,7 @@ class ProfileScreen extends StatelessWidget {
                 context,
                 title: 'Mi credencial',
                 subtitle: 'QR de acceso a eventos',
-                onTap: () {},
+                onTap: () => context.push('/mi-credencial'),
               ),
               const SizedBox(height: 12),
               
