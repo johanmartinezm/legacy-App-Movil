@@ -2,6 +2,49 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-05]: El botón del evento ignoraba la inscripción, y "Recordarme" no aplicaba al login social
+
+- **Alcance:**
+  - `Botón del detalle`: `lib/presentation/widgets/eventos/event_action_button.dart` (nuevo),
+    enganchado en `event_purchase_detail_screen.dart`. La pantalla decidía con
+    `event.actionStatus == 'registered'`, pero **`action_status` es una columna del EVENTO**, igual
+    para todos los usuarios, y el backend solo devuelve `register` o `buy`. La condición **no se
+    cumplía nunca**: el mensaje "YA ESTÁS REGISTRADO" era código inalcanzable y quien ya estaba
+    inscrito seguía viendo "Reservar cupo". Ahora se decide con la inscripción real, de
+    `GET /api/me/registrations`.
+  - `Provider`: `registerUserToEvent` parcheaba el evento en memoria con `actionStatus:
+    'registered'`; el efecto se perdía al recargar el listado, porque el backend devuelve siempre el
+    valor de la tabla. Ahora recarga las inscripciones reales. Nuevos `registrationFor(eventId)` y
+    `registrationsLoaded`, este último para no ofrecer reservar un cupo mientras aún no se sabe si
+    el usuario lo tiene.
+  - `"Recordarme"`: `handleSocialLogin` **guardaba el token siempre**, sin mirar la casilla, así que
+    para quien entraba con Google o Apple no hacía absolutamente nada. Ahora la respeta, igual que
+    el acceso por correo. El borrado de datos persistidos se unifica en `_borrarDatosPersistidos`,
+    que además limpia `user_alias`, que se quedaba.
+  - `Casilla`: el `Checkbox` vivía dentro de un `GestureDetector` que alternaba el mismo estado, de
+    modo que el comportamiento dependía de si el dedo caía sobre la casilla o sobre el texto. Ahora
+    hay un único `InkWell` y la casilla lleva colores explícitos: sin ellos quedaba casi invisible
+    sobre el fondo oscuro de esa pantalla.
+  - `Tests`: `event_action_button_test.dart` (4 casos) y `login_recordarme_test.dart` (4 casos).
+- **Criterios de QA:**
+  1. **Evento ya inscrito:** abrir el evento gratuito en el que ya estás inscrito → debe decir
+     **"YA ESTÁS REGISTRADO"** y ofrecer **"Ver mi credencial"**. Antes salía "Reservar cupo gratis".
+  2. **Persiste al recargar:** volver atrás, tirar para recargar el listado y entrar de nuevo; debe
+     seguir diciendo que estás registrado. Ese era el fallo del parche en memoria.
+  3. **Evento no inscrito:** otro evento debe seguir ofreciendo reservar con normalidad.
+  4. **Recién reservado:** al reservar un cupo gratis, el botón cambia solo, sin salir de la
+     pantalla.
+  5. **Pendiente de pago:** un evento de pago con el cupo reservado muestra "CUPO RESERVADO ·
+     PENDIENTE DE PAGO" y el botón **Completar pago**.
+  6. **Recordarme con correo:** marcar la casilla, entrar, **cerrar la app por completo** y
+     reabrirla → debe entrar directo, sin pedir credenciales.
+  7. **Recordarme con Google:** lo mismo entrando con el botón de Google. **Este es el caso que no
+     funcionaba.**
+  8. **Sin recordarme:** desmarcar, entrar, cerrar la app y reabrirla → debe pedir credenciales otra
+     vez.
+  9. **La casilla responde:** tocar la casilla y también el texto "Recordarme"; en ambos casos debe
+     alternar, y el tilde debe verse en dorado sobre el fondo oscuro.
+
 ### [2026-08-05]: "Mi credencial" — los QR de todos los eventos inscritos
 
 - **Alcance:**

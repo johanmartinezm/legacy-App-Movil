@@ -108,6 +108,26 @@ class AuthProvider extends ChangeNotifier {
     return await _storage.read(key: 'user_email');
   }
 
+  /// Borra del dispositivo todo lo que identifica la sesión. Se usa al cerrar
+  /// sesión y cuando el usuario entra **sin** marcar "Recordarme": en ese caso
+  /// la sesión vive solo en memoria y no debe sobrevivir a cerrar la app.
+  Future<void> _borrarDatosPersistidos() async {
+    const claves = [
+      'auth_token',
+      'user_email',
+      'customer_status',
+      'user_id',
+      'first_name',
+      'last_name',
+      'user_phone',
+      'user_role',
+      'user_alias',
+    ];
+    for (final clave in claves) {
+      await _storage.delete(key: clave);
+    }
+  }
+
   Future<bool> register({
     required String firstName,
     required String lastName,
@@ -179,7 +199,10 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>?> handleSocialLogin(String provider) async {
+  Future<Map<String, dynamic>?> handleSocialLogin(
+    String provider, {
+    bool rememberMe = false,
+  }) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -217,8 +240,21 @@ class AuthProvider extends ChangeNotifier {
 
       // Success Login
       _token = response['token'];
-      await _storage.write(key: 'auth_token', value: _token);
+      // Se respeta "Recordarme" igual que en el login por correo. Antes el
+      // token se guardaba SIEMPRE aquí, así que para quien entraba con Google o
+      // Apple la casilla no hacía absolutamente nada: ni marcada ni desmarcada
+      // cambiaba el comportamiento.
+      if (rememberMe) {
+        await _storage.write(key: 'auth_token', value: _token);
+      } else {
+        await _storage.delete(key: 'auth_token');
+      }
       await fetchProfile();
+      if (!rememberMe) {
+        // fetchProfile persiste los datos del perfil; si no hay que recordar la
+        // sesión, tampoco deben quedarse en el dispositivo.
+        await _borrarDatosPersistidos();
+      }
       if (_token != null) _registerDeviceToken();
       
       _isLoading = false;
@@ -271,14 +307,7 @@ class AuthProvider extends ChangeNotifier {
         }
       } else {
         _email = email;
-        await _storage.delete(key: 'auth_token');
-        await _storage.delete(key: 'user_email');
-        await _storage.delete(key: 'customer_status');
-        await _storage.delete(key: 'user_id');
-        await _storage.delete(key: 'first_name');
-        await _storage.delete(key: 'last_name');
-        await _storage.delete(key: 'user_phone');
-        await _storage.delete(key: 'user_role');
+        await _borrarDatosPersistidos();
       }
 
       _isLoading = false;

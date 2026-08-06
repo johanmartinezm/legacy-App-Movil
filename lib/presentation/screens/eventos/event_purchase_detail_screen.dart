@@ -5,6 +5,7 @@ import 'package:legacy_app/domain/providers/auth_provider.dart';
 import 'package:legacy_app/domain/providers/events_provider.dart';
 import 'package:provider/provider.dart';
 import '../../../data/config/image_helper.dart';
+import '../../widgets/eventos/event_action_button.dart';
 import '../../widgets/eventos/event_survey_button.dart';
 import 'event_payment_screen.dart';
 
@@ -208,109 +209,15 @@ class EventPurchaseDetailScreen extends StatelessWidget {
               // Bottom Action Button Area
               Padding(
                 padding: const EdgeInsets.all(24.0),
-                child: Consumer2<EventsProvider, AuthProvider>(
-                  builder: (context, eventsProvider, authProvider, child) {
-                    final isRegistered = event.actionStatus == 'registered';
-                    final isLoading = eventsProvider.isLoading;
-
-                    // En un evento terminado no cabe "reservar cupo": lo que
-                    // procede es pedir la opinión. El backend rechaza con 403 a
-                    // quien no se registró, y el diálogo lo dice tal cual.
-                    if (event.isPast) {
-                      return EventSurveyButton(
+                // En un evento terminado no cabe "reservar cupo": lo que procede
+                // es pedir la opinión. En el resto, el botón lo decide
+                // EventActionButton según la inscripción REAL del usuario.
+                child: event.isPast
+                    ? EventSurveyButton(
                         eventId: event.id,
                         eventTitle: event.title,
-                      );
-                    }
-
-                    if (isRegistered) {
-                      return Container(
-                        width: double.infinity,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0B1A2E),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: const Color(0xFF1E3A5F).withValues(alpha: 0.4),
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'YA ESTÁS REGISTRADO',
-                            style: GoogleFonts.barlow(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFF90A4BA),
-                              letterSpacing: 1.0,
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-
-                    // Button content based on cost/type
-                    final String buttonText = event.isFree
-                        ? 'Reservar cupo gratis'
-                        : 'Reservar cupo · preventa';
-
-                    return SizedBox(
-                      width: double.infinity,
-                      height: 52,
-                      child: ElevatedButton(
-                        onPressed: isLoading
-                            ? null
-                            : () async {
-                                if (event.isFree) {
-                                  final success = await eventsProvider.registerUserToEvent(
-                                    event.id,
-                                    authProvider.token ?? '',
-                                  );
-                                  if (success && context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('¡Registro exitoso!'),
-                                      ),
-                                    );
-                                    Navigator.pop(context);
-                                  } else if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Error: ${eventsProvider.errorMessage}',
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                } else {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => EventPaymentScreen(event: event),
-                                    ),
-                                  );
-                                }
-                              },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFD9A74A), // Premium gold
-                          foregroundColor: const Color(0xFF050B15), // Dark contrast text
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: isLoading
-                            ? const CircularProgressIndicator(color: Color(0xFF050B15))
-                            : Text(
-                                buttonText,
-                                style: GoogleFonts.barlow(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                      ),
-                    );
-                  },
-                ),
+                      )
+                    : EventActionButton(event: event),
               ),
             ],
           ),

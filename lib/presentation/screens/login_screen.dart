@@ -49,7 +49,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _handleSocialLogin(String provider) async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final result = await authProvider.handleSocialLogin(provider);
+    // "Recordarme" también aplica a Google y Apple: la casilla está en el mismo
+    // formulario y el usuario no tiene por qué saber que solo valía para el
+    // acceso con correo.
+    final result = await authProvider.handleSocialLogin(
+      provider,
+      rememberMe: _rememberMe,
+    );
 
     if (result == null) return; // Error or canceled
 
@@ -301,38 +307,53 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _rememberMe = !_rememberMe;
-                            });
-                          },
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: Checkbox(
-                                  value: _rememberMe,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _rememberMe = value ?? false;
-                                    });
-                                  },
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4),
+                        // Un solo punto que alterna el estado. Antes había un
+                        // GestureDetector envolviendo al Checkbox y ambos
+                        // cambiaban `_rememberMe`, de modo que el
+                        // comportamiento dependía de si el dedo caía sobre la
+                        // casilla o sobre el texto.
+                        InkWell(
+                          key: const Key('login-recordarme'),
+                          onTap: () =>
+                              setState(() => _rememberMe = !_rememberMe),
+                          borderRadius: BorderRadius.circular(6),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: IgnorePointer(
+                                    child: Checkbox(
+                                      value: _rememberMe,
+                                      onChanged: (_) {},
+                                      // Sin colores explícitos, la casilla
+                                      // quedaba casi invisible sobre el fondo
+                                      // oscuro de esta pantalla.
+                                      side: const BorderSide(
+                                        color: Colors.white70,
+                                        width: 1.5,
+                                      ),
+                                      activeColor: const Color(0xFFD9A74A),
+                                      checkColor: const Color(0xFF050B15),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Recordarme',
-                                style: GoogleFonts.questrial(
-                                  color: Colors.white70,
-                                  fontSize: 13,
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Recordarme',
+                                  style: GoogleFonts.questrial(
+                                    color: Colors.white70,
+                                    fontSize: 13,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                         TextButton(

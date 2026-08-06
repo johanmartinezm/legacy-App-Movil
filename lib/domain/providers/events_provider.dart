@@ -57,16 +57,13 @@ class EventsProvider extends ChangeNotifier {
     try {
       await _eventService.registerToEvent(eventId, token);
 
-      // Update local state if needed (e.g., change action status)
-      final index = _events.indexWhere((e) => e.id == eventId);
-      if (index != -1) {
-        // copyWith y no un EventModel nuevo: reconstruirlo a mano descartaba
-        // la fecha, el lugar, el conferencista y el resto de campos opcionales.
-        _events[index] = _events[index].copyWith(
-          buttonText: 'Registrado',
-          actionStatus: 'registered',
-        );
-      }
+      // Se recargan las inscripciones reales en vez de parchear el evento en
+      // memoria con actionStatus: 'registered'. Aquello no sobrevivia a un
+      // refresco: action_status es una columna del EVENTO, igual para todos los
+      // usuarios, y el backend la devuelve siempre como 'register' o 'buy', asi
+      // que al recargar el listado el usuario volvia a ver "Reservar cupo"
+      // estando ya inscrito.
+      await loadMyRegistrations(token);
 
       _isLoading = false;
       notifyListeners();
@@ -161,6 +158,21 @@ class EventsProvider extends ChangeNotifier {
   bool get loadingRegistrations => _loadingRegistrations;
   String? get registrationsError => _registrationsError;
 
+  /// Inscripción del usuario a un evento concreto, o `null` si no está
+  /// inscrito. Requiere haber llamado antes a [loadMyRegistrations].
+  RegistrationModel? registrationFor(String eventId) {
+    for (final reg in _myRegistrations) {
+      if (reg.eventId == eventId) return reg;
+    }
+    return null;
+  }
+
+  /// Si ya se consultaron las inscripciones. Sin esto no se puede distinguir
+  /// "no está inscrito" de "todavía no lo sabemos", y la pantalla ofrecería
+  /// reservar un cupo que el usuario ya tiene.
+  bool _registrationsLoaded = false;
+  bool get registrationsLoaded => _registrationsLoaded;
+
   Future<void> loadMyRegistrations(String token) async {
     _loadingRegistrations = true;
     _registrationsError = null;
@@ -168,6 +180,7 @@ class EventsProvider extends ChangeNotifier {
 
     try {
       _myRegistrations = await _eventService.getMyRegistrations(token);
+      _registrationsLoaded = true;
     } catch (e) {
       _registrationsError = e.toString().replaceAll('Exception: ', '');
       debugPrint('Error loading registrations: $e');
