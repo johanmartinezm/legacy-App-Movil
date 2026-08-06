@@ -58,6 +58,13 @@ class PaymentService {
           throw Exception('Este evento ya no está disponible.');
         case 401:
           throw Exception('Tu sesión expiró. Vuelve a iniciar sesión.');
+        case 502:
+          // La pasarela rechazó la petición. Tu cupo ya quedó reservado antes
+          // de llegar aquí, y eso es lo que al usuario le importa saber.
+          throw Exception(
+            'La pasarela de pagos no está disponible en este momento. '
+            'Tu cupo quedó reservado: inténtalo de nuevo más tarde desde el evento.',
+          );
         default:
           throw Exception(
             'No pudimos iniciar el pago (${response.statusCode}). Inténtalo más tarde.',
