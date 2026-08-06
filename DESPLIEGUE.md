@@ -137,18 +137,75 @@ cd ios && pod install && cd ..
 flutter build ipa --release --obfuscate --split-debug-info=build/ios/symbols
 ```
 
-Dos cosas hay que arreglar antes de un envío:
+**Resueltos el 2026-08-06:**
 
-1. **`ios/Runner/Runner.entitlements` tiene `aps-environment` en `development`.** Debe ser
-   `production` para TestFlight y App Store; con `development` las notificaciones push no llegan en
-   builds distribuidos. Falta además `com.apple.developer.applesignin`: como la app ofrece login con
-   Google, la directriz 4.8 obliga a ofrecer también Sign in with Apple.
-2. **El deployment target está desalineado.** `project.pbxproj` declara
-   `IPHONEOS_DEPLOYMENT_TARGET = 13.0` y el `Podfile` declara `platform :ios, '15.0'`. Firebase 4.x y
-   `google_sign_in` 7 exigen iOS 15+: hay que subir el proyecto Xcode a 15.0 para que coincidan.
+1. ~~`aps-environment` en `development`~~ → ahora `production` en `Runner.entitlements`, que usan
+   Release y Profile, con `RunnerDebug.entitlements` en `development` para los builds de Xcode.
+   Se añadió además `UIBackgroundModes: [remote-notification]`, sin el cual iOS nunca ejecutaba el
+   `onBackgroundMessage` que la app ya registraba.
+2. ~~Deployment target desalineado~~ → `15.0` en las tres configuraciones y en
+   `Flutter/AppFrameworkInfo.plist`, que era un tercer sitio donde también decía 13.0.
+
+**Sigue pendiente, y es motivo de rechazo en la revisión:** falta
+`com.apple.developer.applesignin`. La app ofrece login con Google y la directriz **4.8** obliga
+entonces a ofrecer también Sign in with Apple; la dependencia `sign_in_with_apple` ya está en el
+proyecto, pero sin el entitlement el login falla en ejecución. **Orden correcto:** primero habilitar
+la capability *Sign in with Apple* en el App ID desde el portal de Apple, y solo después añadir la
+clave al entitlements — al revés, la firma falla porque el perfil no la incluye.
 
 Conviene declarar `ITSAppUsesNonExemptEncryption` en `Info.plist` para no responder el cuestionario
-de cumplimiento de exportación en cada subida.
+de cumplimiento de exportación en cada subida. Es una **declaración legal** sobre el cifrado que usa
+la app, así que la decide quien publica: si solo se usa HTTPS estándar, el valor es `false`.
+
+## Compilar iOS sin un Mac: GitHub Actions
+
+`.github/workflows/ios-testflight.yml` compila el `.ipa` en un runner de macOS y lo sube a
+TestFlight. **Los runners de macOS son gratuitos en repositorios públicos como este.**
+
+Solo se lanza a mano desde la pestaña *Actions*. No se dispara en `push` ni en `pull_request` a
+propósito: cada ejecución ocupa un número de build en TestFlight y usa los secretos de la cuenta de
+Apple, que no deben quedar al alcance de un pull request de un fork.
+
+### Preparación, una sola vez
+
+1. **Clave de API en App Store Connect.** *Users and Access → Integrations → App Store Connect API*
+   → generar una clave con rol **App Manager**. Descarga el `.p8`: **solo se puede descargar una
+   vez**. Anota el **Key ID** y el **Issuer ID** de esa pantalla.
+2. **La app debe existir en App Store Connect** con el bundle id `co.legacynetwork.legacyapp`.
+   TestFlight rechaza builds de una app que no esté registrada.
+3. **El App ID necesita la capability *Push Notifications*** habilitada en *Certificates,
+   Identifiers & Profiles*. Sin ella, el `aps-environment` del entitlement no se puede firmar.
+4. **Tres secretos en GitHub** (*Settings → Secrets and variables → Actions*):
+
+   | Secreto | Contenido |
+   |---|---|
+   | `APPSTORE_KEY_ID` | el Key ID, unos 10 caracteres |
+   | `APPSTORE_ISSUER_ID` | el Issuer ID, con formato de UUID |
+   | `APPSTORE_PRIVATE_KEY` | el contenido **completo** del `.p8`, incluidas las líneas `-----BEGIN PRIVATE KEY-----` y `-----END PRIVATE KEY-----` |
+
+No hace falta exportar ningún `.p12` ni provisioning profile: el workflow usa
+`xcodebuild -allowProvisioningUpdates` con esa clave, y Xcode pide a Apple el certificado y el
+perfil que necesite. Eso es lo que permite publicar sin tener un Mac.
+
+### Cada vez que se quiera publicar
+
+*Actions → iOS · TestFlight → Run workflow*, indicando el **número de build**, que **debe ser mayor
+que el último subido**. La última versión conocida es `1.0.0+10`, así que el siguiente sería `11`.
+Si se deja vacío, se usa el de `pubspec.yaml` y TestFlight rechazará el envío si ese número ya
+existe.
+
+El `.ipa` queda como artefacto de la ejecución durante 14 días, aunque la subida falle: así un
+problema al publicar no obliga a repetir veinte minutos de compilación.
+
+### Si falla
+
+- **La primera ejecución es la que más falla**, casi siempre por firma o por que falte alguno de los
+  tres pasos de preparación. Los registros de `xcodebuild` se guardan como artefacto.
+- **`No profiles for 'co.legacynetwork.legacyapp' were found`**: la app no está en App Store Connect
+  o la clave de API no tiene rol suficiente.
+- **Build rechazado por número repetido**: subir el número de build.
+- **Aparece en TestFlight como *Missing Compliance***: es el cuestionario de cifrado; se resuelve
+  respondiendo en App Store Connect o declarando `ITSAppUsesNonExemptEncryption`.
 
 ## Web
 

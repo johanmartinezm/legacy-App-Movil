@@ -1,0 +1,147 @@
+name: iOS · TestFlight
+
+# Compila el .ipa en un runner de macOS y lo sube a TestFlight.
+#
+# Existe porque el desarrollo se hace en Windows y no hay ningun Mac a mano:
+# sin esto no se puede generar un build de iOS. Los runners de macOS son
+# gratuitos en repositorios publicos como este.
+#
+# Solo se lanza a mano (workflow_dispatch). No se dispara en push ni en pull
+# request a proposito: cada ejecucion consume una version en TestFlight y usa
+# los secretos de la cuenta de Apple, que no deben quedar al alcance de un pull
+# request de un fork.
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_number:
+        description: 'Numero de build. DEBE ser mayor que el ultimo subido a TestFlight. Vacio = usa el de pubspec.yaml'
+        required: false
+        default: ''
+      subir_a_testflight:
+        description: 'Subir a TestFlight al terminar'
+        type: boolean
+        required: false
+        default: true
+
+# Dos ejecuciones a la vez subirian dos veces el mismo numero de build.
+concurrency:
+  group: ios-testflight
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 60
+
+    steps:
+      - name: Descargar el codigo
+        uses: actions/checkout@v4
+
+      - name: Preparar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          # Fijada a proposito: 'stable' cambiaria bajo los pies y un build que
+          # funciona hoy fallaria manana sin que nadie tocara el codigo.
+          flutter-version: '3.44.8'
+          channel: stable
+          cache: true
+
+      - name: Dependencias
+        run: flutter pub get
+
+      - name: Analisis estatico y tests
+        # Si el codigo no pasa esto, no tiene sentido gastar 20 minutos de
+        # compilacion ni ocupar un numero de build en TestFlight.
+        run: |
+          flutter analyze
+          flutter test
+
+      - name: Instalar la clave de App Store Connect
+        env:
+          APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          APPSTORE_PRIVATE_KEY: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+        run: |
+          if [ -z "$APPSTORE_KEY_ID" ] || [ -z "$APPSTORE_PRIVATE_KEY" ]; then
+            echo "Faltan los secretos APPSTORE_KEY_ID y/o APPSTORE_PRIVATE_KEY."
+            echo "Ver la seccion 'Compilar iOS sin un Mac' de DESPLIEGUE.md."
+            exit 1
+          fi
+          mkdir -p ~/private_keys
+          # El nombre del archivo importa: xcodebuild busca AuthKey_<KEYID>.p8
+          echo "$APPSTORE_PRIVATE_KEY" > ~/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8
+          chmod 600 ~/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8
+
+      - name: Compilar sin firmar
+        # Genera Generated.xcconfig, el Flutter.framework y los Pods. La firma
+        # se hace en el paso siguiente, donde si hay credenciales.
+        run: |
+          if [ -n "${{ github.event.inputs.build_number }}" ]; then
+            flutter build ios --release --no-codesign --build-number=${{ github.event.inputs.build_number }}
+          else
+            flutter build ios --release --no-codesign
+          fi
+
+      - name: Archivar y exportar el IPA
+        env:
+          APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+        working-directory: ios
+        run: |
+          set -euo pipefail
+          CLAVE="$HOME/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8"
+
+          # -allowProvisioningUpdates deja que Xcode pida a Apple el certificado
+          # y el perfil que falten. Es lo que sustituye al .p12 exportado a mano.
+          xcodebuild archive \
+            -workspace Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$CLAVE" \
+            -authenticationKeyID "$APPSTORE_KEY_ID" \
+            -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID"
+
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
+            -exportOptionsPlist ExportOptions.plist \
+            -exportPath "$RUNNER_TEMP/ipa" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$CLAVE" \
+            -authenticationKeyID "$APPSTORE_KEY_ID" \
+            -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID"
+
+          ls -la "$RUNNER_TEMP/ipa"
+
+      - name: Guardar el IPA como artefacto
+        # Queda descargable desde la pagina de la ejecucion aunque la subida
+        # falle, para no perder 20 minutos de compilacion.
+        uses: actions/upload-artifact@v4
+        with:
+          name: legacy-ios-ipa
+          path: ${{ runner.temp }}/ipa/*.ipa
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Subir a TestFlight
+        if: ${{ github.event.inputs.subir_a_testflight != 'false' }}
+        uses: apple-actions/upload-testflight-build@v3
+        with:
+          app-path: ${{ runner.temp }}/ipa/Runner.ipa
+          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+
+      - name: Recoger los registros si algo fallo
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-xcodebuild
+          path: |
+            ~/Library/Logs/gym
+            ${{ runner.temp }}/Runner.xcarchive/Info.plist
+          retention-days: 7
+          if-no-files-found: ignore

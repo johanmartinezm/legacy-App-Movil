@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Como se exporta el archive a .ipa. Lo usa el workflow de GitHub Actions
+	     (.github/workflows/ios-testflight.yml) en el paso de exportArchive. -->
+
+	<!-- app-store: destinado a App Store Connect y TestFlight. Xcode 15.3+ lo
+	     llama app-store-connect, pero acepta este nombre, que funciona en todas
+	     las versiones. -->
+	<key>method</key>
+	<string>app-store</string>
+
+	<!-- El mismo equipo que ya declara el proyecto Xcode. -->
+	<key>teamID</key>
+	<string>87LBVBLK8T</string>
+
+	<!-- automatic: Xcode pide a Apple el certificado y el perfil que hagan falta,
+	     autenticandose con la clave de App Store Connect que el workflow le pasa.
+	     Es lo que evita tener que exportar un .p12 desde un Mac. -->
+	<key>signingStyle</key>
+	<string>automatic</string>
+
+	<!-- Sube los simbolos de depuracion para que los informes de fallos lleguen
+	     legibles a App Store Connect en vez de como direcciones de memoria. -->
+	<key>uploadSymbols</key>
+	<true/>
+
+	<!-- Bitcode esta retirado desde Xcode 14; declararlo en falso evita un aviso. -->
+	<key>compileBitcode</key>
+	<false/>
+
+	<!-- export: deja el .ipa en disco. La subida la hace un paso aparte, para
+	     poder generar el instalador sin publicarlo. -->
+	<key>destination</key>
+	<string>export</string>
+</dict>
+</plist>
