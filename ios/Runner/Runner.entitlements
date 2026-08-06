@@ -10,5 +10,15 @@
 	     La configuracion Debug usa RunnerDebug.entitlements. -->
 	<key>aps-environment</key>
 	<string>production</string>
+	<!-- La app llama a SignInWithApple.getAppleIDCredential
+	     (auth_provider.dart:256) y sin este entitlement esa llamada falla en
+	     ejecucion. Ademas, al ofrecer login con Google, la directriz 4.8 obliga
+	     a ofrecer tambien Sign in with Apple: sin esto la revision lo rechaza.
+	     La capability APPLE_ID_AUTH ya esta habilitada en el App ID, que es el
+	     requisito previo para que la firma no falle. -->
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
 </dict>
 </plist>

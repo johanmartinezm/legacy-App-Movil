@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../domain/providers/forum_provider.dart';
-import '../../../domain/models/forum_model.dart';
 import 'forum_thread_screen.dart';
 
 class ForumsScreen extends StatefulWidget {

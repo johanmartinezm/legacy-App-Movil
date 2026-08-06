@@ -2,6 +2,36 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-06]: Sign in with Apple y preparación de la primera compilación en CI
+
+- **Alcance:**
+  - `ios/Runner/Runner.entitlements` y `RunnerDebug.entitlements` — se añade
+    `com.apple.developer.applesignin`. La app llama a `SignInWithApple.getAppleIDCredential`
+    (`auth_provider.dart:256`) y **sin el entitlement esa llamada falla en ejecución**; además, al
+    ofrecer login con Google, la directriz **4.8** obliga a ofrecer también Sign in with Apple o la
+    revisión lo rechaza. Se pone en las dos configuraciones: si solo estuviera en Release, fallaría
+    al probar desde Xcode y parecerían dos fallos distintos.
+  - **El orden se respetó:** la capability `APPLE_ID_AUTH` **ya estaba habilitada** en el App ID
+    —verificado consultando la API de App Store Connect—, que es el requisito previo para que la
+    firma no falle.
+  - `event_purchase_detail_screen.dart` y `forums_screen.dart` — se retiran **5 imports sin usar**.
+    Eran los únicos `warning` del proyecto y **habrían abortado el workflow** en su paso de
+    análisis, antes siquiera de compilar.
+  - `.github/workflows/ios-testflight.yml` — el análisis pasa a `flutter analyze --no-fatal-infos`.
+    Los errores y los warnings siguen tumbando el build, que es la barrera que interesa; los 48
+    avisos de nivel `info` que arrastra el proyecto son de estilo, y bloquear por ellos dejaría el
+    workflow inutilizable hasta limpiarlos todos.
+- **Verificado en local, que es lo que hará el CI:**
+  - `flutter analyze --no-fatal-infos` → **exit 0** (48 infos, 0 warnings, 0 errores).
+  - `flutter test` → **exit 0, 85 tests**.
+  - Ambos archivos de entitlements siguen siendo plist válidos.
+- **Criterios de QA:**
+  1. **El workflow llega a compilar:** los pasos de análisis y tests deben pasar en verde en la
+     primera ejecución. Antes de este cambio, habrían fallado por los 5 imports.
+  2. **Login con Apple funciona** en un dispositivo real con el build de TestFlight. Es lo que el
+     entitlement desbloquea.
+  3. **El login con Google sigue igual**, que es lo que convive con él en la misma pantalla.
+
 ### [2026-08-06]: El proyecto iOS decía 13.0 y los Pods exigían 15.0
 
 - **El problema:** `IPHONEOS_DEPLOYMENT_TARGET = 13.0` en las tres configuraciones del proyecto,

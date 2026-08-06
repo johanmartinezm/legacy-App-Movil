@@ -53,8 +53,14 @@ jobs:
       - name: Analisis estatico y tests
         # Si el codigo no pasa esto, no tiene sentido gastar 20 minutos de
         # compilacion ni ocupar un numero de build en TestFlight.
+        #
+        # --no-fatal-infos: los errores y los warnings SI tumban el build, que es
+        # la barrera que interesa. Los 48 avisos de nivel info que arrastra el
+        # proyecto son de estilo —BuildContext tras await, prints sueltos— y
+        # bloquear por ellos convertiria el workflow en algo que nadie puede
+        # usar hasta limpiarlos todos.
         run: |
-          flutter analyze
+          flutter analyze --no-fatal-infos
           flutter test
 
       - name: Instalar la clave de App Store Connect

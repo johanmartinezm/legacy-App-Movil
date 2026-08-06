@@ -8,5 +8,11 @@
 	     TestFlight y la App Store. -->
 	<key>aps-environment</key>
 	<string>development</string>
+	<!-- Tambien en Debug: si solo estuviera en Release, el login con Apple
+	     fallaria al probar desde Xcode y parecerian dos bugs distintos. -->
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
 </dict>
 </plist>

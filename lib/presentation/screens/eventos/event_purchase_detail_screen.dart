@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:legacy_app/domain/models/event_model.dart';
-import 'package:legacy_app/domain/providers/auth_provider.dart';
-import 'package:legacy_app/domain/providers/events_provider.dart';
-import 'package:provider/provider.dart';
 import '../../../data/config/image_helper.dart';
 import '../../widgets/eventos/event_action_button.dart';
 import '../../widgets/eventos/event_survey_button.dart';
-import 'event_payment_screen.dart';
 
 class EventPurchaseDetailScreen extends StatelessWidget {
   final EventModel event;
