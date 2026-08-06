@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../data/services/auth_service.dart';
@@ -51,8 +52,48 @@ class AuthProvider extends ChangeNotifier {
   }
   String? get alias => _alias;
 
+  /// Comprueba si un JWT ya caducó, leyendo su claim `exp` sin llamar al
+  /// servidor.
+  ///
+  /// Hace falta porque el token del backend **dura 24 horas**
+  /// (`auth_service.go:54`) y no hay refresh token. Sin esta comprobación, al
+  /// día siguiente "Recordarme" metía al usuario en la app con un token muerto:
+  /// `isAuthenticated` era true, el splash iba a `/home`, y todas las llamadas
+  /// respondían 401 sin que nada lo explicara. Desde fuera parecía que la
+  /// sesión recordada no servía.
+  static bool tokenCaducado(String? token) {
+    if (token == null || token.isEmpty) return true;
+    try {
+      final partes = token.split('.');
+      if (partes.length != 3) return true;
+      final payload = jsonDecode(
+        utf8.decode(base64Url.decode(base64Url.normalize(partes[1]))),
+      );
+      final exp = payload['exp'];
+      // Un token sin `exp` no se puede juzgar aquí; se deja pasar y que decida
+      // el servidor.
+      if (exp is! int) return false;
+      final vence = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+      return DateTime.now().isAfter(vence);
+    } catch (_) {
+      // Ilegible es inservible.
+      return true;
+    }
+  }
+
   Future<void> checkLoginStatus() async {
     _token = await _storage.read(key: 'auth_token');
+
+    // Una sesión caducada se limpia aquí, para que el usuario acabe en el login
+    // en vez de en una app donde todo falla con 401.
+    if (_token != null && tokenCaducado(_token)) {
+      debugPrint('Sesión guardada caducada: se pide iniciar sesión de nuevo');
+      _token = null;
+      await _borrarDatosPersistidos();
+      notifyListeners();
+      return;
+    }
+
     _customerStatus = await _storage.read(key: 'customer_status');
     _userID = await _storage.read(key: 'user_id');
     _firstName = await _storage.read(key: 'first_name');
@@ -199,10 +240,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>?> handleSocialLogin(
-    String provider, {
-    bool rememberMe = false,
-  }) async {
+  Future<Map<String, dynamic>?> handleSocialLogin(String provider) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -240,21 +278,10 @@ class AuthProvider extends ChangeNotifier {
 
       // Success Login
       _token = response['token'];
-      // Se respeta "Recordarme" igual que en el login por correo. Antes el
-      // token se guardaba SIEMPRE aquí, así que para quien entraba con Google o
-      // Apple la casilla no hacía absolutamente nada: ni marcada ni desmarcada
-      // cambiaba el comportamiento.
-      if (rememberMe) {
-        await _storage.write(key: 'auth_token', value: _token);
-      } else {
-        await _storage.delete(key: 'auth_token');
-      }
+      // El acceso con Google o Apple persiste siempre la sesión: la casilla
+      // "Recordarme" pertenece al formulario de correo y contraseña.
+      await _storage.write(key: 'auth_token', value: _token);
       await fetchProfile();
-      if (!rememberMe) {
-        // fetchProfile persiste los datos del perfil; si no hay que recordar la
-        // sesión, tampoco deben quedarse en el dispositivo.
-        await _borrarDatosPersistidos();
-      }
       if (_token != null) _registerDeviceToken();
       
       _isLoading = false;

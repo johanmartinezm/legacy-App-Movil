@@ -49,13 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _handleSocialLogin(String provider) async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    // "Recordarme" también aplica a Google y Apple: la casilla está en el mismo
-    // formulario y el usuario no tiene por qué saber que solo valía para el
-    // acceso con correo.
-    final result = await authProvider.handleSocialLogin(
-      provider,
-      rememberMe: _rememberMe,
-    );
+    final result = await authProvider.handleSocialLogin(provider);
 
     if (result == null) return; // Error or canceled
 

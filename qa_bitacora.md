@@ -17,10 +17,18 @@ Entrada de trabajo para validación de App Móvil.
     valor de la tabla. Ahora recarga las inscripciones reales. Nuevos `registrationFor(eventId)` y
     `registrationsLoaded`, este último para no ofrecer reservar un cupo mientras aún no se sabe si
     el usuario lo tiene.
-  - `"Recordarme"`: `handleSocialLogin` **guardaba el token siempre**, sin mirar la casilla, así que
-    para quien entraba con Google o Apple no hacía absolutamente nada. Ahora la respeta, igual que
-    el acceso por correo. El borrado de datos persistidos se unifica en `_borrarDatosPersistidos`,
+  - `"Recordarme"` (acceso con correo y contraseña): la sesión **sí se guardaba**; lo que fallaba
+    era al recuperarla. El token del backend **dura 24 horas** (`auth_service.go:54`) y no hay
+    refresh token, y `checkLoginStatus` lo restauraba **sin comprobar la caducidad**: al día
+    siguiente `isAuthenticated` era `true`, el splash llevaba a `/home` y todas las llamadas
+    respondían 401. `fetchProfile` se tragaba ese 401 con un `debugPrint` y dejaba el token muerto
+    en el dispositivo. Desde fuera, "la sesión recordada no sirve". Ahora
+    `AuthProvider.tokenCaducado` lee el claim `exp` sin llamar al servidor y limpia la sesión, de
+    modo que el usuario aterriza en el login. El borrado se unifica en `_borrarDatosPersistidos`,
     que además limpia `user_alias`, que se quedaba.
+  - **Límite que sigue en pie:** "Recordarme" no puede durar más de 24 horas mientras el backend no
+    emita un refresh token. Alargar `tokenDuration` sin más no es la solución: un token robado
+    valdría lo mismo que dure.
   - `Casilla`: el `Checkbox` vivía dentro de un `GestureDetector` que alternaba el mismo estado, de
     modo que el comportamiento dependía de si el dedo caía sobre la casilla o sobre el texto. Ahora
     hay un único `InkWell` y la casilla lleva colores explícitos: sin ellos quedaba casi invisible
@@ -36,10 +44,11 @@ Entrada de trabajo para validación de App Móvil.
      pantalla.
   5. **Pendiente de pago:** un evento de pago con el cupo reservado muestra "CUPO RESERVADO ·
      PENDIENTE DE PAGO" y el botón **Completar pago**.
-  6. **Recordarme con correo:** marcar la casilla, entrar, **cerrar la app por completo** y
-     reabrirla → debe entrar directo, sin pedir credenciales.
-  7. **Recordarme con Google:** lo mismo entrando con el botón de Google. **Este es el caso que no
-     funcionaba.**
+  6. **Recordarme con correo:** marcar la casilla, entrar con correo y contraseña, **cerrar la app
+     por completo** y reabrirla → debe entrar directo, sin pedir credenciales. **Ojo: reinstalar la
+     app borra el almacén cifrado, así que la prueba solo vale sin reinstalación de por medio.**
+  7. **Sesión caducada:** pasadas 24 horas desde el acceso, reabrir la app debe llevar **al login**,
+     no a una pantalla de inicio donde todo falle en silencio. Este era el fallo.
   8. **Sin recordarme:** desmarcar, entrar, cerrar la app y reabrirla → debe pedir credenciales otra
      vez.
   9. **La casilla responde:** tocar la casilla y también el texto "Recordarme"; en ambos casos debe
