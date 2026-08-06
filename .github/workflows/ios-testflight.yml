@@ -88,6 +88,43 @@ jobs:
             flutter build ios --release --no-codesign
           fi
 
+      - name: Importar el certificado de distribucion
+        env:
+          APPLE_DIST_CERT_P12: ${{ secrets.APPLE_DIST_CERT_P12 }}
+          APPLE_DIST_CERT_PASSWORD: ${{ secrets.APPLE_DIST_CERT_PASSWORD }}
+        # Xcode NO puede crear un certificado de distribucion con una clave de
+        # API: Apple lo prohibe (403 "not allowed to perform this operation"),
+        # incluso con rol Admin. Solo se crea desde el portal web. Por eso el
+        # certificado se genera una vez a mano y viaja aqui como secreto.
+        #
+        # Sin esto, el paso de exportar falla con "No signing certificate
+        # 'iOS Distribution' found" aunque el archive haya funcionado.
+        run: |
+          set -euo pipefail
+          LLAVERO="$RUNNER_TEMP/firma.keychain-db"
+          CLAVE_LLAVERO=$(uuidgen)
+
+          security create-keychain -p "$CLAVE_LLAVERO" "$LLAVERO"
+          # Sin timeout no se bloquea a mitad de una compilacion larga.
+          security set-keychain-settings -lut 21600 "$LLAVERO"
+          security unlock-keychain -p "$CLAVE_LLAVERO" "$LLAVERO"
+
+          echo "$APPLE_DIST_CERT_P12" | base64 --decode > "$RUNNER_TEMP/dist.p12"
+          security import "$RUNNER_TEMP/dist.p12" -k "$LLAVERO" \
+            -P "$APPLE_DIST_CERT_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+          rm -f "$RUNNER_TEMP/dist.p12"
+
+          # Sin esto, codesign pediria confirmacion interactiva y se quedaria
+          # colgado hasta agotar el tiempo del job.
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$CLAVE_LLAVERO" "$LLAVERO" >/dev/null
+
+          # El llavero nuevo debe estar en la lista de busqueda, o xcodebuild no
+          # lo mira.
+          security list-keychain -d user -s "$LLAVERO" login.keychain-db
+
+          echo "identidades de firma disponibles:"
+          security find-identity -v -p codesigning "$LLAVERO"
+
       - name: Archivar y exportar el IPA
         env:
           APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
