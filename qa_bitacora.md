@@ -2,6 +2,32 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-06]: El proyecto iOS decía 13.0 y los Pods exigían 15.0
+
+- **El problema:** `IPHONEOS_DEPLOYMENT_TARGET = 13.0` en las tres configuraciones del proyecto,
+  contra `platform :ios, '15.0'` en el `Podfile`. Compilar con esa contradicción da avisos y puede
+  fallar al enlazar, porque las dependencias se construyen para una versión mínima superior a la de
+  la app.
+- **Se subió el proyecto, no se bajó el Podfile**, porque bajarlo **no era posible**: los pods
+  `firebase_core` y `firebase_messaging` instalados (Firebase iOS SDK **12.15.0**) declaran
+  `"ios": "15.0"` como mínimo. Volver a 13.0 exigiría degradar Firebase.
+- **Alcance:**
+  - `ios/Runner.xcodeproj/project.pbxproj` — las **tres** configuraciones a `15.0`.
+  - `ios/Flutter/AppFrameworkInfo.plist` — `MinimumOSVersion` a `15.0`; era el tercer sitio donde se
+    declaraba y también decía 13.0.
+  - El `Podfile` ya estaba en `15.0` y su `post_install` fuerza `15.0` en todos los pods: no se
+    tocó.
+- **Impacto en usuarios: prácticamente nulo.** iOS 15 es compatible con **los mismos modelos** que
+  iOS 13 —del iPhone 6s en adelante—, así que no queda ningún dispositivo fuera; solo quedarían
+  fuera usuarios que tengan un iPhone compatible y no lo hayan actualizado nunca.
+- **Sin verificar con Xcode**: hecho desde Windows. Sí se comprobó que los plist siguen siendo
+  válidos y que el diff son cuatro líneas.
+- **Criterios de QA (requieren macOS):**
+  1. **`pod install` sin avisos** de deployment target incompatible.
+  2. **`flutter build ios` compila** sin errores.
+  3. **La app arranca** en un dispositivo con iOS 15 o superior.
+  4. **App Store Connect** acepta el build sin quejarse de la versión mínima.
+
 ### [2026-08-06]: iOS pedía el APNs de pruebas, así que las push no llegarían en TestFlight
 
 - **El problema:** `Runner.entitlements` declaraba `aps-environment = development` para **las tres**
