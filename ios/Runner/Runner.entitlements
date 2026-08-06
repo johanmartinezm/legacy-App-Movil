@@ -2,7 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- production, no development: lo usan las configuraciones Release y
+	     Profile, que son las que se distribuyen. Con development, iOS entrega
+	     un token del APNs de pruebas y las notificaciones NO llegan en builds
+	     de TestFlight ni de la App Store, aunque en el simulador y en el
+	     dispositivo conectado por cable funcionaran.
+	     La configuracion Debug usa RunnerDebug.entitlements. -->
 	<key>aps-environment</key>
-	<string>development</string>
+	<string>production</string>
 </dict>
 </plist>

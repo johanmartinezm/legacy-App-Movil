@@ -2,6 +2,44 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-06]: iOS pedía el APNs de pruebas, así que las push no llegarían en TestFlight
+
+- **El problema:** `Runner.entitlements` declaraba `aps-environment = development` para **las tres**
+  configuraciones. Con ese valor iOS entrega un token del APNs **sandbox**, que no sirve en builds
+  distribuidos: las notificaciones funcionarían con el dispositivo conectado por cable y **no
+  llegarían** ni por TestFlight ni por App Store. Con las push ya operativas en Android desde hoy,
+  esto dejaba fuera a todos los usuarios de iPhone.
+- **Alcance:**
+  - `ios/Runner/Runner.entitlements` → `production`. Lo usan **Release y Profile**, que son las
+    configuraciones que se distribuyen.
+  - `ios/Runner/RunnerDebug.entitlements` (nuevo) → `development`, para que los builds lanzados
+    desde Xcode sigan usando el APNs de pruebas.
+  - `ios/Runner.xcodeproj/project.pbxproj` — **una sola línea**: la configuración Debug apunta al
+    archivo nuevo. Release y Profile siguen igual.
+  - `ios/Runner/Info.plist` — `UIBackgroundModes: [remote-notification]`. La app **ya registra**
+    `FirebaseMessaging.onBackgroundMessage` (`main.dart:84`) y sin esta clave iOS nunca lo ejecuta.
+    Las notificaciones con alerta se mostraban igual —de eso se encarga el sistema—; lo que no
+    ocurría era el procesamiento de los datos que las acompañan.
+  - **Sin verificar con Xcode**: se hizo desde Windows, así que no hay build de iOS que lo respalde.
+    Sí se comprobó que los tres archivos siguen siendo plist válidos y que el cambio en el proyecto
+    es exactamente una línea.
+- **Requisito que no está en el código:** en la consola de Firebase, el proyecto `app-legacy-848f1`
+  necesita una **clave de APNs (.p8)** subida, o certificados de **producción**. Sin eso, el
+  entitlement correcto no basta y las push seguirán sin llegar en iOS.
+- **Criterios de QA (requieren macOS con Xcode):**
+  1. **Compila:** `flutter build ios` termina sin errores de firma. Es lo primero, porque el cambio
+     toca el proyecto Xcode.
+  2. **Debug sigue en sandbox:** con la app lanzada desde Xcode, el log de FirebaseMessaging **no**
+     debe mostrar el aviso de entorno APNs incorrecto.
+  3. **TestFlight:** subir un build y comprobar que **llega** una notificación enviada desde el
+     panel a "todos". Es la prueba que justifica el cambio; antes no llegaba.
+  4. **Aviso automático:** crear un evento desde el panel y comprobar que el iPhone lo recibe, igual
+     que ya hace Android.
+  5. **Segundo plano:** con la app cerrada, la notificación debe aparecer en el centro de
+     notificaciones.
+- **Sigue pendiente y no se tocó:** `IPHONEOS_DEPLOYMENT_TARGET = 13.0` en el proyecto contra
+  `platform :ios, '15.0'` en el `Podfile`.
+
 ### [2026-08-05]: La vuelta desde la pasarela de pagos ya llega a la app
 
 - **Alcance:**

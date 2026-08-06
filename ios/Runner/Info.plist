@@ -86,5 +86,14 @@
 	     flutter_deeplinking_enabled en Android. -->
 	<key>FlutterDeepLinkingEnabled</key>
 	<true/>
+	<!-- remote-notification: sin esto, iOS no ejecuta el manejador de mensajes
+	     en segundo plano que la app ya registra en main.dart
+	     (FirebaseMessaging.onBackgroundMessage). Las notificaciones con alerta
+	     se mostraban igual, porque de eso se encarga el sistema; lo que no
+	     ocurria era el procesamiento de los datos que las acompanan. -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>
