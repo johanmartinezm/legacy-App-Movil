@@ -184,6 +184,55 @@ void main() {
     expect(llamadas, isEmpty);
   });
 
+  testWidgets('Un solo campo vacío ya detiene el flujo', (tester) async {
+    // Los tres datos del participante son obligatorios.
+    final llamadas = await montar(
+      tester,
+      _AuthFake(nombre: 'Johan Martinez', correo: 'johan@example.com'),
+    );
+
+    // El teléfono llega vacío porque el perfil no lo tiene.
+    await tester.tap(find.text('PROCEDER AL PAGO'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Escribe un teléfono de contacto'), findsOneWidget);
+    expect(find.text('Completa los datos del participante para continuar'),
+        findsOneWidget);
+    expect(llamadas, isEmpty, reason: 'no debe reservar ni salir a la pasarela');
+  });
+
+  testWidgets('Al completar el campo que faltaba, el flujo continúa', (
+    tester,
+  ) async {
+    final llamadas = await montar(
+      tester,
+      _AuthFake(nombre: 'Johan Martinez', correo: 'johan@example.com'),
+    );
+
+    await tester.tap(find.text('PROCEDER AL PAGO'));
+    await tester.pumpAndSettle();
+    expect(llamadas, isEmpty);
+
+    await tester.enterText(
+      find.byKey(const Key('pago-telefono')),
+      '+57 300 123 4567',
+    );
+    await tester.pump();
+    await tester.tap(find.text('PROCEDER AL PAGO'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(llamadas, isNotEmpty, reason: 'con los tres datos ya debe continuar');
+  });
+
+  testWidgets('Los tres campos se marcan como obligatorios', (tester) async {
+    await montar(tester, _AuthFake());
+
+    expect(find.text('Nombre Completo *'), findsOneWidget);
+    expect(find.text('Email *'), findsOneWidget);
+    expect(find.text('Teléfono *'), findsOneWidget);
+  });
+
   testWidgets('Rechaza un correo con errata', (tester) async {
     await montar(
       tester,

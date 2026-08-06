@@ -2,6 +2,31 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-05]: Datos del participante obligatorios, y el pago deja de enviar usuario e importe libre
+
+- **Alcance:**
+  - `Obligatoriedad`: `event_payment_screen.dart` — los tres datos del participante son requisito
+    para continuar. La validación ya existía; ahora además las etiquetas llevan `*`, aparece un
+    aviso al pie si falta algo, y tras el primer intento fallido los errores se refrescan mientras
+    el usuario escribe (`autovalidateMode.onUserInteraction`) en vez de esperar a que vuelva a
+    pulsar.
+  - `Pago`: `payment_service.dart` deja de enviar la cabecera `X-User-ID` —el backend toma el
+    usuario del token— y traduce los rechazos del servidor: **409** "el precio cambió, vuelve a
+    abrir el evento", **400** evento gratuito, **404** evento inexistente, **401** sesión expirada.
+    Antes se mostraba el cuerpo crudo de la respuesta.
+  - `checkout_screen.dart` (carrito): mismo cambio de firma.
+  - `Tests`: 3 casos nuevos en `event_payment_screen_test.dart` (10 en total).
+- **Criterios de QA:**
+  1. **Los tres campos son obligatorios:** vaciar cualquiera de ellos y pulsar *PROCEDER AL PAGO* →
+     no debe abrirse la pasarela ni reservarse el cupo, y sale el aviso "Completa los datos del
+     participante para continuar".
+  2. **Un solo campo vacío basta para detener el flujo:** con nombre y correo puestos y el teléfono
+     en blanco, tampoco continúa.
+  3. **Se ven marcados:** las etiquetas muestran `Nombre Completo *`, `Email *` y `Teléfono *`.
+  4. **Corregir desbloquea:** al completar el campo que faltaba, el error desaparece solo y el botón
+     ya lleva a la pasarela.
+  5. **Correo con errata:** `johan.example` → "Ese correo no parece válido", y no continúa.
+
 ### [2026-08-05]: El botón del evento ignoraba la inscripción, y "Recordarme" no aplicaba al login social
 
 - **Alcance:**

@@ -30,6 +30,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
   final _emailController = TextEditingController();
   final _telefonoController = TextEditingController();
   bool _datosCargados = false;
+  AutovalidateMode _autovalidar = AutovalidateMode.disabled;
 
   @override
   void didChangeDependencies() {
@@ -54,8 +55,19 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
   }
 
   Future<void> _processPayment() async {
-    // El formulario declaraba _formKey y nunca lo validaba.
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+    // Los tres datos del participante son obligatorios: sin ellos no se sigue
+    // al pago. El formulario declaraba _formKey y nunca lo validaba.
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      // A partir del primer intento fallido los errores se refrescan según el
+      // usuario escribe, en vez de esperar a que vuelva a pulsar el botón.
+      setState(() => _autovalidar = AutovalidateMode.onUserInteraction);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Completa los datos del participante para continuar'),
+        ),
+      );
+      return;
+    }
 
     setState(() {
       _isLoading = true;
@@ -174,6 +186,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
                   ),
                   child: Form(
                     key: _formKey,
+                    autovalidateMode: _autovalidar,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -249,7 +262,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
                         ),
                         const SizedBox(height: 12),
                         _buildTextField(
-                          'Nombre Completo',
+                          'Nombre Completo *',
                           'Juan Perez Garcia',
                           key: const Key('pago-nombre'),
                           controller: _nombreController,
@@ -259,7 +272,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
                         ),
                         const SizedBox(height: 12),
                         _buildTextField(
-                          'Email',
+                          'Email *',
                           'juan.perez@email.com',
                           key: const Key('pago-email'),
                           controller: _emailController,
@@ -277,7 +290,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
                         ),
                         const SizedBox(height: 12),
                         _buildTextField(
-                          'Teléfono',
+                          'Teléfono *',
                           '+57 300 123 4567',
                           key: const Key('pago-telefono'),
                           controller: _telefonoController,
