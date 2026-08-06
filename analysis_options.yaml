@@ -24,5 +24,18 @@ linter:
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule
     # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
 
+analyzer:
+  exclude:
+    # build/ son artefactos, no codigo del proyecto. En macOS, `flutter pub get`
+    # resuelve ahi los Swift Packages de los plugins de iOS y macOS, y eso
+    # arrastra el codigo de EJEMPLO de cada plugin: `flutter analyze` se pone a
+    # analizarlo y falla por dependencias que ese ejemplo usa y nosotros no
+    # (flutter_local_notifications, entre otras).
+    #
+    # En Windows no ocurre, porque ahi no se resuelven los paquetes de iOS. Por
+    # eso el analisis pasaba en local y tumbaba el workflow en el runner de
+    # macOS, que es donde se compila el .ipa.
+    - build/**
+
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
