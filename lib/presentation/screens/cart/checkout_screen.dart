@@ -28,8 +28,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final token = authProvider.token;
-      final userId = authProvider.userID ?? '00000000-0000-0000-0000-000000000000';
-      
+      // El usuario ya no se envía: el backend lo toma del token.
+
       if (token == null) {
         throw Exception('Usuario no autenticado');
       }
@@ -41,7 +41,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         referenceId: '11111111-1111-1111-1111-111111111111', 
         amount: amount,
         returnUrl: 'legacyapp://payment-callback',
-        userId: userId,
         token: token,
       );
       

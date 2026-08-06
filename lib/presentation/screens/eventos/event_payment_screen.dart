@@ -90,7 +90,6 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
         referenceId: widget.event.id,
         amount: widget.event.price,
         returnUrl: 'legacyapp://payment-callback',
-        userId: authProvider.userID ?? '',
         token: token,
       );
       
