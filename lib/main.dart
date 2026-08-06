@@ -260,9 +260,13 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
         GoRoute(
           path: '/payment-callback',
           builder: (context, state) {
-            // we will pass the orderId from query params: ?order_id=xyz
-            final orderId = state.uri.queryParameters['order_id'] ?? '';
-            return PaymentCallbackScreen(orderId: orderId);
+            // El backend añade ?tx_id=... a la URL de retorno antes de dársela
+            // a la pasarela, así que el id de la transacción está garantizado
+            // se llame como se llame lo que CredibanCo agregue por su cuenta.
+            // Se aceptan los nombres antiguos por si llega un enlace viejo.
+            final q = state.uri.queryParameters;
+            final txId = q['tx_id'] ?? q['order_id'] ?? q['orderId'] ?? '';
+            return PaymentCallbackScreen(orderId: txId);
           },
         ),
 

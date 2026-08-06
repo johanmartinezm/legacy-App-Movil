@@ -31,6 +31,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
   final _telefonoController = TextEditingController();
   bool _datosCargados = false;
   AutovalidateMode _autovalidar = AutovalidateMode.disabled;
+  bool _esperandoPasarela = false;
 
   @override
   void didChangeDependencies() {
@@ -101,19 +102,24 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
         referenceType: 'EVENT',
         referenceId: widget.event.id,
         amount: widget.event.price,
-        returnUrl: 'legacyapp://payment-callback',
+        // El host "app" no es decorativo: Flutter enruta por el PATH de la URI,
+        // y legacyapp://payment-callback deja el path vacío, así que el router
+        // nunca llegaría a /payment-callback. El backend añade ?tx_id=... a esta
+        // URL antes de entregársela a la pasarela.
+        returnUrl: 'legacyapp://app/payment-callback',
         token: token,
       );
-      
+
       final uri = Uri.parse(formUrl);
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
-        
-        // Note: The app should listen for the deep link `legacyapp://payment-callback`
-        // in the main router, which would then call /api/payments/verify to confirm.
-        // For UX flow, we can go back to events screen now and let deep link handle success.
+
+        // Antes se navegaba a /eventos nada más abrir el navegador, así que al
+        // volver el usuario aterrizaba en el listado como si no hubiera pasado
+        // nada. Ahora se queda una pantalla que explica en qué punto está; si
+        // el pago se confirma, el deep link la sustituye por el resultado.
         if (mounted) {
-          context.go('/eventos');
+          setState(() => _esperandoPasarela = true);
         }
       } else {
         throw Exception('No se pudo abrir la pasarela de pagos.');
@@ -134,6 +140,77 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
         });
       }
     }
+  }
+
+  /// Pantalla que queda mientras el usuario paga en el navegador. Explica qué
+  /// está pasando y qué hacer si la vuelta automática falla.
+  Widget _buildEsperandoPasarela() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.lock_clock_rounded,
+            size: 56,
+            color: Color(0xFFD9A74A),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'Terminando tu pago',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.barlow(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Abrimos la pasarela en tu navegador. Tu cupo ya está reservado; '
+            'en cuanto el banco confirme el pago, tu código de acceso aparecerá '
+            'en "Mi credencial".',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.questrial(
+              fontSize: 14,
+              color: const Color(0xFF90A4BA),
+            ),
+          ),
+          const SizedBox(height: 28),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              key: const Key('pago-ver-credencial'),
+              onPressed: () => context.push('/mi-credencial'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFD9A74A),
+                foregroundColor: const Color(0xFF050B15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
+              ),
+              child: Text(
+                'Ver mi credencial',
+                style: GoogleFonts.barlow(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: () => context.go('/eventos'),
+            child: Text(
+              'Volver a eventos',
+              style: GoogleFonts.questrial(color: const Color(0xFF90A4BA)),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -176,232 +253,254 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
           ),
         ),
         child: SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24.0,
-                    vertical: 16.0,
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    autovalidateMode: _autovalidar,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Summary Card
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF0B1A2E).withValues(alpha: 0.85),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(0xFF1E3A5F).withValues(alpha: 0.6),
-                              width: 1.5,
-                            ),
-                          ),
+          child: _esperandoPasarela
+              ? _buildEsperandoPasarela()
+              : Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24.0,
+                          vertical: 16.0,
+                        ),
+                        child: Form(
+                          key: _formKey,
+                          autovalidateMode: _autovalidar,
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
+                              // Summary Card
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: const Color(
+                                    0xFF0B1A2E,
+                                  ).withValues(alpha: 0.85),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: const Color(
+                                      0xFF1E3A5F,
+                                    ).withValues(alpha: 0.6),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      widget.event.title,
+                                      style: GoogleFonts.barlow(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      '${widget.event.date} • ${widget.event.location ?? "Online"}',
+                                      style: GoogleFonts.questrial(
+                                        fontSize: 14,
+                                        color: const Color(0xFF90A4BA),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          '1 entrada',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        Text(
+                                          CurrencyFormatter.format(
+                                            widget.event.price,
+                                          ),
+                                          style: GoogleFonts.barlow(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
+                                            color: const Color(
+                                              0xFFD9A74A,
+                                            ), // Gold premium price
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Participant Details
                               Text(
-                                widget.event.title,
+                                'Datos del Participante:',
                                 style: GoogleFonts.barlow(
-                                  fontSize: 18,
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 16,
                                   color: Colors.white,
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                '${widget.event.date} • ${widget.event.location ?? "Online"}',
-                                style: GoogleFonts.questrial(
-                                  fontSize: 14,
-                                  color: const Color(0xFF90A4BA),
-                                ),
+                              const SizedBox(height: 12),
+                              _buildTextField(
+                                'Nombre Completo *',
+                                'Juan Perez Garcia',
+                                key: const Key('pago-nombre'),
+                                controller: _nombreController,
+                                validator: (v) =>
+                                    (v == null || v.trim().isEmpty)
+                                    ? 'Escribe el nombre del participante'
+                                    : null,
                               ),
-                              const SizedBox(height: 16),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    '1 entrada',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  Text(
-                                    CurrencyFormatter.format(
-                                      widget.event.price,
-                                    ),
-                                    style: GoogleFonts.barlow(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
-                                      color: const Color(
-                                        0xFFD9A74A,
-                                      ), // Gold premium price
-                                    ),
-                                  ),
-                                ],
+                              const SizedBox(height: 12),
+                              _buildTextField(
+                                'Email *',
+                                'juan.perez@email.com',
+                                key: const Key('pago-email'),
+                                controller: _emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                validator: (v) {
+                                  final valor = v?.trim() ?? '';
+                                  if (valor.isEmpty) return 'Escribe un correo';
+                                  // Suficiente para atajar erratas; la validacion de
+                                  // verdad la hace el envio del correo.
+                                  final ok = RegExp(
+                                    r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
+                                  ).hasMatch(valor);
+                                  return ok
+                                      ? null
+                                      : 'Ese correo no parece válido';
+                                },
                               ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
+                              const SizedBox(height: 12),
+                              _buildTextField(
+                                'Teléfono *',
+                                '+57 300 123 4567',
+                                key: const Key('pago-telefono'),
+                                controller: _telefonoController,
+                                keyboardType: TextInputType.phone,
+                                validator: (v) =>
+                                    (v == null || v.trim().isEmpty)
+                                    ? 'Escribe un teléfono de contacto'
+                                    : null,
+                              ),
 
-                        // Participant Details
-                        Text(
-                          'Datos del Participante:',
-                          style: GoogleFonts.barlow(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _buildTextField(
-                          'Nombre Completo *',
-                          'Juan Perez Garcia',
-                          key: const Key('pago-nombre'),
-                          controller: _nombreController,
-                          validator: (v) => (v == null || v.trim().isEmpty)
-                              ? 'Escribe el nombre del participante'
-                              : null,
-                        ),
-                        const SizedBox(height: 12),
-                        _buildTextField(
-                          'Email *',
-                          'juan.perez@email.com',
-                          key: const Key('pago-email'),
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (v) {
-                            final valor = v?.trim() ?? '';
-                            if (valor.isEmpty) return 'Escribe un correo';
-                            // Suficiente para atajar erratas; la validacion de
-                            // verdad la hace el envio del correo.
-                            final ok = RegExp(
-                              r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
-                            ).hasMatch(valor);
-                            return ok ? null : 'Ese correo no parece válido';
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        _buildTextField(
-                          'Teléfono *',
-                          '+57 300 123 4567',
-                          key: const Key('pago-telefono'),
-                          controller: _telefonoController,
-                          keyboardType: TextInputType.phone,
-                          validator: (v) => (v == null || v.trim().isEmpty)
-                              ? 'Escribe un teléfono de contacto'
-                              : null,
-                        ),
+                              const SizedBox(height: 24),
 
-                        const SizedBox(height: 24),
-
-                        // Payment Method
-                        Text(
-                          'Método de Pago:',
-                          style: GoogleFonts.barlow(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _buildPaymentOption(
-                          'Tarjeta Crédito/Débito',
-                          'credit_card',
-                          isSelected: _selectedPaymentMethod == 'credit_card',
-                        ),
-                        const SizedBox(height: 12),
-                        _buildPaymentOption(
-                          'PSE - Pago en Línea',
-                          'pse',
-                          isSelected: _selectedPaymentMethod == 'pse',
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        // Total
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF0B1A2E).withValues(alpha: 0.85),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: const Color(0xFF1E3A5F).withValues(alpha: 0.4),
-                              width: 1,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
+                              // Payment Method
                               Text(
-                                'TOTAL A PAGAR:',
+                                'Método de Pago:',
                                 style: GoogleFonts.barlow(
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF90A4BA),
+                                  fontSize: 16,
+                                  color: Colors.white,
                                 ),
                               ),
-                              Text(
-                                CurrencyFormatter.format(widget.event.price),
-                                style: GoogleFonts.barlow(
+                              const SizedBox(height: 12),
+                              _buildPaymentOption(
+                                'Tarjeta Crédito/Débito',
+                                'credit_card',
+                                isSelected:
+                                    _selectedPaymentMethod == 'credit_card',
+                              ),
+                              const SizedBox(height: 12),
+                              _buildPaymentOption(
+                                'PSE - Pago en Línea',
+                                'pse',
+                                isSelected: _selectedPaymentMethod == 'pse',
+                              ),
+
+                              const SizedBox(height: 24),
+
+                              // Total
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
                                   color: const Color(
-                                    0xFFD9A74A,
-                                  ), // Gold premium price
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 22,
+                                    0xFF0B1A2E,
+                                  ).withValues(alpha: 0.85),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: const Color(
+                                      0xFF1E3A5F,
+                                    ).withValues(alpha: 0.4),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'TOTAL A PAGAR:',
+                                      style: GoogleFonts.barlow(
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFF90A4BA),
+                                      ),
+                                    ),
+                                    Text(
+                                      CurrencyFormatter.format(
+                                        widget.event.price,
+                                      ),
+                                      style: GoogleFonts.barlow(
+                                        color: const Color(
+                                          0xFFD9A74A,
+                                        ), // Gold premium price
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 22,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              // Pay Button
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24.0,
-                  vertical: 16.0,
-                ),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _processPayment,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD9A74A), // Premium gold
-                      foregroundColor: const Color(
-                        0xFF050B15,
-                      ), // Dark contrast text
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
                       ),
-                      elevation: 0,
                     ),
-                    child: _isLoading 
-                        ? const CircularProgressIndicator(color: Color(0xFF050B15))
-                        : Text(
-                            'PROCEDER AL PAGO',
-                            style: GoogleFonts.barlow(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+
+                    // Pay Button
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24.0,
+                        vertical: 16.0,
+                      ),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _processPayment,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(
+                              0xFFD9A74A,
+                            ), // Premium gold
+                            foregroundColor: const Color(
+                              0xFF050B15,
+                            ), // Dark contrast text
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
+                            elevation: 0,
                           ),
-                  ),
+                          child: _isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Color(0xFF050B15),
+                                )
+                              : Text(
+                                  'PROCEDER AL PAGO',
+                                  style: GoogleFonts.barlow(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 10),
-            ],
-          ),
         ),
       ),
     );
@@ -426,7 +525,9 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
         hintText: hint,
         floatingLabelBehavior: FloatingLabelBehavior.always,
         labelStyle: GoogleFonts.questrial(color: const Color(0xFF90A4BA)),
-        hintStyle: GoogleFonts.questrial(color: Colors.white.withValues(alpha: 0.3)),
+        hintStyle: GoogleFonts.questrial(
+          color: Colors.white.withValues(alpha: 0.3),
+        ),
         filled: true,
         fillColor: const Color(0xFF0B1A2E).withValues(alpha: 0.6),
         border: OutlineInputBorder(

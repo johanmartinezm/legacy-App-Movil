@@ -33,7 +33,29 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
+            <!-- Vuelta desde la pasarela de pagos.
+                 Sin esto, CredibanCo redirigia a legacyapp://... y el navegador
+                 no encontraba ninguna aplicacion que atendiera ese esquema: el
+                 usuario se quedaba en una pantalla de error DESPUES de haber
+                 pagado, y el cobro no se confirmaba nunca.
+                 El host "app" es necesario: Flutter enruta por el PATH de la
+                 URI, y legacyapp://payment-callback deja el path vacio. Con
+                 legacyapp://app/payment-callback el path es el que go_router
+                 espera. -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="legacyapp" android:host="app"/>
+            </intent-filter>
         </activity>
+
+        <!-- Deja que el motor de Flutter entregue la URI entrante al router en
+             vez de limitarse a abrir la app en la pantalla inicial. -->
+        <meta-data
+            android:name="flutter_deeplinking_enabled"
+            android:value="true"/>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

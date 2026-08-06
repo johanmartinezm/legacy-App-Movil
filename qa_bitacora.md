@@ -2,6 +2,43 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-05]: La vuelta desde la pasarela de pagos ya llega a la app
+
+- **Alcance:**
+  - `Android`: `AndroidManifest.xml` — nuevo `intent-filter` con `VIEW` + `BROWSABLE` y
+    `scheme="legacyapp"`, `host="app"`, más `flutter_deeplinking_enabled`. **El esquema no estaba
+    declarado**: CredibanCo redirigía a `legacyapp://…` y el navegador no encontraba ninguna
+    aplicación que lo atendiera, así que el usuario se quedaba en una pantalla de error **después de
+    haber pagado** y el cobro no se confirmaba nunca.
+  - `iOS`: `Info.plist` — `CFBundleURLSchemes` con `legacyapp` (solo estaba el de Google Sign-In) y
+    `FlutterDeepLinkingEnabled`.
+  - **El host `app` no es decorativo:** Flutter enruta por el **path** de la URI, y
+    `legacyapp://payment-callback` deja el path vacío, así que el router nunca llegaría a
+    `/payment-callback`. La URL de retorno pasa a ser `legacyapp://app/payment-callback`.
+  - `Callback`: `payment_callback_screen.dart` — ahora envía la cabecera `Authorization`
+    (`/api/payments/verify` está bajo `AuthMiddleware`, así que **la llamada anterior siempre
+    respondía 401**), lee `tx_id`, traduce cada estado de la pasarela a un mensaje con lo que el
+    usuario puede hacer, recarga las inscripciones tras un pago aprobado y ofrece ir a "Mi
+    credencial" en vez de solo al inicio.
+  - `Router`: `/payment-callback` lee `tx_id` (antes `order_id`, que el backend nunca enviaba);
+    se aceptan los nombres antiguos por si llega un enlace viejo.
+  - `Pantalla de espera`: al abrir la pasarela la app ya no salta a `/eventos` —el usuario volvía y
+    aterrizaba en el listado como si no hubiera pasado nada—, sino que queda una pantalla que
+    explica el estado y enlaza a "Mi credencial".
+- **Criterios de QA:**
+  1. **El esquema está registrado:** `adb shell dumpsys package co.legacynetwork.legacyapp` debe
+     mostrar `Scheme: "legacyapp"` con `Authority: "app"`.
+  2. **El enlace abre la app:**
+     `adb shell am start -a android.intent.action.VIEW -d 'legacyapp://app/forgot-password'` debe
+     abrir "Recuperar Contraseña", no la pantalla inicial. Confirma que el enrutado por path va.
+  3. **Pago real:** con sesión iniciada, pagar un evento y volver → debe aparecer la pantalla de
+     verificación y luego el resultado, no el listado de eventos.
+  4. **Tras aprobarse:** la inscripción deja de estar "PENDIENTE DE PAGO" en el detalle del evento y
+     el QR aparece en "Mi credencial", sin reiniciar la app.
+  5. **Pago rechazado:** mensaje explicando que el cupo sigue reservado y se puede reintentar.
+  6. **Sesión caducada al volver:** el usuario acaba en el login; el pago **no** queda confirmado
+     hasta que vuelva a entrar. Es la limitación que resuelve el webhook, todavía pendiente.
+
 ### [2026-08-05]: Datos del participante obligatorios, y el pago deja de enviar usuario e importe libre
 
 - **Alcance:**

@@ -67,7 +67,24 @@
 				<string>com.googleusercontent.apps.728967438065-257e4gl1id0s36ummv4l5598hsqu4mi8</string>
 			</array>
 		</dict>
+		<!-- Vuelta desde la pasarela de pagos. Antes solo estaba el esquema de
+		     Google, asi que legacyapp:// no abria la app y el cobro se quedaba
+		     sin confirmar. -->
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>co.legacynetwork.legacyapp.payments</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>legacyapp</string>
+			</array>
+		</dict>
 	</array>
 	<!-- End of the Google Sign-in Section -->
+	<!-- Entrega la URI entrante al router de Flutter, igual que
+	     flutter_deeplinking_enabled en Android. -->
+	<key>FlutterDeepLinkingEnabled</key>
+	<true/>
 </dict>
 </plist>
