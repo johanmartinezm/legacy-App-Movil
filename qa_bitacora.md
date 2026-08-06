@@ -2,6 +2,39 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-06]: Workflow de iOS — dos fallos reales y cómo se resolvieron
+
+Las dos primeras ejecuciones fallaron. Queda anotado porque ninguno de los dos fallos se puede
+anticipar desde Windows y volverán a aparecer en cualquier proyecto Flutter que se compile en CI.
+
+**1ª ejecución — `flutter analyze` tumbó el build antes de compilar.** En macOS, `flutter pub get`
+resuelve en `build/` los Swift Packages de los plugins de iOS y macOS, y eso arrastra el código de
+**ejemplo** de cada plugin. El analizador se puso a revisarlo y encontró errores por dependencias
+que ese ejemplo usa y nosotros no (`flutter_local_notifications`). En Windows no ocurre, porque ahí
+no se resuelven los paquetes de iOS: por eso pasaba en local y solo fallaba en el runner.
+→ **Arreglo:** `analyzer: exclude: [build/**]` en `analysis_options.yaml`.
+
+**2ª ejecución — falló al exportar el IPA**, con el archive ya correcto:
+`No signing certificate "iOS Distribution" found` y `Cloud signing permission error`. Xcode había
+creado por cloud signing un certificado de **desarrollo**; para exportar con `method: app-store`
+hace falta uno de **distribución**, y **Apple no permite crearlo con una clave de API**: responde
+`403 You are not allowed to perform this operation` incluso con rol Admin —comprobado, la clave
+puede listar usuarios de la cuenta, que es privilegio exclusivo de Admin—.
+→ **Arreglo:** el certificado se generó una vez desde Windows (CSR con OpenSSL, firmado en el portal
+web de Apple) y viaja como secreto en un `.p12`; el workflow lo importa en un llavero temporal.
+Los provisioning profiles sí los sigue creando Xcode con la clave de API: eso nunca falló.
+
+- **Alcance:** `analysis_options.yaml`, `.github/workflows/ios-testflight.yml` (paso nuevo
+  "Importar el certificado de distribucion"), y `DESPLIEGUE.md` con el procedimiento completo,
+  incluido cómo renovar el certificado cuando caduque **el 2027-08-06**.
+- **Dos secretos nuevos:** `APPLE_DIST_CERT_P12` y `APPLE_DIST_CERT_PASSWORD`, ya cargados.
+- **`set-key-partition-list` es imprescindible** en el paso del llavero: sin él, `codesign` pide
+  confirmación interactiva y el job se cuelga hasta agotar el tiempo.
+- **Verificado:** el certificado emitido es `Apple Distribution: LEGACY NETWORK SAS (87LBVBLK8T)`,
+  y su modulus coincide con la clave privada generada en local, así que el par es válido.
+- **Pendiente:** la ejecución con todo esto en su sitio. Los pasos 1 a 6 ya pasaron en verde en la
+  segunda ejecución; falta confirmar del 7 en adelante.
+
 ### [2026-08-06]: Sign in with Apple y preparación de la primera compilación en CI
 
 - **Alcance:**

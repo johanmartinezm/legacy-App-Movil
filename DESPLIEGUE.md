@@ -175,17 +175,49 @@ Apple, que no deben quedar al alcance de un pull request de un fork.
    TestFlight rechaza builds de una app que no esté registrada.
 3. **El App ID necesita la capability *Push Notifications*** habilitada en *Certificates,
    Identifiers & Profiles*. Sin ella, el `aps-environment` del entitlement no se puede firmar.
-4. **Tres secretos en GitHub** (*Settings → Secrets and variables → Actions*):
+4. **El certificado de distribución.** Es el paso que más confunde, porque **Apple no permite
+   crearlo con la clave de API**: devuelve `403 You are not allowed to perform this operation`
+   incluso con rol Admin. Solo se crea desde el portal web — pero **se puede hacer entero desde
+   Windows**, sin ningún Mac:
+
+   ```bash
+   # a) Clave privada y CSR, en local. openssl necesita un .cnf minimo porque
+   #    el de Windows suele apuntar a una ruta que no existe.
+   openssl genrsa -out dist_private_key.pem 2048
+   openssl req -new -key dist_private_key.pem -out dist.csr -config openssl_min.cnf
+
+   # b) Subir dist.csr en https://developer.apple.com/account/resources/certificates/add
+   #    eligiendo "Apple Distribution", y descargar el .cer
+
+   # c) Convertirlo y empaquetarlo con su clave privada
+   openssl x509 -inform DER -in distribution.cer -out dist_cert.pem
+   openssl pkcs12 -export -out dist.p12 -inkey dist_private_key.pem -in dist_cert.pem \
+     -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES -macalg SHA1 -passout pass:LA_QUE_SEA
+   ```
+
+   El PBE clásico del último comando no es capricho: es el formato que `security import` de macOS
+   lee sin protestar. Y **la clave privada es irremplazable**: Apple no la tiene, así que si se
+   pierde hay que revocar el certificado y repetir el proceso.
+
+5. **Cinco secretos en GitHub** (*Settings → Secrets and variables → Actions*):
 
    | Secreto | Contenido |
    |---|---|
    | `APPSTORE_KEY_ID` | el Key ID, unos 10 caracteres |
    | `APPSTORE_ISSUER_ID` | el Issuer ID, con formato de UUID |
-   | `APPSTORE_PRIVATE_KEY` | el contenido **completo** del `.p8`, incluidas las líneas `-----BEGIN PRIVATE KEY-----` y `-----END PRIVATE KEY-----` |
+   | `APPSTORE_PRIVATE_KEY` | el contenido **completo** del `.p8`, con sus líneas `-----BEGIN/END PRIVATE KEY-----` |
+   | `APPLE_DIST_CERT_P12` | el `.p12` del paso 4 **en base64** (`base64 -w0 dist.p12`) |
+   | `APPLE_DIST_CERT_PASSWORD` | la contraseña con la que se exportó ese `.p12` |
 
-No hace falta exportar ningún `.p12` ni provisioning profile: el workflow usa
-`xcodebuild -allowProvisioningUpdates` con esa clave, y Xcode pide a Apple el certificado y el
-perfil que necesite. Eso es lo que permite publicar sin tener un Mac.
+**Los provisioning profiles sí los crea Xcode solo**, con la clave de API y
+`-allowProvisioningUpdates`. Lo único que no puede conseguir por su cuenta es el certificado de
+distribución, y por eso viaja como secreto.
+
+### Renovar el certificado
+
+Caduca **al año**. Cuando expire, el workflow fallará al firmar y hay que repetir el paso 4 completo
+—CSR nuevo, portal, `.p12` nuevo— y actualizar los dos secretos. Los archivos del proceso quedaron
+en `docs/ios/` (fuera de git): ahí están la clave privada, el `.cer`, el `.p12` y su contraseña.
 
 ### Cada vez que se quiera publicar
 
