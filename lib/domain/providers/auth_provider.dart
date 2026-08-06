@@ -18,6 +18,7 @@ class AuthProvider extends ChangeNotifier {
   String? _firstName;
   String? _lastName;
   String? _email;
+  String? _phone;
   String? _role;
   String? _alias;
 
@@ -35,7 +36,19 @@ class AuthProvider extends ChangeNotifier {
   String? get firstName => _firstName;
   String? get lastName => _lastName;
   String? get email => _email;
+  String? get phone => _phone;
   String? get role => _role;
+
+  /// Nombre y apellido juntos, sin espacios sobrantes si falta alguno.
+  /// `null` cuando no hay ninguno de los dos, para que quien lo use pueda
+  /// distinguir "sin datos" de una cadena vacía.
+  String? get fullName {
+    final partes = [
+      _firstName,
+      _lastName,
+    ].where((p) => p != null && p.trim().isNotEmpty).map((p) => p!.trim());
+    return partes.isEmpty ? null : partes.join(' ');
+  }
   String? get alias => _alias;
 
   Future<void> checkLoginStatus() async {
@@ -45,6 +58,7 @@ class AuthProvider extends ChangeNotifier {
     _firstName = await _storage.read(key: 'first_name');
     _lastName = await _storage.read(key: 'last_name');
     _email = await _storage.read(key: 'user_email');
+    _phone = await _storage.read(key: 'user_phone');
     _role = await _storage.read(key: 'user_role');
     _alias = await _storage.read(key: 'user_alias');
     if (_token != null && (_customerStatus == null || _userID == null || _firstName == null || _email == null)) {
@@ -65,6 +79,7 @@ class AuthProvider extends ChangeNotifier {
       _firstName = profile['first_name'];
       _lastName = profile['last_name'];
       _email = profile['email'];
+      _phone = profile['phone'];
       await _storage.write(key: 'customer_status', value: _customerStatus);
       await _storage.write(key: 'user_id', value: _userID);
       if (_firstName != null) {
@@ -75,6 +90,9 @@ class AuthProvider extends ChangeNotifier {
       }
       if (_email != null) {
         await _storage.write(key: 'user_email', value: _email);
+      }
+      if (_phone != null && _phone!.isNotEmpty) {
+        await _storage.write(key: 'user_phone', value: _phone);
       }
       _alias = profile['alias'];
       if (_alias != null) {
@@ -259,6 +277,7 @@ class AuthProvider extends ChangeNotifier {
         await _storage.delete(key: 'user_id');
         await _storage.delete(key: 'first_name');
         await _storage.delete(key: 'last_name');
+        await _storage.delete(key: 'user_phone');
         await _storage.delete(key: 'user_role');
       }
 
@@ -317,12 +336,14 @@ class AuthProvider extends ChangeNotifier {
     _firstName = null;
     _lastName = null;
     _email = null;
+    _phone = null;
     await _storage.delete(key: 'auth_token');
     await _storage.delete(key: 'user_email');
     await _storage.delete(key: 'customer_status');
     await _storage.delete(key: 'user_id');
     await _storage.delete(key: 'first_name');
     await _storage.delete(key: 'last_name');
+    await _storage.delete(key: 'user_phone');
     await _storage.delete(key: 'user_role');
     notifyListeners();
   }

@@ -22,11 +22,44 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
+  // Antes estos tres campos no tenian controlador ni valor inicial: lo que se
+  // veia eran los `hintText` de ejemplo ("Juan Perez Garcia"), asi que el
+  // formulario era decorativo y nada de lo escrito se leia.
+  final _nombreController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _telefonoController = TextEditingController();
+  bool _datosCargados = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_datosCargados) return;
+
+    // Se rellena una sola vez: si el usuario corrige un dato, un segundo
+    // prellenado le borraria la correccion.
+    final auth = context.read<AuthProvider>();
+    _nombreController.text = auth.fullName ?? '';
+    _emailController.text = auth.email ?? '';
+    _telefonoController.text = auth.phone ?? '';
+    _datosCargados = true;
+  }
+
+  @override
+  void dispose() {
+    _nombreController.dispose();
+    _emailController.dispose();
+    _telefonoController.dispose();
+    super.dispose();
+  }
+
   Future<void> _processPayment() async {
+    // El formulario declaraba _formKey y nunca lo validaba.
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final token = authProvider.token;
@@ -199,18 +232,43 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        _buildTextField('Nombre Completo', 'Juan Perez Garcia'),
+                        _buildTextField(
+                          'Nombre Completo',
+                          'Juan Perez Garcia',
+                          key: const Key('pago-nombre'),
+                          controller: _nombreController,
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? 'Escribe el nombre del participante'
+                              : null,
+                        ),
                         const SizedBox(height: 12),
                         _buildTextField(
                           'Email',
                           'juan.perez@email.com',
+                          key: const Key('pago-email'),
+                          controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
+                          validator: (v) {
+                            final valor = v?.trim() ?? '';
+                            if (valor.isEmpty) return 'Escribe un correo';
+                            // Suficiente para atajar erratas; la validacion de
+                            // verdad la hace el envio del correo.
+                            final ok = RegExp(
+                              r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
+                            ).hasMatch(valor);
+                            return ok ? null : 'Ese correo no parece válido';
+                          },
                         ),
                         const SizedBox(height: 12),
                         _buildTextField(
                           'Teléfono',
                           '+57 300 123 4567',
+                          key: const Key('pago-telefono'),
+                          controller: _telefonoController,
                           keyboardType: TextInputType.phone,
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? 'Escribe un teléfono de contacto'
+                              : null,
                         ),
 
                         const SizedBox(height: 24),
@@ -323,9 +381,15 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
   Widget _buildTextField(
     String label,
     String hint, {
+    Key? key,
+    TextEditingController? controller,
     TextInputType? keyboardType,
+    String? Function(String?)? validator,
   }) {
     return TextFormField(
+      key: key,
+      controller: controller,
+      validator: validator,
       keyboardType: keyboardType,
       style: GoogleFonts.questrial(color: Colors.white),
       decoration: InputDecoration(

@@ -2,6 +2,39 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-05]: Datos del participante prellenados al reservar cupo
+
+- **Alcance:**
+  - `Pantalla`: `lib/presentation/screens/eventos/event_payment_screen.dart` — los tres campos de
+    "Datos del Participante" **no tenían `controller` ni `initialValue`**: lo que se veía
+    ("Juan Perez Garcia", "juan.perez@email.com", "+57 300 123 4567") eran los `hintText`, de modo
+    que el formulario era decorativo y nada de lo escrito se leía. Ahora llevan controladores
+    reales, se prellenan con el perfil del usuario en `didChangeDependencies` —una sola vez, para
+    no pisar una corrección del usuario— y se validan. `_formKey` se declaraba desde siempre y
+    nunca se llamaba a `validate()`; ahora sí, antes de proceder al pago.
+  - `Provider`: `lib/domain/providers/auth_provider.dart` — nuevo `phone`, que `GET /api/me` ya
+    devolvía y `fetchProfile` descartaba, y `fullName`, que une nombre y apellido sin dejar espacios
+    sobrantes si falta alguno. Ambos se persisten y **se borran al cerrar sesión**, para que el
+    siguiente usuario no vea el teléfono del anterior.
+  - `Tests`: `test/screens/event_payment_screen_test.dart` (nuevo) — 5 casos.
+  - **Sin cambios en el backend.**
+- **Criterios de QA:**
+  1. **Prellenado:** abrir un evento de pago → *Reservar cupo* → los tres campos llegan con el
+     nombre, el correo y el teléfono de la cuenta.
+  2. **Perfil incompleto:** con un usuario sin teléfono, ese campo queda **vacío**, no con el texto
+     de ejemplo. El gris que se ve es el `hint`, no un valor: si se envía, el campo va vacío.
+  3. **Editable:** cambiar el nombre a otro participante y comprobar que el texto se conserva al
+     desplazar la pantalla.
+  4. **Validación:** vaciar los tres campos y pulsar *PROCEDER AL PAGO*; deben salir los tres
+     mensajes y **no** debe abrirse la pasarela.
+  5. **Correo con errata:** escribir `johan.example` (sin arroba) → "Ese correo no parece válido".
+  6. **Tras cerrar sesión** y entrar con otra cuenta, los campos traen los datos de la **nueva**
+     cuenta.
+- **Advertencia:** estos datos **todavía no viajan a ninguna parte** — ni
+  `/api/payments/intent` ni `/api/events/{id}/register` los aceptan. El análisis completo del flujo
+  de pago, con los otros siete fallos encontrados y sin corregir, está en
+  `reports/20260805_flujo_pago_eventos.md`.
+
 ### [2026-08-05]: Encuesta general del evento (eventos, fase 3)
 
 - **Alcance:**
