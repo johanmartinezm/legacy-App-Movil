@@ -109,9 +109,16 @@ jobs:
           security set-keychain-settings -lut 21600 "$LLAVERO"
           security unlock-keychain -p "$CLAVE_LLAVERO" "$LLAVERO"
 
-          echo "$APPLE_DIST_CERT_P12" | base64 --decode > "$RUNNER_TEMP/dist.p12"
+          # Se recortan saltos de linea y retornos de carro de los dos secretos.
+          # Si el secreto se cargo desde un archivo, casi seguro trae un \n
+          # final, y entonces `security import` falla con "MAC verification
+          # failed during PKCS12 import (wrong password?)", que hace pensar en
+          # una contrasena equivocada cuando en realidad sobra un byte.
+          CLAVE_P12=$(printf '%s' "$APPLE_DIST_CERT_PASSWORD" | tr -d '\r\n')
+          printf '%s' "$APPLE_DIST_CERT_P12" | tr -d '\r\n' | base64 --decode > "$RUNNER_TEMP/dist.p12"
+
           security import "$RUNNER_TEMP/dist.p12" -k "$LLAVERO" \
-            -P "$APPLE_DIST_CERT_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+            -P "$CLAVE_P12" -T /usr/bin/codesign -T /usr/bin/security
           rm -f "$RUNNER_TEMP/dist.p12"
 
           # Sin esto, codesign pediria confirmacion interactiva y se quedaria
