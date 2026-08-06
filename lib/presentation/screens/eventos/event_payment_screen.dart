@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import 'package:legacy_app/domain/providers/auth_provider.dart';
+import 'package:legacy_app/domain/providers/events_provider.dart';
 import '../../../config/utils/currency_formatter.dart';
 import '../../../data/services/payment_service.dart';
 
@@ -65,6 +66,22 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
       final token = authProvider.token;
       if (token == null) {
         throw Exception('Usuario no autenticado');
+      }
+
+      // La inscripción se crea ANTES de salir a la pasarela. El backend la deja
+      // en 'pending_payment' porque el evento no es gratuito, y la confirma
+      // cuando el cobro se aprueba. Sin este paso no quedaba ni rastro de quién
+      // había intentado comprar: en el camino de pago la app iba directa a la
+      // pasarela y nunca llamaba a /register.
+      final eventsProvider = context.read<EventsProvider>();
+      final inscrito = await eventsProvider.registerUserToEvent(
+        widget.event.id,
+        token,
+      );
+      if (!inscrito) {
+        throw Exception(
+          eventsProvider.errorMessage ?? 'No se pudo reservar tu cupo',
+        );
       }
 
       final paymentService = PaymentService();
