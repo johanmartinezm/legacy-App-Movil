@@ -199,6 +199,13 @@ jobs:
 
           ls -la "$RUNNER_TEMP/ipa"
 
+          # El .ipa NO se llama Runner.ipa: toma el nombre del producto, que
+          # aqui es legacy_app.ipa. Se descubre en vez de darlo por supuesto,
+          # para que un cambio de nombre no vuelva a romper la subida.
+          RUTA_IPA=$(ls "$RUNNER_TEMP"/ipa/*.ipa | head -1)
+          echo "RUTA_IPA=$RUTA_IPA" >> "$GITHUB_ENV"
+          echo "ipa generado: $RUTA_IPA"
+
       - name: Guardar el IPA como artefacto
         # Queda descargable desde la pagina de la ejecucion aunque la subida
         # falle, para no perder 20 minutos de compilacion.
@@ -213,7 +220,7 @@ jobs:
         if: ${{ github.event.inputs.subir_a_testflight != 'false' }}
         uses: apple-actions/upload-testflight-build@v3
         with:
-          app-path: ${{ runner.temp }}/ipa/Runner.ipa
+          app-path: ${{ env.RUTA_IPA }}
           issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
           api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
