@@ -165,11 +165,17 @@ jobs:
           set -euo pipefail
           CLAVE="$HOME/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8"
 
-          # Firma manual y explicita: el proyecto tiene CODE_SIGN_STYLE
-          # Automatic, que en CI acaba pidiendo a Apple crear un certificado y
-          # un perfil de distribucion, y eso es justo lo que Apple prohibe con
-          # una clave de API. Se le indica aqui que use los que ya estan
-          # instalados.
+          # El archive NO lleva ajustes de firma en la linea de comandos.
+          #
+          # Se intento pasar CODE_SIGN_STYLE=Manual y PROVISIONING_PROFILE_
+          # SPECIFIER aqui, y xcodebuild los aplica a TODOS los targets, tambien
+          # a los Swift Packages de Firebase, GoogleSignIn y AppAuth, que no
+          # admiten perfiles: "does not support provisioning profiles, but
+          # provisioning profile Legacy App Store CI has been manually
+          # specified". El archive fallaba entero.
+          #
+          # Quien firma de verdad para App Store es exportArchive, y ahi si se
+          # indica el perfil, en ExportOptions.plist, que solo afecta a la app.
           xcodebuild archive \
             -workspace Runner.xcworkspace \
             -scheme Runner \
@@ -177,10 +183,6 @@ jobs:
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
-            CODE_SIGN_STYLE=Manual \
-            DEVELOPMENT_TEAM=87LBVBLK8T \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="Legacy App Store CI" \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$CLAVE" \
             -authenticationKeyID "$APPSTORE_KEY_ID" \
