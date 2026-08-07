@@ -1,0 +1,148 @@
+name: Android · Play Store
+
+# Compila el .aab firmado y lo sube a Google Play.
+#
+# Corre en ubuntu, no en macOS: Android no necesita Xcode, y ubuntu es mas
+# rapido y no consume la cuota de minutos de macOS.
+#
+# Solo se lanza a mano, por lo mismo que el de iOS: cada ejecucion consume un
+# numero de version en Play y usa las credenciales de firma, que no deben
+# quedar al alcance de un pull request de un fork.
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_number:
+        description: 'Numero de build. DEBE ser mayor que el ultimo subido a Play. Vacio = usa el de pubspec.yaml'
+        required: false
+        default: ''
+      track:
+        description: 'Canal de Play. internal = solo probadores internos; production = publico'
+        type: choice
+        required: true
+        default: internal
+        options:
+          - internal
+          - alpha
+          - beta
+          - production
+      subir_a_play:
+        description: 'Subir a Play al terminar. Desactivalo para obtener solo el .aab'
+        type: boolean
+        required: false
+        default: true
+
+concurrency:
+  group: android-play
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Descargar el codigo
+        uses: actions/checkout@v4
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          # El proyecto compila contra Java 11 (build.gradle.kts), pero Gradle y
+          # el plugin de Android necesitan un JDK moderno para ejecutarse.
+          java-version: '17'
+
+      - name: Preparar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.8'
+          channel: stable
+          cache: true
+
+      - name: Dependencias
+        run: flutter pub get
+
+      - name: Analisis estatico y tests
+        # Mismo criterio que en iOS: los errores y warnings tumban el build, los
+        # 48 avisos de estilo no.
+        run: |
+          flutter analyze --no-fatal-infos
+          flutter test
+
+      - name: Restaurar la firma
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_PROPERTIES: ${{ secrets.ANDROID_KEY_PROPERTIES }}
+        # El keystore y sus contrasenas no estan en el repositorio —y no deben
+        # estarlo, que es publico—, asi que se reconstruyen aqui.
+        run: |
+          set -euo pipefail
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ] || [ -z "$ANDROID_KEY_PROPERTIES" ]; then
+            echo "Faltan los secretos ANDROID_KEYSTORE_BASE64 y/o ANDROID_KEY_PROPERTIES."
+            echo "Ver 'Publicar en Google Play desde CI' en DESPLIEGUE.md."
+            exit 1
+          fi
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d '\r\n' | base64 --decode > android/app/upload-keystore.jks
+          printf '%s' "$ANDROID_KEY_PROPERTIES" > android/key.properties
+
+          # storeFile en key.properties es una ruta relativa al modulo app/, que
+          # es donde acaba de dejarse el keystore. Se comprueba que la firma
+          # esta completa antes de gastar la compilacion.
+          keytool -list -keystore android/app/upload-keystore.jks \
+            -storepass "$(grep '^storePassword=' android/key.properties | cut -d= -f2-)" >/dev/null
+          echo "keystore restaurado y verificado"
+
+      - name: Compilar el App Bundle
+        # Mismos flags que compilar_android.sh: ofuscado y con los simbolos
+        # aparte, que es lo que se venia subiendo a Play.
+        run: |
+          if [ -n "${{ github.event.inputs.build_number }}" ]; then
+            flutter build appbundle --release --obfuscate \
+              --split-debug-info=build/app/outputs/symbols \
+              --build-number=${{ github.event.inputs.build_number }}
+          else
+            flutter build appbundle --release --obfuscate \
+              --split-debug-info=build/app/outputs/symbols
+          fi
+          ls -la build/app/outputs/bundle/release/
+
+      - name: Guardar el .aab y los simbolos
+        # Los simbolos hacen falta para leer los informes de fallos de una
+        # version ofuscada: sin ellos, las trazas son ilegibles.
+        uses: actions/upload-artifact@v4
+        with:
+          name: legacy-android-${{ github.event.inputs.track }}-${{ github.run_number }}
+          path: |
+            build/app/outputs/bundle/release/*.aab
+            build/app/outputs/symbols
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Subir a Google Play
+        if: ${{ github.event.inputs.subir_a_play != 'false' }}
+        env:
+          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set -euo pipefail
+          if [ -z "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON" ]; then
+            echo "Falta el secreto GOOGLE_PLAY_SERVICE_ACCOUNT_JSON."
+            exit 1
+          fi
+          printf '%s' "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/play-account.json"
+
+          gem install fastlane --no-document --quiet
+          cd android
+          # skip_upload_metadata: la ficha de la tienda se gestiona desde Play
+          # Console, no desde el repositorio. Subirla desde aqui la
+          # sobrescribiria con lo que hubiera en fastlane/metadata.
+          fastlane supply \
+            --json_key "$RUNNER_TEMP/play-account.json" \
+            --package_name co.legacynetwork.legacyapp \
+            --aab ../build/app/outputs/bundle/release/app-release.aab \
+            --track "${{ github.event.inputs.track }}" \
+            --skip_upload_metadata true \
+            --skip_upload_images true \
+            --skip_upload_screenshots true \
+            --release_status completed
+          rm -f "$RUNNER_TEMP/play-account.json"
