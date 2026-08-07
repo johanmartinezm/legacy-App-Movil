@@ -231,13 +231,23 @@ problema al publicar no obliga a repetir veinte minutos de compilación.
 
 ### Si falla
 
-- **La primera ejecución es la que más falla**, casi siempre por firma o por que falte alguno de los
-  tres pasos de preparación. Los registros de `xcodebuild` se guardan como artefacto.
-- **`No profiles for 'co.legacynetwork.legacyapp' were found`**: la app no está en App Store Connect
-  o la clave de API no tiene rol suficiente.
-- **Build rechazado por número repetido**: subir el número de build.
-- **Aparece en TestFlight como *Missing Compliance***: es el cuestionario de cifrado; se resuelve
-  respondiendo en App Store Connect o declarando `ITSAppUsesNonExemptEncryption`.
+Estos son los fallos que costó ocho ejecuciones dejar atrás el 2026-08-06. Ninguno se puede
+anticipar desde Windows: casi todos solo aparecen en macOS o contra los servidores de Apple.
+
+| Síntoma | Causa y arreglo |
+|---|---|
+| `flutter analyze` falla con errores en `build/ios/SourcePackages/...` | En macOS, `pub get` resuelve ahí los Swift Packages y arrastra el código de **ejemplo** de los plugins. Ya está resuelto con `exclude: [build/**]` en `analysis_options.yaml` |
+| `MAC verification failed during PKCS12 import (wrong password?)` | Casi nunca es la contraseña: es un `\n` al final del secreto. El workflow ya recorta `\r\n`, pero al recargar el secreto conviene usar `printf '%s'`, no `echo` |
+| `No signing certificate "iOS Distribution" found` | Falta el `.p12`, o el secreto no llegó. Apple **no** deja crear certificados de distribución por API |
+| `No profiles for 'co.legacynetwork.legacyapp' were found` | Falta el provisioning profile, o su **nombre** no coincide con el de `ExportOptions.plist`. Apple tampoco deja crearlos por API |
+| `X does not support provisioning profiles, but provisioning profile ... has been manually specified` | Se pasaron ajustes de firma por línea de comandos a `xcodebuild`: se aplican a **todos** los targets, y los Swift Packages de Firebase o GoogleSignIn no los admiten. La firma va en `ExportOptions.plist`, no en el archive |
+| `The file .../Runner.ipa cannot be found` | El `.ipa` toma el nombre del **producto** (`legacy_app.ipa`), no el del target. El workflow ya lo descubre solo |
+| `This app was built with the iOS X SDK... must be built with the iOS 26 SDK or later` | Apple subió el SDK mínimo. Hay que cambiar el runner a una imagen con un Xcode más nuevo; el paso "Version de Xcode y SDK" del log dice con cuál se está compilando |
+| Build rechazado por número repetido | Subir el número de build. El **11** ya está usado |
+| En TestFlight sale *Missing Compliance* | Cuestionario de cifrado; se responde en App Store Connect o se declara `ITSAppUsesNonExemptEncryption` |
+
+**El `.ipa` queda como artefacto de la ejecución aunque la subida falle**, así que un problema al
+publicar no obliga a repetir la compilación.
 
 ## Web
 

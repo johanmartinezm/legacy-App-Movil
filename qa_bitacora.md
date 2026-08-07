@@ -2,6 +2,38 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-06]: El workflow de iOS funciona — build 1.0.0+11 en TestFlight
+
+- **`UPLOAD SUCCEEDED with no errors`.** Primera vez que se genera y publica un build de iOS de este
+  proyecto, y se hizo **sin ningún Mac**: todo en runners de GitHub, gratuitos por ser el
+  repositorio público.
+- **Compilado con Xcode 26.6 / SDK iOS 26.5.** El runner tuvo que pasar de `macos-15` a `macos-26`
+  porque Apple **rechaza en la validación** cualquier app construida con un SDK anterior al de iOS
+  26. El `.ipa` se generaba y firmaba bien; lo rechazaban al recibirlo.
+- **Ocho ejecuciones hicieron falta**, y cada fallo fue distinto y real. Están todos tabulados en
+  `DESPLIEGUE.md`, sección "Si falla", porque volverán a aparecer al renovar credenciales o cuando
+  Apple suba el mínimo de Xcode. Los dos más traicioneros:
+  - `MAC verification failed ... (wrong password?)` cuando la contraseña era correcta: sobraba un
+    `\n` al final del secreto.
+  - `does not support provisioning profiles` en Firebase y GoogleSignIn: los ajustes de firma
+    pasados por línea de comandos a `xcodebuild` se aplican a **todos** los targets, y los Swift
+    Packages no los admiten. La firma va en `ExportOptions.plist`.
+- **Credenciales creadas, ambas desde Windows:** certificado de distribución (CSR con OpenSSL +
+  portal web) y provisioning profile "Legacy App Store CI". Apple **no permite crear ninguna de las
+  dos con una clave de API** —responde 403 incluso con rol Admin—, así que viven como secretos.
+  Los archivos quedaron en `docs/ios/`, fuera de git.
+- **Seis secretos** en el repositorio: los tres de App Store Connect más `APPLE_DIST_CERT_P12`,
+  `APPLE_DIST_CERT_PASSWORD` y `APPLE_PROVISIONING_PROFILE`.
+- **Caducidades a vigilar:** el certificado y el perfil, ambos el **2027-08-06**.
+- **Criterios de QA (en el iPhone, con el build de TestFlight):**
+  1. **Responder el cuestionario de cifrado** en App Store Connect, o el build queda en *Missing
+     Compliance* y no se puede instalar.
+  2. **La app instala y arranca** desde TestFlight.
+  3. **Llegan las notificaciones push.** Es lo que desbloquea el `aps-environment: production`
+     corregido hoy: con `development` no habrían llegado nunca en un build distribuido.
+  4. **El login con Apple funciona**, que es lo que desbloquea el entitlement añadido hoy.
+  5. **El login con Google sigue funcionando**, que convive con él en la misma pantalla.
+
 ### [2026-08-06]: Workflow de iOS — dos fallos reales y cómo se resolvieron
 
 Las dos primeras ejecuciones fallaron. Queda anotado porque ninguno de los dos fallos se puede
