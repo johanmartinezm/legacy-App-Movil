@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import '../../widgets/perfil/eliminar_cuenta_dialog.dart';
 import '../../../domain/providers/auth_provider.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -171,6 +172,28 @@ class ProfileScreen extends StatelessWidget {
                   if (context.mounted) context.go('/login');
                 },
                 icon: Icons.logout,
+                isDestructive: true,
+              ),
+
+              const SizedBox(height: 12),
+
+              // Eliminar la cuenta desde la propia app es requisito de App Store
+              // y de Google Play para cualquier app que permita registrarse.
+              _buildMenuItem(
+                context,
+                title: 'Eliminar mi cuenta',
+                subtitle: 'Borra tus datos personales de forma permanente',
+                onTap: () async {
+                  final eliminada = await showDialog<bool>(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (_) => const EliminarCuentaDialog(),
+                  );
+                  if (eliminada == true && context.mounted) {
+                    context.go('/login');
+                  }
+                },
+                icon: Icons.person_remove_outlined,
                 isDestructive: true,
               ),
               

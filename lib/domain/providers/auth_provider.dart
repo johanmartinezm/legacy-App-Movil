@@ -385,6 +385,22 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Elimina la cuenta y deja la sesión cerrada.
+  ///
+  /// El cierre de sesión se hace SIEMPRE que el servidor confirme el borrado:
+  /// quedarse con un token de una cuenta que ya no existe solo produce errores
+  /// confusos en la siguiente pantalla. Si el servidor falla, no se toca nada
+  /// local y el error sube para que la pantalla lo muestre.
+  Future<void> deleteAccount() async {
+    final token = _token;
+    if (token == null) {
+      throw Exception('No hay sesión activa.');
+    }
+
+    await _authService.deleteAccount(token);
+    await logout();
+  }
+
   Future<void> logout() async {
     _token = null;
     _customerStatus = null;

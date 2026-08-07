@@ -2,6 +2,35 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-06]: Eliminar mi cuenta desde la app
+
+- **Es requisito de tienda, no una mejora.** App Store lo exige desde junio de 2022 (directriz
+  5.1.1(v)) y Google Play también: sin esta opción **la app no se puede publicar**. Hasta ahora el
+  perfil solo ofrecía cerrar sesión.
+- **Alcance:**
+  - `lib/presentation/widgets/perfil/eliminar_cuenta_dialog.dart` (nuevo) — diálogo que **exige
+    escribir ELIMINAR**, no un simple "¿seguro?": la acción no se deshace y un toque accidental en
+    la lista del perfil no debería bastar. Se acepta en minúsculas: se comprueba la palabra, no el
+    teclado.
+  - **Dice lo que NO se borra.** Avisa de que las inscripciones y los mensajes se conservan sin
+    nombre, porque forman parte del historial de otras personas y de eventos ya pagados. Prometer un
+    borrado total y conservar registros sería engañar.
+  - `auth_service.dart` — `deleteAccount(token)`: llama a `DELETE /api/me` **sin enviar ningún
+    identificador**, que el servidor toma del token. Mandarlo permitiría borrar la cuenta ajena.
+  - `auth_provider.dart` — cierra la sesión **solo si el servidor confirma**; si falla, no se toca
+    nada local y el error sube a la pantalla.
+  - `profile_screen.dart` — nueva entrada "Eliminar mi cuenta" bajo "Cerrar sesión".
+  - `Tests`: `test/screens/eliminar_cuenta_test.dart` (6 casos). La suite pasa de 85 a **91**.
+- **Criterios de QA:**
+  1. **No se borra de un toque:** el botón nace deshabilitado y solo se activa al escribir
+     `ELIMINAR`. Escribir otra cosa no lo habilita.
+  2. **Se avisa de lo que se conserva:** el diálogo menciona inscripciones y mensajes.
+  3. **Al confirmar**, la app vuelve al login y ya no se puede entrar con esas credenciales.
+  4. **Si el servidor falla**, aparece el error y **el diálogo NO se cierra**: lo peor sería que
+     alguien creyera que su cuenta se borró cuando sigue existiendo.
+  5. **Volver a registrarse** con el mismo correo funciona y da una cuenta nueva y vacía.
+  6. **Dejan de llegar notificaciones push** a ese dispositivo.
+
 ### [2026-08-06]: El workflow de iOS funciona — build 1.0.0+11 en TestFlight
 
 - **`UPLOAD SUCCEEDED with no errors`.** Primera vez que se genera y publica un build de iOS de este

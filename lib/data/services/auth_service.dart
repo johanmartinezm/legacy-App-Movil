@@ -248,6 +248,42 @@ class AuthService {
     }
   }
 
+  /// Elimina la cuenta de quien tiene la sesión abierta.
+  ///
+  /// El servidor no recibe ningún identificador: lo toma del token. Mandarlo
+  /// desde aquí permitiría borrar la cuenta de otra persona cambiando un campo.
+  ///
+  /// En el servidor la cuenta se **anonimiza**, no se borra: los mensajes de
+  /// chat y las inscripciones a eventos ya cobrados se conservan sin datos
+  /// personales, porque borrarlos dejaría a medias las conversaciones de la
+  /// otra persona. El correo queda libre para volver a registrarse.
+  Future<void> deleteAccount(String token) async {
+    final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.meEndpoint}');
+
+    try {
+      final response = await _client.delete(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      // 204 es la respuesta esperada; 200 se acepta por si el servidor
+      // devolviera cuerpo algún día.
+      if (response.statusCode == 204 || response.statusCode == 200) return;
+
+      if (response.statusCode == 401) {
+        throw Exception('Tu sesión expiró. Vuelve a entrar e inténtalo de nuevo.');
+      }
+      if (response.statusCode == 404) {
+        throw Exception('Esta cuenta ya no existe.');
+      }
+      throw Exception('No se pudo eliminar la cuenta (${response.statusCode}).');
+    } on Exception {
+      rethrow;
+    } catch (e) {
+      throw Exception('Error de conexión: $e');
+    }
+  }
+
   Future<void> forgotPassword(String email) async {
     final url = Uri.parse(
       '${ApiConstants.baseUrl}${ApiConstants.forgotPasswordEndpoint}',
