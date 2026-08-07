@@ -31,12 +31,24 @@ concurrency:
 
 jobs:
   build:
-    runs-on: macos-15
+    # macos-26, no macos-15: Apple rechaza en App Store Connect cualquier app
+    # compilada con un SDK anterior al de iOS 26 —"This app was built with the
+    # iOS 18.5 SDK... must be built with the iOS 26 SDK or later"—, y macos-15
+    # trae Xcode 16.4. El .ipa se generaba y se firmaba bien; lo rechazaba la
+    # validacion al subirlo.
+    runs-on: macos-26
     timeout-minutes: 60
 
     steps:
       - name: Descargar el codigo
         uses: actions/checkout@v4
+
+      - name: Version de Xcode y SDK
+        # Sale primero en el log: si Apple vuelve a subir el minimo, aqui se ve
+        # de un vistazo con que se esta compilando.
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks | grep -i "iphoneos" || true
 
       - name: Preparar Flutter
         uses: subosito/flutter-action@v2
