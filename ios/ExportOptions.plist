@@ -5,33 +5,37 @@
 	<!-- Como se exporta el archive a .ipa. Lo usa el workflow de GitHub Actions
 	     (.github/workflows/ios-testflight.yml) en el paso de exportArchive. -->
 
-	<!-- app-store: destinado a App Store Connect y TestFlight. Xcode 15.3+ lo
-	     llama app-store-connect, pero acepta este nombre, que funciona en todas
-	     las versiones. -->
 	<key>method</key>
 	<string>app-store</string>
 
-	<!-- El mismo equipo que ya declara el proyecto Xcode. -->
 	<key>teamID</key>
 	<string>87LBVBLK8T</string>
 
-	<!-- automatic: Xcode pide a Apple el certificado y el perfil que hagan falta,
-	     autenticandose con la clave de App Store Connect que el workflow le pasa.
-	     Es lo que evita tener que exportar un .p12 desde un Mac. -->
+	<!-- manual, no automatic.
+	     Apple no permite que una clave de App Store Connect cree certificados
+	     ni perfiles de DISTRIBUCION: responde 403 al intentarlo por la API, y
+	     "Cloud signing permission error" cuando lo intenta Xcode. Ambos se
+	     crean una vez desde el portal web y llegan al runner como secretos, asi
+	     que aqui hay que decirle exactamente cual usar. -->
 	<key>signingStyle</key>
-	<string>automatic</string>
+	<string>manual</string>
 
-	<!-- Sube los simbolos de depuracion para que los informes de fallos lleguen
-	     legibles a App Store Connect en vez de como direcciones de memoria. -->
+	<key>signingCertificate</key>
+	<string>Apple Distribution</string>
+
+	<!-- El nombre debe coincidir EXACTAMENTE con el del perfil en el portal. -->
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>co.legacynetwork.legacyapp</key>
+		<string>Legacy App Store CI</string>
+	</dict>
+
 	<key>uploadSymbols</key>
 	<true/>
 
-	<!-- Bitcode esta retirado desde Xcode 14; declararlo en falso evita un aviso. -->
 	<key>compileBitcode</key>
 	<false/>
 
-	<!-- export: deja el .ipa en disco. La subida la hace un paso aparte, para
-	     poder generar el instalador sin publicarlo. -->
 	<key>destination</key>
 	<string>export</string>
 </dict>

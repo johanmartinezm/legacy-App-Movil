@@ -132,6 +132,30 @@ jobs:
           echo "identidades de firma disponibles:"
           security find-identity -v -p codesigning "$LLAVERO"
 
+      - name: Instalar el provisioning profile
+        env:
+          APPLE_PROVISIONING_PROFILE: ${{ secrets.APPLE_PROVISIONING_PROFILE }}
+        # Igual que el certificado: Apple tampoco deja crear perfiles de
+        # distribucion con una clave de API (403), asi que el perfil se crea una
+        # vez en el portal y viaja como secreto. Xcode los busca en esta carpeta
+        # exacta.
+        run: |
+          set -euo pipefail
+          if [ -z "$APPLE_PROVISIONING_PROFILE" ]; then
+            echo "Falta el secreto APPLE_PROVISIONING_PROFILE."
+            echo "Ver 'Compilar iOS sin un Mac' en DESPLIEGUE.md."
+            exit 1
+          fi
+          DESTINO="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$DESTINO"
+          printf '%s' "$APPLE_PROVISIONING_PROFILE" | tr -d '\r\n' | base64 --decode > "$DESTINO/legacy_appstore.mobileprovision"
+
+          # El UUID y el nombre confirman que llego el perfil correcto: si no
+          # coincide con el de ExportOptions.plist, el export falla sin decir
+          # cual esperaba.
+          /usr/libexec/PlistBuddy -c 'Print :Name' /dev/stdin <<< "$(security cms -D -i "$DESTINO/legacy_appstore.mobileprovision")" || true
+          /usr/libexec/PlistBuddy -c 'Print :UUID' /dev/stdin <<< "$(security cms -D -i "$DESTINO/legacy_appstore.mobileprovision")" || true
+
       - name: Archivar y exportar el IPA
         env:
           APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
@@ -141,8 +165,11 @@ jobs:
           set -euo pipefail
           CLAVE="$HOME/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8"
 
-          # -allowProvisioningUpdates deja que Xcode pida a Apple el certificado
-          # y el perfil que falten. Es lo que sustituye al .p12 exportado a mano.
+          # Firma manual y explicita: el proyecto tiene CODE_SIGN_STYLE
+          # Automatic, que en CI acaba pidiendo a Apple crear un certificado y
+          # un perfil de distribucion, y eso es justo lo que Apple prohibe con
+          # una clave de API. Se le indica aqui que use los que ya estan
+          # instalados.
           xcodebuild archive \
             -workspace Runner.xcworkspace \
             -scheme Runner \
@@ -150,6 +177,10 @@ jobs:
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM=87LBVBLK8T \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="Legacy App Store CI" \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$CLAVE" \
             -authenticationKeyID "$APPSTORE_KEY_ID" \
