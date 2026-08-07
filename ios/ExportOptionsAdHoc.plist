@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Exportacion ad-hoc: un .ipa que SI se instala directamente en los
+	     dispositivos registrados en el perfil, sin pasar por TestFlight.
+	     Lo usa el workflow cuando se elige tipo_de_build = adhoc.
+
+	     La diferencia con ExportOptions.plist no es solo el metodo: un .ipa
+	     firmado para app-store NO se puede instalar en un telefono, y uno
+	     ad-hoc NO se puede subir a App Store Connect. Son dos productos
+	     distintos y por eso hay dos perfiles y dos archivos. -->
+
+	<key>method</key>
+	<string>ad-hoc</string>
+
+	<key>teamID</key>
+	<string>87LBVBLK8T</string>
+
+	<key>signingStyle</key>
+	<string>manual</string>
+
+	<key>signingCertificate</key>
+	<string>Apple Distribution</string>
+
+	<!-- Perfil distinto del de App Store: este lleva dentro los UDID de los
+	     dispositivos autorizados. Un telefono que no este en la lista no podra
+	     instalarlo, aunque el .ipa sea correcto. -->
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>co.legacynetwork.legacyapp</key>
+		<string>Legacy Ad Hoc QA</string>
+	</dict>
+
+	<!-- Sin simbolos: no hay App Store Connect que los reciba. -->
+	<key>uploadSymbols</key>
+	<false/>
+
+	<key>compileBitcode</key>
+	<false/>
+
+	<key>destination</key>
+	<string>export</string>
+</dict>
+</plist>

@@ -14,12 +14,20 @@ name: iOS · TestFlight
 on:
   workflow_dispatch:
     inputs:
+      tipo_de_build:
+        description: 'testflight = para probar via TestFlight | adhoc = .ipa instalable directamente en los dispositivos registrados'
+        type: choice
+        required: true
+        default: testflight
+        options:
+          - testflight
+          - adhoc
       build_number:
-        description: 'Numero de build. DEBE ser mayor que el ultimo subido a TestFlight. Vacio = usa el de pubspec.yaml'
+        description: 'Numero de build. Para TestFlight DEBE ser mayor que el ultimo subido. Vacio = usa el de pubspec.yaml'
         required: false
         default: ''
       subir_a_testflight:
-        description: 'Subir a TestFlight al terminar'
+        description: 'Subir a TestFlight al terminar (se ignora si el tipo es adhoc)'
         type: boolean
         required: false
         default: true
@@ -146,7 +154,10 @@ jobs:
 
       - name: Instalar el provisioning profile
         env:
-          APPLE_PROVISIONING_PROFILE: ${{ secrets.APPLE_PROVISIONING_PROFILE }}
+          # Cada tipo de build usa SU perfil: el de App Store no sirve para
+          # instalar en un telefono y el ad-hoc no se puede subir a App Store
+          # Connect. Se elige aqui segun lo pedido.
+          APPLE_PROVISIONING_PROFILE: ${{ github.event.inputs.tipo_de_build == 'adhoc' && secrets.APPLE_PROVISIONING_PROFILE_ADHOC || secrets.APPLE_PROVISIONING_PROFILE }}
         # Igual que el certificado: Apple tampoco deja crear perfiles de
         # distribucion con una clave de API (403), asi que el perfil se crea una
         # vez en el portal y viaja como secreto. Xcode los busca en esta carpeta
@@ -154,7 +165,9 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "$APPLE_PROVISIONING_PROFILE" ]; then
-            echo "Falta el secreto APPLE_PROVISIONING_PROFILE."
+            echo "Falta el secreto del provisioning profile para el tipo '${{ github.event.inputs.tipo_de_build }}'."
+            echo "  testflight -> APPLE_PROVISIONING_PROFILE"
+            echo "  adhoc      -> APPLE_PROVISIONING_PROFILE_ADHOC"
             echo "Ver 'Compilar iOS sin un Mac' en DESPLIEGUE.md."
             exit 1
           fi
@@ -200,9 +213,17 @@ jobs:
             -authenticationKeyID "$APPSTORE_KEY_ID" \
             -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID"
 
+          # El fichero de opciones decide el tipo de .ipa que sale: uno para
+          # App Store y otro instalable en los dispositivos del perfil ad-hoc.
+          OPCIONES=ExportOptions.plist
+          if [ "${{ github.event.inputs.tipo_de_build }}" = "adhoc" ]; then
+            OPCIONES=ExportOptionsAdHoc.plist
+          fi
+          echo "exportando con $OPCIONES"
+
           xcodebuild -exportArchive \
             -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
-            -exportOptionsPlist ExportOptions.plist \
+            -exportOptionsPlist "$OPCIONES" \
             -exportPath "$RUNNER_TEMP/ipa" \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$CLAVE" \
@@ -223,13 +244,16 @@ jobs:
         # falle, para no perder 20 minutos de compilacion.
         uses: actions/upload-artifact@v4
         with:
-          name: legacy-ios-ipa
+          # El nombre distingue los dos productos: confundirlos cuesta un rato
+          # de desconcierto, porque el de app-store no instala en un telefono.
+          name: legacy-ios-${{ github.event.inputs.tipo_de_build }}-${{ github.run_number }}
           path: ${{ runner.temp }}/ipa/*.ipa
           retention-days: 14
           if-no-files-found: error
 
       - name: Subir a TestFlight
-        if: ${{ github.event.inputs.subir_a_testflight != 'false' }}
+        # Nunca en ad-hoc: App Store Connect rechaza un .ipa firmado asi.
+        if: ${{ github.event.inputs.tipo_de_build != 'adhoc' && github.event.inputs.subir_a_testflight != 'false' }}
         uses: apple-actions/upload-testflight-build@v3
         with:
           app-path: ${{ env.RUTA_IPA }}

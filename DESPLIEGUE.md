@@ -229,6 +229,47 @@ existe.
 El `.ipa` queda como artefacto de la ejecución durante 14 días, aunque la subida falle: así un
 problema al publicar no obliga a repetir veinte minutos de compilación.
 
+### Variante ad-hoc: un `.ipa` para pasarle a QA
+
+El `.ipa` de TestFlight **no se puede instalar en un teléfono**: está firmado para App Store y solo
+lo aceptan App Store y TestFlight. Para entregarle un instalable a alguien de QA hace falta un build
+**ad-hoc**, que es otro producto, con su propio perfil.
+
+**Preparación, una sola vez por dispositivo:**
+
+1. **Registrar el dispositivo.** Necesitas su **UDID** (en el iPhone: *Ajustes → General →
+   Información*, o conectándolo a un ordenador). Se añade en
+   *Certificates, Identifiers & Profiles → Devices → `+`*.
+2. **Crear el perfil ad-hoc** en
+   [Profiles → `+`](https://developer.apple.com/account/resources/profiles/add): en **Distribution**
+   elige **Ad Hoc**, el App ID `co.legacynetwork.legacyapp`, el mismo certificado de distribución, y
+   **marca los dispositivos** que podrán instalarlo. Nómbralo exactamente:
+
+   ```
+   Legacy Ad Hoc QA
+   ```
+
+3. Descárgalo y cárgalo como secreto **`APPLE_PROVISIONING_PROFILE_ADHOC`** (en base64, igual que el
+   otro).
+
+**Cada vez que QA necesite una versión:** *Run workflow* con **`tipo_de_build: adhoc`**. No sube
+nada a TestFlight —App Store Connect rechazaría ese `.ipa`— y deja el instalable como artefacto de
+la ejecución, con el nombre `legacy-ios-adhoc-<n>`.
+
+**Cómo lo instala QA.** El `.ipa` no se instala tocándolo: hace falta una de estas vías:
+
+- **Apple Configurator** (Mac) o **Finder/iTunes** con el teléfono conectado.
+- Un servicio de distribución tipo **Diawi** o **InstallOnAir**: se sube el `.ipa` y devuelven un
+  enlace que se abre desde el iPhone. Es lo más cómodo si QA está en otra ciudad.
+
+**Un dispositivo que no esté en el perfil no podrá instalarlo**, aunque tenga el archivo: la lista de
+UDID va firmada dentro. Añadir un dispositivo nuevo obliga a regenerar el perfil y recargar el
+secreto.
+
+> Si QA va a probar a menudo, **TestFlight sale más cómodo**: no exige registrar UDID, admite hasta
+> 100 probadores internos y actualiza solo. La vía ad-hoc tiene sentido cuando hace falta un
+> instalable sin pasar por la revisión de Apple ni por cuentas de prueba.
+
 ### Si falla
 
 Estos son los fallos que costó ocho ejecuciones dejar atrás el 2026-08-06. Ninguno se puede
