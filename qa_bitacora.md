@@ -2,6 +2,78 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-10]: Bloquear y reportar personas (directriz 1.2 de Apple)
+
+- **Por qué:** Apple exige, para toda app con contenido generado por usuarios, poder **reportar y
+  bloquear desde la propia app**. La app tiene chat 1:1, foros y publicaciones, y no había nada.
+  Mensajería directa entre desconocidos sin bloqueo es uno de los rechazos más frecuentes de la
+  App Store. **La API ya estaba; esto es la parte que Apple realmente mira.**
+- **Alcance:**
+  - `data/models/blocked_user_model.dart`, `data/services/block_service.dart`,
+    `domain/providers/block_provider.dart` (nuevos), y los tres endpoints en `api_constants.dart`.
+  - `presentation/widgets/moderacion/menu_moderacion.dart` (nuevo) — **una sola pieza** para las dos
+    acciones. Tenerlas duplicadas por pantalla acabaría con textos distintos según por dónde se
+    entre.
+  - `presentation/widgets/moderacion/reportar_usuario_dialog.dart` (nuevo) — cinco motivos
+    predefinidos más "Otro": quien acaba de recibir un mensaje desagradable no siempre quiere
+    redactar nada, pero un reporte sin motivo no le sirve a quien lo revisa.
+  - `presentation/screens/profile/usuarios_bloqueados_screen.dart` (nuevo) + ruta
+    `/cuentas-bloqueadas` y entrada en el perfil.
+  - `individual_chat_screen.dart` — menú en el encabezado; `community_members_screen.dart` — con
+    pulsación larga sobre cada miembro.
+  - `custom_section_header.dart` — parámetro opcional `trailing`. Opcional a propósito: el resto de
+    pantallas que usan este encabezado no cambian.
+  - `chat_provider.dart` — `otherUserIdOf`: la pantalla de chat solo recibía el id de la
+    conversación y el título, y para bloquear hace falta saber a quién.
+  - `Tests`: `test/screens/moderacion_test.dart` (6 casos). La suite pasa de 91 a **97**.
+- **Se puede bloquear desde el directorio, no solo desde el chat.** Si únicamente se pudiera desde
+  una conversación, para bloquear a alguien habría que abrir primero un chat con esa misma persona.
+- **El diálogo dice qué pasa con los mensajes: no se borran.** Al desbloquear, la conversación
+  vuelve tal como estaba. Prometer un borrado que no ocurre sería engañar, y quien bloquea a veces
+  necesita conservar lo que le escribieron.
+- **Reportar y bloquear son cosas distintas y el diálogo lo dice.** Confundirlas dejaría a alguien
+  esperando que el acoso pare solo por haber reportado.
+- **Si el reporte falla, el diálogo NO se cierra.** Lo peor sería que alguien creyera haber
+  denunciado a quien le acosa cuando el reporte no llegó.
+- **Si las conexiones aún no están cargadas, el menú del chat no aparece:** es preferible que falte
+  un momento a ofrecer bloquear a quien no es.
+- `flutter analyze` sigue en los mismos **48** avisos de estilo: los archivos nuevos no añaden
+  ninguno.
+- **Criterios de QA:**
+  1. **Desde un chat**, el menú del encabezado ofrece reportar y bloquear.
+  2. **Al bloquear**, se pide confirmación, se sale de la conversación y esta desaparece de la lista.
+  3. **La otra persona tampoco ve la conversación** ni puede escribir.
+  4. **Desde el directorio de la comunidad**, mantener pulsado a un miembro abre el mismo menú, y al
+     bloquear desaparece de la lista.
+  5. **Perfil › Cuentas bloqueadas** lista a los bloqueados; con ninguno, sale el mensaje vacío.
+  6. **Desbloquear** devuelve a la persona al directorio y **la conversación reaparece con sus
+     mensajes**.
+  7. **Reportar exige motivo:** el botón está deshabilitado hasta elegir uno o escribirlo.
+  8. **Si falla el envío del reporte**, el diálogo sigue abierto y muestra el error.
+  9. **Reportar no bloquea:** tras reportar se sigue pudiendo escribir, y el diálogo lo avisa.
+  10. **Cerrar sesión y entrar con otra cuenta** no arrastra la lista de bloqueados de la anterior.
+
+### [2026-08-10]: Se retira el permiso de micrófono de iOS
+
+- **El problema:** `ios/Runner/Info.plist` declaraba `NSMicrophoneUsageDescription` con el texto
+  "para grabar videos", y **la app no graba nada**. Verificado: las únicas dependencias que tocan
+  medios son `image_picker` (foto de perfil) y `qr_flutter`, que **genera** códigos QR, no los
+  escanea —el escaneo lo hace el panel administrativo—.
+- **Por qué importa para publicar:** un permiso declarado sin uso genera observaciones en la revisión
+  de Apple, aparece en la ficha de privacidad de la App Store y obliga a justificarlo en el
+  cuestionario *App Privacy*. Pedir el micrófono sin usarlo es de las cosas que un revisor mira.
+- **Alcance:** `ios/Runner/Info.plist` — se elimina la clave y su descripción. Quedan
+  `NSCameraUsageDescription` y `NSPhotoLibraryUsageDescription`, ambos justificados por la foto de
+  perfil.
+- **Sin cambios de código.** `flutter analyze` sigue en los mismos 48 avisos de estilo, ninguno nuevo.
+- **Criterios de QA (en el iPhone, con un build nuevo):**
+  1. **La foto de perfil sigue funcionando** desde la cámara y desde la galería: son los dos permisos
+     que se conservan.
+  2. **iOS no pide micrófono** en ningún momento del uso de la app.
+  3. **En Ajustes → Legacy**, el micrófono ya no aparece en la lista de permisos de la app.
+  4. **El QR de asistencia a un evento se sigue mostrando** correctamente: lo genera la app, no
+     necesita cámara ni micrófono.
+
 ### [2026-08-06]: Eliminar mi cuenta desde la app
 
 - **Es requisito de tienda, no una mejora.** App Store lo exige desde junio de 2022 (directriz

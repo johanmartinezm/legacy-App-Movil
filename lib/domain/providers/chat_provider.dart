@@ -34,6 +34,21 @@ class ChatProvider with ChangeNotifier {
   }
 
   List<ChatConnection> get connections => _connections;
+
+  /// Id de la otra persona en una conversación, visto desde [myId].
+  ///
+  /// La pantalla de chat solo recibe el id de la conversación y el título, pero
+  /// para reportar o bloquear hace falta saber a quién. Devuelve null si las
+  /// conexiones aún no se han cargado, y en ese caso la pantalla no ofrece esas
+  /// acciones en vez de arriesgarse a actuar sobre quien no es.
+  String? otherUserIdOf(String connectionId, String myId) {
+    for (final c in _connections) {
+      if (c.id == connectionId) {
+        return c.requesterId == myId ? c.receiverId : c.requesterId;
+      }
+    }
+    return null;
+  }
   List<UserModel> get members => _members;
   bool get isLoading => _isLoading;
 

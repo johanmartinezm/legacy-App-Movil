@@ -33,8 +33,6 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Esta app requiere acceso a la cámara para tomar fotos de perfil.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Esta app requiere acceso al micrófono para grabar videos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Esta app requiere acceso a la galería para cambiar tu foto de perfil.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

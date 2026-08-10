@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart' as emoji_picker;
@@ -7,6 +8,7 @@ import '../../../domain/providers/chat_provider.dart';
 import '../../../domain/providers/auth_provider.dart';
 import '../../../config/theme/app_theme.dart';
 import '../../widgets/custom_section_header.dart';
+import '../../widgets/moderacion/menu_moderacion.dart';
 
 class IndividualChatScreen extends StatefulWidget {
   final String connectionId;
@@ -60,6 +62,41 @@ class _IndividualChatScreenState extends State<IndividualChatScreen> {
     }
   }
 
+  /// Menú de reportar y bloquear, que la directriz 1.2 de Apple pide tener en
+  /// la propia conversación.
+  ///
+  /// Si las conexiones aún no están cargadas no se sabe con quién se habla, y
+  /// el botón no se muestra: es preferible que falte un momento a ofrecer
+  /// bloquear a quien no es.
+  Widget? _botonModeracion(String? myId) {
+    if (myId == null || myId.isEmpty) return null;
+    final otroId = context.read<ChatProvider>().otherUserIdOf(
+      widget.connectionId,
+      myId,
+    );
+    if (otroId == null) return null;
+
+    return IconButton(
+      icon: const Icon(Icons.more_vert, color: Colors.white, size: 22),
+      tooltip: 'Reportar o bloquear',
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+      onPressed: () async {
+        final bloqueado = await mostrarMenuModeracion(
+          context,
+          userId: otroId,
+          userName: widget.chatTitle,
+        );
+        // Tras bloquear no tiene sentido quedarse en una conversación que ya no
+        // acepta mensajes ni aparece en la lista.
+        if (bloqueado && mounted) {
+          context.read<ChatProvider>().loadConnections();
+          if (context.canPop()) context.pop();
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final myId = context.read<AuthProvider>().userID;
@@ -72,6 +109,7 @@ class _IndividualChatScreenState extends State<IndividualChatScreen> {
             CustomSectionHeader(
               title: widget.chatTitle.toUpperCase(),
               showBackButton: true,
+              trailing: _botonModeracion(myId),
             ),
 
             Expanded(

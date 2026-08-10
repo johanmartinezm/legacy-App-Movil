@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../domain/providers/chat_provider.dart';
 import '../../../domain/providers/auth_provider.dart';
 import '../../widgets/custom_section_header.dart';
+import '../../widgets/moderacion/menu_moderacion.dart';
 
 class CommunityMembersScreen extends StatefulWidget {
   const CommunityMembersScreen({super.key});
@@ -87,6 +88,23 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
                           '${member.jobTitle} en ${member.companyName}',
                           style: GoogleFonts.questrial(fontSize: 12, color: const Color(0xFF9FB2C2)),
                         ),
+                        // Mantener pulsado abre reportar y bloquear. Va aquí
+                        // además de en el chat porque la directriz 1.2 pide
+                        // poder actuar antes de aceptar contacto: sin esto,
+                        // para bloquear a alguien habría que abrir primero una
+                        // conversación con esa misma persona.
+                        onLongPress: () async {
+                          final bloqueado = await mostrarMenuModeracion(
+                            context,
+                            userId: member.id,
+                            userName: member.fullName,
+                          );
+                          if (bloqueado) {
+                            // El directorio ya no debe mostrarle: el backend lo
+                            // filtra, así que basta con recargar.
+                            await chatProvider.loadMembers();
+                          }
+                        },
                         trailing: ElevatedButton(
                           onPressed: () async {
                             try {

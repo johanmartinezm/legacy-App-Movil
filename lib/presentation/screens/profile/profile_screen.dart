@@ -177,6 +177,17 @@ class ProfileScreen extends StatelessWidget {
 
               const SizedBox(height: 12),
 
+              // Poder deshacer un bloqueo es lo que hace usable la función:
+              // quien bloquea por error no puede encontrar a esa persona por
+              // otra vía, porque deja de aparecer en el directorio.
+              _buildMenuItem(
+                context,
+                title: 'Cuentas bloqueadas',
+                subtitle: 'Revisa y desbloquea a quien hayas bloqueado',
+                onTap: () => context.push('/cuentas-bloqueadas'),
+                icon: Icons.block_outlined,
+              ),
+
               // Eliminar la cuenta desde la propia app es requisito de App Store
               // y de Google Play para cualquier app que permita registrarse.
               _buildMenuItem(

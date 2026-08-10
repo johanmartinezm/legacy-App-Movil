@@ -42,4 +42,11 @@ class ApiConstants {
   // Custom Content
   static const String contentItemsEndpoint = '/api/content/items';
   static const String contentCategoriesEndpoint = '/api/content/categories';
+
+  // Bloquear y reportar personas. Requisito de la directriz 1.2 de Apple para
+  // cualquier app con chat o contenido publicado por sus usuarios.
+  // Quién bloquea lo decide el servidor a partir del token; aquí solo va a quién.
+  static const String blocksEndpoint = '/api/blocks';
+  static String blockUserEndpoint(String userId) => '/api/blocks/$userId';
+  static String reportUserEndpoint(String userId) => '/api/users/$userId/report';
 }

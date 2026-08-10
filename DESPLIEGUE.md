@@ -290,6 +290,48 @@ anticipar desde Windows: casi todos solo aparecen en macOS o contra los servidor
 **El `.ipa` queda como artefacto de la ejecución aunque la subida falle**, así que un problema al
 publicar no obliga a repetir la compilación.
 
+## Requisitos de ficha, comunes a las dos tiendas
+
+Nada de esta sección es código, y es lo que hoy impide publicar. Se rellena en Play Console y en
+App Store Connect.
+
+### Política de privacidad
+
+```text
+https://legacynetworkco.com/politica-de-privacidad/
+```
+
+Pública y accesible sin instalar la app —verificado—, fechada el 2026-06-02. Va en el campo
+*Privacy Policy URL* de las dos fichas.
+
+**Es una política corporativa, no de la app**, y de ahí salen sus dos problemas:
+
+1. **No menciona la aplicación móvil.** Solo habla de Legacy Network como empresa y de plataformas
+   de terceros (WhatsApp). Apple (directriz 5.1.1) y Google exigen que la política cubra los datos
+   que recoge **la app**. Basta añadir un apartado que la nombre y liste lo que recoge.
+2. **Declara datos que la app no toca**: salud, biométricos, financieros, antecedentes laborales.
+   Los cuestionarios *App Privacy* y *Data Safety* deben reflejar lo que la app recoge de verdad —
+   nombre, correo, teléfono, alias, bio, foto, tokens FCM y el pago por Credibanco—, **no lo que
+   dice la política**. Declarar salud o biométricos en Data Safety dispara requisitos adicionales
+   que aquí no aplican, y una inconsistencia entre ficha y política es motivo de revisión en Google.
+
+### Eliminación de cuenta: falta la URL web
+
+Apple se cubre con el borrado dentro de la app (`DELETE /api/me`, implementado el 2026-08-06).
+**Google Play exige además una URL pública** donde se pueda solicitar la eliminación sin instalar
+la app, en *Play Console → Contenido de la app → Eliminación de datos*.
+
+La política actual no sirve para eso: dice que Legacy Network "podrá proceder con la supresión",
+que describe una facultad de la empresa, no un procedimiento para la persona usuaria. Hace falta
+una página que explique cómo pedirlo y **qué se conserva** —las inscripciones y los mensajes se
+anonimizan, no se borran—, coherente con lo que ya avisa el diálogo de la app.
+
+### Lo demás que sigue pendiente
+
+- Cuestionario **App Privacy** (Apple) y **Data Safety** (Google).
+- **Cuenta de demo para el revisor de Apple**: la app exige login y sin credenciales la rechazan.
+- `ITSAppUsesNonExemptEncryption` en `Info.plist`, o cada build queda en *Missing Compliance*.
+
 ## Web
 
 ```bash

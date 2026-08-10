@@ -13,6 +13,7 @@ import 'domain/providers/events_provider.dart';
 import 'domain/providers/chat_provider.dart';
 import 'domain/providers/notification_provider.dart';
 import 'domain/providers/banner_provider.dart';
+import 'domain/providers/block_provider.dart';
 import 'data/services/event_service.dart';
 import 'data/services/chat_service.dart';
 import 'data/config/config_service.dart';
@@ -31,6 +32,7 @@ import 'presentation/screens/cart/checkout_screen.dart';
 import 'presentation/screens/cart/confirmation_screen.dart';
 import 'presentation/screens/favorites/favorites_screen.dart';
 import 'presentation/screens/profile/profile_screen.dart';
+import 'presentation/screens/profile/usuarios_bloqueados_screen.dart';
 import 'presentation/screens/profile/mi_credencial_screen.dart';
 import 'presentation/screens/profile/profile_edit_screen.dart';
 import 'presentation/screens/informandote/article_detail_screen.dart';
@@ -107,6 +109,11 @@ void main() async {
         ),
         ChangeNotifierProxyProvider<AuthProvider, BannerProvider>(
           create: (_) => BannerProvider(),
+          update: (_, auth, previous) => previous!..updateToken(auth.token),
+        ),
+        // Bloquear y reportar personas (directriz 1.2 de Apple).
+        ChangeNotifierProxyProvider<AuthProvider, BlockProvider>(
+          create: (_) => BlockProvider(),
           update: (_, auth, previous) => previous!..updateToken(auth.token),
         ),
       ],
@@ -342,6 +349,10 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
             GoRoute(
               path: '/profile',
               builder: (context, state) => const ProfileScreen(),
+            ),
+            GoRoute(
+              path: '/cuentas-bloqueadas',
+              builder: (context, state) => const UsuariosBloqueadosScreen(),
             ),
             GoRoute(
               path: '/profile-edit',

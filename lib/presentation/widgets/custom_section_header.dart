@@ -12,6 +12,12 @@ class CustomSectionHeader extends StatelessWidget {
   final bool showBackButton;
   final VoidCallback? onDescriptionToggle;
 
+  /// Acción opcional al final del encabezado. La usa la pantalla de chat para
+  /// el menú de reportar y bloquear, que la directriz 1.2 de Apple pide tener
+  /// donde ocurre el contacto. Es opcional para no alterar el resto de
+  /// pantallas que ya usan este encabezado.
+  final Widget? trailing;
+
   const CustomSectionHeader({
     super.key,
     required this.title,
@@ -19,6 +25,7 @@ class CustomSectionHeader extends StatelessWidget {
     this.isDescriptionOpen = false,
     this.showBackButton = false,
     this.onDescriptionToggle,
+    this.trailing,
   });
 
   void _confirmLogout(BuildContext context) async {
@@ -242,6 +249,7 @@ class CustomSectionHeader extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (trailing != null) trailing!,
               // Notification bell
               IconButton(
                 icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 22),
