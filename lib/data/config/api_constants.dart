@@ -8,6 +8,13 @@ class ApiConstants {
   static const String forgotPasswordEndpoint = '/forgot-password';
   static const String socialLoginEndpoint = '/api/auth/social-login';
   static const String resendVerificationEndpoint = '/api/auth/resend-verification';
+  // Imagenes de los foros. Van bajo /api/ porque en produccion HAProxy solo
+  // enruta ese prefijo al backend: pedirlas desde la raiz las mandaba al panel
+  // Angular. El backend responde en las dos formas para no romper los builds
+  // ya instalados.
+  static const String imageUploadEndpoint = '/api/images/upload';
+  static String imageUrl(String name) => '$baseUrl/api/images/$name';
+
   static const String meEndpoint = '/api/me';
   static const String changePasswordEndpoint = '/api/me/change-password';
   static const String fcmTokenEndpoint = '/api/me/fcm-token';

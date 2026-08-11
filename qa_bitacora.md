@@ -2,6 +2,32 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-11]: Las imágenes de los foros pasan a pedirse bajo `/api/`
+
+- **Por qué:** la subida de imágenes de los foros estaba rota de las dos puntas. El backend nunca
+  registró la ruta (arreglado hoy, ver su bitácora), y la app pedía `{host}/images/...` **sin
+  `/api/`**, que en producción no llega al backend: HAProxy solo enruta ese prefijo. Es exactamente
+  lo que ya había pasado con `/social-login`.
+- **Alcance:**
+  - `lib/data/config/api_constants.dart` — `imageUploadEndpoint` y el ayudante `imageUrl(name)`.
+    Las URLs dejan de estar escritas a mano en la pantalla.
+  - `lib/presentation/screens/forums/forum_thread_screen.dart` — subida (línea 90) y visualización
+    (línea 389) pasan a usar esas constantes.
+- **Compatibilidad:** el backend responde en las dos formas, así que los builds ya instalados —el
+  `1.0.0+12` que está en TestFlight— **siguen funcionando** en cuanto se despliegue el backend, sin
+  necesidad de actualizar la app.
+- **Verificado:** `flutter analyze` sobre los dos archivos no reporta errores ni warnings; los 5
+  avisos de nivel `info` que salen son de estilo y anteriores a este cambio.
+- ⚠️ **No se instaló en el teléfono**: este cambio depende del backend desplegado. Instalarlo antes
+  daría el mismo 404 de siempre y no probaría nada.
+- **Criterios de QA** (después de desplegar el backend):
+  1. **Adjuntar una imagen** a un mensaje de foro: se sube sin error y aparece en el hilo.
+  2. **La imagen se ve desde otra cuenta** y sigue viéndose al reabrir la app.
+  3. **En el emulador Android**, donde la URL base es `10.0.2.2`, la imagen también carga.
+  4. **Un build antiguo** (el `1.0.0+12` de TestFlight) sigue subiendo y viendo imágenes.
+
+---
+
 ### [2026-08-10]: Declaración de cifrado y build 1.0.0+12 para TestFlight
 
 - **`ITSAppUsesNonExemptEncryption = false`** en `ios/Runner/Info.plist`. Sin esta clave, cada build

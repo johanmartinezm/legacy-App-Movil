@@ -87,7 +87,7 @@ class _ForumThreadScreenState extends State<ForumThreadScreen> {
       final token = Provider.of<AuthProvider>(context, listen: false).token;
       var request = http.MultipartRequest(
         'POST', 
-        Uri.parse('${ApiConstants.baseUrl}/images/upload'),
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.imageUploadEndpoint}'),
       );
       request.headers['Authorization'] = 'Bearer $token';
       request.files.add(await http.MultipartFile.fromPath('file', image.path));
@@ -386,7 +386,7 @@ class _PostBubble extends StatelessWidget {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.network(
-                              '${ApiConstants.baseUrl}/images/${post.imageUrl}',
+                              ApiConstants.imageUrl(post.imageUrl),
                               fit: BoxFit.cover,
                             ),
                           ),
