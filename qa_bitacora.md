@@ -2,6 +2,34 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-10]: Declaración de cifrado y build 1.0.0+12 para TestFlight
+
+- **`ITSAppUsesNonExemptEncryption = false`** en `ios/Runner/Info.plist`. Sin esta clave, cada build
+  queda en **Missing Compliance** en App Store Connect y no se puede instalar desde TestFlight ni
+  enviar a revisión hasta responder el cuestionario a mano, **en cada subida**.
+- **Por qué `false`, comprobado antes de declararlo:** la app **no implementa cifrado propio**. No
+  hay ninguna librería de criptografía en `pubspec.yaml` ni código que cifre en `lib/`; solo usa
+  HTTPS y `flutter_secure_storage`, que delega en el Keychain de iOS. El AES-256 del proyecto
+  (`security.CryptoService`) vive en el **backend**, no en el binario que se distribuye, y la
+  exención se evalúa sobre lo distribuido.
+  **Es una declaración legal, no un ajuste técnico:** si algún día la app cifra por su cuenta, deja
+  de ser cierta y hay que revisarla.
+- **`pubspec.yaml` a `1.0.0+12`.** El `+11` ya está usado en TestFlight y el `+10` se quedó
+  desalineado desde el 06-ago. Lanzar el workflow sin indicar número usaba el de `pubspec`, así que
+  la desalineación era una trampa: ahora coinciden.
+- **Este build es el primero que incluye** eliminar cuenta, bloquear y reportar personas, y los
+  arreglos del registro por correo y del alias.
+- **Criterios de QA (en el iPhone, desde TestFlight):**
+  1. **El build aparece instalable**, sin quedarse en *Missing Compliance*.
+  2. **La app instala y arranca.**
+  3. **Registrarse con correo** funciona y llega el correo de verificación.
+  4. **Login con Apple y con Google** siguen funcionando.
+  5. **Llegan las notificaciones push** (`aps-environment: production`).
+  6. **Bloquear desde un chat** oculta la conversación; **desbloquear** la devuelve con sus mensajes.
+  7. **Reportar** exige motivo y el reporte aparece en el panel.
+  8. **Eliminar mi cuenta** funciona y permite volver a registrarse con el mismo correo.
+  9. **iOS no pide permiso de micrófono** en ningún momento.
+
 ### [2026-08-10]: Bloquear y reportar personas (directriz 1.2 de Apple)
 
 - **Por qué:** Apple exige, para toda app con contenido generado por usuarios, poder **reportar y

@@ -93,5 +93,21 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+	<!-- Declaracion de cumplimiento de exportacion. Sin ella, cada build queda
+	     en "Missing Compliance" en App Store Connect y no se puede instalar
+	     desde TestFlight ni enviar a revision hasta responder el cuestionario a
+	     mano, en cada subida.
+
+	     false porque la app no implementa cifrado propio: no hay ninguna
+	     libreria de criptografia en pubspec.yaml ni codigo que cifre en lib/.
+	     Solo usa HTTPS y flutter_secure_storage, que delega en el Keychain de
+	     iOS. El AES-256 del proyecto (security.CryptoService) vive en el
+	     backend, no en el binario que se distribuye, y la exencion se evalua
+	     sobre lo que se distribuye.
+
+	     Si algun dia la app cifra por su cuenta, este valor deja de ser cierto
+	     y hay que revisarlo: es una declaracion legal, no un ajuste tecnico. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
