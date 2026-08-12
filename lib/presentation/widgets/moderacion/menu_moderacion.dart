@@ -101,6 +101,9 @@ Future<bool> _confirmarBloqueo(
   final confirmado = await showDialog<bool>(
     context: context,
     builder: (dialogContext) => AlertDialog(
+      // Son seis líneas de texto: con la fuente ampliada por accesibilidad no
+      // caben en el alto que AlertDialog concede al content.
+      scrollable: true,
       title: Text(
         '¿Bloquear a $userName?',
         style: GoogleFonts.barlow(fontWeight: FontWeight.bold),

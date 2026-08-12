@@ -98,119 +98,126 @@ class _RatingDialogState extends State<RatingDialog> {
             ),
           ],
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.legacyBlue1.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.star_rounded,
-                color: AppTheme.legacyBlue1,
-                size: 40,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Calificar Experiencia',
-              style: GoogleFonts.barlow(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.legacyBlue1,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              widget.itemName,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.barlow(fontSize: 16, color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 24),
-            RatingBar.builder(
-              initialRating: 0,
-              minRating: 1,
-              direction: Axis.horizontal,
-              allowHalfRating: true,
-              itemCount: 5,
-              itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-              itemBuilder: (context, _) =>
-                  const Icon(Icons.star_rounded, color: Colors.amber),
-              onRatingUpdate: (rating) {
-                setState(() => _rating = rating);
-              },
-            ),
-            const SizedBox(height: 24),
-            TextField(
-              controller: _commentController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: 'Escribe tus comentarios aquí...',
-                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-                filled: true,
-                fillColor: Colors.grey[50],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey[200]!),
+        // Con el teclado abierto el diálogo se queda con ~400 px y el
+        // contenido mide ~490: sin scroll desborda. Igual que EventSurveyDialog.
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.legacyBlue1.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey[200]!),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: AppTheme.legacyBlue1,
-                    width: 2,
-                  ),
+                child: const Icon(
+                  Icons.star_rounded,
+                  color: AppTheme.legacyBlue1,
+                  size: 40,
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: _isSubmitting ? null : _submitRating,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.legacyBlue1,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
+              const SizedBox(height: 20),
+              Text(
+                'Calificar Experiencia',
+                style: GoogleFonts.barlow(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.legacyBlue1,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                widget.itemName,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.barlow(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 24),
+              RatingBar.builder(
+                initialRating: 0,
+                minRating: 1,
+                direction: Axis.horizontal,
+                allowHalfRating: true,
+                itemCount: 5,
+                itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                itemBuilder: (context, _) =>
+                    const Icon(Icons.star_rounded, color: Colors.amber),
+                onRatingUpdate: (rating) {
+                  setState(() => _rating = rating);
+                },
+              ),
+              const SizedBox(height: 24),
+              TextField(
+                controller: _commentController,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  hintText: 'Escribe tus comentarios aquí...',
+                  hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+                  filled: true,
+                  fillColor: Colors.grey[50],
+                  border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey[200]!),
                   ),
-                  elevation: 0,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey[200]!),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: AppTheme.legacyBlue1,
+                      width: 2,
+                    ),
+                  ),
                 ),
-                child: _isSubmitting
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _isSubmitting ? null : _submitRating,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.legacyBlue1,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: _isSubmitting
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : Text(
+                          'Enviar Calificación',
+                          style: GoogleFonts.barlow(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      )
-                    : Text(
-                        'Enviar Calificación',
-                        style: GoogleFonts.barlow(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                'Cancelar',
-                style: TextStyle(color: Colors.grey[600]),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  'Cancelar',
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

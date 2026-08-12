@@ -2,6 +2,49 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-12]: Seis pantallas y diálogos que no permitían desplazarse
+
+- **Por qué:** en la selección de tipo de perfil del registro, la tercera opción —"Quiero ser
+  miembro de junta o consejo"— quedaba fuera de la pantalla en un iPhone con notch y no había forma
+  de llegar a ella (`docs/ios/error_regsitro.jpeg`). La causa es un `Column` sin scroll, agravado
+  por un `Spacer()` que forzaba a ocupar toda la altura. Al buscar el mismo patrón aparecieron
+  cinco casos más; en los diálogos el disparador es el teclado, que reduce el alto disponible a la
+  mitad.
+- **Alcance:**
+  - `lib/presentation/screens/profile_selection_screen.dart` — `SingleChildScrollView`; el
+    `Spacer()` pasa a `SizedBox`, obligatorio porque un `Expanded` dentro de un scroll lanza
+    excepción por constraints infinitas.
+  - `lib/presentation/widgets/eventos/rating_dialog.dart` — `SingleChildScrollView`, como ya lo
+    tenía su gemelo `event_survey_dialog.dart`.
+  - `lib/presentation/screens/login_screen.dart` — la hoja de "Ciberseguridad Avanzada" mide unos
+    700 px y no cabe en un iPhone SE.
+  - `lib/presentation/widgets/perfil/eliminar_cuenta_dialog.dart`,
+    `lib/presentation/screens/forums/forums_list_screen.dart`,
+    `lib/presentation/widgets/moderacion/menu_moderacion.dart` — `scrollable: true`. `AlertDialog`
+    **no** desplaza su `content` por defecto: lo mete en un `Flexible` que lo comprime.
+  - `lib/presentation/screens/payment_callback_screen.dart` — solo desbordaba con la fuente
+    ampliada por accesibilidad.
+- **Sin cambios de comportamiento:** ninguna lógica, ruta ni llamada a la API se tocó; el contenido
+  que ya cabía se sigue viendo igual.
+- **Verificado:** `flutter analyze` sin errores ni warnings (los `info` son previos) y los 97 tests
+  pasan.
+- **Criterios de QA** (conviene un iPhone SE o el simulador de uno, que es donde se ve):
+  1. **Registro:** abrir "Crear cuenta" y comprobar que se puede desplazar hasta la tercera
+     tarjeta, "Quiero ser miembro de junta o consejo", y que entra al formulario con ese rol.
+  2. **Login:** tocar el aviso de seguridad y comprobar que el texto completo y el botón
+     "Entendido" son alcanzables.
+  3. **Calificar una charla:** abrir el diálogo, tocar el campo de comentarios y comprobar que con
+     el teclado abierto se llega al botón "Enviar Calificación".
+  4. **Eliminar cuenta:** en Perfil, con el teclado abierto, el campo donde se escribe ELIMINAR
+     debe seguir visible.
+  5. **Foros:** en una cuenta sin alias, el diálogo de alias debe dejar ver el error y el botón con
+     el teclado abierto.
+  6. **Bloquear a alguien:** con el tamaño de fuente del sistema al máximo (Ajustes › Pantalla ›
+     Tamaño del texto), el diálogo de confirmación debe poder desplazarse.
+  7. **Ninguna franja amarilla de overflow** en las seis pantallas anteriores.
+
+---
+
 ### [2026-08-11]: Las imágenes de los foros pasan a pedirse bajo `/api/`
 
 - **Por qué:** la subida de imágenes de los foros estaba rota de las dos puntas. El backend nunca

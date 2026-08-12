@@ -17,7 +17,7 @@ class ProfileSelectionScreen extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,7 +30,11 @@ class ProfileSelectionScreen extends StatelessWidget {
                 width: 80,
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) {
-                  return const Icon(Icons.account_balance, color: Colors.white, size: 80);
+                  return const Icon(
+                    Icons.account_balance,
+                    color: Colors.white,
+                    size: 80,
+                  );
                 },
               ),
               const SizedBox(height: 24),
@@ -48,18 +52,16 @@ class ProfileSelectionScreen extends StatelessWidget {
               // Subtitle
               const Text(
                 'Para personalizar su experiencia, cuéntenos quién es. Podrá cambiarlo después.',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.white70, fontSize: 14),
               ),
               const SizedBox(height: 40),
-              
+
               // Options
               _ProfileOptionCard(
                 icon: Icons.people_alt_outlined,
                 title: 'Soy una familia empresaria',
-                subtitle: 'Fortalecer legado, patrimonio, sucesión y continuidad.',
+                subtitle:
+                    'Fortalecer legado, patrimonio, sucesión y continuidad.',
                 onTap: () {
                   context.push('/register?role=familia');
                 },
@@ -68,7 +70,8 @@ class ProfileSelectionScreen extends StatelessWidget {
               _ProfileOptionCard(
                 icon: Icons.business_outlined,
                 title: 'Represento una empresa',
-                subtitle: 'Crear, mejorar o certificar el gobierno corporativo.',
+                subtitle:
+                    'Crear, mejorar o certificar el gobierno corporativo.',
                 onTap: () {
                   context.push('/register?role=empresa');
                 },
@@ -82,8 +85,8 @@ class ProfileSelectionScreen extends StatelessWidget {
                   context.push('/register?role=junta');
                 },
               ),
-              
-              const Spacer(),
+
+              const SizedBox(height: 32),
             ],
           ),
         ),
@@ -129,11 +132,7 @@ class _ProfileOptionCard extends StatelessWidget {
                 color: Colors.white.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 24,
-              ),
+              child: Icon(icon, color: Colors.white, size: 24),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -151,10 +150,7 @@ class _ProfileOptionCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      color: Colors.white60,
-                      fontSize: 13,
-                    ),
+                    style: const TextStyle(color: Colors.white60, fontSize: 13),
                   ),
                 ],
               ),

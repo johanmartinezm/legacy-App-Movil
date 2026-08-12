@@ -58,6 +58,10 @@ class _EliminarCuentaDialogState extends State<EliminarCuentaDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      // AlertDialog no desplaza su content por defecto: lo mete en un Flexible
+      // que lo comprime. Con el teclado abierto, el campo donde hay que
+      // escribir ELIMINAR quedaba fuera de la pantalla.
+      scrollable: true,
       title: Text(
         'Eliminar mi cuenta',
         style: GoogleFonts.barlow(fontWeight: FontWeight.bold),

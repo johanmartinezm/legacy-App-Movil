@@ -120,81 +120,87 @@ class _PaymentCallbackScreenState extends State<PaymentCallbackScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF050B15),
       body: Center(
-        child: _isLoading
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircularProgressIndicator(color: Color(0xFFD9A74A)),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Verificando tu pago con el banco...',
-                    style: GoogleFonts.barlow(
-                      color: Colors.white,
-                      fontSize: 16,
+        // Centrado mientras quepa; con la fuente ampliada, desplazable.
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: _isLoading
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(color: Color(0xFFD9A74A)),
+                    const SizedBox(height: 24),
+                    Text(
+                      'Verificando tu pago con el banco...',
+                      style: GoogleFonts.barlow(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                ],
-              )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    _isSuccess ? Icons.check_circle : Icons.error,
-                    color: _isSuccess ? Colors.green : Colors.red,
-                    size: 80,
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    _isSuccess
-                        ? '¡Pago Exitoso!'
-                        : 'Pago Rechazado o Pendiente',
-                    style: GoogleFonts.barlow(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                  ],
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      _isSuccess ? Icons.check_circle : Icons.error,
+                      color: _isSuccess ? Colors.green : Colors.red,
+                      size: 80,
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  if (!_isSuccess)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                      child: Text(
-                        _errorMessage,
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.questrial(
-                          color: Colors.white70,
-                          fontSize: 14,
+                    const SizedBox(height: 24),
+                    Text(
+                      _isSuccess
+                          ? '¡Pago Exitoso!'
+                          : 'Pago Rechazado o Pendiente',
+                      style: GoogleFonts.barlow(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    if (!_isSuccess)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: Text(
+                          _errorMessage,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.questrial(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
-                    ),
-                  const SizedBox(height: 32),
-                  // Tras un pago aprobado lo que el usuario quiere es su
-                  // código de acceso, no la pantalla de inicio.
-                  ElevatedButton(
-                    key: const Key('callback-ver-credencial'),
-                    onPressed: () => context.go('/mi-credencial'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD9A74A),
-                      foregroundColor: const Color(0xFF050B15),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 12,
+                    const SizedBox(height: 32),
+                    // Tras un pago aprobado lo que el usuario quiere es su
+                    // código de acceso, no la pantalla de inicio.
+                    ElevatedButton(
+                      key: const Key('callback-ver-credencial'),
+                      onPressed: () => context.go('/mi-credencial'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFD9A74A),
+                        foregroundColor: const Color(0xFF050B15),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 12,
+                        ),
+                      ),
+                      child: Text(
+                        _isSuccess
+                            ? 'VER MI CREDENCIAL'
+                            : 'REVISAR MI CREDENCIAL',
+                        style: GoogleFonts.barlow(fontWeight: FontWeight.bold),
                       ),
                     ),
-                    child: Text(
-                      _isSuccess ? 'VER MI CREDENCIAL' : 'REVISAR MI CREDENCIAL',
-                      style: GoogleFonts.barlow(fontWeight: FontWeight.bold),
+                    TextButton(
+                      onPressed: () => context.go('/home'),
+                      child: Text(
+                        'Volver al inicio',
+                        style: GoogleFonts.questrial(color: Colors.white70),
+                      ),
                     ),
-                  ),
-                  TextButton(
-                    onPressed: () => context.go('/home'),
-                    child: Text(
-                      'Volver al inicio',
-                      style: GoogleFonts.questrial(color: Colors.white70),
-                    ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+        ),
       ),
     );
   }

@@ -224,6 +224,8 @@ class _AliasDialogState extends State<_AliasDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      // El teclado más el errorText no caben sin desplazamiento.
+      scrollable: true,
       backgroundColor: const Color(0xFF162534),
       title: const Text('¡Bienvenido a los Foros!', style: TextStyle(color: Colors.white)),
       content: Column(

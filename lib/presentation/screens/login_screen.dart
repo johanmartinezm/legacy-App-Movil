@@ -58,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (result['action'] == 'register') {
       // Navigate to register and pass pre-filled parameters
       context.push(
-        '/register', 
+        '/register',
         extra: {
           'email': result['email'],
           'name': result['name'],
@@ -78,93 +78,98 @@ class _LoginScreenState extends State<LoginScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => Container(
-        margin: const EdgeInsets.all(16),
-        padding: const EdgeInsets.all(28),
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: BorderRadius.circular(28),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(
-              'assets/images/intelyclick_security.png',
-              height: 120,
-              fit: BoxFit.contain,
-              filterQuality: FilterQuality.high,
-              isAntiAlias: true,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Ciberseguridad Avanzada',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppTheme.legacyBlue4,
+      // El contenido mide ~700 px: no cabe en un iPhone SE y va justo en el
+      // resto. isScrollControlled deja crecer la hoja, pero sin scroll interno
+      // el texto simplemente se cortaba.
+      builder: (context) => SingleChildScrollView(
+        child: Container(
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(28),
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  height: 1.5,
-                  color: Colors.white70,
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset(
+                'assets/images/intelyclick_security.png',
+                height: 120,
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.high,
+                isAntiAlias: true,
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Ciberseguridad Avanzada',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.legacyBlue4,
                 ),
-                children: [
-                  const TextSpan(
-                    text:
-                        'Su seguridad es nuestra prioridad. En Intelyclick Security, seguimos los protocolos más estrictos de seguridad, encriptando la información más sensible. Aplicamos las mejores prácticas de la industria y realizamos el monitoreo constante de amenazas mediante nuestro SOC con IA (Security Operations Center) de nivel global. ',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    height: 1.5,
+                    color: Colors.white70,
                   ),
-                  TextSpan(
-                    text: 'https://intelyclick.com/soc-intel-y-click.html',
-                    style: const TextStyle(
-                      color: AppTheme.legacyBlue5,
-                      decoration: TextDecoration.underline,
-                      fontWeight: FontWeight.bold,
+                  children: [
+                    const TextSpan(
+                      text:
+                          'Su seguridad es nuestra prioridad. En Intelyclick Security, seguimos los protocolos más estrictos de seguridad, encriptando la información más sensible. Aplicamos las mejores prácticas de la industria y realizamos el monitoreo constante de amenazas mediante nuestro SOC con IA (Security Operations Center) de nivel global. ',
                     ),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () async {
-                        final url = Uri.parse(
-                          'https://intelyclick.com/soc-intel-y-click.html',
-                        );
-                        if (await canLaunchUrl(url)) {
-                          await launchUrl(
-                            url,
-                            mode: LaunchMode.externalApplication,
+                    TextSpan(
+                      text: 'https://intelyclick.com/soc-intel-y-click.html',
+                      style: const TextStyle(
+                        color: AppTheme.legacyBlue5,
+                        decoration: TextDecoration.underline,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          final url = Uri.parse(
+                            'https://intelyclick.com/soc-intel-y-click.html',
                           );
-                        }
-                      },
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.legacyBlue3,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                          if (await canLaunchUrl(url)) {
+                            await launchUrl(
+                              url,
+                              mode: LaunchMode.externalApplication,
+                            );
+                          }
+                        },
+                    ),
+                  ],
                 ),
-                child: const Text('Entendido'),
               ),
-            ),
-            const SizedBox(height: 12),
-          ],
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.legacyBlue3,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text('Entendido'),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
         ),
       ),
     );
@@ -375,7 +380,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       builder: (context, authProvider, child) {
                         return Column(
                           children: [
-                            if (authProvider.errorMessage != null && authProvider.errorMessage != 'email_not_verified')
+                            if (authProvider.errorMessage != null &&
+                                authProvider.errorMessage !=
+                                    'email_not_verified')
                               Padding(
                                 padding: const EdgeInsets.only(bottom: 16.0),
                                 child: Container(
@@ -455,32 +462,59 @@ class _LoginScreenState extends State<LoginScreen> {
                                             if (context.mounted) {
                                               context.go('/home');
                                             }
-                                          } else if (!success && context.mounted) {
-                                            if (authProvider.errorMessage == 'email_not_verified') {
+                                          } else if (!success &&
+                                              context.mounted) {
+                                            if (authProvider.errorMessage ==
+                                                'email_not_verified') {
                                               showDialog(
                                                 context: context,
                                                 builder: (context) => AlertDialog(
-                                                  title: const Text('Correo no verificado'),
-                                                  content: const Text('Para iniciar sesión, primero debes verificar tu cuenta. ¿Deseas que te reenviemos el correo de verificación?'),
+                                                  title: const Text(
+                                                    'Correo no verificado',
+                                                  ),
+                                                  content: const Text(
+                                                    'Para iniciar sesión, primero debes verificar tu cuenta. ¿Deseas que te reenviemos el correo de verificación?',
+                                                  ),
                                                   actions: [
                                                     TextButton(
-                                                      onPressed: () => Navigator.pop(context),
-                                                      child: const Text('Cancelar'),
+                                                      onPressed: () =>
+                                                          Navigator.pop(
+                                                            context,
+                                                          ),
+                                                      child: const Text(
+                                                        'Cancelar',
+                                                      ),
                                                     ),
                                                     TextButton(
                                                       onPressed: () async {
                                                         Navigator.pop(context);
-                                                        final resent = await authProvider.resendVerificationEmail(_emailController.text);
+                                                        final resent =
+                                                            await authProvider
+                                                                .resendVerificationEmail(
+                                                                  _emailController
+                                                                      .text,
+                                                                );
                                                         if (context.mounted) {
-                                                          ScaffoldMessenger.of(context).showSnackBar(
+                                                          ScaffoldMessenger.of(
+                                                            context,
+                                                          ).showSnackBar(
                                                             SnackBar(
-                                                              content: Text(resent ? 'Correo reenviado exitosamente' : 'Error al reenviar el correo'),
-                                                              backgroundColor: resent ? Colors.green : Colors.red,
+                                                              content: Text(
+                                                                resent
+                                                                    ? 'Correo reenviado exitosamente'
+                                                                    : 'Error al reenviar el correo',
+                                                              ),
+                                                              backgroundColor:
+                                                                  resent
+                                                                  ? Colors.green
+                                                                  : Colors.red,
                                                             ),
                                                           );
                                                         }
                                                       },
-                                                      child: const Text('Reenviar correo'),
+                                                      child: const Text(
+                                                        'Reenviar correo',
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
