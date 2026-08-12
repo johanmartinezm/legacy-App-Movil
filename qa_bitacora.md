@@ -2,6 +2,45 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-12]: Tocar una notificación abre la novedad, no la bandeja
+
+- **Por qué:** el backend manda `{type, id}` desde que existen los avisos —`event` al publicar un
+  evento, `content` al publicar contenido (`handler/http/avisos.go`)— y la app los recibía y los
+  ignoraba: `main.dart` hacía siempre `push('/notifications')`. Quien tocaba el aviso de un evento
+  aterrizaba en una lista y tenía que buscarlo a mano.
+- **Alcance:**
+  - `lib/domain/utils/notificacion_destino.dart` — nuevo. `resolverNovedad()` traduce el `{type,
+    id}` a ruta y entidad; `abrirNovedad()` navega. **La entidad se resuelve antes de navegar**
+    porque las pantallas de detalle reciben el objeto entero por `extra`: empujar la ruta con un id
+    reventaría en el cast de `state.extra`.
+  - `lib/main.dart` — el listener de `onMessageOpenedApp` usa el resolvedor; se añade
+    `getInitialMessage()`, que **no existía**, y sin el cual abrir la app desde una notificación
+    con la app cerrada del todo no navegaba a ninguna parte; y se registra la ruta `/evento`.
+  - `test/utils/notificacion_destino_test.dart` — 10 casos.
+- **Cuidado con los dos modelos de evento.** `/evento` abre `EventPurchaseDetailScreen`, que es el
+  detalle de los eventos de la API (`EventModel`). `EventDetailScreen`, la de "Participando",
+  trabaja con `EventItem` y se alimenta del **JSON estático** `assets/data/events_data.json`, así
+  que no sirve para un evento notificado por el backend. El primer intento usó esa y falló al
+  compilar.
+- **Si algo no se puede abrir se abre la bandeja**, como antes: sin red, contenido borrado, o un
+  `type` que esta versión de la app todavía no conozca. Nunca deja de abrir algo.
+- **Verificado:** `flutter analyze` sin errores ni warnings; **107 tests** pasan (97 previos + 10
+  nuevos). Los 10 cubren los tres destinos reales y los seis modos de fallo, porque probar esto a
+  mano exige enviar notificaciones push a un teléfono.
+- **Criterios de QA** (hacen falta dos teléfonos o una cuenta de administrador y otra de usuario):
+  1. **Publicar un evento** desde el panel y, con la app **en segundo plano**, tocar la
+     notificación: debe abrirse el detalle de ese evento, no la bandeja.
+  2. **Publicar contenido de tipo vídeo** y tocar su notificación: debe abrirse el reproductor.
+  3. **Publicar contenido de texto**: debe abrirse el artículo.
+  4. **Con la app cerrada del todo** (deslizada fuera del multitarea), repetir el paso 1. Este es el
+     caso que antes no navegaba nunca.
+  5. **En primer plano**, con la app abierta, la notificación sigue mostrando el aviso arriba sin
+     saltar de pantalla de golpe.
+  6. **Modo avión**: tocar una notificación de evento debe abrir la bandeja, sin pantalla en blanco
+     ni cierre de la app.
+
+---
+
 ### [2026-08-12]: Seis pantallas y diálogos que no permitían desplazarse
 
 - **Por qué:** en la selección de tipo de perfil del registro, la tercera opción —"Quiero ser

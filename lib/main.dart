@@ -63,6 +63,9 @@ import 'presentation/screens/forums/forums_list_screen.dart';
 import 'presentation/screens/forums/forum_proposal_screen.dart';
 import 'presentation/screens/forums/forum_thread_screen.dart';
 import 'domain/models/forum_model.dart';
+import 'domain/models/event_model.dart';
+import 'domain/utils/notificacion_destino.dart';
+import 'presentation/screens/eventos/event_purchase_detail_screen.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -201,9 +204,18 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
           title: message.notification!.title ?? '',
           body: message.notification!.body ?? '',
         );
-        _router.push('/notifications');
       }
+      abrirNovedad(_router, message.data);
     });
+
+    // Con la app cerrada del todo, el toque no llega por onMessageOpenedApp:
+    // Firebase lo guarda y hay que preguntarlo al arrancar. Sin esto, abrir la
+    // app desde una notificación con la app terminada no navegaba a ninguna
+    // parte.
+    final inicial = await firebaseMessaging.getInitialMessage();
+    if (inicial != null && mounted) {
+      abrirNovedad(_router, inicial.data);
+    }
   }
 
   @override
@@ -411,6 +423,20 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
           builder: (context, state) {
             final video = state.extra as ContentItem;
             return VideoDetailScreen(video: video);
+          },
+        ),
+        // Detalle de un evento de la API, el mismo que abre la pestaña
+        // "Eventos". Necesita ruta propia para poder llegar a él desde una
+        // notificación.
+        //
+        // Ojo: NO es EventDetailScreen, que trabaja con EventItem y se alimenta
+        // del JSON estático de assets/data/events_data.json. Los eventos que
+        // notifica el backend son EventModel.
+        GoRoute(
+          path: '/evento',
+          builder: (context, state) {
+            final evento = state.extra as EventModel;
+            return EventPurchaseDetailScreen(event: evento);
           },
         ),
         GoRoute(path: '/cart', builder: (context, state) => const CartScreen()),
