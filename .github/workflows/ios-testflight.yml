@@ -190,17 +190,23 @@ jobs:
           set -euo pipefail
           CLAVE="$HOME/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8"
 
-          # El archive NO lleva ajustes de firma en la linea de comandos.
+          # El archive NO firma: solo compila. Quien firma es exportArchive,
+          # con el certificado de distribucion y el perfil que dice el
+          # ExportOptions correspondiente.
           #
-          # Se intento pasar CODE_SIGN_STYLE=Manual y PROVISIONING_PROFILE_
-          # SPECIFIER aqui, y xcodebuild los aplica a TODOS los targets, tambien
-          # a los Swift Packages de Firebase, GoogleSignIn y AppAuth, que no
-          # admiten perfiles: "does not support provisioning profiles, but
-          # provisioning profile Legacy App Store CI has been manually
-          # specified". El archive fallaba entero.
+          # Tampoco se pasa CODE_SIGN_STYLE=Manual ni PROVISIONING_PROFILE_
+          # SPECIFIER: xcodebuild los aplica a TODOS los targets, tambien a los
+          # Swift Packages de Firebase, GoogleSignIn y AppAuth, que no admiten
+          # perfiles ("does not support provisioning profiles, but provisioning
+          # profile ... has been manually specified") y tumban el archive.
           #
-          # Quien firma de verdad para App Store es exportArchive, y ahi si se
-          # indica el perfil, en ExportOptions.plist, que solo afecta a la app.
+          # CODE_SIGNING_ALLOWED=NO y sin -allowProvisioningUpdates porque el
+          # target Runner esta en firma automatica con "iPhone Developer": con
+          # la clave de API delante, Xcode intentaba crear un certificado de
+          # DESARROLLO en cada ejecucion —el llavero es efimero, asi que nunca
+          # reutilizaba el anterior— hasta que la cuenta llego a su limite y el
+          # archive empezo a fallar con "Your account has reached the maximum
+          # number of certificates". Ese certificado no se usaba para nada.
           xcodebuild archive \
             -workspace Runner.xcworkspace \
             -scheme Runner \
@@ -208,10 +214,8 @@ jobs:
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$CLAVE" \
-            -authenticationKeyID "$APPSTORE_KEY_ID" \
-            -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID"
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
 
           # El fichero de opciones decide el tipo de .ipa que sale: uno para
           # App Store y otro instalable en los dispositivos del perfil ad-hoc.
