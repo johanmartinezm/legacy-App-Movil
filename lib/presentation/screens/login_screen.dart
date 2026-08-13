@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -586,31 +587,39 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Container(
-                            height: 52,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.02),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.white12),
-                            ),
-                            child: InkWell(
-                              onTap: () => _handleSocialLogin('apple'),
-                              borderRadius: BorderRadius.circular(12),
-                              child: Center(
-                                child: Text(
-                                  'Apple',
-                                  style: GoogleFonts.barlow(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    fontSize: 15,
+                        // Apple solo donde funciona. En Android, Sign in with
+                        // Apple exige un Service ID y una URL de retorno web que
+                        // no están configurados, así que el botón solo llevaba a
+                        // un error. Apple lo exige en iOS —directriz 4.8, por
+                        // ofrecer Google—, no en las demás plataformas.
+                        if (defaultTargetPlatform == TargetPlatform.iOS ||
+                            defaultTargetPlatform == TargetPlatform.macOS) ...[
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Container(
+                              height: 52,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.02),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.white12),
+                              ),
+                              child: InkWell(
+                                onTap: () => _handleSocialLogin('apple'),
+                                borderRadius: BorderRadius.circular(12),
+                                child: Center(
+                                  child: Text(
+                                    'Apple',
+                                    style: GoogleFonts.barlow(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
+                        ],
                       ],
                     ),
                     const SizedBox(height: 28),
