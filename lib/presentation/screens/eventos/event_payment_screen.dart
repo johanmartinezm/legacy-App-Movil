@@ -87,9 +87,15 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
       // había intentado comprar: en el camino de pago la app iba directa a la
       // pasarela y nunca llamaba a /register.
       final eventsProvider = context.read<EventsProvider>();
+      // Los datos del formulario viajan con la inscripción. Hasta ahora se
+      // validaban y se tiraban: quien organiza el evento no tenía a quién
+      // llamar si alguien no aparecía.
       final inscrito = await eventsProvider.registerUserToEvent(
         widget.event.id,
         token,
+        participantName: _nombreController.text.trim(),
+        participantEmail: _emailController.text.trim(),
+        participantPhone: _telefonoController.text.trim(),
       );
       if (!inscrito) {
         throw Exception(
@@ -108,6 +114,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
         // URL antes de entregársela a la pasarela.
         returnUrl: 'legacyapp://app/payment-callback',
         token: token,
+        paymentMethod: _selectedPaymentMethod,
       );
 
       final uri = Uri.parse(formUrl);

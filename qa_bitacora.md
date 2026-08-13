@@ -2,6 +2,27 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-12]: Los datos del participante y el método de pago ya viajan
+
+- **Por qué:** el formulario de "Datos del Participante" se validaba desde el 2026-08-05 y **se
+  tiraba**; ninguna ruta los aceptaba. Y el selector de tarjeta o PSE no cambiaba nada. Ver la
+  bitácora del backend para la migración y el cifrado.
+- **Alcance:**
+  - `lib/data/services/event_service.dart` — `registerToEvent` acepta el contacto del participante.
+    Sin datos **no manda cuerpo**: el backend solo lo lee si llega como JSON.
+  - `lib/data/services/payment_service.dart` — `createPaymentIntent` acepta `paymentMethod`.
+  - `lib/domain/providers/events_provider.dart` y `event_payment_screen.dart` — los pasan.
+  - `test/services/datos_participante_test.dart` — 5 casos.
+- **Los campos en blanco no se envían**, en vez de mandarlos vacíos: ausente significa "usa los del
+  perfil", y es más claro que una cadena vacía.
+- **Verificado:** `flutter analyze` limpio y **117 tests** pasan.
+- **Criterios de QA** (hace falta el backend con la migración aplicada):
+  1. **Comprar un evento de pago** editando los tres campos: los valores nuevos son los que quedan
+     registrados, no los del perfil.
+  2. **Elegir PSE** antes de pagar y comprobar con soporte que quedó registrado.
+  3. **Dejar los campos como vienen** prellenados: se guardan igual.
+  4. **Un evento gratuito** sigue inscribiendo sin pasar por esta pantalla.
+
 ### [2026-08-12]: Los documentos legales publicados, alcanzables desde la app
 
 - **Por qué:** las dos tiendas exigen poder llegar a los términos y a la política desde la

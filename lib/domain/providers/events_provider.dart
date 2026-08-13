@@ -51,11 +51,23 @@ class EventsProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> registerUserToEvent(String eventId, String token) async {
+  Future<bool> registerUserToEvent(
+    String eventId,
+    String token, {
+    String? participantName,
+    String? participantEmail,
+    String? participantPhone,
+  }) async {
     _isLoading = true;
     notifyListeners();
     try {
-      await _eventService.registerToEvent(eventId, token);
+      await _eventService.registerToEvent(
+        eventId,
+        token,
+        participantName: participantName,
+        participantEmail: participantEmail,
+        participantPhone: participantPhone,
+      );
 
       // Se recargan las inscripciones reales en vez de parchear el evento en
       // memoria con actionStatus: 'registered'. Aquello no sobrevivia a un

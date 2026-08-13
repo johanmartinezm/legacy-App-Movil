@@ -21,6 +21,9 @@ class PaymentService {
     required double amount,
     required String returnUrl,
     required String token,
+    // Informativo: queda registrado lo que el usuario eligió, pero los medios
+    // de pago los muestra y los decide la pasarela.
+    String? paymentMethod,
   }) async {
     final baseUrl = ConfigService.apiBaseUrl;
     final url = Uri.parse('$baseUrl/api/payments/intent');
@@ -37,6 +40,7 @@ class PaymentService {
           'reference_id': referenceId,
           'amount': amount,
           'return_url': returnUrl,
+          if (paymentMethod != null) 'payment_method': paymentMethod,
         }),
       );
 

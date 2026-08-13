@@ -51,10 +51,29 @@ class EventService {
     }
   }
 
-  Future<Map<String, dynamic>> registerToEvent(String id, String token) async {
+  /// Inscribe a quien tiene la sesión abierta. El contacto del participante es
+  /// opcional y **no cambia de quién es la entrada** —eso lo fija el token—:
+  /// es a quién llamar si no aparece, y puede diferir del perfil.
+  Future<Map<String, dynamic>> registerToEvent(
+    String id,
+    String token, {
+    String? participantName,
+    String? participantEmail,
+    String? participantPhone,
+  }) async {
     final url = Uri.parse(
       '${ApiConstants.baseUrl}${ApiConstants.registerEventEndpoint(id)}',
     );
+
+    final contacto = <String, dynamic>{
+      if (participantName != null && participantName.isNotEmpty)
+        'participant_name': participantName,
+      if (participantEmail != null && participantEmail.isNotEmpty)
+        'participant_email': participantEmail,
+      if (participantPhone != null && participantPhone.isNotEmpty)
+        'participant_phone': participantPhone,
+    };
+
     try {
       final response = await _client.post(
         url,
@@ -62,6 +81,9 @@ class EventService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
+        // Sin datos no se manda cuerpo: el backend solo lo lee si llega
+        // Content-Type JSON, y un objeto vacío no aporta nada.
+        body: contacto.isEmpty ? null : jsonEncode(contacto),
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
