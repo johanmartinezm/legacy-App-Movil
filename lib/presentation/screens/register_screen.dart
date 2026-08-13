@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../domain/providers/auth_provider.dart';
 import '../../config/theme/app_theme.dart'; // updated
 import '../widgets/custom_text_field.dart';
+import '../widgets/documentos_legales_enlaces.dart';
 
 class RegisterScreen extends StatefulWidget {
   final String? role;
@@ -565,6 +566,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             title: const Text('Legacy Network se toma muy en serio la privacidad de sus datos. Marque esta casilla para permitirnos compartir su información de contacto con las unidades de Legacy Network (incluyendo Certifico), con el objetivo de mantenerlo informado sobre programas, servicios y novedades.', style: TextStyle(fontSize: 12)),
                             controlAffinity: ListTileControlAffinity.leading,
                             contentPadding: EdgeInsets.zero,
+                          ),
+                          // Las dos tiendas exigen que los documentos sean
+                          // alcanzables desde la app, y este es el punto donde
+                          // se aceptan. El texto de las casillas no se toca: lo
+                          // redacta el equipo de contenido.
+                          const Padding(
+                            padding: EdgeInsets.only(top: 4, bottom: 8),
+                            child: DocumentosLegalesEnlaces(),
                           ),
                           const SizedBox(
                             height: 80,

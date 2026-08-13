@@ -2,6 +2,33 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-12]: Los documentos legales publicados, alcanzables desde la app
+
+- **Por qué:** las dos tiendas exigen poder llegar a los términos y a la política desde la
+  aplicación, y la app **no enlazaba ninguno de los dos**. El registro pedía aceptar "la política de
+  privacidad y habeas data vigente" sin dar forma de leerla, y `legal_notice_screen.dart` mostraba un
+  texto propio de tres secciones titulado "Términos y Condiciones" que no es el documento real —el
+  publicado tiene dieciséis—.
+- **Alcance:**
+  - `lib/data/config/documentos_legales.dart` — nuevo. Las dos URL en un solo sitio y el ayudante
+    para abrirlas; devuelve `false` si no se pudo abrir, en vez de dejar el toque sin respuesta.
+  - `lib/presentation/widgets/documentos_legales_enlaces.dart` — nuevo. Los dos enlaces.
+  - `lib/presentation/screens/register_screen.dart` — enlaces bajo las casillas de aceptación.
+  - `lib/presentation/screens/legal_notice_screen.dart` — el texto embebido pasa a presentarse como
+    un resumen, con los documentos completos enlazados y declarados como los que rigen.
+  - `test/screens/documentos_legales_test.dart` — 5 casos.
+- **El texto de las casillas no se tocó.** Lo redacta el equipo de contenido; aquí solo se añade el
+  acceso a los documentos.
+- **Verificado:** `flutter analyze` limpio; **112 tests** pasan (107 previos + 5).
+- **Criterios de QA:**
+  1. **En el registro**, tocar "Términos y condiciones" abre el documento de la app en el navegador
+     —no el de la web corporativa— y "Política de privacidad" abre el suyo.
+  2. **Volver a la app** desde el navegador conserva lo que ya se había escrito en el formulario.
+  3. **En Perfil › Avisos legales**, ambos enlaces funcionan y se lee que el texto es un resumen.
+  4. **En modo avión**, tocar un enlace muestra el aviso de que no se pudo abrir, sin cerrar la app.
+
+---
+
 ### [2026-08-12]: Tocar una notificación abre la novedad, no la bandeja
 
 - **Por qué:** el backend manda `{type, id}` desde que existen los avisos —`event` al publicar un

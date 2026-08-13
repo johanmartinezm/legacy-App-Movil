@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../widgets/documentos_legales_enlaces.dart';
 
 class LegalNoticeScreen extends StatelessWidget {
   const LegalNoticeScreen({super.key});
@@ -32,6 +33,17 @@ class LegalNoticeScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                       ),
+                      const SizedBox(height: 12),
+                      // Lo que sigue es un resumen: los documentos publicados
+                      // son los que rigen, y decirlo evita que este texto —tres
+                      // secciones frente a las dieciséis del documento real—
+                      // parezca el contrato completo.
+                      const Text(
+                        'Este es un resumen. Los documentos completos y vigentes son los publicados por Legacy Network:',
+                        style: TextStyle(fontSize: 13),
+                      ),
+                      const SizedBox(height: 8),
+                      const DocumentosLegalesEnlaces(fontSize: 13),
                       const SizedBox(height: 24),
                       _SectionTitle(context, '1. Habeas Data y Privacidad'),
                       const SizedBox(height: 8),
