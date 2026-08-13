@@ -2,6 +2,42 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-13]: Pantalla Contáctenos, y build ad-hoc para el tercer dispositivo
+
+- **Contáctenos** era la única pantalla del módulo de Autenticación del documento de alcance sin
+  implementar. Tiene formulario —que deja constancia en el buzón de soporte y no obliga a salir de la
+  app— y canales directos, que son los que sirven cuando el envío falla.
+- **Alcance:**
+  - `presentation/screens/contacto/contacto_screen.dart` — nueva.
+  - `data/services/contacto_service.dart` — nuevo. Cliente HTTP inyectable, como `EventService`.
+  - `main.dart` — ruta `/contacto`, **dentro del `ShellRoute`**: el mensaje lo firma el backend con
+    el perfil autenticado, así que sin sesión no hay remitente.
+  - Accesos en `profile_screen.dart` (menú) y `home_content_screen.dart` (tarjeta).
+- **Al fallar el envío no se borra lo escrito** y se ofrece "Escribir por correo", que abre el
+  cliente de correo con el asunto y el mensaje ya puestos. Reescribirlo entero sería la peor forma de
+  enterarse de que no salió.
+- **El servicio no hace `json.decode` a ciegas:** el backend responde texto plano en los 400 y JSON
+  en el resto; decodificar siempre convertiría un motivo explicable en un `FormatException`.
+- ⚠️ **No se puso teléfono ni WhatsApp**: no hay un número real en ninguna parte del proyecto. El que
+  existe en `program_detail_screen.dart:17` es `wa.me/573000000000`, un relleno que **ya está en
+  producción** y lleva a un número inventado. Hace falta el número bueno para las dos cosas.
+- **Verificado:** `flutter analyze` limpio en los archivos tocados y **120 tests** en verde (117
+  previos + 3 nuevos de `contacto_service_test.dart`: cabecera y cuerpo del envío, el 400 de texto
+  plano y el 500 sin cuerpo).
+- **Build ad-hoc `1.0.0+16`** para el tercer dispositivo de pruebas registrado hoy. El perfil nuevo
+  se validó antes de compilar: certificado idéntico al `dist_cert.pem` que tenemos (`b4e2bfe7…`),
+  `get-task-allow: false` y 3 dispositivos; y después se comprobó el `embedded.mobileprovision`
+  **dentro del `.ipa`**, que es lo único que demuestra que se usó el perfil nuevo y no el del secreto
+  anterior. Artefacto `legacy-ios-adhoc-19`, copia en `docs/ios/build/`.
+- **Criterios de QA:**
+  1. **Perfil → Contáctenos** y **Home → tarjeta Contáctenos**: ambas abren la pantalla.
+  2. Enviar un mensaje: aparece la confirmación y llega a `soporte@legacynetworkco.com`.
+  3. **Enviar con el mensaje vacío**: avisa sin llamar al servidor.
+  4. **En modo avión**: muestra el error, **conserva el texto** y el botón "Escribir por correo" abre
+     el cliente de correo con todo relleno.
+  5. **"Escribir otro mensaje"** tras enviar deja el formulario limpio.
+  6. La app instalada en el **dispositivo nuevo** abre y permite iniciar sesión.
+
 ### [2026-08-12]: La app de iOS estaba registrada en Firebase con el bundle de ejemplo
 
 - **El problema:** Firebase tenía la app de Apple como `com.example.legacyApp` —el identificador que

@@ -457,6 +457,16 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           iconColor: const Color(0xFF5A93C4),
           onTap: () => context.go('/legacy-plus'),
         ),
+        // push y no go: desde aquí se entra a escribir y se vuelve, así que la
+        // pantalla se apila en vez de sustituir a la sección actual.
+        _buildModuleCard(
+          context: context,
+          title: 'Contáctenos',
+          subtitle: 'Escríbenos si necesitas ayuda',
+          icon: Icons.support_agent,
+          iconColor: const Color(0xFF54C6A8),
+          onTap: () => context.push('/contacto'),
+        ),
       ],
     );
   }

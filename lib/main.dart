@@ -24,6 +24,7 @@ import 'presentation/screens/forgot_password_screen.dart';
 import 'presentation/screens/home_screen.dart';
 import 'presentation/screens/informandote/informandote_screen.dart';
 import 'presentation/screens/legal_notice_screen.dart';
+import 'presentation/screens/contacto/contacto_screen.dart';
 import 'presentation/screens/profile_selection_screen.dart';
 import 'presentation/screens/splash_screen.dart';
 
@@ -330,6 +331,12 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
             GoRoute(
               path: '/legacy-plus',
               builder: (context, state) => const LegacyPlusScreen(),
+            ),
+            // Contactenos. Va dentro del ShellRoute porque el mensaje lo firma
+            // el backend con el perfil autenticado: sin sesion no hay remitente.
+            GoRoute(
+              path: '/contacto',
+              builder: (context, state) => const ContactoScreen(),
             ),
             GoRoute(
               path: '/programas',

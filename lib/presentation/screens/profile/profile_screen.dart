@@ -177,6 +177,14 @@ class ProfileScreen extends StatelessWidget {
 
               const SizedBox(height: 12),
 
+              _buildMenuItem(
+                context,
+                title: 'Contáctenos',
+                subtitle: 'Escríbenos si necesitas ayuda',
+                onTap: () => context.push('/contacto'),
+                icon: Icons.support_agent_outlined,
+              ),
+
               // Poder deshacer un bloqueo es lo que hace usable la función:
               // quien bloquea por error no puede encontrar a esa persona por
               // otra vía, porque deja de aparecer en el directorio.
