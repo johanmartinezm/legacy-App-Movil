@@ -126,6 +126,30 @@ El tráfico HTTP sin cifrar está permitido **solo en debug**
 `http://10.0.2.2:8080`. El manifest de `main/` no lleva `usesCleartextTraffic`, así que el release
 es HTTPS de punta a punta. No lo devuelvas a `main/` para depurar un problema de red en release.
 
+## Notificaciones push en iOS
+
+Tres piezas, y con que falte una no llega ni un aviso. Las tres quedaron resueltas el 2026-08-12:
+
+| Pieza | Dónde | Estado |
+|---|---|---|
+| App registrada en Firebase con el bundle real | Firebase, proyecto `app-legacy-848f1` | `co.legacynetwork.legacyapp` |
+| Configuración que usa la app | `lib/firebase_options.dart` | **es la que manda**, no el `.plist` |
+| Clave APNs subida a Firebase | Cloud Messaging | `AuthKey_6W3PXQC2A6.p8`, Key ID `6W3PXQC2A6`, Team ID `87LBVBLK8T` |
+
+**`firebase_options.dart` es lo que manda, no `GoogleService-Info.plist`.** `main.dart` inicializa
+con `DefaultFirebaseOptions.currentPlatform`, así que reemplazar solo el `.plist` no cambia nada.
+Hasta el 2026-08-12 ese archivo declaraba `com.example.legacyApp` —el identificador de ejemplo de
+Flutter— y las notificaciones de iOS se registraban contra una app que no era la instalada. En
+Android nunca falló, que es donde se probaban.
+
+Al cambiar de app en Firebase, el `REVERSED_CLIENT_ID` cambia y hay que reflejarlo **a mano** en el
+esquema de URL de `ios/Runner/Info.plist`, o el acceso con Google deja de volver a la aplicación.
+
+**No confundir las dos claves `.p8`:** `AuthKey_H4DGAZR68T.p8` es la de App Store Connect API, la que
+usa el workflow para subir builds. `AuthKey_6W3PXQC2A6.p8` es la de APNs. Apple solo permite dos
+claves APNs por cuenta y **cada una se descarga una única vez**; ambas viven en `docs/ios/`, fuera de
+git.
+
 ## iOS
 
 **Solo se compila en macOS.** No hay forma de generar un `.ipa` desde Windows: hace falta un Mac con
