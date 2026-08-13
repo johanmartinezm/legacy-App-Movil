@@ -7,6 +7,14 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+/// Cliente **web** de Google del proyecto `app-legacy-848f1`.
+///
+/// No es secreto —viaja en cada petición de inicio de sesión y está en
+/// `google-services.json`—, pero tiene que ser exactamente el mismo que valida
+/// el backend en `firebase.google_client_id`, o los tokens se rechazan.
+const _clienteWebDeGoogle =
+    '728967438065-l1fkjhhnr998gvtrg6oga2somie10tp9.apps.googleusercontent.com';
+
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService;
   final _storage = const FlutterSecureStorage();
@@ -248,7 +256,17 @@ class AuthProvider extends ChangeNotifier {
     try {
       String? idToken;
       if (provider == 'google') {
-        await GoogleSignIn.instance.initialize();
+        // serverClientId es el cliente **web** del proyecto, y sin él este
+        // inicio de sesión no puede funcionar contra nuestro backend.
+        //
+        // Es quien decide el `aud` del idToken. Sin declararlo, en iOS el token
+        // sale a nombre del cliente de iOS y en Android ni siquiera se emite,
+        // mientras que el backend lo valida con
+        // idtoken.Validate(ctx, idToken, cfg.firebase.google_client_id), que es
+        // este de aquí: cualquier otro `aud` se rechaza como token inválido.
+        await GoogleSignIn.instance.initialize(
+          serverClientId: _clienteWebDeGoogle,
+        );
         final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
         final GoogleSignInAuthentication googleAuth = googleUser.authentication;
         idToken = googleAuth.idToken;

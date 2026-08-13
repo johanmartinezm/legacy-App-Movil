@@ -2,6 +2,43 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-12]: La app de iOS estaba registrada en Firebase con el bundle de ejemplo
+
+- **El problema:** Firebase tenía la app de Apple como `com.example.legacyApp` —el identificador que
+  trae Flutter al crear un proyecto— mientras la app se compila como `co.legacynetwork.legacyapp`.
+  Y lo que de verdad manda es `lib/firebase_options.dart`, porque `main.dart` inicializa con
+  `DefaultFirebaseOptions.currentPlatform` y no con el `.plist`: **las notificaciones de iOS se
+  registraban contra una app que no era la instalada**. En Android nunca falló, que es donde se
+  probaban.
+- **Un segundo fallo, encontrado al verificar lo anterior:** el inicio de sesión con Google llamaba a
+  `GoogleSignIn.instance.initialize()` **sin `serverClientId`**. Ese parámetro decide el `aud` del
+  idToken; sin él, en iOS el token sale a nombre del cliente de iOS y en Android ni se emite. El
+  backend lo valida con `idtoken.Validate(ctx, idToken, cfg.firebase.google_client_id)`, que es el
+  cliente **web** (`…l1fkjhhnr998…`), así que **cualquier token que llegara se rechazaba**.
+- **Alcance:**
+  - `ios/Runner/GoogleService-Info.plist` — el descargado de la app real.
+  - `ios/Runner/Info.plist` — el `REVERSED_CLIENT_ID` del esquema de URL cambia con la app nueva; sin
+    tocarlo, el acceso con Google en iOS dejaría de volver a la aplicación.
+  - `lib/firebase_options.dart` — `appId` e `iosBundleId` de la app real.
+  - `lib/domain/providers/auth_provider.dart` — `serverClientId` con el cliente web.
+- **Queda `com.example.legacyApp.RunnerTests`** en el proyecto de Xcode. Es el target de pruebas, no
+  se distribuye y no afecta.
+- **Verificado:** `flutter analyze` sin problemas en los archivos tocados y **117 tests** pasan. Lo
+  demás solo se puede comprobar en un dispositivo real.
+- ⚠️ **Falta la clave APNs en Firebase.** Sin ella, iOS no recibe notificaciones aunque todo lo
+  anterior esté bien. Se comprueba en Configuración del proyecto → Cloud Messaging, sección de la app
+  de Apple. La clave se crea en el portal de Apple marcando "Apple Push Notifications service" y se
+  sube con su Key ID y el Team ID `87LBVBLK8T`. **La `AuthKey_H4DGAZR68T.p8` que ya existe es la de
+  App Store Connect API**, para subir builds, y no sirve para esto salvo que se creara con esa
+  casilla marcada.
+- **Criterios de QA** (hace falta un build nuevo de iOS y un iPhone real):
+  1. **Publicar un evento** desde el panel con la app iOS en segundo plano: la notificación llega.
+  2. **Tocarla** abre el evento, no la bandeja.
+  3. **Con la app cerrada del todo**, repetir: también llega y navega.
+  4. **Iniciar sesión con Google** en iOS: entra y vuelve a la app.
+  5. **Iniciar sesión con Google en Android**, que antes tampoco podía funcionar: entra igual.
+  6. **En Android**, las notificaciones siguen llegando como hasta ahora.
+
 ### [2026-08-12]: Los datos del participante y el método de pago ya viajan
 
 - **Por qué:** el formulario de "Datos del Participante" se validaba desde el 2026-08-05 y **se

@@ -59,10 +59,17 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAJPyuCGVQh6yqQA_P-XYDZsC6AEWrJUbc',
-    appId: '1:728967438065:ios:590de1d035591960809350',
+    // Esta es la app de iOS de verdad, registrada en Firebase el 2026-08-12.
+    //
+    // Hasta entonces aquí figuraba com.example.legacyApp —el identificador de
+    // ejemplo que trae Flutter— mientras la app se compila como
+    // co.legacynetwork.legacyapp. Como main.dart inicializa Firebase con estas
+    // opciones y no con GoogleService-Info.plist, **las notificaciones de iOS
+    // se registraban contra una app que no era la instalada**.
+    appId: '1:728967438065:ios:3a54b14b8582c3e7809350',
     messagingSenderId: '728967438065',
     projectId: 'app-legacy-848f1',
     storageBucket: 'app-legacy-848f1.firebasestorage.app',
-    iosBundleId: 'com.example.legacyApp',
+    iosBundleId: 'co.legacynetwork.legacyapp',
   );
 }
