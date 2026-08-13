@@ -174,6 +174,19 @@ class _ContactoScreenState extends State<ContactoScreen> {
             'Escríbanos y le responderemos al correo de su cuenta.',
             style: TextStyle(fontSize: 14),
           ),
+          const SizedBox(height: 16),
+          // Muchas de las dudas que llegan al buzón ya están respondidas, y
+          // leerlas es más rápido que esperar una respuesta.
+          Card(
+            margin: EdgeInsets.zero,
+            child: ListTile(
+              leading: const Icon(Icons.help_outline),
+              title: const Text('¿Es una duda frecuente?'),
+              subtitle: const Text('Cuenta, comunidad, eventos y privacidad'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/faq'),
+            ),
+          ),
           const SizedBox(height: 24),
           TextFormField(
             controller: _asuntoController,

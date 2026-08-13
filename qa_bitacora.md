@@ -2,6 +2,57 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-13]: La búsqueda global ya es global, y hay FAQ
+
+Las dos piezas que le faltaban a la Fase 1 para cumplir el documento de alcance.
+
+**Búsqueda global.** Antes la lupa solo miraba el contenido —artículos, videos, podcast—, así que
+buscar un evento o a una persona no devolvía nada. Ahora alcanza **cinco fuentes**: contenido,
+eventos, programas, sinergias y miembros, con los resultados agrupados por sección.
+
+- **Alcance:**
+  - `domain/models/resultado_busqueda.dart` — nuevo. Modelo común; guarda el objeto original porque
+    cada pantalla de detalle lo recibe como `extra` de go_router.
+  - `domain/utils/busqueda_global.dart` — nuevo. `normalizar`, `filtrar` y `agrupar`, sin depender de
+    Flutter, igual que `event_filters.dart`. Es el único archivo a tocar si algún día el backend
+    acepta búsquedas de verdad.
+  - `data/services/busqueda_service.dart` — nuevo. Reúne las cinco fuentes.
+  - `presentation/delegates/global_search_delegate.dart` — nuevo; sustituye a
+    `content_search_delegate.dart`, que se retira.
+- **Busca sin tildes:** "sesion" encuentra "Sesión de bienvenida". En un teclado móvil nadie escribe
+  las tildes, así que sin esto la mitad de las búsquedas fallarían.
+- **Por palabras sueltas, no por frase:** "summit liderazgo" encuentra "LEGACY SUMMIT 2026: Liderazgo
+  y Trascendencia". Comparar la frase entera fallaba en el caso más común.
+- **Si una fuente falla, las demás siguen.** Dos de las cinco son GraphQL de terceros (WordPress y
+  lso.school). Antes un fallo de WordPress dejaba la lupa vacía con un error rojo; ahora cada fuente
+  se pide por separado y la que falle aporta cero resultados.
+- ⚠️ **Los miembros llevan al directorio, no a un perfil**: no existe pantalla de perfil de otra
+  persona en la app.
+
+**FAQ.** Cuatro secciones —cuenta y acceso, comunidad y foros, eventos, privacidad y
+notificaciones— con 17 preguntas, buscador propio y enlace a Contáctenos cuando no hay respuesta.
+
+- **Alcance:** `domain/models/faq_data.dart` y `presentation/screens/faq/faq_screen.dart`, nuevos;
+  ruta `/faq`; accesos desde el menú de Perfil y desde la propia pantalla de Contáctenos.
+- **Las respuestas describen lo que la app hace hoy**, no lo que se espera de ella: el chat es 1:1,
+  los foros van con alias, el acceso con Apple solo aparece en iPhone. **Al cambiar una función hay
+  que revisar esta lista**: una FAQ que promete algo que ya no ocurre hace más daño que no tenerla.
+- **Al buscar, las coincidencias salen desplegadas.** Si hubiera que tocar cada una para ver si es la
+  buena, el buscador no ahorraría nada.
+- ⚠️ **Ninguna respuesta habla de precios, reembolsos ni plazos**, porque eso es política comercial y
+  no está definida. Si el negocio la fija, es lo primero que habría que añadir.
+- **Verificado:** `flutter analyze` limpio y **139 tests** (120 antes; 11 de la búsqueda y 8 del FAQ).
+- **Criterios de QA:**
+  1. **Lupa del Home**, buscar "legacy": salen resultados en varias secciones, no solo Contenido.
+  2. Buscar **sin tildes** ("sesion", "cancun"): encuentra igual.
+  3. Buscar **dos palabras en desorden** ("liderazgo summit"): encuentra el evento.
+  4. Tocar un resultado de cada sección: abre la pantalla correcta y se puede volver.
+  5. **Sin conexión**, abrir la lupa: no revienta; muestra lo que haya podido cargar.
+  6. **Perfil → Preguntas frecuentes**: las cuatro secciones, y tocar una pregunta muestra su
+     respuesta.
+  7. En el FAQ, buscar "contrasena" sin tilde: aparece la pregunta ya desplegada.
+  8. Buscar algo inexistente: ofrece el botón de Contáctenos y lleva a esa pantalla.
+
 ### [2026-08-13]: Pantalla Contáctenos, y build ad-hoc para el tercer dispositivo
 
 - **Contáctenos** era la única pantalla del módulo de Autenticación del documento de alcance sin

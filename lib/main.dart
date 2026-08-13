@@ -25,6 +25,7 @@ import 'presentation/screens/home_screen.dart';
 import 'presentation/screens/informandote/informandote_screen.dart';
 import 'presentation/screens/legal_notice_screen.dart';
 import 'presentation/screens/contacto/contacto_screen.dart';
+import 'presentation/screens/faq/faq_screen.dart';
 import 'presentation/screens/profile_selection_screen.dart';
 import 'presentation/screens/splash_screen.dart';
 
@@ -337,6 +338,10 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
             GoRoute(
               path: '/contacto',
               builder: (context, state) => const ContactoScreen(),
+            ),
+            GoRoute(
+              path: '/faq',
+              builder: (context, state) => const FaqScreen(),
             ),
             GoRoute(
               path: '/programas',

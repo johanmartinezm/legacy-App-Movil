@@ -177,6 +177,16 @@ class ProfileScreen extends StatelessWidget {
 
               const SizedBox(height: 12),
 
+              // El FAQ va antes que Contáctenos a propósito: la mayoría de las
+              // dudas ya están respondidas ahí y se resuelven sin esperar.
+              _buildMenuItem(
+                context,
+                title: 'Preguntas frecuentes',
+                subtitle: 'Cuenta, comunidad, eventos y privacidad',
+                onTap: () => context.push('/faq'),
+                icon: Icons.help_outline,
+              ),
+
               _buildMenuItem(
                 context,
                 title: 'Contáctenos',

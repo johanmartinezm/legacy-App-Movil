@@ -4,12 +4,13 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../domain/providers/auth_provider.dart';
 import '../../../domain/providers/notification_provider.dart';
+import '../../../data/services/busqueda_service.dart';
 import '../../../data/services/graphql_service.dart';
-import '../../../data/services/custom_content_service.dart';
 import '../../../domain/models/content_model.dart';
 import '../../../domain/models/graphql_post_model.dart';
-import '../../../domain/models/custom_content_model.dart';
-import '../../delegates/content_search_delegate.dart';
+import '../../../domain/models/resultado_busqueda.dart';
+import '../../../domain/providers/chat_provider.dart';
+import '../../delegates/global_search_delegate.dart';
 
 class HomeContentScreen extends StatefulWidget {
   const HomeContentScreen({super.key});
@@ -198,6 +199,10 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
   }
 
   void _handleSearch() async {
+    // Se toma antes de cualquier await: después el context puede haber dejado
+    // de ser válido.
+    final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+
     bool isDialogActive = false;
     BuildContext? dialogContext;
     showDialog(
@@ -211,27 +216,29 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     isDialogActive = true;
     try {
       await Future.delayed(const Duration(milliseconds: 100));
-      final graphqlService = GraphqlService();
-      final customContentService = CustomContentService();
-      final results = await Future.wait([
-        graphqlService.getPosts(first: 50),
-        customContentService.getCustomContents(),
-      ]);
+
+      // Los miembros ya están en memoria si el chat se abrió alguna vez; si no,
+      // se piden ahora. Es la única fuente que necesita sesión.
+      if (chatProvider.members.isEmpty) {
+        try {
+          await chatProvider.loadMembers();
+        } catch (_) {
+          // Buscar sin miembros es mejor que no buscar.
+        }
+      }
+
+      final todo = await BusquedaService().cargarTodo(miembros: chatProvider.members);
+
       if (dialogContext != null && dialogContext!.mounted && isDialogActive) {
         Navigator.of(dialogContext!).pop();
         isDialogActive = false;
       }
       await Future.delayed(Duration.zero);
-      final wpResponse = results[0] as GraphqlPostsResponse;
-      final localResponse = results[1] as List<CustomContent>;
-      final List<ContentItem> unified = [
-        ...localResponse.map((c) => c.toContentItem()),
-        ...wpResponse.posts.map((p) => p.toContentItem()),
-      ];
+
       if (mounted) {
-        await showSearch<ContentItem?>(
+        await showSearch<ResultadoBusqueda?>(
           context: context,
-          delegate: ContentSearchDelegate(allPosts: unified),
+          delegate: GlobalSearchDelegate(todo: todo),
         );
       }
     } catch (e) {
@@ -241,7 +248,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al cargar contenido para buscar: $e')),
+          SnackBar(content: Text('No se pudo preparar la búsqueda: $e')),
         );
       }
     }
