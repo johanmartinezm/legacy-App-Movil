@@ -2,6 +2,41 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-14]: La notificación de un mensaje abre su conversación
+
+El lado app del aviso de chat que estrena el backend hoy. La push llega con `{type: "chat", id: la
+conexión, title: quién escribe}` y antes de este cambio ese tipo era desconocido para la app: tocarla
+llevaba a la bandeja de notificaciones, como cualquier novedad que no supiera resolver.
+
+- **Alcance:**
+  - `domain/utils/notificacion_destino.dart` — caso `chat`: lleva a
+    `/individual-chat/<id>?title=<nombre>`.
+  - `main.dart` — el aviso en primer plano y el manejo del toque distinguen el chat.
+- **El chat es el único destino que no necesita red.** Los de evento y contenido resuelven la entidad
+  antes de navegar porque esas pantallas la reciben por `extra`; la del chat solo necesita el id y
+  carga el historial al abrirse. Por eso funciona con la app recién arrancada y sin conexión todavía.
+- **El nombre viaja en la notificación** porque `/individual-chat/:id` espera el encabezado como
+  parámetro; resolverlo en la app obligaría a pedir la lista entera de conversaciones para saber un
+  nombre. Si llegara vacío, el encabezado dice "Chat" y la conversación se abre igual.
+- **Un mensaje de chat no entra en la bandeja de novedades:** su sitio es la conversación, y anotarlo
+  ahí lo dejaría contado dos veces, una en la bandeja y otra en el contador de no leídos.
+- **Con la conversación abierta delante no salta ningún aviso:** el mensaje ya se está pintando por
+  el WebSocket. En cualquier otra pantalla sí aparece, y ahora con un botón **Ver** que lleva a la
+  conversación —sin él, el aviso obligaba a buscarla a mano—.
+- ⚠️ **Nada de esto se puede probar en el emulador con push reales**: hace falta un teléfono con la
+  app instalada y el backend nuevo desplegado. Los tests cubren la traducción de la notificación a
+  ruta, que es donde estaba el fallo.
+- **Verificado:** `flutter analyze` sin avisos nuevos y **141 tests** (139 antes; 2 del destino de
+  chat).
+- **Criterios de QA:**
+  1. **App cerrada del todo:** recibir un mensaje, tocar la notificación. Abre esa conversación con
+     el nombre de quien escribió en el encabezado.
+  2. **App en segundo plano:** lo mismo, sin pasar por la bandeja.
+  3. **En otra pantalla de la app:** aparece el aviso abajo con **Ver**; al pulsarlo, la conversación.
+  4. **En esa misma conversación:** el mensaje entra solo en la lista y **no** aparece ningún aviso.
+  5. **La bandeja de notificaciones** (`/notifications`) no acumula los mensajes de chat; los avisos
+     de eventos y contenido siguen apareciendo ahí como antes.
+
 ### [2026-08-13]: La búsqueda global ya es global, y hay FAQ
 
 Las dos piezas que le faltaban a la Fase 1 para cumplir el documento de alcance.

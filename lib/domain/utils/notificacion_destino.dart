@@ -19,7 +19,9 @@ const destinoBandeja = DestinoNovedad('/notifications');
 ///
 /// El backend manda `{"type": "event", "id": ...}` al publicar un evento y
 /// `{"type": "content", "id": ...}` al publicar contenido
-/// (`handler/http/avisos.go`). La app los recibía y los ignoraba: tocar
+/// (`handler/http/avisos.go`), y `{"type": "chat", "id": id de la conexión,
+/// "title": quién escribe}` al llegar un mensaje
+/// (`core/services/chat_avisos.go`). La app los recibía y los ignoraba: tocar
 /// cualquier notificación abría la bandeja, no la novedad.
 ///
 /// **Hay que resolver el objeto antes de navegar.** Las pantallas de detalle
@@ -41,6 +43,21 @@ Future<DestinoNovedad> resolverNovedad(
 
   try {
     switch (tipo) {
+      case 'chat':
+        // El chat es el único destino que no necesita red: la ruta lleva el id
+        // de la conexión y la pantalla carga el historial al abrirse. Por eso
+        // funciona igual con la app recién arrancada y sin conexión todavía.
+        //
+        // El título viaja en la notificación porque `/individual-chat/:id` lo
+        // espera como parámetro y resolverlo aquí obligaría a pedir la lista de
+        // conversaciones entera solo para saber un nombre.
+        final titulo = datos['title']?.toString().trim();
+        final encabezado = (titulo == null || titulo.isEmpty) ? 'Chat' : titulo;
+        return DestinoNovedad(
+          '/individual-chat/${Uri.encodeComponent(id)}'
+          '?title=${Uri.encodeComponent(encabezado)}',
+        );
+
       case 'event':
         final evento = await (eventService ?? EventService()).getEventDetails(
           id,

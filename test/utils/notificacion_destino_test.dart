@@ -104,6 +104,27 @@ void main() {
       expect((destino.extra as ContentItem).id, 'c-2');
     });
 
+    test('un mensaje de chat abre esa conversación', () async {
+      final destino = await resolverNovedad({
+        'type': 'chat',
+        'id': 'conexion-3',
+        'title': 'Juan Pérez',
+      });
+
+      // La pantalla recibe el id por la ruta y el nombre por query, que es como
+      // está declarada `/individual-chat/:id` en main.dart.
+      expect(destino.ruta, '/individual-chat/conexion-3?title=Juan%20P%C3%A9rez');
+      expect(destino.extra, isNull);
+    });
+
+    test('un chat sin nombre de quien escribe abre igual', () async {
+      // Si el remitente no tiene nombre legible, perder el encabezado no puede
+      // costar el acceso a la conversación.
+      final destino = await resolverNovedad({'type': 'chat', 'id': 'c-1'});
+
+      expect(destino.ruta, '/individual-chat/c-1?title=Chat');
+    });
+
     test('los datos llegan como texto y aun así se leen', () async {
       // FCM entrega el data como Map<String, dynamic> con valores string.
       final destino = await resolverNovedad(

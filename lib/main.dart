@@ -175,8 +175,15 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
 
     // Escuchar mensajes en primer plano (Foreground)
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      if (message.notification != null && mounted) {
-        print('Notificación en primer plano: ${message.notification!.title}');
+      if (message.notification == null || !mounted) return;
+      print('Notificación en primer plano: ${message.notification!.title}');
+
+      final esChat = message.data['type']?.toString() == 'chat';
+
+      // Un mensaje de chat no entra en la bandeja de novedades: su sitio es la
+      // conversación, y anotarlo aquí lo dejaría contado dos veces —una en la
+      // bandeja y otra en el contador de no leídos del chat—.
+      if (!esChat) {
         Provider.of<NotificationProvider>(
           context,
           listen: false,
@@ -184,21 +191,34 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
           title: message.notification!.title ?? '',
           body: message.notification!.body ?? '',
         );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${message.notification!.title}: ${message.notification!.body}',
-            ),
-            backgroundColor: const Color(0xFF0B1A2E),
-          ),
-        );
       }
+
+      // Con la conversación abierta delante, el mensaje ya se está pintando por
+      // el WebSocket: avisar encima de lo que la persona está leyendo sobra.
+      if (esChat && _conversacionAbierta(message.data)) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${message.notification!.title}: ${message.notification!.body}',
+          ),
+          backgroundColor: const Color(0xFF0B1A2E),
+          action: esChat
+              ? SnackBarAction(
+                  label: 'Ver',
+                  textColor: Colors.white,
+                  onPressed: () => abrirNovedad(_router, message.data),
+                )
+              : null,
+        ),
+      );
     });
 
     // Manejar la apertura de la app al presionar una notificación (Segundo plano)
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       print('El usuario abrió la app desde la notificación: ${message.data}');
-      if (message.notification != null && mounted) {
+      final esChat = message.data['type']?.toString() == 'chat';
+      if (message.notification != null && mounted && !esChat) {
         Provider.of<NotificationProvider>(
           context,
           listen: false,
@@ -218,6 +238,18 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
     if (inicial != null && mounted) {
       abrirNovedad(_router, inicial.data);
     }
+  }
+
+  /// Si la notificación corresponde a la conversación que ya está en pantalla.
+  ///
+  /// La ruta del chat individual lleva el id de la conexión, que es el mismo
+  /// que manda el backend en la notificación, así que basta comparar rutas.
+  bool _conversacionAbierta(Map<String, dynamic> datos) {
+    final id = datos['id']?.toString();
+    if (id == null || id.isEmpty) return false;
+
+    final actual = _router.routerDelegate.currentConfiguration.uri.path;
+    return actual == '/individual-chat/$id';
   }
 
   @override
