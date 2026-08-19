@@ -313,7 +313,7 @@ class _ProgramCard extends StatelessWidget {
           type: cuotas,
         );
 
-        context.go('/programa-detalle', extra: graphqlProgram);
+        context.push('/programa-detalle', extra: graphqlProgram);
       },
       child: Container(
         width: double.infinity,

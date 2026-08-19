@@ -389,7 +389,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                   ),
                   const SizedBox(height: 12),
                   GestureDetector(
-                    onTap: () => context.go('/programas'),
+                    onTap: () => context.push('/programas'),
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(

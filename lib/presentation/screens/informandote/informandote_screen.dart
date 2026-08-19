@@ -167,7 +167,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF050B15),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => context.go('/chatbot'),
+        onPressed: () => context.push('/chatbot'),
         backgroundColor: const Color(0xFF0B1A2E),
         shape: CircleBorder(
           side: BorderSide(

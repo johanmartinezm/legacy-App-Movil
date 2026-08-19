@@ -74,7 +74,12 @@ class CustomSectionHeader extends StatelessWidget {
                 if (context.canPop()) {
                   context.pop();
                 } else {
-                  context.go('/home?tab=2');
+                  // Sin nada que desapilar solo pasa al entrar de fuera: una
+                  // notificacion o un enlace. Se vuelve al Inicio y no a
+                  // Comunidad, que es donde caia todo el mundo viniera de donde
+                  // viniera. Si esto salta al tocar atras dentro de la app, es
+                  // que a esa pantalla se llego con go en vez de push.
+                  context.go('/home');
                 }
               },
               child: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),

@@ -461,7 +461,7 @@ class _ComunidadScreenState extends State<ComunidadScreen> {
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {
-                context.go('/asesoria');
+                context.push('/asesoria');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1E2F4D),

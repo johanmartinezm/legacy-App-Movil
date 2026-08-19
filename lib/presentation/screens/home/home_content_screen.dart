@@ -441,7 +441,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           subtitle: 'Programas de formación',
           icon: Icons.school,
           iconColor: const Color(0xFF5A93C4),
-          onTap: () => context.go('/programas'),
+          onTap: () => context.push('/programas'),
         ),
         _buildModuleCard(
           context: context,
@@ -449,7 +449,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           subtitle: 'L&M · Aurum · Legacy Legal',
           icon: Icons.show_chart,
           iconColor: const Color(0xFFB3A6EE),
-          onTap: () => context.go('/asesoria'),
+          onTap: () => context.push('/asesoria'),
         ),
         _buildModuleCard(
           context: context,
@@ -756,7 +756,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
 
   Widget _buildChatFAB(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.go('/chatbot'),
+      onTap: () => context.push('/chatbot'),
       child: Container(
         width: 52,
         height: 52,
