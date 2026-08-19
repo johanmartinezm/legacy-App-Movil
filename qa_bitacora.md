@@ -2,6 +2,44 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-19]: La tarjeta del listado deja de anunciar como gratis lo que cuesta
+
+Salió al ejecutar F12.20 del plan de pruebas.
+
+- **El problema:** la tarjeta de la lista de eventos decidía qué precio enseñar **por el nombre de la
+  categoría**: `isSummit ? 'Preventa hasta 30 jul' : 'Gratis'` y `isSummit ? 'ABIERTO' : 'GRATIS'`.
+  Cualquier evento cuya categoría no fuera literalmente `summit` —una masterclass de pago, por ejemplo—
+  salía rotulado **«Gratis»** y con la insignia **«GRATIS»** encima, costara lo que costara.
+- **El dato correcto estaba a mano y se ignoraba.** `EventModel` trae `price`, `isFree` y un
+  `priceLabel` ya compuesto con `CurrencyFormatter`, y `eventos_screen.dart` no mencionaba ninguno de
+  los tres en todo el archivo.
+- **Por qué existía:** cuando se escribió la tarjeta, el summit era el único evento de pago del
+  catálogo, así que la categoría y el precio coincidían. Dejaron de coincidir en cuanto se creó el
+  primero que no era un summit.
+- **Se corrige leyendo el evento:** `esDePago = !event.isFree`. La nota bajo la fecha muestra
+  `event.priceLabel` —«$ 150.000»— o «Gratis», y la insignia pasa a **PREVENTA** o **GRATIS**.
+- **«PREVENTA» es la palabra que ya usa el detalle** del evento («PREVENTA ABIERTA»), para que quien
+  abra la ficha lea lo mismo que vio en la lista.
+- **Se retira una fecha escrita a mano.** «Preventa hasta 30 jul» seguía saliendo el 19 de agosto.
+- **El summit se sigue viendo igual** —verde y con su insignia—, que era lo que no había que romper,
+  pero ahora porque cuesta y no porque se llame así.
+- **De paso desaparece un acoplamiento con el panel:** la tarjeta ya no depende de cómo se llame la
+  categoría, así que renombrarla desde el panel no cambia lo que dice el precio. Queda pendiente el
+  mismo patrón en `isLSO`, que sigue mirando la categoría y el título.
+- **Alcance:**
+  - `presentation/screens/eventos/eventos_screen.dart` — `_buildCompactEventCard`.
+  - `test/screens/precio_evento_listado_test.dart` — nuevo, 4 pruebas.
+- **Verificado:** `flutter analyze` sin errores ni avisos (los 48 `info` son anteriores y de otros
+  archivos) y **165 pruebas** en verde (161 antes; 4 nuevas).
+- **Criterios de QA:**
+  1. **Crear un evento de pago que no sea summit** desde el panel y abrir la lista: muestra su precio,
+     no «Gratis», y la insignia dice PREVENTA.
+  2. **Un evento gratuito:** sigue diciendo «Gratis» y GRATIS.
+  3. **El Legacy Summit:** se ve como siempre.
+  4. **Buscar la nota «Preventa hasta 30 jul»:** ya no aparece en ninguna tarjeta.
+  5. **Abrir un evento de pago desde la lista:** el detalle dice «PREVENTA ABIERTA», la misma palabra.
+  6. **Un evento ya finalizado:** no muestra precio, solo la insignia FINALIZADO.
+
 ### [2026-08-18]: Se sanea el HTML al mostrarlo
 
 - **Alcance:**

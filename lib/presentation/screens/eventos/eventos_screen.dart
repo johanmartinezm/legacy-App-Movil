@@ -459,7 +459,11 @@ class _EventosScreenState extends State<EventosScreen> {
 
   Widget _buildCompactEventCard(BuildContext context, EventModel event) {
     final isLSO = event.category.toLowerCase() == 'workshop' || event.title.toLowerCase().contains('lso');
-    final isSummit = event.category.toLowerCase() == 'summit';
+    // Lo que cuesta sale del evento, no de como se llame su categoria. Hasta el
+    // 2026-08-19 esto era `event.category == 'summit'`: cualquier evento que no
+    // fuera un summit se anunciaba como «Gratis» aunque costara 150.000, porque
+    // la unica categoria de pago que existia entonces era esa.
+    final esDePago = !event.isFree;
     
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -508,11 +512,17 @@ class _EventosScreenState extends State<EventosScreen> {
                           color: const Color(0xFF90A4BA),
                         ),
                       ),
-                      // En un evento finalizado la nota de preventa no aplica.
+                      // En un evento finalizado el precio ya no aplica.
                       if (!event.isPast) ...[
                         const SizedBox(height: 4),
                         Text(
-                          isSummit ? 'Preventa hasta 30 jul' : 'Gratis',
+                          // priceLabel lo compone EventModel con
+                          // CurrencyFormatter: «$ 150.000» o «GRATIS». Aqui el
+                          // gratis va en minuscula porque es una nota, no una
+                          // insignia. Antes habia una fecha de preventa escrita
+                          // a mano —«Preventa hasta 30 jul»— que seguia saliendo
+                          // en agosto.
+                          event.isFree ? 'Gratis' : event.priceLabel,
                           style: GoogleFonts.questrial(
                             fontSize: 11,
                             color: const Color(0xFF647689),
@@ -567,25 +577,28 @@ class _EventosScreenState extends State<EventosScreen> {
                         ),
                       )
                     else
-                      // Standard badge (ABIERTO or GRATIS)
+                      // Insignia de precio: PREVENTA si cuesta, GRATIS si no.
+                      // «PREVENTA» es la misma palabra que usa el detalle del
+                      // evento («PREVENTA ABIERTA»), para que quien abra la
+                      // ficha lea lo mismo que vio en la lista.
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: isSummit
+                          color: esDePago
                               ? const Color(0xFF54C6A8).withValues(alpha: 0.12)
                               : const Color(0xFF5BB0E6).withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
-                            color: isSummit
+                            color: esDePago
                                 ? const Color(0xFF54C6A8).withValues(alpha: 0.4)
                                 : const Color(0xFF5BB0E6).withValues(alpha: 0.4),
                             width: 1,
                           ),
                         ),
                         child: Text(
-                          isSummit ? 'ABIERTO' : 'GRATIS',
+                          esDePago ? 'PREVENTA' : 'GRATIS',
                           style: GoogleFonts.barlow(
-                            color: isSummit ? const Color(0xFF54C6A8) : const Color(0xFF5BB0E6),
+                            color: esDePago ? const Color(0xFF54C6A8) : const Color(0xFF5BB0E6),
                             fontWeight: FontWeight.bold,
                             fontSize: 10,
                             letterSpacing: 0.8,
