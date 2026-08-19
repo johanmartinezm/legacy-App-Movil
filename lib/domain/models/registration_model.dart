@@ -12,9 +12,18 @@ class RegistrationModel {
   final String registrationStatus;
   final DateTime? registrationDate;
 
+  /// Si el evento es una masterclass virtual. Los virtuales no dan QR —no hay
+  /// puerta que cruzar— sino el enlace de la sesión.
+  final bool eventIsVirtual;
+
   /// Código que se dibuja como QR. Llega **vacío** en las inscripciones
-  /// pendientes de pago: el backend no lo manda, porque no dan derecho a entrar.
+  /// pendientes de pago y en los eventos virtuales: el backend solo manda lo
+  /// que da derecho a entrar, y solo lo que corresponde a la modalidad.
   final String qrData;
+
+  /// Enlace de la sesión virtual. Vacío en los presenciales y en cualquier
+  /// inscripción sin confirmar, con la misma regla que [qrData].
+  final String accessUrl;
 
   final double totalPaid;
   final bool attendanceConfirmed;
@@ -30,7 +39,9 @@ class RegistrationModel {
     required this.paymentStatus,
     required this.registrationStatus,
     this.registrationDate,
+    this.eventIsVirtual = false,
     required this.qrData,
+    this.accessUrl = '',
     required this.totalPaid,
     required this.attendanceConfirmed,
   });
@@ -43,6 +54,9 @@ class RegistrationModel {
 
   /// Solo hay credencial que enseñar si está confirmada y trae código.
   bool get tieneQr => qrData.isNotEmpty && !estaPendienteDePago;
+
+  /// Solo hay enlace al que entrar si está confirmada y el backend lo mandó.
+  bool get tieneEnlace => accessUrl.isNotEmpty && !estaPendienteDePago;
 
   /// Un evento ya terminado no sirve para entrar a ningún sitio. Se compara
   /// contra el último día, y sin convertir a hora local: el backend serializa
@@ -69,7 +83,9 @@ class RegistrationModel {
       registrationStatus: json['registrationStatus']?.toString() ?? '',
       registrationDate:
           DateTime.tryParse(json['registrationDate']?.toString() ?? ''),
+      eventIsVirtual: json['eventIsVirtual'] == true,
       qrData: json['qrData']?.toString() ?? '',
+      accessUrl: json['accessUrl']?.toString() ?? '',
       totalPaid: _asDouble(json['totalPaid']),
       attendanceConfirmed: json['attendanceConfirmed'] == true,
     );

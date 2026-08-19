@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../domain/models/registration_model.dart';
 import '../../../domain/providers/auth_provider.dart';
@@ -211,7 +212,12 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          if (reg.tieneQr)
+          // Cada modalidad enseña lo suyo. Un QR en una masterclass virtual no
+          // abre ninguna puerta, y un enlace en un presencial no lleva a
+          // ningún sitio: el backend solo manda el que corresponde.
+          if (reg.tieneEnlace)
+            _buildEnlace(reg)
+          else if (reg.tieneQr)
             _buildQr(reg)
           else
             _buildSinQr(reg),
@@ -257,6 +263,74 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
           ),
       ],
     );
+  }
+
+  /// Acceso a una masterclass virtual: el enlace de la sesión en lugar del QR.
+  Widget _buildEnlace(RegistrationModel reg) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF13304A).withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.videocam_rounded,
+            color: Color(0xFFD9A74A),
+            size: 28,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Masterclass virtual en vivo',
+            style: GoogleFonts.barlow(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFFD9A74A),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Entra desde aquí el día de la sesión.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.questrial(
+              fontSize: 13,
+              color: const Color(0xFF90A4BA),
+            ),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () => _abrirEnlace(reg.accessUrl),
+              icon: const Icon(Icons.open_in_new, size: 18),
+              label: const Text('Entrar a la sesión'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFD9A74A),
+                foregroundColor: const Color(0xFF0B1A2E),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _abrirEnlace(String url) async {
+    final uri = Uri.tryParse(url);
+    // El enlace lo escribe un administrador a mano en el panel: puede venir mal
+    // formado o no poder abrirse, y eso no debe tumbar la pantalla.
+    if (uri == null || !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se pudo abrir el enlace de la sesión')),
+      );
+    }
   }
 
   Widget _buildSinQr(RegistrationModel reg) {

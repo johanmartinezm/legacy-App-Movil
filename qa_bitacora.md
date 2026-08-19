@@ -2,6 +2,154 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-18]: Participando muestra inscripciones reales, y los virtuales dan enlace
+
+Puntos 2.5 y 2.3 de `reports/20260818_plan_ajustes.html`, lado app.
+
+- **El problema:** Participando cargaba `assets/data/events_data.json` con `rootBundle` —eventos de
+  ejemplo compilados dentro de la app— y **nunca consultó el backend**. No es que la inscripción a la
+  masterclass fallara: esa pantalla no podía mostrar ninguna inscripción real, jamás.
+- **Alcance:**
+  - `presentation/screens/participando/participando_screen.dart` — reescrita contra `EventsProvider`.
+  - `domain/models/registration_model.dart` — `eventIsVirtual`, `accessUrl` y `tieneEnlace`.
+  - `presentation/screens/profile/mi_credencial_screen.dart` — enlace de sesión en vez de QR cuando el
+    evento es virtual.
+- **El servicio, el modelo y el proveedor ya existían y funcionaban.** `getMyRegistrations` estaba
+  escrito y probado; solo lo usaba "Mi credencial". El trabajo estuvo en la pantalla.
+- **El filtro Presencial/Virtual ahora filtra de verdad.** Antes comparaba contra un campo del JSON de
+  ejemplo; ahora usa `eventIsVirtual`, que llega del backend desde la migración de hoy. Por eso 2.3 se
+  hizo antes que 2.5: al revés habría tocado la pantalla dos veces.
+- **Cuatro estados vacíos distintos**, porque significan cosas distintas y la anterior solo tenía uno
+  ("Error loading data"): sin sesión, error de carga con reintento, sin ninguna inscripción, y ninguna
+  que coincida con el filtro.
+- **La tarjeta lleva a "Mi credencial", no al detalle del evento.** Es donde está el QR o el enlace,
+  que es lo que busca quien entra aquí. El botón cambia de texto e icono según la modalidad.
+- **Ni un evento terminado ni una inscripción sin pagar ofrecen acceso:** no hay nada a lo que entrar,
+  y la inscripción impaga se marca con su etiqueta en la tarjeta.
+- **Se añadió "deslizar para recargar"**, que la versión del JSON no necesitaba porque sus datos nunca
+  cambiaban.
+- ⚠️ **`participando/event_detail_screen.dart` queda huérfano.** Trabajaba con `EventItem`, del JSON
+  estático, y ya no lo referencia nadie. No se borra en esta entrega; conviene decidirlo aparte junto
+  con el propio `assets/data/events_data.json`.
+- **Verificado:** `flutter analyze` sin issues en los archivos tocados y **145 tests** (sin cambios: no
+  hay tests de widget de estas pantallas).
+- **Criterios de QA:**
+  1. **Sin sesión:** Participando invita a iniciar sesión, no muestra eventos de ejemplo.
+  2. **Con sesión y sin inscripciones:** dice que todavía no te has inscrito a ninguno.
+  3. **Inscribirse a un evento y abrir Participando:** aparece ahí. **Este es el caso que el cliente
+     reportó.**
+  4. **Deslizar hacia abajo** recarga la lista.
+  5. **Filtro «Virtual»:** solo las masterclass; **«Presencial»:** solo los presenciales.
+  6. **Buscar por título** filtra sobre tus inscripciones.
+  7. **Un evento ya pasado** cae en "Eventos pasados" y no ofrece botón de acceso.
+  8. **Una inscripción pendiente de pago** sale con su etiqueta y sin botón de acceso.
+  9. **Tarjeta de un presencial:** el botón dice "Ver mi credencial" y lleva al QR.
+  10. **Tarjeta de un virtual:** dice "Ver enlace de acceso" y lleva al enlace.
+  11. **Mi credencial, evento virtual:** sale el botón "Entrar a la sesión", **no** un QR.
+  12. **Mi credencial, evento presencial:** sale el QR, **no** un enlace.
+  13. **Con un enlace mal escrito** desde el panel, tocar el botón avisa y no rompe la pantalla.
+  14. **Sin backend:** Participando muestra el error con botón de reintentar.
+
+### [2026-08-18]: Tanda 1 de los ajustes del cliente
+
+Cinco de los seis puntos de la primera tanda de `reports/20260818_plan_ajustes.html`. **Falta 1.2**
+—unificar «Contenido de Valor» y «Legacy Knowledge»—, que espera a que el cliente diga cuál se queda.
+
+- **Alcance:**
+  - `presentation/screens/home/home_content_screen.dart` — 2.1: subtítulo de la tarjeta de eventos y
+    destacado semanal del perfil de empresa.
+  - `presentation/screens/comunidad/comunidad_screen.dart` — 2.1: el tercer «webinars» suelto.
+  - `data/services/graphql_service.dart` — 1.5: `author { node { name } }` en las dos consultas.
+  - `domain/models/graphql_post_model.dart` — 1.5: campo `authorName`, lectura y paso a `ContentItem`.
+  - `presentation/screens/programs/programs_screen.dart` — 3.1: la imagen del programa.
+  - `presentation/screens/informandote/video_detail_screen.dart` — 1.3: el «me gusta».
+  - `presentation/screens/informandote/informandote_screen.dart` — 1.1: el buscador.
+  - `domain/utils/busqueda_global.dart` — 1.1: `coincide` y `palabrasDe`.
+- **Tres de los cinco eran cableado, no funcionalidad nueva.** El autor ya se sabía leer en dos
+  formatos pero la consulta nunca lo pedía; la imagen del programa llegaba hasta la app y se tiraba en
+  el mapeo a `_LsoProgram`; y el «me gusta» del video estaba escrito y probado **en la pantalla de al
+  lado**, la del artículo.
+- **El «me gusta» del video no existía; «Guardar» sí funcionaba.** El cliente reportó los dos juntos.
+  El me gusta se pintaba con `_buildStat`, que solo muestra el número y no responde al toque. Ahora usa
+  el mismo camino que el artículo: consulta el estado al abrir, actualiza de forma optimista, revierte
+  si la llamada falla y avisa si no hay sesión.
+- **El video pasa a tener copia mutable del modelo** (`_video`), porque `widget.video` es inmutable y
+  el contador cambia. Es el patrón que ya usaba `article_detail_screen`.
+- **El buscador filtra en local y se acumula sobre el filtro de tipo:** con «Videos» activo y
+  «gobierno» escrito salen solo los videos de gobierno. La pantalla ya descarga todo el contenido de
+  golpe para poder filtrar por tipo, así que buscar no vuelve a la red.
+- **La regla de coincidencia no se reimplementó.** Se extrajo `coincide` a `busqueda_global.dart`, que
+  no depende de Flutter y ya tenía tests, y `filtrar` la usa también. Sin esto habría dos búsquedas con
+  comportamientos que se separarían con el tiempo.
+- **Una consulta vacía en `coincide` devuelve `true`, al revés que `filtrar`.** En `filtrar` una
+  consulta vacía significa «no hay búsqueda, no devuelvas nada»; en el buscador de sección significa
+  «no estás filtrando, deja pasar todo». Está cubierto por un test para que nadie lo «arregle».
+- **El vacío del listado distingue los dos casos:** sin búsqueda dice que no hay contenido de ese tipo;
+  con búsqueda, que nada coincide con lo escrito.
+- **La imagen del programa lleva marcador de posición** del mismo alto cuando falta o falla la carga,
+  para que el listado no quede irregular. No todos los programas tienen imagen en la tienda.
+- **Verificado:** `flutter analyze` sin issues nuevos —los avisos que salen son `print` y un
+  `BuildContext` asíncrono, todos anteriores— y **145 tests** (141 antes; 4 de `coincide`).
+- **Criterios de QA:**
+  1. **Home:** la tarjeta de eventos dice «Masterclass virtual en vivo y Legacy Summit presencial».
+  2. **Home con perfil de empresa:** el destacado semanal ya no dice «webinar».
+  3. **Comunidad:** el texto de la cinta ya no dice «webinars».
+  4. **Abrir un artículo:** sale el nombre de quien firma, no «Autor desconocido».
+  5. **Abrir un video:** ídem; si el contenido no trae autor, sigue saliendo el texto por defecto.
+  6. **Video, tocar el pulgar:** se rellena y el contador sube; volver a tocarlo lo deshace.
+  7. **Video sin sesión iniciada:** al tocar el pulgar avisa «Debes iniciar sesión para dar like».
+  8. **Salir del video y volver a entrar:** el estado del me gusta se conserva.
+  9. **Video, «Guardar»:** sigue funcionando y aparece en Favoritos.
+  10. **LSO:** cada tarjeta muestra su fotografía.
+  11. **LSO, programa sin imagen:** sale el emblema sobre fondo azul, no un hueco ni un icono roto.
+  12. **Legacy Knowledge:** hay buscador bajo el encabezado.
+  13. **Buscar «sesion» sin tilde** encuentra los títulos con «Sesión».
+  14. **Buscar «summit liderazgo»** encuentra el título aunque las palabras no estén juntas.
+  15. **Elegir «Videos» y escribir una palabra:** se acumulan los dos filtros.
+  16. **Buscar algo inexistente:** dice «Nada coincide con "…"», no el mensaje de tipo.
+  17. **La equis del buscador** limpia el texto y devuelve el listado completo.
+
+### [2026-08-18]: La barra inferior del registro deja de tapar el formulario
+
+En las capturas de iPhone de hoy (`docs/ios/error2_18-08-2026.jpeg`) la barra fija del registro
+ocupaba un tercio de la pantalla: solo se veía el campo de contraseña. La causa es que "Acepto
+Política de Privacidad y Habeas Data" competía por el ancho con el botón "Atrás" y con el de acción,
+que tiene ancho fijo (`minimumSize: Size(120, 44)` más 20 de padding). En un iPhone estrecho al texto
+le quedaban unos 55 px y se partía en siete líneas, y la barra crecía con él.
+
+- **Alcance:**
+  - `presentation/screens/register_screen.dart` — el `bottomNavigationBar` pasa de una `Row` a una
+    `Column`: la casilla ocupa su propia fila y debajo van "Atrás" y el botón de acción.
+  - Mismo archivo — colchones al final de los dos pasos del `Stepper`: 20 → 96 en *Persona* y
+    80 → 120 en *Empresa*.
+- **La casilla en su propia fila** es lo que baja la barra de siete líneas a dos. Darle más espacio
+  sin sacarla de la fila solo habría añadido blanco a un contenedor que ya tapaba el formulario.
+- **El colchón del paso *Persona* estaba mal desde antes:** con 20 px la fecha de nacimiento, que es
+  el último campo, quedaba debajo de la barra. Nadie lo había reportado porque el campo se llena con
+  el selector de fecha y no hace falta verlo para tocarlo.
+- **Los dos colchones no son iguales a propósito:** la barra del paso *Empresa* lleva la casilla y es
+  más alta que la del paso *Persona*.
+- **El contenedor sigue en blanco sobre el tema oscuro**, que es como se ve en la captura. No se toca
+  en esta entrega; queda como decisión de diseño pendiente.
+- ⚠️ **El registro sigue fallando si se entra por la tercera opción del onboarding** ("Quiero ser
+  miembro de junta o consejo"): manda `role=junta` y el enum `core.user_role` no lo tiene, así que
+  Postgres responde `SQLSTATE 22P02` (`docs/ios/error_18-08-2026.jpeg`). Es un fallo aparte, del
+  backend, y no se corrige aquí.
+- **Verificado:** `flutter analyze lib/presentation/screens/register_screen.dart` sin issues. El
+  cambio es de layout y no hay tests de widget de esta pantalla.
+- **Criterios de QA:**
+  1. **En un iPhone estrecho** (SE o similar), paso *Empresa*: la casilla del habeas data se lee en
+     una sola línea, o dos como mucho, encima de "Atrás" y "Crear Cuenta". La barra no pasa de dos
+     filas.
+  2. **Tocar el texto** de la casilla, no solo el cuadro, la marca y la desmarca.
+  3. **Paso *Persona*, bajar hasta el final:** la fecha de nacimiento queda por encima de la barra y
+     se puede tocar sin que la tape.
+  4. **Paso *Empresa*, bajar hasta el final:** los enlaces legales quedan separados del contenedor
+     blanco, no pegados a él.
+  5. **Con el teclado abierto** en cualquier campo la barra sube con él y sigue completa.
+  6. **Paso *Persona*:** no aparece "Atrás" ni la casilla; el botón dice "Siguiente" y queda a la
+     derecha.
+
 ### [2026-08-14]: La notificación de un mensaje abre su conversación
 
 El lado app del aviso de chat que estrena el backend hoy. La push llega con `{type: "chat", id: la
