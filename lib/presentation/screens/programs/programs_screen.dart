@@ -11,6 +11,9 @@ class _LsoProgram {
   final String price;
   final String? priceNote;
   final bool isQuote; // true = muestra "Cotización" en dorado en vez de precio
+  // La imagen del producto en la tienda de LSO. Puede faltar: no todos los
+  // programas la tienen cargada, y la tarjeta se dibuja igual sin ella.
+  final String? imageUrl;
 
   const _LsoProgram({
     required this.title,
@@ -18,6 +21,7 @@ class _LsoProgram {
     required this.price,
     this.priceNote,
     this.isQuote = false,
+    this.imageUrl,
   });
 }
 
@@ -60,6 +64,7 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
               price: (p.price != null && p.price!.isNotEmpty) ? p.price! : 'Cotización',
               priceNote: p.type,
               isQuote: p.price == null || p.price!.isEmpty,
+              imageUrl: p.imageUrl,
             );
           }).toList();
           _isLoading = false;
@@ -313,7 +318,6 @@ class _ProgramCard extends StatelessWidget {
       child: Container(
         width: double.infinity,
         margin: const EdgeInsets.only(bottom: 14),
-        padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
         decoration: BoxDecoration(
           color: const Color(0xFF0B1A2E).withValues(alpha: 0.55),
           borderRadius: BorderRadius.circular(12),
@@ -322,9 +326,18 @@ class _ProgramCard extends StatelessWidget {
             width: 1.2,
           ),
         ),
+        // clipBehavior recorta la imagen a las esquinas del contenedor; sin él
+        // sobresale por las cuatro puntas.
+        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _buildProgramImage(program.imageUrl),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
             // Título
             Text(
               program.title,
@@ -368,9 +381,55 @@ class _ProgramCard extends StatelessWidget {
                 ),
               ),
             ],
+                ],
+              ),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  /// Cabecera de la tarjeta de programa. La imagen llega del producto en la
+  /// tienda de LSO; cuando falta se dibuja el mismo bloque con el emblema, para
+  /// que las tarjetas mantengan la altura y el listado no quede irregular.
+  Widget _buildProgramImage(String? url) {
+    const double alto = 132;
+
+    Widget marcador() => Container(
+      height: alto,
+      width: double.infinity,
+      color: const Color(0xFF13304A),
+      alignment: Alignment.center,
+      child: Icon(
+        Icons.school_outlined,
+        size: 40,
+        color: Colors.white.withValues(alpha: 0.25),
+      ),
+    );
+
+    if (url == null || url.isEmpty) return marcador();
+
+    return Image.network(
+      url,
+      height: alto,
+      width: double.infinity,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => marcador(),
+      loadingBuilder: (context, child, progress) {
+        if (progress == null) return child;
+        return Container(
+          height: alto,
+          width: double.infinity,
+          color: const Color(0xFF13304A),
+          alignment: Alignment.center,
+          child: const SizedBox(
+            height: 20,
+            width: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        );
+      },
     );
   }
 }

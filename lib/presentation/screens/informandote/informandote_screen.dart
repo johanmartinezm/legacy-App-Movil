@@ -7,6 +7,7 @@ import '../../../domain/models/custom_content_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../data/services/graphql_service.dart';
 import '../../../data/services/custom_content_service.dart';
+import '../../../domain/utils/busqueda_global.dart';
 
 class InformandoteScreen extends StatefulWidget {
   const InformandoteScreen({super.key});
@@ -30,6 +31,12 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
   
   // Selected filter matching: Todo, Artículos, Podcast, Videos, Libros
   String _selectedFilter = 'Todo';
+
+  // Texto del buscador de la seccion. Filtra en local sobre lo ya descargado:
+  // la pantalla carga todo el contenido de golpe para poder filtrar por tipo,
+  // asi que buscar no necesita volver a la red.
+  final TextEditingController _buscadorController = TextEditingController();
+  String _consulta = '';
 
   @override
   void initState() {
@@ -134,6 +141,20 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
       filteredPosts = _posts.where((post) => post.type == 'book' || post.type == 'libros').toList();
     }
 
+    // La busqueda se acumula sobre el filtro de tipo, no lo sustituye: con
+    // "Videos" activo y "gobierno" escrito salen solo los videos de gobierno.
+    // El criterio es el mismo del buscador global (sin tildes, por palabras
+    // sueltas en cualquier orden), reutilizado desde busqueda_global.dart para
+    // que las dos busquedas no se comporten distinto.
+    if (_consulta.trim().isNotEmpty) {
+      filteredPosts = filteredPosts
+          .where((post) => coincide(
+                '${post.title} ${post.description ?? ''} ${post.category}',
+                _consulta,
+              ))
+          .toList();
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFF050B15),
       floatingActionButton: FloatingActionButton(
@@ -227,6 +248,66 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
                 ),
               ),
 
+              // Buscador de la seccion
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 4, 20, 4),
+                child: TextField(
+                  controller: _buscadorController,
+                  onChanged: (valor) => setState(() => _consulta = valor),
+                  textInputAction: TextInputAction.search,
+                  style: GoogleFonts.questrial(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Buscar en Legacy Knowledge',
+                    hintStyle: GoogleFonts.questrial(
+                      color: const Color(0xFF90A4BA),
+                      fontSize: 14,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: Color(0xFF90A4BA),
+                      size: 20,
+                    ),
+                    suffixIcon: _consulta.isEmpty
+                        ? null
+                        : IconButton(
+                            icon: const Icon(
+                              Icons.close,
+                              color: Color(0xFF90A4BA),
+                              size: 18,
+                            ),
+                            tooltip: 'Limpiar',
+                            onPressed: () {
+                              _buscadorController.clear();
+                              setState(() => _consulta = '');
+                            },
+                          ),
+                    filled: true,
+                    fillColor: const Color(0xFF0B1A2E).withValues(alpha: 0.55),
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(
+                        color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(
+                        color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Color(0xFFD9A74A)),
+                    ),
+                  ),
+                ),
+              ),
+
               // Filter Chips
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
@@ -308,7 +389,13 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
                                     padding: const EdgeInsets.symmetric(vertical: 40.0),
                                     child: Center(
                                       child: Text(
-                                        'No hay contenido de este tipo actualmente.',
+                                        // Con una busqueda escrita, el vacio no
+                                        // significa que no haya contenido de
+                                        // ese tipo, sino que nada coincide.
+                                        _consulta.trim().isEmpty
+                                            ? 'No hay contenido de este tipo actualmente.'
+                                            : 'Nada coincide con "${_consulta.trim()}".',
+                                        textAlign: TextAlign.center,
                                         style: GoogleFonts.questrial(
                                           color: const Color(0xFF90A4BA),
                                           fontSize: 14,
@@ -614,6 +701,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
     _disposed = true;
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    _buscadorController.dispose();
     super.dispose();
   }
 }

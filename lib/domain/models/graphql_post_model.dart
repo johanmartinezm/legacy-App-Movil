@@ -7,6 +7,10 @@ class GraphqlPost {
   final String excerpt;
   final String? content; // Added full content
   final String? featuredImageUrl;
+  // Quién firma la entrada en WordPress. Hasta el 2026-08-18 la consulta no lo
+  // pedía, así que llegaba siempre vacío y las pantallas de detalle mostraban
+  // "Autor desconocido" en todo el contenido.
+  final String? authorName;
   final List<GraphqlCategory> categories;
 
   GraphqlPost({
@@ -16,6 +20,7 @@ class GraphqlPost {
     required this.excerpt,
     this.content,
     this.featuredImageUrl,
+    this.authorName,
     required this.categories,
   });
 
@@ -41,6 +46,13 @@ class GraphqlPost {
           .toList();
     }
 
+    // author.node.name, con la misma forma anidada que featuredImage.
+    String? authorName;
+    if (json['author'] != null && json['author']['node'] != null) {
+      final nombre = json['author']['node']['name'];
+      if (nombre is String && nombre.trim().isNotEmpty) authorName = nombre;
+    }
+
     return GraphqlPost(
       id: json['id'],
       title: json['title'],
@@ -48,6 +60,7 @@ class GraphqlPost {
       excerpt: json['excerpt'] ?? '',
       content: json['content'],
       featuredImageUrl: imageUrl,
+      authorName: authorName,
       categories: categoriesList,
     );
   }
@@ -65,6 +78,7 @@ class GraphqlPost {
       fullContent: content ?? excerpt,
       date: date.split('T')[0],
       readTime: '5 min', // Mock for now
+      authorName: authorName,
     );
   }
 }

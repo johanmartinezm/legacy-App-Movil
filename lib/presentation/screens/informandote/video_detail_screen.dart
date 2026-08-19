@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:legacy_app/domain/providers/favorites_provider.dart';
+import '../../../domain/providers/auth_provider.dart';
+import '../../../data/services/post_service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -24,13 +26,20 @@ class VideoDetailScreen extends StatefulWidget {
 class _VideoDetailScreenState extends State<VideoDetailScreen> {
   late YoutubePlayerController _controller;
 
+  final PostService _postService = PostService();
+  // Copia mutable del video: el "me gusta" cambia el contador y el estado, y
+  // widget.video es inmutable. Mismo patrón que article_detail_screen.
+  late ContentItem _video;
+  bool _isLiking = false;
 
   @override
   void initState() {
     super.initState();
+    _video = widget.video;
+    _fetchLikeStatus();
     // Use the videoUrl from the model, or fallback to a default if null/invalid
     final videoId =
-        YoutubePlayer.convertUrlToId(widget.video.videoUrl ?? '') ??
+        YoutubePlayer.convertUrlToId(_video.videoUrl ?? '') ??
         'ScMzIvxBSi4'; // Default to example if parsing fails
 
     _controller = YoutubePlayerController(
@@ -40,6 +49,77 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
         mute: false,
       ),
     );
+  }
+
+  Future<void> _fetchLikeStatus() async {
+    try {
+      final token = Provider.of<AuthProvider>(context, listen: false).token;
+      final status = await _postService.getLikeStatus(_video.id, token: token);
+      if (mounted) {
+        setState(() {
+          _video = _video.copyWith(
+            likes: status['total_likes'] as int,
+            isLikedByMe: status['is_liked'] as bool,
+            totalViews: status['total_views'] as int,
+          );
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching likes/views: $e');
+    }
+  }
+
+  Future<void> _toggleLike() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (!authProvider.isAuthenticated) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Debes iniciar sesión para dar like')),
+      );
+      return;
+    }
+
+    if (_isLiking) return;
+
+    // Optimistic update
+    final wasLiked = _video.isLikedByMe;
+    final currentLikes = _video.likes ?? 0;
+
+    setState(() {
+      _isLiking = true;
+      _video = _video.copyWith(
+        isLikedByMe: !wasLiked,
+        likes: wasLiked ? currentLikes - 1 : currentLikes + 1,
+      );
+    });
+
+    try {
+      final status = await _postService.toggleLike(
+        _video.id,
+        token: authProvider.token,
+      );
+      if (mounted) {
+        setState(() {
+          _video = _video.copyWith(
+            likes: status['total_likes'] as int,
+            isLikedByMe: status['is_liked'] as bool,
+          );
+          _isLiking = false;
+        });
+      }
+    } catch (e) {
+      // Revierte el cambio optimista: si la llamada falló, el contador que se
+      // pintó no es el del servidor.
+      if (mounted) {
+        setState(() {
+          _video = _video.copyWith(
+            isLikedByMe: wasLiked,
+            likes: currentLikes,
+          );
+          _isLiking = false;
+        });
+      }
+      debugPrint('Error toggling like: $e');
+    }
   }
 
   @override
@@ -68,7 +148,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
             backgroundColor: const Color(0xFF0B1A2E),
             leading: const BackButton(color: Colors.white),
             title: Text(
-              widget.video.title,
+              _video.title,
               style: GoogleFonts.barlow(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -108,7 +188,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                           border: Border.all(color: const Color(0xFF5BB0E6).withValues(alpha: 0.3), width: 1),
                         ),
                         child: Text(
-                          widget.video.category.toUpperCase(),
+                          _video.category.toUpperCase(),
                           style: GoogleFonts.barlow(
                             color: const Color(0xFF5BB0E6),
                             fontWeight: FontWeight.bold,
@@ -120,7 +200,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      widget.video.title,
+                      _video.title,
                       style: GoogleFonts.barlow(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -130,7 +210,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '${widget.video.views ?? "0 vistas"} • ${widget.video.date ?? ""}',
+                      '${_video.views ?? "0 vistas"} • ${_video.date ?? ""}',
                       style: GoogleFonts.questrial(
                         fontSize: 12,
                         color: const Color(0xFF90A4BA),
@@ -142,14 +222,23 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildStat(
-                          Icons.thumb_up_alt_outlined,
-                          '${widget.video.likes ?? 0}',
-                          const Color(0xFFE3C272),
+                        // El "me gusta" era solo un número hasta el 2026-08-18:
+                        // se pintaba con _buildStat y no respondía al toque,
+                        // aunque el endpoint existía y el artículo ya lo usaba.
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: _toggleLike,
+                          child: _buildStat(
+                            _video.isLikedByMe
+                                ? Icons.thumb_up_alt
+                                : Icons.thumb_up_alt_outlined,
+                            '${_video.likes ?? 0}',
+                            const Color(0xFFE3C272),
+                          ),
                         ),
                         _buildStat(
                           Icons.remove_red_eye_outlined,
-                          '${widget.video.views ?? 0}',
+                          '${_video.views ?? 0}',
                           const Color(0xFF90A4BA),
                         ),
                         _buildActionBtn(
@@ -162,9 +251,9 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                           Icons.turn_right,
                           null,
                           onTap: () {
-                            final text = widget.video.videoUrl != null
-                                ? 'Mira este video en Legacy App:\n${widget.video.title}\n${widget.video.videoUrl}'
-                                : 'Mira este contenido en Legacy App:\n${widget.video.title}';
+                            final text = _video.videoUrl != null
+                                ? 'Mira este video en Legacy App:\n${_video.title}\n${_video.videoUrl}'
+                                : 'Mira este contenido en Legacy App:\n${_video.title}';
                             Share.share(text); // ignore: deprecated_member_use
                           },
                         ),
@@ -187,11 +276,11 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                           CircleAvatar(
                             backgroundColor: const Color(0xFF5BB0E6).withValues(alpha: 0.2),
                             radius: 20,
-                            backgroundImage: widget.video.authorAvatar != null
+                            backgroundImage: _video.authorAvatar != null
                                 ? NetworkImage(ImageHelper.getProxiedImageUrl(
-                                    widget.video.authorAvatar!))
+                                    _video.authorAvatar!))
                                 : null,
-                            child: widget.video.authorAvatar == null
+                            child: _video.authorAvatar == null
                                 ? const Icon(Icons.person, color: Colors.white)
                                 : null,
                           ),
@@ -201,7 +290,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  widget.video.authorName ??
+                                  _video.authorName ??
                                       'Autor desconocido',
                                   style: GoogleFonts.barlow(
                                     fontWeight: FontWeight.bold,
@@ -209,9 +298,9 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                                     color: Colors.white,
                                   ),
                                 ),
-                                if (widget.video.authorRole != null)
+                                if (_video.authorRole != null)
                                   Text(
-                                    widget.video.authorRole!,
+                                    _video.authorRole!,
                                     style: GoogleFonts.questrial(
                                       fontSize: 11,
                                       color: const Color(0xFF90A4BA),
@@ -255,8 +344,8 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                     ),
                     const SizedBox(height: 8),
                     HtmlWidget(
-                      widget.video.description ??
-                          widget.video.fullContent ??
+                      _video.description ??
+                          _video.fullContent ??
                           'Sin descripción',
                       textStyle: GoogleFonts.questrial(
                         fontSize: 14,
@@ -318,8 +407,8 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                     const SizedBox(height: 24),
 
                     // Related
-                    if (widget.video.relatedContent != null &&
-                        widget.video.relatedContent!.isNotEmpty) ...[
+                    if (_video.relatedContent != null &&
+                        _video.relatedContent!.isNotEmpty) ...[
                       Text(
                         'Videos Relacionados',
                         style: GoogleFonts.barlow(
@@ -329,7 +418,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      ...widget.video.relatedContent!.map(
+                      ..._video.relatedContent!.map(
                         (e) => _buildRelatedVideo(e),
                       ),
                     ],
@@ -376,11 +465,11 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
   }) {
     if (label == 'Guardar') {
       final isFav = context.watch<FavoritesProvider>().isFavorite(
-        _article()?.id ?? widget.video.id,
+        _article()?.id ?? _video.id,
       );
       return GestureDetector(
         onTap: () {
-          context.read<FavoritesProvider>().toggleFavorite(widget.video);
+          context.read<FavoritesProvider>().toggleFavorite(_video);
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -443,7 +532,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
     );
   }
 
-  ContentItem? _article() => widget.video;
+  ContentItem? _article() => _video;
 
   Widget _buildRelatedVideo(ContentItem item) {
     return Container(

@@ -139,6 +139,11 @@ class GraphqlService {
                 sourceUrl
               }
             }
+            author {
+              node {
+                name
+              }
+            }
             categories {
               nodes {
                 name
@@ -201,6 +206,11 @@ class GraphqlService {
           featuredImage {
             node {
               sourceUrl
+            }
+          }
+          author {
+            node {
+              name
             }
           }
           categories {

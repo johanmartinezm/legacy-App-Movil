@@ -29,6 +29,32 @@ void main() {
     });
   });
 
+  // `coincide` es la regla que usa el buscador de Legacy Knowledge, que filtra
+  // ContentItem y no ResultadoBusqueda. Se comprueba aparte para que no se
+  // separe del comportamiento de `filtrar`.
+  group('coincide', () {
+    test('aplica la misma regla que filtrar: sin tildes y por palabras', () {
+      expect(coincide('Sesión de bienvenida', 'sesion'), isTrue);
+      expect(coincide('LEGACY SUMMIT 2026: Liderazgo', 'summit liderazgo'), isTrue);
+      expect(coincide('LEGACY SUMMIT 2026: Liderazgo', 'liderazgo summit'), isTrue);
+    });
+
+    test('exige que estén todas las palabras', () {
+      expect(coincide('Gobierno Corporativo', 'gobierno familiar'), isFalse);
+    });
+
+    test('una consulta vacía coincide con todo', () {
+      // Al reves que `filtrar`, que devuelve la lista vacia: aqui el buscador
+      // no esta filtrando nada y debe dejar pasar el catalogo entero.
+      expect(coincide('Cualquier cosa', ''), isTrue);
+      expect(coincide('Cualquier cosa', '   '), isTrue);
+    });
+
+    test('no coincide con texto que no contiene la palabra', () {
+      expect(coincide('Planificación patrimonial', 'cafe'), isFalse);
+    });
+  });
+
   group('filtrar', () {
     test('encuentra sin escribir la tilde', () {
       // Es el caso que motiva todo esto: en un teclado móvil nadie escribe

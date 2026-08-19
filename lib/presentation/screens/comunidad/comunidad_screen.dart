@@ -585,7 +585,7 @@ class _ComunidadScreenState extends State<ComunidadScreen> {
         children: [
           Expanded(
             child: Text(
-              'Descubre contenido exclusivo y webinars para maximizar tu legado.',
+              'Descubre contenido exclusivo y masterclass en vivo para maximizar tu legado.',
               style: GoogleFonts.questrial(color: Colors.white, fontSize: 14),
             ),
           ),

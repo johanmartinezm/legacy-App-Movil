@@ -31,10 +31,28 @@ String normalizar(String texto) {
 /// aunque las palabras no esten juntas ni en ese orden. Buscar la frase entera
 /// como una sola cadena fallaria en ese caso, que es de los mas comunes.
 List<ResultadoBusqueda> filtrar(List<ResultadoBusqueda> todos, String consulta) {
-  final palabras = normalizar(consulta).split(' ').where((p) => p.isNotEmpty).toList();
+  final palabras = palabrasDe(consulta);
   if (palabras.isEmpty) return const [];
 
   return todos.where((r) => palabras.every((p) => r.textoBuscable.contains(p))).toList();
+}
+
+/// Parte la consulta en palabras ya normalizadas, sin vacios.
+List<String> palabrasDe(String consulta) =>
+    normalizar(consulta).split(' ').where((p) => p.isNotEmpty).toList();
+
+/// Indica si un texto cualquiera satisface la consulta, con la misma regla que
+/// [filtrar]: todas las palabras, en cualquier orden y sin tildes.
+///
+/// Existe para que el buscador de Legacy Knowledge no reimplemente el criterio:
+/// filtra `ContentItem`, no `ResultadoBusqueda`, pero debe comportarse igual.
+/// Una consulta vacia coincide con todo, porque ahi el buscador no filtra nada.
+bool coincide(String texto, String consulta) {
+  final palabras = palabrasDe(consulta);
+  if (palabras.isEmpty) return true;
+
+  final objetivo = normalizar(texto);
+  return palabras.every((p) => objetivo.contains(p));
 }
 
 /// Agrupa conservando el orden de `TipoResultado`, para que las secciones

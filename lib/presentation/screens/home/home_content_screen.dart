@@ -299,7 +299,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         if (role == 'junta') {
           subtitle = 'Esta semana: masterclass del consejero independiente, nuevo evento...';
         } else if (role == 'empresa') {
-          subtitle = 'Esta semana: caso de junta ceremonial, webinar de gobierno...';
+          subtitle = 'Esta semana: caso de junta ceremonial, masterclass de gobierno...';
         } else {
           subtitle = 'Esta semana: video de conversaciones difíciles, evento familiar...';
         }
@@ -427,7 +427,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         _buildModuleCard(
           context: context,
           title: 'Eventos',
-          subtitle: 'Webinars y Legacy Summit 2026',
+          subtitle: 'Masterclass virtual en vivo y Legacy Summit presencial',
           icon: Icons.calendar_month,
           iconColor: const Color(0xFF54C6A8),
           onTap: () => context.go('/home?tab=1'),
