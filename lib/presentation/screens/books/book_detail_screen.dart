@@ -32,12 +32,16 @@ class BookDetailScreen extends StatelessWidget {
       price: _parsePrice(book.price),
     );
 
-    cartProvider.addItem(item);
+    // Ver la nota de program_detail_screen: el carrito es de un elemento.
+    final anterior = cartProvider.addItem(item);
+    final mensaje = anterior == null || anterior.id == item.id
+        ? '¡${book.name} añadido al carrito!'
+        : 'Se cambió «${anterior.title}» por «${book.name}»: solo se puede comprar un elemento a la vez.';
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          '¡${book.name} añadido al carrito!',
+          mensaje,
           style: GoogleFonts.questrial(),
         ),
         backgroundColor: AppTheme.legacyOrange,

@@ -30,12 +30,17 @@ class ProgramDetailScreen extends StatelessWidget {
       price: program.priceValue,
     );
 
-    cartProvider.addItem(item);
+    // El carrito admite un solo elemento: si ya habia otro, este lo sustituye
+    // y hay que decirlo. Enterarse en la pantalla de pago seria tarde.
+    final anterior = cartProvider.addItem(item);
+    final mensaje = anterior == null || anterior.id == item.id
+        ? '¡${program.name} añadido al carrito!'
+        : 'Se cambió «${anterior.title}» por «${program.name}»: solo se puede comprar un elemento a la vez.';
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          '¡${program.name} añadido al carrito!',
+          mensaje,
           style: GoogleFonts.questrial(color: const Color(0xFF050B15)),
         ),
         backgroundColor: const Color(0xFFD9A74A),
@@ -43,7 +48,7 @@ class ProgramDetailScreen extends StatelessWidget {
         action: SnackBarAction(
           label: 'VER CARRITO',
           textColor: const Color(0xFF050B15),
-          onPressed: () => context.go('/cart'),
+          onPressed: () => context.push('/cart'),
         ),
       ),
     );

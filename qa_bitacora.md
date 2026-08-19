@@ -2,6 +2,71 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-19]: Las flechas de atrás vuelven a donde estabas
+
+- **El problema:** la flecha del encabezado hace `pop()` si hay algo que desapilar, y si no cae a una
+  ruta fija. A ocho pantallas de detalle se entraba con `context.go`, que **sustituye la pila entera**,
+  así que nunca había nada que desapilar: la flecha no volvía, saltaba a otro sitio. Y ese sitio era
+  `/home?tab=2` —**Comunidad**— vinieras de donde vinieras. Desde Comunidad, además, no pasaba nada
+  visible al tocarla.
+- **Se cambian ocho `go` por `push`**, que son los que llevan a una pantalla con flecha:
+  asesoría (desde el home y desde Comunidad), programas (desde el home, desde un artículo), el
+  asistente (desde el home y desde Legacy Knowledge), el detalle de un programa y «VER CARRITO».
+- **No se tocan los que deben seguir siendo `go`:** las tres pestañas del menú inferior
+  —Legacy Knowledge, Legacy+ y Perfil—, donde `go` es lo correcto porque sustituyen, y el botón de
+  «ver mi credencial» tras un pago, que usa `go` a propósito para que atrás no devuelva a la pasarela.
+- **El respaldo pasa de Comunidad a Inicio.** Solo salta cuando de verdad no se puede volver: al abrir
+  una notificación o un enlace de fuera. Inicio es el sitio predecible; Comunidad era arbitrario.
+- **Cómo reconocer una recaída:** si al tocar atrás acabas en el Inicio en vez de en la pantalla
+  anterior, es que a esa pantalla se llegó con `go` en vez de `push`.
+- **Alcance:** `widgets/custom_section_header.dart`, y los ocho puntos de navegación en
+  `home/home_content_screen.dart`, `comunidad/comunidad_screen.dart`,
+  `informandote/article_detail_screen.dart`, `informandote/informandote_screen.dart`,
+  `programs/programs_screen.dart` y `programs/program_detail_screen.dart`.
+  Nuevo: `test/widgets/flecha_atras_test.dart`, 2 pruebas.
+- **Verificado:** `flutter analyze` sin errores y **181 pruebas** en verde.
+- **Criterios de QA:**
+  1. **Inicio → el asistente → atrás:** vuelve al Inicio, no a Comunidad.
+  2. **Legacy Knowledge → el asistente → atrás:** vuelve a Legacy Knowledge.
+  3. **Inicio → Programas → un programa → atrás → atrás:** detalle, lista, Inicio.
+  4. **Comunidad → Asesoría → atrás:** vuelve a Comunidad.
+  5. **Un artículo → Programas → atrás:** vuelve al artículo.
+  6. **Abrir la app desde una notificación** y tocar atrás: va al Inicio sin quedarse colgada.
+  7. **Tras pagar, «ver mi credencial» → atrás:** no vuelve a la pasarela.
+
+---
+
+### [2026-08-19]: El carrito guarda un solo elemento, y ya no viene con la compra hecha
+
+- **Dos cosas, y la primera no la pidió nadie:** `CartProvider` **arrancaba con tres artículos de
+  prueba dentro** —«Programa: Gestión Patrimonial», «Asesoría Legal» y «SUMMIT Legacy 2025»—, con el
+  comentario «Mock Data for initial design review». Cualquiera que abriera el carrito se encontraba una
+  compra de 798 que no había pedido. Está así en producción.
+- **Se compra de uno en uno**, por decisión del cliente del 2026-08-19. El carrito admite un elemento:
+  añadir otro sustituye al que hubiera.
+- **La sustitución se avisa, no se hace en silencio.** `addItem` devuelve lo que había antes y las tres
+  pantallas que añaden —libro, detalle de libro y detalle de programa— lo dicen: «Se cambió X por Y:
+  solo se puede comprar un elemento a la vez». Cambiar el carrito sin decirlo dejaría a alguien pagando
+  algo distinto de lo que eligió, y enterándose en la pantalla de pago.
+- **Volver a añadir lo mismo no cuenta como sustitución**, para no soltar un «se cambió X por X».
+- **La pantalla del carrito no necesitó cambios:** ya tenía estado vacío y ya deshabilitaba el pago con
+  el carrito vacío.
+- **Sigue pendiente y no se toca:** el carrito suma en pesos lo que LSO publica en dólares y le aplica
+  19% de IVA. El flujo de pago está fuera del plan por decisión del 18-08.
+- **Alcance:**
+  - `domain/providers/cart_provider.dart` — sin datos falsos, un elemento, `addItem` devuelve el anterior.
+  - `presentation/screens/books/books_screen.dart`, `books/book_detail_screen.dart`,
+    `programs/program_detail_screen.dart` — el aviso.
+  - `test/providers/carrito_un_elemento_test.dart` — nuevo, 9 pruebas.
+- **Verificado:** `flutter analyze` sin errores y **181 pruebas** en verde.
+- **Criterios de QA:**
+  1. **Abrir el carrito recién instalada la app:** está vacío, y el botón de pagar no se puede pulsar.
+  2. **Añadir un programa:** queda uno.
+  3. **Añadir después un libro:** el carrito tiene solo el libro, y el aviso dice qué se cambió.
+  4. **Añadir dos veces el mismo:** sigue habiendo uno y el mensaje es el normal, sin «se cambió».
+  5. **Mirar el total:** corresponde solo a lo que está dentro.
+  6. **Quitar el elemento:** el carrito vuelve a estar vacío.
+
 ### [2026-08-19]: Los precios de los programas de LSO se muestran en dólares
 
 - **Por qué:** LSO publica en dólares y su tienda devuelve solo la cifra —«$300», «$1.100», «$2.500»—

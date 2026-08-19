@@ -237,11 +237,19 @@ class _BooksScreenState extends State<BooksScreen> {
                                     type: 'Libro',
                                     price: _parsePrice(book.price),
                                   );
-                                  context.read<CartProvider>().addItem(cartItem);
+                                  final anterior = context
+                                      .read<CartProvider>()
+                                      .addItem(cartItem);
+                                  // El carrito es de un solo elemento.
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Libro agregado al carrito'),
-                                      duration: Duration(seconds: 1),
+                                    SnackBar(
+                                      content: Text(
+                                        anterior == null ||
+                                                anterior.id == cartItem.id
+                                            ? 'Libro agregado al carrito'
+                                            : 'Se cambió «${anterior.title}» por «${book.name}»: solo se puede comprar un elemento a la vez.',
+                                      ),
+                                      duration: const Duration(seconds: 3),
                                     ),
                                   );
                                 },
