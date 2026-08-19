@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import '../../../../config/theme/app_theme.dart';
 import '../../../data/services/graphql_service.dart';
 import '../../../domain/models/book_model.dart';
-import '../../../domain/models/cart_item.dart';
-import '../../../domain/providers/cart_provider.dart';
+import '../../../domain/utils/abrir_en_lso.dart';
 import '../../widgets/custom_section_header.dart';
 import '../../../data/config/image_helper.dart';
 
@@ -226,32 +224,26 @@ class _BooksScreenState extends State<BooksScreen> {
                           ],
                         ),
                         IconButton(
-                          icon: const Icon(Icons.add_shopping_cart, size: 20),
+                          // El icono dice que se sale de la app; el del
+                          // carrito prometia una compra que ocurre en LSO.
+                          icon: const Icon(Icons.open_in_new, size: 20),
+                          tooltip: 'Comprar en LSO',
                           color: AppTheme.legacyOrange,
                           onPressed: book.stockStatus == 'OUT_OF_STOCK'
                               ? null
-                              : () {
-                                  final cartItem = CartItem(
-                                    id: book.id,
-                                    title: book.name,
-                                    type: 'Libro',
-                                    price: _parsePrice(book.price),
-                                  );
-                                  final anterior = context
-                                      .read<CartProvider>()
-                                      .addItem(cartItem);
-                                  // El carrito es de un solo elemento.
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        anterior == null ||
-                                                anterior.id == cartItem.id
-                                            ? 'Libro agregado al carrito'
-                                            : 'Se cambió «${anterior.title}» por «${book.name}»: solo se puede comprar un elemento a la vez.',
+                              : () async {
+                                  final messenger =
+                                      ScaffoldMessenger.of(context);
+                                  // Los libros son de LSO: la compra se hace
+                                  // en su tienda, no dentro de la app.
+                                  if (!await abrirEnLso(book.url)) {
+                                    messenger.showSnackBar(
+                                      const SnackBar(
+                                        content: Text(mensajeLsoNoAbre),
+                                        duration: Duration(seconds: 4),
                                       ),
-                                      duration: const Duration(seconds: 3),
-                                    ),
-                                  );
+                                    );
+                                  }
                                 },
                         ),
                       ],
@@ -266,10 +258,4 @@ class _BooksScreenState extends State<BooksScreen> {
     );
   }
 
-  double _parsePrice(String? priceStr) {
-    if (priceStr == null) return 0.0;
-    // Remove currency symbols, nbsp, and dots for grouping
-    String cleaned = priceStr.replaceAll(RegExp(r'[^0-9]'), '');
-    return double.tryParse(cleaned) ?? 0.0;
-  }
 }

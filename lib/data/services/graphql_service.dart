@@ -73,6 +73,7 @@ class GraphqlService {
           nodes {
             id
             name
+            link
             description
             shortDescription
             image {

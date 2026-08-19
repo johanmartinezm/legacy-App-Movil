@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:legacy_app/domain/utils/sanitizar_html.dart';
 import '../../../domain/models/book_model.dart';
-import '../../../domain/models/cart_item.dart';
-import '../../../domain/providers/cart_provider.dart';
+import '../../../domain/utils/abrir_en_lso.dart';
 import '../../../../config/theme/app_theme.dart';
 import '../../../data/config/image_helper.dart';
 
@@ -15,42 +12,15 @@ class BookDetailScreen extends StatelessWidget {
 
   const BookDetailScreen({super.key, required this.book});
 
-  double _parsePrice(String? priceStr) {
-    if (priceStr == null) return 0.0;
-    // Remove currency symbols, nbsp, and dots for grouping
-    String cleaned = priceStr.replaceAll(RegExp(r'[^0-9]'), '');
-    return double.tryParse(cleaned) ?? 0.0;
-  }
 
-  void _addToCart(BuildContext context) {
-    final cartProvider = Provider.of<CartProvider>(context, listen: false);
-    
-    final item = CartItem(
-      id: book.id,
-      title: book.name,
-      type: 'Libro',
-      price: _parsePrice(book.price),
-    );
+  Future<void> _comprarEnLso(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    if (await abrirEnLso(book.url)) return;
 
-    // Ver la nota de program_detail_screen: el carrito es de un elemento.
-    final anterior = cartProvider.addItem(item);
-    final mensaje = anterior == null || anterior.id == item.id
-        ? '¡${book.name} añadido al carrito!'
-        : 'Se cambió «${anterior.title}» por «${book.name}»: solo se puede comprar un elemento a la vez.';
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          mensaje,
-          style: GoogleFonts.questrial(),
-        ),
-        backgroundColor: AppTheme.legacyOrange,
-        duration: const Duration(seconds: 2),
-        action: SnackBarAction(
-          label: 'VER CARRITO',
-          textColor: Colors.white,
-          onPressed: () => context.push('/cart'),
-        ),
+    messenger.showSnackBar(
+      const SnackBar(
+        content: Text(mensajeLsoNoAbre),
+        duration: Duration(seconds: 4),
       ),
     );
   }
@@ -293,7 +263,7 @@ class BookDetailScreen extends StatelessWidget {
       ),
       child: SafeArea(
         child: ElevatedButton(
-          onPressed: isOutOfStock ? null : () => _addToCart(context),
+          onPressed: isOutOfStock ? null : () => _comprarEnLso(context),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.legacyOrange,
             foregroundColor: Colors.white,
@@ -310,7 +280,7 @@ class BookDetailScreen extends StatelessWidget {
               const Icon(Icons.add_shopping_cart),
               const SizedBox(width: 12),
               Text(
-                isOutOfStock ? 'PRODUCTO AGOTADO' : 'Añadir al carrito',
+                isOutOfStock ? 'PRODUCTO AGOTADO' : 'Comprar en LSO',
                 style: GoogleFonts.barlow(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

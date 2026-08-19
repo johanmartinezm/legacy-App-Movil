@@ -1,6 +1,12 @@
 class GraphqlBook {
   final String id;
   final String name;
+
+  /// La pagina del libro en la tienda de LSO.
+  ///
+  /// La compra se hace alli y no en la app: los libros son de LSO y se cobran
+  /// en dolares. Decision del 2026-08-19, la misma que para los programas.
+  final String? url;
   final String? description;
   final String? shortDescription;
   final String? imageUrl;
@@ -11,6 +17,7 @@ class GraphqlBook {
   GraphqlBook({
     required this.id,
     required this.name,
+    this.url,
     this.description,
     this.shortDescription,
     this.imageUrl,
@@ -36,6 +43,9 @@ class GraphqlBook {
     return GraphqlBook(
       id: json['id'],
       name: json['name'],
+      url: (json['link'] as String?)?.trim().isEmpty ?? true
+          ? null
+          : json['link'] as String,
       description: json['description'],
       shortDescription: json['shortDescription'],
       imageUrl: imageUrl,

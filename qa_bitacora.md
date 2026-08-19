@@ -2,6 +2,39 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-19]: Los libros de LSO también llevan a su página; nada alimenta ya el carrito
+
+- **Por qué:** los libros salen de la misma tienda de LSO que los programas —`category: "libros"` en la
+  misma consulta—, se publican en dólares y se compran allí. Al carrito entraban como pesos y con 19%
+  de IVA colombiano. Decisión del cliente del 2026-08-19: **de LSO solo se enlaza**.
+- **Alcance:**
+  - `data/services/graphql_service.dart` — la consulta de libros pide `link`.
+  - `domain/models/book_model.dart` — `url`.
+  - `domain/utils/abrir_en_lso.dart` — **nuevo**: abrir la página y el mensaje de cuando no se puede.
+  - `presentation/screens/books/books_screen.dart` y `books/book_detail_screen.dart` — compran fuera.
+  - `test/models/libro_va_a_lso_test.dart` — nuevo, 5 pruebas.
+- **Un solo sitio para abrir la tienda.** Programas y libros compartían la misma lógica escrita dos
+  veces; ahora es `abrirEnLso`, con su mensaje. Si mañana cambia el criterio —abrir dentro con un
+  WebView, por ejemplo— se cambia una vez.
+- **Los botones dicen a dónde llevan:** «Comprar en LSO» en la ficha, y en el listado el icono pasa de
+  carrito a **salir de la app**. Un carrito prometía una compra que ocurre en otro sitio.
+- **Lo agotado sigue agotado:** un libro sin existencias no deja pulsar, igual que antes.
+- **Comprobado contra la tienda:** los **5 libros** publicados traen enlace, igual que los 14 programas.
+- **Consecuencia, y hay que decidirla:** **ya no queda nada que meta algo en el carrito.** Los eventos
+  de pago —lo único que debería llevar allí— **no lo usan**: tienen su propia pantalla
+  (`event_payment_screen.dart`, con `POST /api/payments/intent`). Así que hoy el carrito está vivo pero
+  vacío para siempre, y la pantalla de Eventos conserva un botón flotante que lo abre. Las dos salidas:
+  llevar los eventos de pago por el carrito, o retirar carrito, checkout y confirmación y con ellos ese
+  botón. No se toca ninguna sin decidirlo: la pasarela está bloqueada desde el 6 de agosto.
+- **Verificado:** `flutter analyze` sin errores ni avisos y **190 pruebas** en verde (185 antes).
+- **Criterios de QA:**
+  1. **Abrir la Biblioteca y tocar el icono de un libro:** abre el navegador en su página de LSO.
+  2. **Abrir la ficha de un libro y tocar «Comprar en LSO»:** lo mismo.
+  3. **Un libro agotado:** el botón sigue sin poder pulsarse.
+  4. **Volver a la app:** sigue donde estaba.
+  5. **Abrir el carrito desde Eventos:** está vacío — conocido y pendiente de decidir.
+  6. **Comprar un evento de pago:** sigue por su propia pantalla, sin pasar por el carrito.
+
 ### [2026-08-19]: Los programas de LSO llevan a su página, no al carrito
 
 - **Por qué:** los programas son de LSO, se publican en dólares y tienen su propio proceso de
