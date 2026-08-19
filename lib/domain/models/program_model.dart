@@ -2,6 +2,12 @@
 class GraphqlProgram {
   final String id;
   final String name;
+
+  /// La pagina del programa en la tienda de LSO.
+  ///
+  /// La inscripcion se hace alli y no en la app: los programas son de LSO, se
+  /// cobran en dolares y tienen su propio proceso. Decision del 2026-08-19.
+  final String? url;
   final String? description;
   final String? shortDescription;
   final String? imageUrl;
@@ -36,6 +42,7 @@ class GraphqlProgram {
   GraphqlProgram({
     required this.id,
     required this.name,
+    this.url,
     this.description,
     this.shortDescription,
     this.imageUrl,
@@ -83,6 +90,9 @@ class GraphqlProgram {
     return GraphqlProgram(
       id: json['id'],
       name: json['name'],
+      url: (json['link'] as String?)?.trim().isEmpty ?? true
+          ? null
+          : json['link'] as String,
       description: json['description'],
       shortDescription: _stripHtml(json['shortDescription'] ?? ''),
       imageUrl: imageUrl,

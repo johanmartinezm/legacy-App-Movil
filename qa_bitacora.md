@@ -2,6 +2,40 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-19]: Los programas de LSO llevan a su página, no al carrito
+
+- **Por qué:** los programas son de LSO, se publican en dólares y tienen su propio proceso de
+  inscripción. Meterlos al carrito de la app los sumaba **como si fueran pesos** y les aplicaba 19% de
+  IVA colombiano. Decisión del cliente del 2026-08-19: la inscripción se hace en la tienda.
+- **Alcance:**
+  - `data/services/graphql_service.dart` — la consulta pide `link`.
+  - `domain/models/program_model.dart` — `url`.
+  - `presentation/screens/programs/program_detail_screen.dart` — «Inscribirme en LSO» abre esa página;
+    se retira `_addToCart` y con él las dependencias del carrito.
+  - `test/models/program_model_test.dart` — 2 pruebas más.
+  - `test/screens/programa_va_a_lso_test.dart` — nuevo, 2 pruebas.
+- **El botón dice a dónde lleva.** «Inscribirme» a secas, abriendo el navegador, parece que la app se
+  fue sola; «Inscribirme en LSO» avisa antes de tocarlo.
+- **Se abre fuera de la app** (`LaunchMode.externalApplication`): la inscripción pide cuenta en LSO y
+  medios de pago que la app no tiene, así que conviene la sesión del navegador de verdad.
+- **Si no se puede abrir, se dice.** Un toque sin respuesta parece que la app se colgó. El aviso
+  nombra el sitio —lso.school— para poder buscarlo a mano. Comprobado contra la tienda: **los catorce
+  programas publicados traen enlace**, así que el caso es raro, no imposible.
+- **La ficha sigue igual:** imagen, precio en dólares, modalidad y duración se siguen mostrando en la
+  app. Lo único que se va fuera es el acto de inscribirse.
+- **Queda una pregunta abierta:** los **libros** salen de la misma tienda de LSO —`category: "libros"`
+  en la misma consulta—, se pagan igual en dólares y **siguen yendo al carrito**, con el mismo problema
+  de moneda y de IVA. Si también deben ir a su página, el carrito se queda sin nada que llevar y el
+  flujo de pago de la app se puede retirar entero.
+- **Verificado:** `flutter analyze` sin errores y **185 pruebas** en verde (181 antes).
+- **Criterios de QA:**
+  1. **Abrir un programa y tocar «Inscribirme en LSO»:** abre el navegador en la página de ese programa.
+  2. **Comprobar que es el programa correcto**, no el listado.
+  3. **Volver a la app:** sigue en la ficha, no se perdió.
+  4. **El carrito no cambia** al hacerlo: sigue como estaba.
+  5. **Un programa sin enlace** (hoy no hay ninguno): sale el aviso, no un toque mudo.
+  6. **Los libros siguen yendo al carrito**, que es lo conocido y pendiente de decidir.
+
 ### [2026-08-19]: Las flechas de atrás vuelven a donde estabas
 
 - **El problema:** la flecha del encabezado hace `pop()` si hay algo que desapilar, y si no cae a una

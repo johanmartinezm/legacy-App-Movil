@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../domain/models/program_model.dart';
-import '../../../domain/models/cart_item.dart';
-import '../../../domain/providers/cart_provider.dart';
 
 class ProgramDetailScreen extends StatelessWidget {
   final GraphqlProgram program;
@@ -20,38 +17,35 @@ class ProgramDetailScreen extends StatelessWidget {
     }
   }
 
-  void _addToCart(BuildContext context) {
-    final cartProvider = Provider.of<CartProvider>(context, listen: false);
-    
-    final item = CartItem(
-      id: program.id,
-      title: 'Programa: ${program.name}',
-      type: 'Programa Educativo',
-      price: program.priceValue,
-    );
+  /// Lleva a la pagina del programa en la tienda de LSO.
+  ///
+  /// La inscripcion se hace alli y no en la app —decision del 2026-08-19—:
+  /// los programas son de LSO, se cobran en dolares y tienen su propio
+  /// proceso. Antes esto metia el programa al carrito, que sumaba esos
+  /// dolares como si fueran pesos y les aplicaba IVA colombiano.
+  Future<void> _abrirEnLso(BuildContext context) async {
+    final enlace = program.url;
+    final messenger = ScaffoldMessenger.of(context);
 
-    // El carrito admite un solo elemento: si ya habia otro, este lo sustituye
-    // y hay que decirlo. Enterarse en la pantalla de pago seria tarde.
-    final anterior = cartProvider.addItem(item);
-    final mensaje = anterior == null || anterior.id == item.id
-        ? '¡${program.name} añadido al carrito!'
-        : 'Se cambió «${anterior.title}» por «${program.name}»: solo se puede comprar un elemento a la vez.';
+    bool abierto = false;
+    if (enlace != null) {
+      final uri = Uri.parse(enlace);
+      // Fuera de la app a proposito: la inscripcion pide cuenta en LSO y
+      // medios de pago que la app no tiene.
+      abierto = await canLaunchUrl(uri) &&
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          mensaje,
-          style: GoogleFonts.questrial(color: const Color(0xFF050B15)),
+    // Un toque sin respuesta parece que la app se colgo. Si no se pudo abrir
+    // se dice, con el nombre del sitio para que se pueda buscar a mano.
+    if (!abierto) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('No pudimos abrir la página del programa. Está en lso.school.'),
+          duration: Duration(seconds: 4),
         ),
-        backgroundColor: const Color(0xFFD9A74A),
-        duration: const Duration(seconds: 3),
-        action: SnackBarAction(
-          label: 'VER CARRITO',
-          textColor: const Color(0xFF050B15),
-          onPressed: () => context.push('/cart'),
-        ),
-      ),
-    );
+      );
+    }
   }
 
   @override
@@ -238,9 +232,10 @@ class ProgramDetailScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 36),
 
-                      // Botón Inscribirme (Dorado)
+                      // Botón Inscribirme (Dorado). Lleva a LSO: la
+                      // inscripción no ocurre dentro de la app.
                       ElevatedButton(
-                        onPressed: () => _addToCart(context),
+                        onPressed: () => _abrirEnLso(context),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFD9A74A),
                           foregroundColor: const Color(0xFF050B15),
@@ -251,7 +246,7 @@ class ProgramDetailScreen extends StatelessWidget {
                           elevation: 0,
                         ),
                         child: Text(
-                          'Inscribirme',
+                          'Inscribirme en LSO',
                           style: GoogleFonts.barlow(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,

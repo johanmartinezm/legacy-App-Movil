@@ -33,7 +33,31 @@ void main() {
     });
   });
 
-  group('priceValue: lo que se lleva al carrito', () {
+  group('url: la pagina del programa en LSO', () {
+    // La inscripción se hace en la tienda de LSO, no en la app, así que el
+    // enlace es lo único que hace falta del producto además de su ficha.
+    GraphqlProgram deJson(Map<String, dynamic> json) =>
+        GraphqlProgram.fromJson({'id': '1', 'name': 'Programa', ...json});
+
+    test('lee el campo link del producto', () {
+      final p = deJson({
+        'link': 'https://lso.school/programas/next-generation-empresario-o-emprendedor/',
+      });
+      expect(
+        p.url,
+        'https://lso.school/programas/next-generation-empresario-o-emprendedor/',
+      );
+    });
+
+    test('sin enlace queda en null y la pantalla lo dice', () {
+      expect(deJson({}).url, isNull);
+      expect(deJson({'link': null}).url, isNull);
+      expect(deJson({'link': ''}).url, isNull);
+      expect(deJson({'link': '   '}).url, isNull);
+    });
+  });
+
+  group('priceValue: lo que quedo del carrito', () {
     test('extrae el número de la cifra publicada', () {
       expect(programa(precio: '\$300').priceValue, 300);
       expect(programa(precio: '\$2.500').priceValue, 2500);
