@@ -191,7 +191,7 @@ class CustomSectionHeader extends StatelessWidget {
                 ),
                 const PopupMenuItem<String>(
                   value: 'sec_info',
-                  child: ListTile(leading: Icon(Icons.article_outlined), title: Text('Contenido de valor'), contentPadding: EdgeInsets.zero),
+                  child: ListTile(leading: Icon(Icons.article_outlined), title: Text('Legacy Knowledge'), contentPadding: EdgeInsets.zero),
                 ),
                 const PopupMenuItem<String>(
                   value: 'sec_event',

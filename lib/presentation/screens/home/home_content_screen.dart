@@ -418,7 +418,10 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
       children: [
         _buildModuleCard(
           context: context,
-          title: 'Contenido de valor',
+          // "Legacy Knowledge" es el nombre oficial de la sección desde el
+          // 2026-08-18. Antes el home decía "Contenido de valor" y la sección
+          // se presentaba como Legacy Knowledge, y el cliente lo reportó.
+          title: 'Legacy Knowledge',
           subtitle: 'Artículos, podcast, videos y libros',
           icon: Icons.menu_book,
           iconColor: const Color(0xFF7FB2D9),

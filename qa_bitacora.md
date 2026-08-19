@@ -2,6 +2,27 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-18]: La sección de contenido se llama Legacy Knowledge en toda la app
+
+Punto 1.2, el que faltaba de la tanda 1. **Decisión del cliente:** se queda «Legacy Knowledge» y
+desaparece «Contenido de valor».
+
+- **Alcance:**
+  - `presentation/screens/home/home_content_screen.dart` — título de la tarjeta.
+  - `presentation/widgets/custom_section_header.dart` — entrada del menú lateral.
+- **Los otros dos sitios ya decían Legacy Knowledge** —el encabezado de la sección y Legacy Plus—, y
+  el buscador que se añadió hoy dice «Buscar en Legacy Knowledge». Con estos dos, los cinco coinciden.
+- **No se toca `register_screen.dart:188`**, que dice «para dar contenido de valor». Ahí es prosa
+  —contenido que aporta valor—, no el nombre de la sección; cambiarlo la dejaría hablando raro.
+- **Verificado:** `flutter analyze` sin issues.
+- **Criterios de QA:**
+  1. **Home:** la tarjeta dice «Legacy Knowledge».
+  2. **Menú lateral:** la entrada dice «Legacy Knowledge».
+  3. **Abrir la sección:** el encabezado dice lo mismo que la tarjeta desde la que se llegó.
+  4. **El buscador** de la sección dice «Buscar en Legacy Knowledge».
+  5. **Legacy Plus** sigue diciendo «Legacy Knowledge completo».
+  6. **Recorrer la app** sin encontrar ya «Contenido de valor» como nombre de sección.
+
 ### [2026-08-18]: Los videos de YouTube entran en Contenido de Valor
 
 Lado app del punto 1.4. El backend expone `GET /api/content/videos` con los canales de Legacy Network
