@@ -19,9 +19,13 @@ anotaron ese día como pendientes y se borran ahora.
 - **El comentario de `main.dart` se reescribió en vez de borrarlo.** Advertía de no confundir la ruta
   `/evento` con la otra pantalla de detalle; ahora explica que esa otra ya no existe, que es la duda
   que le surgirá a quien vea el nombre en un commit viejo.
-- ⚠️ **Quedan dos JSON de assets sin referencias**, encontrados al comprobar esto:
-  `informandote_data.json` y `user_profile.json`. No se tocan en esta entrega —no formaban parte de lo
-  acordado— pero conviene decidir si se van también.
+- **Se retiran además otros dos JSON de assets sin referencias**, encontrados al comprobar esto:
+  `informandote_data.json` (11 KB) y `user_profile.json`. Viajaban dentro del APK sin que nadie los
+  leyera. En `assets/data/` quedan los dos que sí se usan: `board_contacts.json`, que carga la pantalla
+  de Comunidad, y `favorites_data.json`, que lee el proveedor de favoritos.
+- ⚠️ **Un asset borrado no lo detectan ni el análisis ni los tests**, porque se carga por su ruta en
+  tiempo de ejecución y falla ahí. Por eso se comprobó a mano: se buscó cada nombre en todo el
+  proyecto y se revisó **cada llamada a `rootBundle.loadString`** una por una, que son cuatro.
 - **Verificado:** `flutter analyze` **sin ningún error** y con los mismos 48 avisos previos, y **145
   tests**. Borrar un archivo que alguien importara habría salido como error de compilación.
 - **Criterios de QA:**
@@ -29,7 +33,10 @@ anotaron ese día como pendientes y se borran ahora.
   2. **Participando abre** y muestra las inscripciones reales, igual que antes.
   3. **La pestaña Eventos y el detalle de un evento** siguen funcionando: son otra pantalla.
   4. **Tocar una notificación de evento** abre su detalle.
-  5. **El tamaño del APK** no crece; el JSON borrado ya no viaja dentro.
+  5. **Comunidad carga sus contactos de junta**, que salen de `board_contacts.json`.
+  6. **Favoritos abre** y muestra lo guardado: usa `favorites_data.json`.
+  7. **Legacy Knowledge y el perfil** cargan con normalidad — eran los que usaban los dos JSON
+     retirados **antes** de pasar a la API.
 
 ### [2026-08-18]: La sección de contenido se llama Legacy Knowledge en toda la app
 
