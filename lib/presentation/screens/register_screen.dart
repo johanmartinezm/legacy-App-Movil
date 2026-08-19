@@ -299,7 +299,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             },
                           ),
 
-                          const SizedBox(height: 20),
+                          // Sin casilla, la barra de este paso es más baja que
+                          // la del siguiente, pero 20 no bastaban para librarla
+                          // y la fecha de nacimiento quedaba debajo.
+                          const SizedBox(height: 96),
                         ],
                       ),
                     ),
@@ -575,9 +578,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             padding: EdgeInsets.only(top: 4, bottom: 8),
                             child: DocumentosLegalesEnlaces(),
                           ),
-                          const SizedBox(
-                            height: 80,
-                          ), // Extra space for persistent bottom bar
+                          // La barra inferior es fija y en este paso lleva
+                          // además la casilla del habeas data, así que el
+                          // colchón separa los campos del contenedor en vez de
+                          // dejarlos pegados a él.
+                          const SizedBox(height: 120),
                         ],
                       ),
                     ),
@@ -599,7 +604,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: SafeArea(
           top: false,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
               color: Colors.white,
               boxShadow: [
@@ -610,81 +615,90 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ],
             ),
-            child: Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (_currentStep > 0)
-                  TextButton(
-                    onPressed: _onStepCancel,
-                    child: const Text('Atrás'),
-                  ),
-                const SizedBox(width: 8),
-
-                // Terms area (visible on the Empresa step)
-                if (_currentStep == 1)
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => setState(() => _acceptHabeasData = !_acceptHabeasData),
-                      child: Row(
-                        children: [
-                          Checkbox(
-                            value: _acceptHabeasData,
-                            onChanged: (value) => setState(() => _acceptHabeasData = value ?? false),
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            visualDensity: VisualDensity.compact,
-                          ),
-                          const Expanded(
-                            child: Text(
-                              'Acepto Política de Privacidad y Habeas Data',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.black87,
-                                fontWeight: FontWeight.w500,
-                              ),
+                // Terms area (visible on the Empresa step).
+                // Va en su propia fila: compitiendo por el ancho con "Atrás" y
+                // el botón de ancho fijo, al texto le quedaban unos 55 px en un
+                // iPhone estrecho y se partía en siete líneas, con lo que la
+                // barra crecía hasta tapar el formulario.
+                if (_currentStep == 1) ...[
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => setState(() => _acceptHabeasData = !_acceptHabeasData),
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: _acceptHabeasData,
+                          onChanged: (value) => setState(() => _acceptHabeasData = value ?? false),
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          visualDensity: VisualDensity.compact,
+                        ),
+                        const SizedBox(width: 8),
+                        const Expanded(
+                          child: Text(
+                            'Acepto Política de Privacidad y Habeas Data',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w500,
                             ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+
+                Row(
+                  children: [
+                    if (_currentStep > 0)
+                      TextButton(
+                        onPressed: _onStepCancel,
+                        child: const Text('Atrás'),
+                      ),
+                    const Spacer(),
+
+                    // Primary action
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 6,
+                            offset: Offset(0, 4),
                           ),
                         ],
                       ),
-                    ),
-                  )
-                else
-                  const Spacer(),
-                const SizedBox(width: 8),
-
-                // Primary action
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 6,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: ElevatedButton(
-                    onPressed: _onStepContinue,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.legacyBlue2,
-                      elevation: 6,
-                      shadowColor: Colors.black26,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                      minimumSize: const Size(120, 44),
-                    ),
-                    child: Text(
-                      _currentStep == 1 ? 'Crear Cuenta' : 'Siguiente',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                      child: ElevatedButton(
+                        onPressed: _onStepContinue,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.legacyBlue2,
+                          elevation: 6,
+                          shadowColor: Colors.black26,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                          minimumSize: const Size(120, 44),
+                        ),
+                        child: Text(
+                          _currentStep == 1 ? 'Crear Cuenta' : 'Siguiente',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
