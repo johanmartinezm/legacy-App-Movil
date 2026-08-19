@@ -7,6 +7,8 @@ import '../../../domain/models/custom_content_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../data/services/graphql_service.dart';
 import '../../../data/services/custom_content_service.dart';
+import '../../../data/services/video_canal_service.dart';
+import '../../../domain/models/video_canal_model.dart';
 import '../../../domain/utils/busqueda_global.dart';
 
 class InformandoteScreen extends StatefulWidget {
@@ -19,6 +21,7 @@ class InformandoteScreen extends StatefulWidget {
 class _InformandoteScreenState extends State<InformandoteScreen> {
   final GraphqlService _graphqlService = GraphqlService();
   final CustomContentService _customContentService = CustomContentService();
+  final VideoCanalService _videoCanalService = VideoCanalService();
   final ScrollController _scrollController = ScrollController();
 
   List<ContentItem> _posts = [];
@@ -56,6 +59,10 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
       final results = await Future.wait([
         _graphqlService.getPosts(first: 20),
         _customContentService.getCustomContents(),
+        // Tercera fuente desde el 2026-08-18: los canales de YouTube de Legacy
+        // Network y LSO. Antes la sección solo tenía los videos que alguien
+        // hubiera cargado a mano, y había exactamente uno.
+        _videoCanalService.getVideos(),
       ]);
 
       // Verificar que el widget siga montado antes de continuar con setState
@@ -63,10 +70,12 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
 
       final wpResponse = results[0] as GraphqlPostsResponse;
       final localResponse = results[1] as List<CustomContent>;
+      final videosDeCanal = results[2] as List<VideoDeCanal>;
 
-      // Unify results converting both to ContentItem
+      // Unify results converting all to ContentItem
       final List<ContentItem> unified = [
         ...localResponse.map((c) => c.toContentItem()),
+        ...videosDeCanal.map((v) => v.toContentItem()),
         ...wpResponse.posts.map((p) => p.toContentItem()),
       ];
 

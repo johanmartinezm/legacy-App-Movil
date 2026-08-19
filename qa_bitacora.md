@@ -2,6 +2,38 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-18]: Los videos de YouTube entran en Contenido de Valor
+
+Lado app del punto 1.4. El backend expone `GET /api/content/videos` con los canales de Legacy Network
+y LSO; aquí se consumen como tercera fuente de la sección.
+
+- **Alcance:**
+  - `domain/models/video_canal_model.dart` — nuevo. Modelo y `toContentItem()`.
+  - `data/services/video_canal_service.dart` — nuevo.
+  - `data/config/api_constants.dart` — el endpoint.
+  - `presentation/screens/informandote/informandote_screen.dart` — tercera fuente en el `Future.wait`.
+- **La app no habla con YouTube.** Pide al backend, que ya trae los videos normalizados y cacheados.
+  La clave de la API no puede viajar en el binario: los repositorios son públicos.
+- **El canal es el autor.** `toContentItem()` pone el nombre del canal en `authorName`, así que estos
+  videos ya no salen como «Autor desconocido» —es la mitad del punto 1.5 que dependía de este—.
+- **La descripción se recorta a 160 caracteres para la tarjeta** y el texto completo queda en
+  `fullContent` para el detalle: las de YouTube traen saltos de línea, emoji y enlaces sueltos que en
+  una tarjeta se ven mal.
+- **El servicio nunca lanza:** devuelve lista vacía ante cualquier fallo. La sección tiene otras dos
+  fuentes y no puede quedarse en blanco porque YouTube esté caído.
+- **Los videos van detrás del contenido propio y delante de los artículos de WordPress**, para que la
+  sección no abra con material de terceros.
+- **Verificado:** `flutter analyze` sin issues en los archivos nuevos y **145 tests**. Contra el
+  backend local el endpoint devolvía 87 videos de los dos canales.
+- **Criterios de QA:**
+  1. **Abrir Contenido de Valor:** el listado trae videos, no solo artículos.
+  2. **Filtro «Videos»:** salen decenas. **Antes había uno.**
+  3. **Aparecen los dos canales**, Legacy Network y LSO.
+  4. **Abrir un video:** reproduce y la firma es el nombre del canal, no «Autor desconocido».
+  5. **Buscar una palabra del título de un video** lo encuentra.
+  6. **Con el backend caído:** la sección sigue mostrando el contenido de WordPress.
+  7. **Las miniaturas cargan**; ninguna tarjeta sale con el icono de imagen rota.
+
 ### [2026-08-18]: Participando muestra inscripciones reales, y los virtuales dan enlace
 
 Puntos 2.5 y 2.3 de `reports/20260818_plan_ajustes.html`, lado app.

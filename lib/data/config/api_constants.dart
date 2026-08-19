@@ -50,6 +50,10 @@ class ApiConstants {
   static const String contentItemsEndpoint = '/api/content/items';
   static const String contentCategoriesEndpoint = '/api/content/categories';
 
+  /// Videos de los canales de YouTube de Legacy Network y LSO. Los sirve el
+  /// backend, no la app: la clave de la API no puede viajar en el binario.
+  static const String contentVideosEndpoint = '/api/content/videos';
+
   // Bloquear y reportar personas. Requisito de la directriz 1.2 de Apple para
   // cualquier app con chat o contenido publicado por sus usuarios.
   // Quién bloquea lo decide el servidor a partir del token; aquí solo va a quién.
