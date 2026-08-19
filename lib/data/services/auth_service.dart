@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io' show SocketException;
 import 'package:http/http.dart' as http;
 import '../config/api_constants.dart';
 
@@ -143,18 +144,29 @@ class AuthService {
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body); // Should contain token
-      } else {
-        String message;
-        try {
-          final errorBody = jsonDecode(response.body);
-          message = errorBody['message'] ?? 'Credenciales inválidas';
-        } catch (_) {
-          message = 'Error del servidor (${response.statusCode})';
-        }
-        throw Exception(message);
       }
-    } catch (e) {
-      throw Exception('Error de conexión: $e');
+
+      String message;
+      try {
+        final errorBody = jsonDecode(response.body);
+        // El backend manda `code` estable junto al mensaje. Para el correo sin
+        // verificar se propaga el código tal cual porque la pantalla de login ya
+        // lo reconoce y abre su diálogo de reenvío —un flujo que existía desde
+        // antes y no se disparaba nunca, porque hasta el 2026-08-18 el backend
+        // aplanaba todos los errores en "Credenciales inválidas"—.
+        if (errorBody['code'] == 'email_not_verified') {
+          message = 'email_not_verified';
+        } else {
+          message = errorBody['message'] ?? 'Credenciales inválidas';
+        }
+      } catch (_) {
+        message = 'Error del servidor (${response.statusCode})';
+      }
+      throw Exception(message);
+    } on SocketException {
+      throw Exception('No hay conexión. Revisa tu red e inténtalo de nuevo.');
+    } on FormatException {
+      throw Exception('El servidor respondió algo inesperado.');
     }
   }
 
