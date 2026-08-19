@@ -2,6 +2,36 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-19]: Los precios de los programas de LSO se muestran en dólares
+
+- **Por qué:** LSO publica en dólares y su tienda devuelve solo la cifra —«$300», «$1.100», «$2.500»—
+  sin decir de qué moneda. En la app esas tarjetas conviven con eventos en pesos colombianos, así que
+  un «$300» suelto se lee como trescientos pesos. Salió al ejecutar F22.6 del plan de pruebas contra el
+  GraphQL real, y lo confirmó el cliente el mismo día.
+- **Alcance:**
+  - `domain/models/program_model.dart` — `precioConMoneda`.
+  - `presentation/screens/programs/programs_screen.dart` — la tarjeta lo usa.
+  - `test/models/program_model_test.dart` — nuevo, 5 pruebas.
+- **La moneda va delante** —«USD $300»— y no detrás: la tarjeta es estrecha y si recorta el final,
+  «USD $30…» sigue diciendo que son dólares mientras que «$300 US…» puede quedarse en «$300».
+- **Vive en el modelo y no en la pantalla** porque el precio ya se usa en dos sitios y mañana puede
+  usarse en un tercero; así las tres superficies dicen lo mismo sin acordarse de nada.
+- **Los programas sin precio siguen mostrando «Cotización».** La moneda no se antepone donde no hay
+  cifra: hoy hay tres así de los catorce publicados, comprobado contra la tienda.
+- **Lo que esto deja al descubierto y NO se toca:** al añadir un programa al carrito se guarda solo el
+  número (`priceValue`), y el carrito lo pinta con `CurrencyFormatter` —formato colombiano—, le aplica
+  19% de IVA y lo suma con eventos en pesos. **El flujo de pago está fuera del plan** por decisión del
+  18-08; arreglarlo de verdad es meter moneda en el carrito, no cambiar un formato.
+- **Verificado:** `flutter analyze` sin errores ni avisos nuevos y **170 pruebas** en verde (165 antes).
+- **Criterios de QA:**
+  1. **Abrir Escuela/Programas:** cada programa con precio dice «USD $…».
+  2. **Un programa sin precio** (hoy «Propietarios y Familias Empresarias»): sigue diciendo
+     «Cotización», sin moneda delante.
+  3. **Comparar con lso.school:** la cifra coincide con la de la tienda.
+  4. **Mirar la tarjeta en un teléfono estrecho:** la moneda se ve aunque el precio quede justo.
+  5. **Añadir un programa al carrito:** conocido y pendiente — el carrito lo trata como pesos y le suma
+     IVA. No reportar como nuevo.
+
 ### [2026-08-19]: La tarjeta del listado deja de anunciar como gratis lo que cuesta
 
 Salió al ejecutar F12.20 del plan de pruebas.

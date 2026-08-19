@@ -10,6 +10,21 @@ class GraphqlProgram {
   final String duration;
   final String type; // Programa, Módulo, Curso
   
+  /// Lo que se muestra como precio, con su moneda.
+  ///
+  /// LSO publica en dólares y su tienda devuelve solo la cifra, sin decir de
+  /// qué moneda: junto a los eventos de Legacy, que van en pesos colombianos,
+  /// un «$300» suelto pasa por trescientos pesos. La moneda va delante para
+  /// que siga leyéndose aunque la tarjeta recorte el final.
+  ///
+  /// Devuelve null cuando el producto no trae precio; ese caso se muestra como
+  /// «Cotización», y hoy hay tres programas así en la tienda.
+  String? get precioConMoneda {
+    final crudo = price?.trim();
+    if (crudo == null || crudo.isEmpty) return null;
+    return 'USD $crudo';
+  }
+
   double get priceValue {
     if (price == null || price!.isEmpty) return 0.0;
     // Remove currency symbol, spaces, and thousand separators (.)

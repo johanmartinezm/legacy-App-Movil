@@ -61,9 +61,9 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
             return _LsoProgram(
               title: p.name,
               details: cleanDetails,
-              price: (p.price != null && p.price!.isNotEmpty) ? p.price! : 'Cotización',
+              price: p.precioConMoneda ?? 'Cotización',
               priceNote: p.type,
-              isQuote: p.price == null || p.price!.isEmpty,
+              isQuote: p.precioConMoneda == null,
               imageUrl: p.imageUrl,
             );
           }).toList();
