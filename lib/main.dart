@@ -471,11 +471,12 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
         ),
         // Detalle de un evento de la API, el mismo que abre la pestaña
         // "Eventos". Necesita ruta propia para poder llegar a él desde una
-        // notificación.
+        // notificación. Recibe un EventModel, que es lo que notifica el backend.
         //
-        // Ojo: NO es EventDetailScreen, que trabaja con EventItem y se alimenta
-        // del JSON estático de assets/data/events_data.json. Los eventos que
-        // notifica el backend son EventModel.
+        // Hasta el 2026-08-18 había una segunda pantalla de detalle,
+        // EventDetailScreen, que trabajaba con datos de un JSON estático; se
+        // borró junto con ese JSON al pasar Participando a leer las
+        // inscripciones reales.
         GoRoute(
           path: '/evento',
           builder: (context, state) {

@@ -2,6 +2,35 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-18]: Se retiran los restos del Participando anterior
+
+Al reescribir Participando contra el proveedor quedaron tres archivos que ya no usaba nadie. Se
+anotaron ese día como pendientes y se borran ahora.
+
+- **Alcance:**
+  - `presentation/screens/participando/event_detail_screen.dart` — borrado.
+  - `domain/models/events_data.dart` — borrado (`EventsData` y `EventItem`).
+  - `assets/data/events_data.json` — borrado.
+  - `main.dart` — el comentario que advertía de no confundir las dos pantallas de detalle.
+- **Se comprobó la cadena entera antes de borrar**, no archivo a archivo: `EventDetailScreen` no lo
+  instanciaba nadie, `events_data.dart` solo lo importaba esa pantalla, y el JSON solo lo leía
+  Participando, que ya no lo hace. Las únicas menciones restantes eran comentarios.
+- **La entrada `assets/data/` del `pubspec.yaml` se queda:** en esa carpeta hay otros cuatro JSON.
+- **El comentario de `main.dart` se reescribió en vez de borrarlo.** Advertía de no confundir la ruta
+  `/evento` con la otra pantalla de detalle; ahora explica que esa otra ya no existe, que es la duda
+  que le surgirá a quien vea el nombre en un commit viejo.
+- ⚠️ **Quedan dos JSON de assets sin referencias**, encontrados al comprobar esto:
+  `informandote_data.json` y `user_profile.json`. No se tocan en esta entrega —no formaban parte de lo
+  acordado— pero conviene decidir si se van también.
+- **Verificado:** `flutter analyze` **sin ningún error** y con los mismos 48 avisos previos, y **145
+  tests**. Borrar un archivo que alguien importara habría salido como error de compilación.
+- **Criterios de QA:**
+  1. **La app compila e instala** sin fallos.
+  2. **Participando abre** y muestra las inscripciones reales, igual que antes.
+  3. **La pestaña Eventos y el detalle de un evento** siguen funcionando: son otra pantalla.
+  4. **Tocar una notificación de evento** abre su detalle.
+  5. **El tamaño del APK** no crece; el JSON borrado ya no viaja dentro.
+
 ### [2026-08-18]: La sección de contenido se llama Legacy Knowledge en toda la app
 
 Punto 1.2, el que faltaba de la tanda 1. **Decisión del cliente:** se queda «Legacy Knowledge» y
