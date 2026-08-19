@@ -2,6 +2,47 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-18]: Se sanea el HTML al mostrarlo
+
+- **Alcance:**
+  - `domain/utils/sanitizar_html.dart` — nuevo. Sin dependencias de Flutter, como `busqueda_global`.
+  - `test/utils/sanitizar_html_test.dart` — nuevo. 16 pruebas.
+  - Los cuatro sitios que pintan HTML: `informandote/article_detail_screen.dart`,
+    `informandote/video_detail_screen.dart`, `books/book_detail_screen.dart` y `chat/chatbot_screen.dart`.
+- **Al mostrar y no al guardar, por decisión.** Sanear al escribir no arregla lo ya almacenado ni lo
+  que llega de fuera, y deja el contenido mutilado en la base. Al mostrar se aplica siempre.
+- **Antes de tocar nada se buscó dónde se interpreta HTML de verdad**, que resultó ser menos de lo que
+  sugería el aviso general de "no hay sanitización":
+  - **El panel no inyecta HTML en ningún sitio.** Cero usos de `innerHTML` o `bypassSecurityTrust`:
+    Angular escapa por defecto en la interpolación.
+  - **Foros, sinergias y chat se pintan con `Text`**, que no interpreta etiquetas. El `<script>` que
+    el backend guarda tal cual —comprobado el mismo día— es **inerte** ahí.
+  - Quedan **cuatro** `HtmlWidget`: artículo, video, libro y asistente.
+- **En Flutter esto no es una defensa contra JavaScript:** no hay motor que lo ejecute, así que un
+  `<script>` ya era inofensivo. Lo que sí evita es que un `<img src="http://…">` ajeno dispare una
+  petición al pintar —delatando la IP de quien lee—, que un `<iframe>` cargue algo de fuera y que un
+  enlace `javascript:` quede a un toque. Y deja el terreno hecho para cualquier superficie futura que
+  sí interprete HTML.
+- **El del asistente pinta también lo que escribe la propia persona**, así que sin sanear se puede
+  inyectar HTML en su propia conversación.
+- **El del video importa más desde hoy:** las descripciones vienen de YouTube, contenido de fuera
+  aunque el canal sea nuestro.
+- **Se quitan las etiquetas con su contenido y no solo la etiqueta.** Quitar solo `<style>` dejaría su
+  cuerpo suelto como párrafo visible; hay una prueba de eso.
+- **Se conserva el formato legible** —párrafos, negritas, listas, enlaces e imágenes normales—: la
+  idea es que el contenido siga viéndose bien, no dejarlo en texto pelado.
+- **Es idempotente**, cubierto por prueba: sanear dos veces da lo mismo, así que aplicarlo por
+  duplicado en el futuro no rompe nada.
+- **Verificado:** `flutter analyze` **sin errores** y **161 tests** (145 antes; 16 del saneador).
+- **Criterios de QA:**
+  1. **Abrir un artículo largo con formato:** se ve igual que antes —negritas, listas, enlaces—.
+  2. **Abrir un video de YouTube:** su descripción se lee bien, con los saltos de línea.
+  3. **Abrir el detalle de un libro:** su descripción se ve completa.
+  4. **En el asistente, escribir `<b>hola</b>`:** no aparece en negrita ni desaparece el texto.
+  5. **En el asistente, escribir `<script>alert(1)</script>`:** no pasa nada raro y el resto del
+     mensaje se sigue leyendo.
+  6. **Un contenido con imagen** sigue mostrándola.
+
 ### [2026-08-18]: Se retiran los restos del Participando anterior
 
 Al reescribir Participando contra el proveedor quedaron tres archivos que ya no usaba nadie. Se

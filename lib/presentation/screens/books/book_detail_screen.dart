@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+import 'package:legacy_app/domain/utils/sanitizar_html.dart';
 import '../../../domain/models/book_model.dart';
 import '../../../domain/models/cart_item.dart';
 import '../../../domain/providers/cart_provider.dart';
@@ -207,9 +208,12 @@ class BookDetailScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         HtmlWidget(
-          (book.description != null && book.description!.isNotEmpty)
-              ? book.description!
-              : (book.shortDescription ?? 'No hay descripción disponible.'),
+          // La descripción llega del WordPress de LSO, que es contenido de fuera.
+          sanitizarHtml(
+            (book.description != null && book.description!.isNotEmpty)
+                ? book.description!
+                : (book.shortDescription ?? 'No hay descripción disponible.'),
+          ),
           textStyle: GoogleFonts.questrial(
             fontSize: 16,
             color: Colors.black87,

@@ -8,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+import 'package:legacy_app/domain/utils/sanitizar_html.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../../domain/models/content_model.dart';
 import '../../../data/services/graphql_service.dart';
@@ -344,9 +345,13 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                     ),
                     const SizedBox(height: 8),
                     HtmlWidget(
-                      _video.description ??
-                          _video.fullContent ??
-                          'Sin descripción',
+                      // La descripción puede venir de YouTube, que es contenido
+                      // de fuera aunque el canal sea nuestro.
+                      sanitizarHtml(
+                        _video.description ??
+                            _video.fullContent ??
+                            'Sin descripción',
+                      ),
                       textStyle: GoogleFonts.questrial(
                         fontSize: 14,
                         color: const Color(0xFFE8EEF5).withValues(alpha: 0.9),

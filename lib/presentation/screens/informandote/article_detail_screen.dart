@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+import 'package:legacy_app/domain/utils/sanitizar_html.dart';
 import 'package:legacy_app/domain/providers/favorites_provider.dart';
 import '../../../domain/models/content_model.dart';
 import '../../../../config/theme/app_theme.dart';
@@ -311,9 +312,14 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                   Divider(color: Colors.white.withValues(alpha: 0.08)),
                   const SizedBox(height: 16),
                   HtmlWidget(
-                    _article.fullContent ??
-                        _article.description ??
-                        'Contenido no disponible',
+                    // Saneado justo antes de pintar: el contenido viene de
+                    // WordPress y del backend, que lo guarda tal cual se lo
+                    // manden. Ver domain/utils/sanitizar_html.dart.
+                    sanitizarHtml(
+                      _article.fullContent ??
+                          _article.description ??
+                          'Contenido no disponible',
+                    ),
                     textStyle: GoogleFonts.questrial(
                       fontSize: 14,
                       height: 1.5,

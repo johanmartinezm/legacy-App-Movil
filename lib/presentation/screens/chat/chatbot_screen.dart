@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../config/theme/app_theme.dart';
 import '../../widgets/custom_section_header.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+import 'package:legacy_app/domain/utils/sanitizar_html.dart';
 import 'package:go_router/go_router.dart';
 
 class ChatBotScreen extends StatefulWidget {
@@ -273,7 +274,9 @@ class _ChatBubble extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             HtmlWidget(
-              message.text,
+              // Aquí se pinta también lo que escribe la propia persona, así que
+              // sin sanear se puede inyectar HTML en su propia conversación.
+              sanitizarHtml(message.text),
               textStyle: TextStyle(
                 fontFamily: GoogleFonts.questrial().fontFamily,
                 color: message.isUser ? Colors.white : Colors.black87,
