@@ -128,6 +128,9 @@ Entrada de trabajo para validación de App Móvil.
   `programs/programs_screen.dart` y `programs/program_detail_screen.dart`.
   Nuevo: `test/widgets/flecha_atras_test.dart`, 2 pruebas.
 - **Verificado:** `flutter analyze` sin errores y **181 pruebas** en verde.
+- ✅ **Recorrido en el dispositivo el 2026-08-20: los siete criterios, en verde.** Se comprobó sobre el
+  APK instalado contra producción; las flechas vuelven a la pantalla de origen desde las ocho rutas
+  corregidas, y la vuelta desde una notificación cae en el Inicio, que ahí es lo correcto.
 - **Criterios de QA:**
   1. **Inicio → el asistente → atrás:** vuelve al Inicio, no a Comunidad.
   2. **Legacy Knowledge → el asistente → atrás:** vuelve a Legacy Knowledge.
