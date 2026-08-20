@@ -6,6 +6,15 @@ import '../../domain/providers/auth_provider.dart';
 import '../../config/theme/app_theme.dart';
 
 class CustomSectionHeader extends StatelessWidget {
+  /// ⚠️ **Hoy no se pinta en ninguna parte.** El centro del encabezado muestra
+  /// la marca —«LEGACY / Network®»—, igual en las diez pantallas que usan este
+  /// widget, así que el nombre que se pase aquí no llega a verse.
+  ///
+  /// Se deja porque cada pantalla lo declara y porque es el sitio natural si
+  /// algún día el encabezado enseña el nombre de la sección. Mientras tanto:
+  /// **no sirve para comprobar cómo se llama una pantalla** —el 2026-08-20 se
+  /// dio por hecho que sí y se reportó un nombre que nadie ve—, y las pantallas
+  /// que muestran su título lo pintan en su propio cuerpo, no aquí.
   final String title;
   final bool showDescriptionToggle;
   final bool isDescriptionOpen;

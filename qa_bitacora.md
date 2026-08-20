@@ -2,6 +2,37 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-20]: El asistente deja de llamarse «BOT CONTACTANOS» en el código, y aparece por qué eso no se veía
+
+- **Lo que se cambió:** el título que `chatbot_screen.dart` pasa al encabezado pasa de
+  `BOT CONTACTANOS` a `ASISTENTE LEGACY`. El nombre anterior ni mencionaba Legacy —lo que pide la
+  directriz de identidad, F23.5— ni se distinguía de la sección *Contacto*, que es otra cosa.
+- **⚠️ En pantalla no cambia nada, y ese es el hallazgo.** `CustomSectionHeader` **declara `title` como
+  parámetro obligatorio y no lo pinta en ninguna parte**: el centro del encabezado muestra siempre la
+  marca «LEGACY / Network®». Las **diez** pantallas que usan ese widget pasan un nombre que nadie ve.
+- **Cómo se descubrió:** al comprobar el cambio en el teléfono. La captura mostró la marca donde se
+  esperaba el nombre nuevo. Se había reportado que el asistente «se llama BOT CONTACTANOS» leyendo el
+  código, sin haberlo visto en pantalla; en la app no se llama de ninguna manera.
+- **F23.5 en realidad se cumple:** el encabezado enseña el logo y el nombre de Legacy Network.
+- **Las pantallas que sí muestran su título lo pintan en su cuerpo**, no en el encabezado — Legacy
+  Knowledge es el ejemplo, con su nombre y su bajada propios.
+- **Se documenta el parámetro en el widget** para que no vuelva a usarse como fuente de verdad sobre
+  cómo se llama una pantalla. Se conserva en vez de retirarlo: es el sitio natural si algún día el
+  encabezado enseña el nombre de la sección, y quitarlo obligaría a tocar diez pantallas para nada.
+- **Queda una decisión de producto:** hoy **ninguna pantalla se identifica en su encabezado**. Si el
+  cliente quiere que se vea dónde está —que es lo que buscaba F24.3—, hay que pintar `title` en el
+  centro junto a la marca o debajo de ella, y revisar los diez nombres de una vez.
+- **Alcance:**
+  - `presentation/screens/chat/chatbot_screen.dart` — el título que pasa.
+  - `presentation/widgets/custom_section_header.dart` — la advertencia sobre `title`.
+- **Verificado:** `flutter analyze` sin errores ni avisos y **179 pruebas** en verde. No se compiló un
+  APK nuevo para esto: no hay nada visible que comprobar.
+- **Criterios de QA:**
+  1. **Abrir el asistente:** el encabezado muestra el logo y «LEGACY Network®», como el resto.
+  2. **Comprobar que sigue funcionando:** saluda y responde igual.
+  3. **Recorrer otras pantallas con ese encabezado:** todas muestran la marca, ninguna su nombre.
+  4. **Si se decide pintar el título:** revisar los diez nombres antes, no después.
+
 ### [2026-08-20]: La pestaña de la barra inferior pasa a llamarse «KNOWLEDGE»
 
 Cierra F24.1 del plan de pruebas.

@@ -102,7 +102,11 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
         child: Column(
           children: [
             const CustomSectionHeader(
-              title: 'BOT CONTACTANOS',
+              // Hasta el 2026-08-20 decia «BOT CONTACTANOS»: ni mencionaba
+              // Legacy —lo que pide la directriz de identidad— ni se
+              // distinguia de la seccion Contacto, que es otra cosa. Va en
+              // mayusculas como el resto de encabezados.
+              title: 'ASISTENTE LEGACY',
               showBackButton: true,
             ),
 
