@@ -2,6 +2,42 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-20]: Se retira el carrito: no quedaba nada que pudiera entrar en él
+
+- **Por qué:** desde que programas y libros de LSO se compran en su tienda (2026-08-19), **nada
+  alimentaba el carrito**. Y los eventos de pago —lo único que quedaba con precio dentro de la app—
+  **nunca pasaron por él**: se compran desde su propia ficha, con `event_payment_screen.dart` y
+  `POST /api/payments/intent`. El carrito era una pantalla viva que solo podía decir «Tu carrito está
+  vacío». Decisión del cliente del 2026-08-20.
+- **Alcance (se retiran):**
+  - `presentation/screens/cart/` — `cart_screen.dart`, `checkout_screen.dart`, `confirmation_screen.dart`.
+  - `domain/providers/cart_provider.dart` y `domain/models/cart_item.dart`.
+  - `main.dart` — las rutas `/cart`, `/checkout` y `/confirmation`, el `CartProvider` del árbol de
+    providers y sus cuatro imports.
+  - `presentation/screens/eventos/eventos_screen.dart` — el botón flotante del carrito.
+  - `domain/models/program_model.dart` — `priceValue`, que existía solo para meter el precio al carrito.
+  - `test/providers/carrito_un_elemento_test.dart` y las pruebas de `priceValue`.
+- **El botón flotante de la agenda se queda**, ahora solo: al quitar el del carrito, la columna de dos
+  botones sobra y el `Column` se sustituye por el botón suelto.
+- **El icono de comprar en la ficha del libro pasa a «salir de la app»**, como ya estaba en el listado.
+  Era el último carrito visible de la interfaz.
+- **Lo que NO cambia: comprar un evento de pago.** Sigue igual, por su ficha y su pasarela. Este cambio
+  no toca el pago de eventos ni la pasarela, que sigue bloqueada desde el 6 de agosto.
+- **La alternativa que se descartó** era llevar los eventos de pago por el carrito. Se dejó porque el
+  flujo del evento ya existe, está probado y no depende del carrito para nada: rehacerlo habría creado
+  dos caminos de pago compitiendo justo sobre una pasarela bloqueada.
+- **Si algún día vuelve a hacer falta un carrito** —varios eventos en una compra, por ejemplo— está en
+  el historial: `git show 82759c4` trae la última versión, ya con un solo elemento y sin datos falsos.
+- **Verificado:** `flutter analyze` sin errores ni avisos y **179 pruebas** en verde. Bajan 11 respecto
+  a las 190 de ayer: 9 del carrito y 2 de `priceValue`, que se van con lo que probaban.
+- **Criterios de QA:**
+  1. **Abrir Eventos:** solo hay un botón flotante, el de la agenda, y abre la agenda.
+  2. **Buscar el carrito por la app:** no hay icono ni pantalla en ningún sitio.
+  3. **Comprar un evento de pago:** funciona igual que antes, desde la ficha del evento.
+  4. **Un evento gratuito:** se inscribe igual.
+  5. **Comprar un libro o un programa:** abre la tienda de LSO.
+  6. **Recorrer la app entera buscando pantallas en blanco:** ninguna ruta quedó apuntando al carrito.
+
 ### [2026-08-19]: Los libros de LSO también llevan a su página; nada alimenta ya el carrito
 
 - **Por qué:** los libros salen de la misma tienda de LSO que los programas —`category: "libros"` en la

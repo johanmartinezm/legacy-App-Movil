@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
-import 'domain/providers/cart_provider.dart';
 import 'domain/providers/auth_provider.dart';
 import 'domain/providers/favorites_provider.dart';
 import 'domain/providers/events_provider.dart';
@@ -29,9 +28,6 @@ import 'presentation/screens/faq/faq_screen.dart';
 import 'presentation/screens/profile_selection_screen.dart';
 import 'presentation/screens/splash_screen.dart';
 
-import 'presentation/screens/cart/cart_screen.dart';
-import 'presentation/screens/cart/checkout_screen.dart';
-import 'presentation/screens/cart/confirmation_screen.dart';
 import 'presentation/screens/favorites/favorites_screen.dart';
 import 'presentation/screens/profile/profile_screen.dart';
 import 'presentation/screens/profile/usuarios_bloqueados_screen.dart';
@@ -97,7 +93,6 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: authProvider),
-        ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => FavoritesProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProxyProvider<AuthProvider, ForumProvider>(
@@ -483,15 +478,6 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
             final evento = state.extra as EventModel;
             return EventPurchaseDetailScreen(event: evento);
           },
-        ),
-        GoRoute(path: '/cart', builder: (context, state) => const CartScreen()),
-        GoRoute(
-          path: '/checkout',
-          builder: (context, state) => const CheckoutScreen(),
-        ),
-        GoRoute(
-          path: '/confirmation',
-          builder: (context, state) => const ConfirmationScreen(),
         ),
         GoRoute(
           path: '/favorites',

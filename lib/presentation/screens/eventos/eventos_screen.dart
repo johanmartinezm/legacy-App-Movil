@@ -96,37 +96,24 @@ class _EventosScreenState extends State<EventosScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.legacyBlue1,
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            heroTag: 'fab_agenda',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AgendaScreen()),
-              );
-            },
-            backgroundColor: const Color(0xFF0B1A2E),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(28),
-              side: const BorderSide(color: Color(0xFFC9A24B), width: 1.5),
-            ),
-            child: const Icon(Icons.calendar_month, color: Color(0xFFC9A24B)),
-          ),
-          const SizedBox(height: 16),
-          FloatingActionButton(
-            heroTag: 'fab_eventos',
-            onPressed: () {
-              context.push('/cart');
-            },
-            backgroundColor: const Color(0xFFE3C272),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(28),
-            ),
-            child: const Icon(Icons.shopping_cart, color: Color(0xFF050B15)),
-          ),
-        ],
+      // Solo la agenda. El botón del carrito se retiró el 2026-08-20 junto con
+      // el carrito entero: un evento de pago se compra desde su propia ficha y
+      // lo de LSO se compra en LSO, así que ese icono abría una pantalla que ya
+      // no podía tener nada dentro.
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'fab_agenda',
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AgendaScreen()),
+          );
+        },
+        backgroundColor: const Color(0xFF0B1A2E),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28),
+          side: const BorderSide(color: Color(0xFFC9A24B), width: 1.5),
+        ),
+        child: const Icon(Icons.calendar_month, color: Color(0xFFC9A24B)),
       ),
       body: SafeArea(
         child: Column(

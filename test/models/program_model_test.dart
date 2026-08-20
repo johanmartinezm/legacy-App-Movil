@@ -57,14 +57,4 @@ void main() {
     });
   });
 
-  group('priceValue: lo que quedo del carrito', () {
-    test('extrae el número de la cifra publicada', () {
-      expect(programa(precio: '\$300').priceValue, 300);
-      expect(programa(precio: '\$2.500').priceValue, 2500);
-    });
-
-    test('sin precio vale cero', () {
-      expect(programa(precio: null).priceValue, 0);
-    });
-  });
 }

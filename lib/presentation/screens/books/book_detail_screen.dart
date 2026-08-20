@@ -277,7 +277,7 @@ class BookDetailScreen extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.add_shopping_cart),
+              const Icon(Icons.open_in_new),
               const SizedBox(width: 12),
               Text(
                 isOutOfStock ? 'PRODUCTO AGOTADO' : 'Comprar en LSO',

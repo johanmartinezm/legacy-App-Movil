@@ -31,13 +31,6 @@ class GraphqlProgram {
     return 'USD $crudo';
   }
 
-  double get priceValue {
-    if (price == null || price!.isEmpty) return 0.0;
-    // Remove currency symbol, spaces, and thousand separators (.)
-    // and replace decimal separator (if any)
-    String cleanStr = price!.replaceAll(RegExp(r'[^\d]'), '');
-    return double.tryParse(cleanStr) ?? 0.0;
-  }
 
   GraphqlProgram({
     required this.id,
