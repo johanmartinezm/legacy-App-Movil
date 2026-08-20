@@ -2,6 +2,46 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-20]: El encabezado dice en qué pantalla estás
+
+Cierra F24.3 y F24.4 del plan de pruebas. Sustituye a la entrada anterior de hoy sobre el mismo widget.
+
+- **El problema:** `CustomSectionHeader` mostraba siempre «LEGACY / Network®». Las **diez** pantallas que
+  lo usan se veían idénticas y ninguna decía dónde estabas, mientras cada una pasaba un `title` que el
+  widget declaraba obligatorio y no pintaba.
+- **Se pinta en la segunda línea del bloque de marca**, donde iba «Network®». Se conserva «LEGACY»
+  arriba: es la mitad que reconoce la marca, y perderla en las pantallas interiores habría sido peor
+  que repetir «Network®» diez veces. Sin título, se sigue viendo «Network®».
+- **Se recortan tres nombres, y se vieron mal solo al pintarlos:**
+  - `ASISTENTE LEGACY` → **ASISTENTE**. Con el logotipo encima quedaba «LEGACY / ASISTENTE LEGACY».
+  - `MIEMBROS DE LA COMUNIDAD` → **MIEMBROS**. Era el más largo de los diez y la sección ya se llama
+    Comunidad.
+  - `DETALLE DE SINERGIA` → **SINERGIA**. Que es el detalle se ve; decirlo no aporta.
+- **Los otros siete se quedan:** BIBLIOTECA, CHAT DE CEOS, COMITÉ DE SINERGIAS, COMUNIDAD, CUENTAS
+  BLOQUEADAS, NUEVA SINERGIA y el nombre de la persona en el chat individual.
+- **Uno merece consulta al cliente: «CHAT DE CEOS».** El chat es entre miembros, y el cuarto perfil que
+  se añadió el 18-08 es *miembro de junta o consejo*, no CEO. No se toca sin preguntar: es su
+  vocabulario, no un descuido de implementación.
+- **Una línea, con recorte por si acaso:** `maxLines: 1` y elipsis. Con los nombres actuales sobra
+  sitio —el más largo pasa a ser COMITÉ DE SINERGIAS—, pero el chat individual muestra el nombre de la
+  persona, que no se controla desde aquí.
+- **Menos espaciado que el «Network®» al que sustituye** (1.0 en vez de 1.5), porque un nombre de
+  sección es más largo que una palabra de marca.
+- **Comprobado en el teléfono**, que es donde se vieron los tres nombres a recortar: el asistente
+  muestra «LEGACY / ASISTENTE».
+- **Alcance:**
+  - `presentation/widgets/custom_section_header.dart` — pinta `title` y documenta el campo.
+  - `chat/chatbot_screen.dart`, `chat/community_members_screen.dart`,
+    `community/synergy_detail_screen.dart` — los tres nombres.
+- **Verificado:** `flutter analyze` sin errores ni avisos y **179 pruebas** en verde.
+- **Criterios de QA:**
+  1. **Abrir el asistente:** el encabezado dice «LEGACY / ASISTENTE».
+  2. **Recorrer las diez pantallas con ese encabezado:** cada una muestra su nombre bajo el logotipo.
+  3. **Abrir un chat con una persona de nombre largo:** se recorta con puntos suspensivos, no desborda.
+  4. **Comparar cada nombre con el sitio desde el que se entra:** dicen lo mismo.
+  5. **Con el tamaño de letra del sistema aumentado:** el encabezado no se rompe.
+  6. **Preguntar al cliente por «CHAT DE CEOS»**, que es el único nombre en duda.
+
 ### [2026-08-20]: El asistente deja de llamarse «BOT CONTACTANOS» en el código, y aparece por qué eso no se veía
 
 - **Lo que se cambió:** el título que `chatbot_screen.dart` pasa al encabezado pasa de

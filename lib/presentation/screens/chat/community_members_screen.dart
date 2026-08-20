@@ -30,7 +30,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
         child: Column(
           children: [
             const CustomSectionHeader(
-              title: 'MIEMBROS DE LA COMUNIDAD',
+              title: 'MIEMBROS',
               showBackButton: true,
             ),
 

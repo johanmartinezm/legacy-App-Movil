@@ -73,7 +73,7 @@ class _SynergyDetailScreenState extends State<SynergyDetailScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            const CustomSectionHeader(title: 'DETALLE DE SINERGIA', showBackButton: true),
+            const CustomSectionHeader(title: 'SINERGIA', showBackButton: true),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),

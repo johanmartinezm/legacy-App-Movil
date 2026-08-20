@@ -106,7 +106,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
               // Legacy —lo que pide la directriz de identidad— ni se
               // distinguia de la seccion Contacto, que es otra cosa. Va en
               // mayusculas como el resto de encabezados.
-              title: 'ASISTENTE LEGACY',
+              title: 'ASISTENTE',
               showBackButton: true,
             ),
 

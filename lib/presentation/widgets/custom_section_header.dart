@@ -6,15 +6,15 @@ import '../../domain/providers/auth_provider.dart';
 import '../../config/theme/app_theme.dart';
 
 class CustomSectionHeader extends StatelessWidget {
-  /// ⚠️ **Hoy no se pinta en ninguna parte.** El centro del encabezado muestra
-  /// la marca —«LEGACY / Network®»—, igual en las diez pantallas que usan este
-  /// widget, así que el nombre que se pase aquí no llega a verse.
+  /// El nombre de la pantalla, bajo el logotipo. Va en mayúsculas, como el
+  /// resto de encabezados.
   ///
-  /// Se deja porque cada pantalla lo declara y porque es el sitio natural si
-  /// algún día el encabezado enseña el nombre de la sección. Mientras tanto:
-  /// **no sirve para comprobar cómo se llama una pantalla** —el 2026-08-20 se
-  /// dio por hecho que sí y se reportó un nombre que nadie ve—, y las pantallas
-  /// que muestran su título lo pintan en su propio cuerpo, no aquí.
+  /// Desde el 2026-08-20 **se pinta**: sustituye a «Network®» en la segunda
+  /// línea del bloque de marca. Antes se declaraba obligatorio y no se
+  /// mostraba, así que las diez pantallas que usan este widget se veían
+  /// idénticas y ninguna decía dónde estabas.
+  ///
+  /// Vacío deja «Network®», que es lo que había antes.
   final String title;
   final bool showDescriptionToggle;
   final bool isDescriptionOpen;
@@ -245,13 +245,28 @@ class CustomSectionHeader extends StatelessWidget {
                       letterSpacing: 1.0,
                     ),
                   ),
+                  // La segunda línea dice DÓNDE estás; «Network®» solo
+                  // cuando la pantalla no da nombre. Hasta el 2026-08-20 aquí
+                  // iba siempre la marca, así que las diez pantallas que usan
+                  // este encabezado se veían idénticas y ninguna se
+                  // identificaba: el nombre que cada una pasaba en `title` no
+                  // se pintaba en ninguna parte.
+                  //
+                  // «LEGACY» se queda: es la mitad que reconoce la marca, y
+                  // perderla en las pantallas interiores sería peor que
+                  // repetir «Network®» diez veces.
                   Text(
-                    'Network®',
+                    title.trim().isEmpty ? 'Network®' : title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.questrial(
                       fontSize: 11,
                       fontWeight: FontWeight.w400,
                       color: Colors.white.withValues(alpha: 0.85),
-                      letterSpacing: 1.5,
+                      // Menos espaciado que el «Network®» que sustituye:
+                      // «MIEMBROS DE LA COMUNIDAD» son 24 caracteres y a 1.5
+                      // se acercaba demasiado a los iconos.
+                      letterSpacing: 1.0,
                     ),
                   ),
                 ],
