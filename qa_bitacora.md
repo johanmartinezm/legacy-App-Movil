@@ -2,6 +2,43 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-20]: Los precios de los eventos dicen que son dólares
+
+- **Por qué:** los eventos se cobran en dólares —confirmado por el cliente el 2026-08-20—, pero
+  `CurrencyFormatter` los formateaba con locale `es_CO` y un «$» suelto. El Legacy Summit, de 499
+  dólares, se veía como **«499 $»**: la cifra sin moneda, con formato colombiano y junto a contenido en
+  pesos. **499 pesos son doce centavos de dólar**, y nada en la pantalla permitía distinguirlo.
+- **Salió recorriendo el tramo 2** de la ruta de pruebas manuales sobre el teléfono, mirando la lista de
+  eventos de producción: Summit a 499 y Coffee & Networking a 25, dos cifras que solo tienen sentido en
+  dólares.
+- **Se arregla en el formateador y no en cada pantalla:** es el único punto por el que pasan los precios
+  de evento —la tarjeta del listado, la pantalla de pago y la de confirmación—, así que las tres dicen
+  la moneda a la vez.
+- **La moneda va delante —«USD $499»—** igual que en los programas de LSO (`precioConMoneda`): si la
+  cifra queda justa de sitio, lo primero que se lee sigue siendo de qué moneda se habla. Las dos
+  superficies con precio de la app lo dicen de la misma forma.
+- **Gratis sigue siendo gratis:** un evento sin precio dice «GRATIS», no «USD $0».
+- **Se conserva la agrupación de miles con punto** (`150000` → `USD $150.000`), que es como se escribe
+  aquí y como lo publica la tienda de LSO.
+- **⚠️ Esto arregla lo que se ve, no lo que se cobra.** La app manda a la pasarela el importe en
+  centavos y **la divisa la fija el comercio en CredibanCo** —está documentado en
+  `Backend/internal/infrastructure/credibanco/client.go`: `currency` no se envía a propósito—. Si esa
+  cuenta está configurada en pesos, un Summit de «USD $499» se cobraría como 499 pesos. **Hay que
+  confirmarlo con el banco antes de desbloquear la pasarela**; no se puede comprobar desde aquí.
+- **Alcance:**
+  - `config/utils/currency_formatter.dart` — la moneda y su documentación.
+  - `test/utils/currency_formatter_test.dart` — nuevo, 5 pruebas.
+- **Verificado:** `flutter analyze` sin errores ni avisos, **184 pruebas** en verde (179 antes), y
+  comprobado en el teléfono contra producción: la tarjeta del Summit muestra «USD $499» y la de la
+  sesión gratuita sigue diciendo «Gratis».
+- **Criterios de QA:**
+  1. **Abrir Eventos:** los de pago muestran «USD $…».
+  2. **Un evento gratuito:** sigue diciendo «Gratis», sin moneda.
+  3. **Abrir un evento de pago y llegar a la pantalla de pago:** el importe también lleva la moneda.
+  4. **La pantalla de confirmación:** igual.
+  5. **Comparar con los programas de LSO:** los dos sitios dicen la moneda de la misma forma.
+  6. **Antes de cobrar de verdad:** confirmar con CredibanCo en qué divisa está configurado el comercio.
+
 ### [2026-08-20]: El encabezado dice en qué pantalla estás
 
 Cierra F24.3 y F24.4 del plan de pruebas. Sustituye a la entrada anterior de hoy sobre el mismo widget.
