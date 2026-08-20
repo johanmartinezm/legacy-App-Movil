@@ -2,6 +2,37 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-20]: La pestaña de la barra inferior pasa a llamarse «KNOWLEDGE»
+
+Cierra F24.1 del plan de pruebas.
+
+- **El problema:** la sección se llama «Legacy Knowledge» en el home, el menú lateral, su encabezado y
+  Legacy Plus —se unificaron el 18-08 después de que el cliente lo reportara—, pero **la pestaña de la
+  barra inferior decía «CONOCER»**, y es la vía de entrada que más se usa. Se pulsaba una cosa y se
+  aterrizaba en otra: eso es lo que hacía pensar que eran dos sitios distintos.
+- **Se cambia la pestaña, no las otras cuatro.** El nombre oficial ya estaba decidido por el cliente;
+  mover los cuatro sitios habría deshecho esa decisión cinco días después de tomarla.
+- **«KNOWLEDGE» y no «CONOCER»:** al acortar un nombre se conserva la mitad que lo identifica.
+  «CONOCER» no conserva ninguna, y además es un verbo entre cuatro sustantivos —INICIO, EVENTOS,
+  LEGACY+, PERFIL—. Se descartó «LEGACY» a secas: la barra ya tiene LEGACY+ y dos pestañas que empiezan
+  igual invitan a pulsar la equivocada.
+- **No cabía, y se vio en el teléfono.** A `fontSize: 11` con `letterSpacing: 0.5` la etiqueta salía
+  recortada como **«KNOWLED...»**. Se bajó a **10 con 0.1** y entra completa; comprobado con captura
+  sobre el dispositivo, no calculado.
+- **El estilo baja para las cinco etiquetas y no solo para esa:** `BottomNavigationBar` aplica un único
+  `selectedLabelStyle`, y desigualarlas a mano se vería peor que el recorte que se quería evitar.
+- **Comprobado el circuito entero:** la pestaña dice KNOWLEDGE, y al pulsarla el encabezado del destino
+  dice «Legacy Knowledge» y su buscador «Buscar en Legacy Knowledge».
+- **Alcance:** `presentation/screens/main_layout.dart` — la etiqueta y los dos estilos de la barra.
+- **Verificado:** `flutter analyze` sin errores ni avisos y **179 pruebas** en verde.
+- **Criterios de QA:**
+  1. **Mirar la barra inferior:** las cinco etiquetas se leen enteras, ninguna con «...».
+  2. **Pulsar KNOWLEDGE:** abre la sección y su encabezado dice «Legacy Knowledge».
+  3. **Comparar con el home, el menú lateral y Legacy Plus:** los cinco sitios dicen lo mismo.
+  4. **En un teléfono más estrecho que el de prueba** (1080 px de ancho): comprobar que sigue entrando.
+  5. **Con el tamaño de letra del sistema aumentado:** mirar si alguna etiqueta se recorta.
+  6. **Las otras cuatro pestañas:** siguen llevando a donde llevaban.
+
 ### [2026-08-20]: Se retira el carrito: no quedaba nada que pudiera entrar en él
 
 - **Por qué:** desde que programas y libros de LSO se compran en su tienda (2026-08-19), **nada

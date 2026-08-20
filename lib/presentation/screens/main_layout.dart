@@ -85,7 +85,13 @@ class MainLayout extends StatelessWidget {
             const BottomNavigationBarItem(
               icon: Icon(Icons.menu_book_outlined),
               activeIcon: Icon(Icons.menu_book),
-              label: 'CONOCER',
+              // La seccion se llama «Legacy Knowledge» en el home, el menu
+              // lateral, su encabezado y Legacy Plus. Aqui decia «CONOCER»
+              // hasta el 2026-08-20: se pulsaba una cosa y se aterrizaba en
+              // otra, que es lo que hacia pensar que eran dos sitios. Se deja
+              // la mitad que identifica la seccion; «LEGACY» a secas chocaria
+              // con la pestaña LEGACY+.
+              label: 'KNOWLEDGE',
             ),
             const BottomNavigationBarItem(
               icon: Icon(Icons.calendar_today_outlined),
@@ -124,14 +130,19 @@ class MainLayout extends StatelessWidget {
           unselectedItemColor: const Color(0xFF90A4BA), // Unselected is steel blue/gray
           showUnselectedLabels: true,
           type: BottomNavigationBarType.fixed,
+          // 10 y sin apenas espaciado porque «KNOWLEDGE» es la etiqueta mas
+          // larga de la barra —nueve caracteres frente a los seis o siete de
+          // las demas— y a 11 con 0.5 se cortaba en «KNOWLED...». Se baja para
+          // las cinco y no solo para esa: BottomNavigationBar aplica un unico
+          // estilo, y desigualarlas a mano se veria peor que el recorte.
           selectedLabelStyle: GoogleFonts.barlow(
             fontWeight: FontWeight.bold,
-            fontSize: 11,
-            letterSpacing: 0.5,
+            fontSize: 10,
+            letterSpacing: 0.1,
           ),
           unselectedLabelStyle: GoogleFonts.questrial(
-            fontSize: 11,
-            letterSpacing: 0.5,
+            fontSize: 10,
+            letterSpacing: 0.1,
           ),
           onTap: (index) => _onItemTapped(index, context),
         ),
