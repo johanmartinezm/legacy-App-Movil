@@ -72,5 +72,22 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        <!--
+          Sin estas dos declaraciones, en Android 11+ `canLaunchUrl` devuelve
+          false aunque haya navegador: desde API 30 una app solo "ve" las que
+          declara aquí. Nueve puntos de la app preguntan antes de abrir, asi que
+          el bloque de arriba —el que trae Flutter por defecto— dejaba muertos
+          TODOS los enlaces externos: los documentos legales que exigen las
+          tiendas, la pasarela de pago, los articulos, los videos y la tienda de
+          LSO. Comprobado en un telefono el 2026-08-20.
+        -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="mailto"/>
+        </intent>
     </queries>
 </manifest>
