@@ -2,6 +2,38 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-20]: La Biblioteca ya se puede alcanzar
+
+- **El problema:** la ruta `/libros` existía desde el commit inicial y la pantalla estaba completa
+  —cinco libros con portada, precio y enlace a la tienda—, pero **ninguna pantalla enlazaba a ella**.
+  Ni el menú lateral, ni el Inicio, ni Legacy Plus, ni la barra inferior.
+- **El único camino era el asistente:** escribirle algo con la palabra «libro» hace que responda con un
+  enlace interno a `/libros`. Nadie llega ahí por casualidad.
+- **Se descubrió al intentar probarla**, cuando no había forma de abrir la sección. La tienda sí tenía
+  los cinco libros: comprobado con la consulta exacta de la app contra `lso.school/graphql`.
+- **Va en la sección de LSO por decisión del cliente** (2026-08-20): los libros salen de la misma
+  tienda que los programas, así que es donde se buscan.
+- **Colocada bajo la tarjeta de presentación y sobre «PROGRAMAS ABIERTOS 2026»**, para que se vea sin
+  desplazar. **Compacta a propósito** —una fila, no una tarjeta como las de los programas—: los libros
+  acompañan a la formación, no compiten con ella.
+- **La prueba mira el código fuente**, no pinta widgets: lo que se perdió no fue un elemento sino la
+  existencia de un camino, y eso no lo detecta un widget test de la pantalla.
+- **Alcance:**
+  - `presentation/screens/programs/programs_screen.dart` — la entrada.
+  - `test/screens/biblioteca_alcanzable_test.dart` — nuevo, 2 pruebas.
+- **Verificado:** `flutter analyze` sin errores ni avisos y **189 pruebas** en verde (187 antes).
+  Comprobado en el teléfono: la fila se ve sin desplazar, abre la Biblioteca con los cinco libros, y el
+  icono de un libro abre su página en la tienda.
+- **Nota sobre el destino:** la página de LSO se ve mal en un teléfono —elementos superpuestos, el
+  carrito de la tienda encima del contenido—. No es de la app, pero es adonde mandamos a comprar.
+- **Criterios de QA:**
+  1. **Abrir LSO · Escuela:** la fila «Biblioteca · Los libros de LSO» se ve sin desplazar.
+  2. **Tocarla:** abre la Biblioteca con los libros publicados.
+  3. **Tocar el icono de un libro:** abre su página en la tienda.
+  4. **Volver:** regresa a la Biblioteca, y otra vez atrás a LSO.
+  5. **Comprobar que sigue funcionando el camino del asistente** («libros»).
+  6. **Si algún día la tienda no responde:** la Biblioteca muestra su estado vacío, no una pantalla rota.
+
 ### [2026-08-20]: Ningún enlace externo se abría en Android 11 o superior
 
 - **El problema:** `AndroidManifest.xml` declaraba `<queries>` **solo** para `PROCESS_TEXT` —el bloque

@@ -128,6 +128,18 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
                     children: [
                       // Banner hero
                       _buildHeroBanner(),
+                      const SizedBox(height: 20),
+
+                      // Entrada a la biblioteca.
+                      //
+                      // Va aquí por decisión del cliente (2026-08-20): los
+                      // libros salen de la misma tienda que los programas, así
+                      // que la sección de LSO es donde se buscan. Hasta hoy
+                      // `/libros` **no tenía ninguna entrada**: la pantalla
+                      // existía, funcionaba y solo se alcanzaba escribiéndole
+                      // «libro» al asistente, que responde con un enlace
+                      // interno.
+                      _buildEntradaBiblioteca(context),
                       const SizedBox(height: 28),
 
                       // Etiqueta de sección
@@ -168,6 +180,56 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  /// Fila que lleva a la biblioteca de LSO.
+  ///
+  /// Compacta a propósito: los libros acompañan a la formación, no compiten con
+  /// ella, así que ocupa una línea y no una tarjeta como las de los programas.
+  Widget _buildEntradaBiblioteca(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/libros'),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0B1A2E).withValues(alpha: 0.55),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+          ),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.menu_book_outlined, color: Color(0xFFD9A74A), size: 22),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Biblioteca',
+                    style: GoogleFonts.barlow(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Los libros de LSO',
+                    style: GoogleFonts.questrial(
+                      color: const Color(0xFF90A4BA),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Color(0xFF90A4BA), size: 20),
+          ],
         ),
       ),
     );
