@@ -2,6 +2,67 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-20]: Ningún enlace externo se abría en Android 11 o superior
+
+- **El problema:** `AndroidManifest.xml` declaraba `<queries>` **solo** para `PROCESS_TEXT` —el bloque
+  que trae Flutter por defecto—. Desde Android 11 una app solo «ve» las aplicaciones que declara ahí,
+  así que **`canLaunchUrl` devolvía `false` aunque hubiera navegador instalado**.
+- **Nueve puntos de la app preguntan con `canLaunchUrl` antes de abrir**, y todos quedaban muertos:
+  - `data/config/documentos_legales.dart` — **términos y política de privacidad**, que Apple y Google
+    exigen alcanzables desde la app;
+  - `eventos/event_payment_screen.dart` — **la pasarela de pago**;
+  - `informandote/article_detail_screen.dart` y `video_detail_screen.dart` — enlaces del contenido;
+  - `login_screen.dart` y `widgets/app_banner.dart` — legales del login y banners con enlace;
+  - `programs/program_detail_screen.dart` y `domain/utils/abrir_en_lso.dart` — la tienda de LSO.
+- **Por qué nadie lo había notado:** los sitios que llaman a `launchUrl` **sin** preguntar antes —el de
+  contacto, uno del artículo— sí funcionaban. El fallo solo aparece donde se comprueba primero.
+- **Explica que F3.11 nunca se hubiera ejecutado**: «abrir los dos enlaces legales; las tiendas exigen
+  que sean alcanzables» habría fallado en cualquier teléfono moderno.
+- **Se declaran dos intents:** `VIEW + https` y `VIEW + mailto`, que son los dos únicos esquemas que
+  lanza la app. No se declara nada más: `<queries>` es una lista de lo que la app necesita ver, no un
+  comodín.
+- **Alcance:** `android/app/src/main/AndroidManifest.xml`.
+- **Verificado:** comprobado con `aapt2 dump xmltree` que los dos intents viajan en el APK compilado, y
+  después en el teléfono: el botón de LSO abre el navegador.
+- **Criterios de QA:**
+  1. **Abrir los dos enlaces legales** desde el menú de la app: cargan en el navegador. Es F3.11.
+  2. **Tocar «Inscribirme en LSO»** en un programa: abre la tienda.
+  3. **Un enlace dentro de un artículo o de un vídeo:** abre.
+  4. **Un banner con enlace:** abre.
+  5. **Comprar un evento de pago:** la pasarela abre —pendiente de que se desbloquee—.
+  6. **En un Android 10 o anterior:** sigue funcionando igual; la restricción es de API 30 en adelante.
+
+---
+
+### [2026-08-20]: El enlace del programa se perdía entre la lista y el detalle
+
+- **El problema:** «Inscribirme en LSO» avisaba «No pudimos abrir la página del programa» y no hacía
+  nada. El enlace estaba en el modelo y llegaba de la tienda, pero **no llegaba a la pantalla de
+  detalle**.
+- **La causa:** `programs_screen.dart` no pasa el objeto que devuelve el GraphQL. Construye un
+  `_LsoProgram` para pintar la tarjeta y, al abrir el detalle, **reconstruye** un `GraphqlProgram` a
+  partir de ella para añadirle los textos de marketing —formato, certificación, cuotas—. Esa copia
+  nacía **sin `url`** y con un **id inventado** a partir del título.
+- **Así que la comprobación funcionaba y el dato no existía:** `program.url` era siempre `null` y el
+  aviso saltaba sin intentar abrir nada.
+- **Se conservan `id` y `url` en la tarjeta** y la copia los arrastra. Son lo único que no puede
+  reconstruirse desde el título; el resto sí.
+- **Se descubrió al probar en el teléfono**, después de haber arreglado un fallo distinto que también
+  impedía abrir enlaces —el `<queries>` del manifiesto—. Dos causas encadenadas para el mismo síntoma.
+- **Alcance:**
+  - `presentation/screens/programs/programs_screen.dart` — la tarjeta conserva id y enlace.
+  - `test/screens/programa_conserva_enlace_test.dart` — nuevo, 3 pruebas.
+- **Lo que enseña:** el cambio de LSO se dio por bueno con pruebas de modelo y de widget, y **ninguna
+  cubría el trayecto entre las dos pantallas**. Ver el botón en una captura no es lo mismo que pulsarlo.
+- **Verificado:** `flutter analyze` sin errores ni avisos, **187 pruebas** en verde (184 antes), y
+  comprobado en el teléfono: el botón abre el navegador en la página del programa.
+- **Criterios de QA:**
+  1. **Abrir un programa y tocar «Inscribirme en LSO»:** abre la página **de ese** programa.
+  2. **Repetir con otro programa distinto:** abre la suya, no la del primero.
+  3. **Volver a la app:** sigue en la ficha.
+  4. **Un programa sin enlace** (hoy no hay ninguno): sale el aviso, no un toque mudo.
+  5. **Los libros:** siguen abriendo su página, que usan otro camino.
+
 ### [2026-08-20]: Los precios de los eventos dicen que son dólares
 
 - **Por qué:** los eventos se cobran en dólares —confirmado por el cliente el 2026-08-20—, pero

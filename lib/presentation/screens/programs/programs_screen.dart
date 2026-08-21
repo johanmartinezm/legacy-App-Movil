@@ -15,6 +15,16 @@ class _LsoProgram {
   // programas la tienen cargada, y la tarjeta se dibuja igual sin ella.
   final String? imageUrl;
 
+  // El id y el enlace del producto en la tienda, tal como llegan del GraphQL.
+  //
+  // Se conservan porque la pantalla de detalle recibe un GraphqlProgram
+  // **reconstruido** a partir de esta tarjeta, y hasta el 2026-08-20 esa copia
+  // nacía sin enlace y con un id inventado a partir del título: «Inscribirme en
+  // LSO» no abría nada y avisaba de que no pudo. Lo que no se guarde aquí, se
+  // pierde por el camino.
+  final String? id;
+  final String? url;
+
   const _LsoProgram({
     required this.title,
     required this.details,
@@ -22,6 +32,8 @@ class _LsoProgram {
     this.priceNote,
     this.isQuote = false,
     this.imageUrl,
+    this.id,
+    this.url,
   });
 }
 
@@ -65,6 +77,8 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
               priceNote: p.type,
               isQuote: p.precioConMoneda == null,
               imageUrl: p.imageUrl,
+              id: p.id,
+              url: p.url,
             );
           }).toList();
           _isLoading = false;
@@ -302,9 +316,13 @@ class _ProgramCard extends StatelessWidget {
           cuotas = 'A convenir';
         }
 
+        // El id y el enlace salen del producto real, no del título: son lo
+        // único que no se puede reconstruir aquí, y el enlace es lo que abre
+        // «Inscribirme en LSO».
         final graphqlProgram = GraphqlProgram(
-          id: program.title.toLowerCase().replaceAll(' ', '-'),
+          id: program.id ?? program.title.toLowerCase().replaceAll(' ', '-'),
           name: program.title,
+          url: program.url,
           description: desc,
           shortDescription: shortDesc,
           price: program.price,
