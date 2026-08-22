@@ -18,13 +18,17 @@ class FavoritesScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'MIS FAVORITOS',
-          style: GoogleFonts.barlow(fontWeight: FontWeight.bold, fontSize: 20),
+          style: GoogleFonts.barlow(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: AppTheme.legacyWhite,
+          ),
         ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: const Color(0xFF0B1A2E),
+        foregroundColor: AppTheme.legacyWhite,
         elevation: 0,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF050B15),
       body: favoritesProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : favoritesProvider.favorites.isEmpty
@@ -35,14 +39,14 @@ class FavoritesScreen extends StatelessWidget {
                   Icon(
                     Icons.bookmark_border,
                     size: 64,
-                    color: Colors.grey[300],
+                    color: AppTheme.legacyWhite.withValues(alpha: 0.3),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'Aún no tienes favoritos',
                     style: GoogleFonts.questrial(
                       fontSize: 18,
-                      color: Colors.grey[500],
+                      color: AppTheme.legacyWhite.withValues(alpha: 0.6),
                     ),
                   ),
                 ],
@@ -67,16 +71,12 @@ class FavoritesScreen extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color(0xFF0B1A2E).withValues(alpha: 0.65),
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-          border: Border.all(color: Colors.grey.shade100),
+          border: Border.all(
+            color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+            width: 1.2,
+          ),
         ),
         child: Row(
           children: [
@@ -134,7 +134,7 @@ class FavoritesScreen extends StatelessWidget {
                       style: GoogleFonts.barlow(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
-                        color: Colors.black87,
+                        color: AppTheme.legacyWhite,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -145,7 +145,7 @@ class FavoritesScreen extends StatelessWidget {
                         Icon(
                           Icons.person_outline,
                           size: 14,
-                          color: Colors.grey[500],
+                          color: const Color(0xFF90A4BA),
                         ),
                         const SizedBox(width: 4),
                         Expanded(
@@ -153,7 +153,7 @@ class FavoritesScreen extends StatelessWidget {
                             item.authorName ?? 'Desconocido',
                             style: GoogleFonts.questrial(
                               fontSize: 12,
-                              color: Colors.grey[500],
+                              color: const Color(0xFF90A4BA),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -166,7 +166,7 @@ class FavoritesScreen extends StatelessWidget {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.bookmark, color: AppTheme.legacyBlue1),
+              icon: const Icon(Icons.bookmark, color: AppTheme.legacyGold),
               onPressed: () {
                 context.read<FavoritesProvider>().toggleFavorite(item);
               },
