@@ -20,6 +20,23 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
     Future.microtask(() => context.read<ChatProvider>().loadMembers());
   }
 
+  /// El backend devuelve el motivo en inglés, pensado para depurar, no para
+  /// mostrarlo tal cual: "Error: Exception: connection already exists or is
+  /// pending" es lo que veía quien tocaba el botón, sin ninguna traducción.
+  String _mensajeDeInvitacion(Object error) {
+    final texto = error.toString();
+    if (texto.contains('connection already exists or is pending')) {
+      return 'Ya le enviaste una invitación a esta persona, o ya son contactos.';
+    }
+    if (texto.contains('no es posible contactar con esta persona')) {
+      return 'No es posible contactar con esta persona.';
+    }
+    if (texto.contains('cannot invite yourself')) {
+      return 'No puedes invitarte a ti mismo.';
+    }
+    return 'No se pudo enviar la invitación. Inténtalo de nuevo.';
+  }
+
   @override
   Widget build(BuildContext context) {
     final myId = context.read<AuthProvider>().userID;
@@ -119,7 +136,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('Error: $e'),
+                                  content: Text(_mensajeDeInvitacion(e)),
                                   backgroundColor: Colors.red,
                                 ),
                               );
