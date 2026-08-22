@@ -168,7 +168,7 @@ class ProgramDetailScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 28),
 
-                      // Ficha Técnica (Formato, Certificación, Cuotas)
+                      // Ficha Técnica (Formato, Duración, Tipo)
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(20),
@@ -187,12 +187,12 @@ class ProgramDetailScreen extends StatelessWidget {
                               padding: EdgeInsets.symmetric(vertical: 12),
                               child: Divider(color: Color(0xFF1E3A5F), height: 1, thickness: 1),
                             ),
-                            _buildInfoRow('Certificación', program.duration),
+                            _buildInfoRow('Duración', program.duration),
                             const Padding(
                               padding: EdgeInsets.symmetric(vertical: 12),
                               child: Divider(color: Color(0xFF1E3A5F), height: 1, thickness: 1),
                             ),
-                            _buildInfoRow('Cuotas', program.type),
+                            _buildInfoRow('Tipo', program.type),
                           ],
                         ),
                       ),
