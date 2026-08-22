@@ -127,10 +127,35 @@ class EventPurchaseDetailScreen extends StatelessWidget {
                       const SizedBox(height: 24),
 
                       // Description
+                      //
+                      // El párrafo ya existía y ya traía el dato real
+                      // (`event.description`, comprobado contra producción:
+                      // el Summit trae una descripción real de dos frases).
+                      // Lo que faltaba era un rótulo: sin título, un párrafo
+                      // suelto entre la ubicación y la ficha técnica no se lee
+                      // como "la descripción del evento" — se confunde con
+                      // cualquier otro texto de la pantalla.
                       Text(
+                        'DESCRIPCIÓN',
+                        style: GoogleFonts.barlow(
+                          color: const Color(0xFFD9A74A),
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        // El texto de respaldo anterior era del propio Legacy
+                        // Summit («39 sesiones, contenido de Harvard...») y
+                        // aparecía igual en cualquier otro evento sin
+                        // descripción, como si fuera suya. Ahora que el
+                        // párrafo lleva el rótulo «DESCRIPCIÓN», mostrar
+                        // contenido de otro evento sería más engañoso, no
+                        // menos.
                         event.description.isNotEmpty
                             ? event.description
-                            : 'Sembrando un legado: honrar lo recibido y prepararnos para la sucesión. La cumbre latinoamericana de familias empresarias: 39 sesiones, contenido de Harvard, ESADE e IESE.',
+                            : 'Este evento todavía no tiene descripción.',
                         style: GoogleFonts.questrial(
                           fontSize: 15,
                           color: const Color(0xFFE8EEF5).withValues(alpha: 0.9),
