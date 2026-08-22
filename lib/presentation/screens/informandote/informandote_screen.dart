@@ -176,7 +176,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
           ),
         ),
         child: const Icon(
-          Icons.headphones_outlined,
+          Icons.psychology_outlined,
           color: Color(0xFFD9A74A),
           size: 24,
         ),
