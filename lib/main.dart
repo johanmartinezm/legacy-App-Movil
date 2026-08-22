@@ -410,10 +410,6 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
               builder: (context, state) => const ProfileEditScreen(),
             ),
             GoRoute(
-              path: '/mi-credencial',
-              builder: (context, state) => const MiCredencialScreen(),
-            ),
-            GoRoute(
               path: '/miembros-info',
               builder: (context, state) => const MiembrosInfoScreen(),
             ),
@@ -482,6 +478,18 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
         GoRoute(
           path: '/favorites',
           builder: (context, state) => const FavoritesScreen(),
+        ),
+        // Se alcanza desde /evento (fuera del ShellRoute) y también desde
+        // pantallas dentro de él (Perfil, Agenda, pago). Hasta el 2026-08-22
+        // vivía dentro del ShellRoute: entrar desde /evento —o desde una
+        // notificación, que abre esa misma pantalla— dejaba la credencial en
+        // negro, mientras que abrirla directo por enlace profundo pintaba
+        // bien. Eso apuntaba a cruzar de un navegador a otro entre rutas
+        // fuera y dentro del shell, no a la pantalla en sí. Como /evento y
+        // /favorites, va aquí fuera.
+        GoRoute(
+          path: '/mi-credencial',
+          builder: (context, state) => const MiCredencialScreen(),
         ),
       ],
     );
