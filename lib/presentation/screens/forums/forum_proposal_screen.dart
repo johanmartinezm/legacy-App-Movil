@@ -36,9 +36,14 @@ class _ForumProposalScreenState extends State<ForumProposalScreen> {
       );
       
       if (!mounted) return;
+      // Antes decía «pendiente de revisión», dos veces: aquí y en el aviso de
+      // más abajo. No existe ninguna aprobación —el modelo solo tiene
+      // active/locked/hidden/deleted, comprobado el 21-08— y el foro queda
+      // publicado y visible al instante. Decirle a quien lo propone que
+      // espere una revisión que nunca llega es peor que no decir nada.
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Tu foro ha sido propuesto y está pendiente de revisión.'),
+          content: Text('Tu foro ya está publicado y es visible para la comunidad.'),
           backgroundColor: Colors.green,
         ),
       );
@@ -82,7 +87,7 @@ class _ForumProposalScreenState extends State<ForumProposalScreen> {
               ),
               const SizedBox(height: 16),
               const Text(
-                'El foro será revisado por un administrador antes de hacerse público. Tu identidad se mantendrá oculta usando tu alias.',
+                'El foro se publica de inmediato y queda visible para toda la comunidad. Tu identidad se mantiene oculta usando tu alias.',
                 style: TextStyle(color: Colors.white70, fontSize: 14),
               ),
               const SizedBox(height: 32),

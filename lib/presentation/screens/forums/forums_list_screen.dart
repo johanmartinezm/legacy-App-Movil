@@ -47,42 +47,61 @@ class _ForumsListScreenState extends State<ForumsListScreen> {
         title: const Text('Foros Anónimos'),
         backgroundColor: AppTheme.legacyBlue2,
       ),
-      body: Consumer<ForumProvider>(
-        builder: (context, provider, child) {
-          if (provider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      // Antes la pantalla arrancaba directo en la lista, sin decir qué es un
+      // «foro anónimo»: Diana no recordaba qué significaba al verlo en su
+      // revisión. Un usuario que entra desde el menú de Perfil, sin haber
+      // visto el flujo de proponer uno, no tiene cómo saberlo.
+      body: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            color: AppTheme.legacyBlue2,
+            child: const Text(
+              'Espacios de discusión de la comunidad. Tu nombre nunca se muestra: participas con el alias que elegiste en tu perfil.',
+              style: TextStyle(color: Colors.white70, fontSize: 13),
+            ),
+          ),
+          Expanded(
+            child: Consumer<ForumProvider>(
+              builder: (context, provider, child) {
+                if (provider.isLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-          if (provider.error != null) {
-            return Center(
-              child: Text(
-                'Error: ${provider.error}',
-                style: const TextStyle(color: Colors.red),
-              ),
-            );
-          }
+                if (provider.error != null) {
+                  return Center(
+                    child: Text(
+                      'Error: ${provider.error}',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  );
+                }
 
-          if (provider.forums.isEmpty) {
-            return const Center(
-              child: Text(
-                'No hay foros activos en este momento.',
-                style: TextStyle(color: Colors.white70),
-              ),
-            );
-          }
+                if (provider.forums.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No hay foros activos en este momento.',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  );
+                }
 
-          return RefreshIndicator(
-            onRefresh: () => provider.loadForums(),
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: provider.forums.length,
-              itemBuilder: (context, index) {
-                final forum = provider.forums[index];
-                return _ForumCard(forum: forum);
+                return RefreshIndicator(
+                  onRefresh: () => provider.loadForums(),
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: provider.forums.length,
+                    itemBuilder: (context, index) {
+                      final forum = provider.forums[index];
+                      return _ForumCard(forum: forum);
+                    },
+                  ),
+                );
               },
             ),
-          );
-        },
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppTheme.legacyBlue4,
