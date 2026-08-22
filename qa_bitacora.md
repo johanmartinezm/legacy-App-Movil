@@ -2,6 +2,340 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-22]: «Ver mi credencial» ya no queda en negro al llegar desde el detalle de un evento
+
+Del mismo tramo 5 del 21-08: «se abrió desde el detalle de un evento y salió una pantalla en negro; la
+misma ruta abierta por enlace profundo pintaba perfecta».
+
+- **El problema:** `/evento` (`main.dart:475`) vive fuera del `ShellRoute`, mientras `/mi-credencial`
+  vivía dentro. El defecto no estaba en `MiCredencialScreen` —sus pruebas ya pasaban, y por enlace
+  profundo directo se veía bien—, sino en cruzar de un navegador a otro al empujar una ruta del shell
+  desde una ruta que no lo es.
+- **El fix:** `/mi-credencial` se sacó del `ShellRoute` y pasó a vivir junto a `/evento`, `/favorites`,
+  `/article-detail` y `/video-detail` — todas rutas de nivel superior reachables desde varios sitios.
+- **Alcance:** `App-Movil/lib/main.dart`.
+- **Verificado:** `flutter analyze` sin errores nuevos, `flutter test` 191/191 (sin cambios en
+  `mi_credencial_screen_test.dart`, que ya no depende del shell). Comprobado en el teléfono
+  reproduciendo el camino exacto del hallazgo: Eventos → «Prueba Evento» → Reservar cupo → Ver mi
+  credencial. Antes de este fix se reprodujo la pantalla en negro; con el fix, «Mi credencial» pinta
+  completa con su QR.
+- **Criterios de QA:**
+  1. Inscribirse a un evento gratuito desde su detalle (`/evento`) y tocar «Ver mi credencial»: debe
+     abrir la pantalla con el QR, no una pantalla en negro.
+  2. Abrir «Mi credencial» desde Perfil (dentro del shell): sigue funcionando igual que antes.
+
+### [2026-08-22]: Los foros dejan de prometer una revisión que no existe
+
+Cierra el punto de producto «Textos de "Foros anónimos" y aviso de aprobación de
+foros» de `docs/plan_revision_qa_diana_uribe.md`. Decisión del usuario: arreglar el
+texto ya, no esperar a que se decida si se construye la aprobación real.
+
+- **El problema, ya documentado desde el 21-08 (F16.3):** proponer un foro lo publica
+  al instante —el modelo solo tiene active/locked/hidden/deleted, no hay ningún estado
+  de aprobación—, pero la pantalla lo decía dos veces: «El foro será revisado por un
+  administrador antes de hacerse público» en `forum_proposal_screen.dart:85`, y «Tu
+  foro ha sido propuesto y está pendiente de revisión» en el aviso de éxito
+  (línea 41). Diana lo notó de forma independiente en su revisión.
+- **De paso, «Foros Anónimos» tampoco explicaba qué era.** Sin ningún subtítulo, quien
+  entra desde el menú de Perfil sin haber visto el flujo de proponer un foro no tiene
+  cómo saber qué significa «anónimo» ahí.
+- **El fix:**
+  - `forum_proposal_screen.dart`: el texto de advertencia ahora dice «El foro se
+    publica de inmediato y queda visible para toda la comunidad. Tu identidad se
+    mantiene oculta usando tu alias.» El aviso de éxito dice «Tu foro ya está
+    publicado y es visible para la comunidad.»
+  - `forums_list_screen.dart`: nuevo banner bajo el título de la pantalla —«Espacios
+    de discusión de la comunidad. Tu nombre nunca se muestra: participas con el alias
+    que elegiste en tu perfil.»
+- **No se tocó la aprobación en sí** (seguiría siendo F16.3 si el cliente decide
+  construirla) — solo se dejó de prometer algo que no pasa.
+- **Alcance:** `lib/presentation/screens/forums/forum_proposal_screen.dart`,
+  `lib/presentation/screens/forums/forums_list_screen.dart`.
+- **Verificado:** `flutter analyze` sin avisos nuevos, `flutter test` 196/196.
+  Comprobado en producción de punta a punta: se propuso un foro real
+  («QA_texto_honesto_2208»), se confirmaron los tres textos en pantalla —el banner de
+  la lista, el aviso antes de proponer, y el snackbar de éxito—, y se borró el foro
+  de prueba desde el panel al terminar.
+- **Criterios de QA:** abrir Foros Anónimos y ver el banner explicativo; tocar «+» y
+  ver el aviso de publicación inmediata (no de revisión); proponer un foro y ver el
+  aviso de éxito sin mención de revisión pendiente.
+
+### [2026-08-22]: La descripción del evento ya existía; le faltaba el rótulo
+
+Cierra el punto de producto «Descripción en la ficha de evento» de
+`docs/plan_revision_qa_diana_uribe.md`. El plan asumía que faltaba el campo y una
+decisión de contenido del cliente; ninguna de las dos cosas era cierta.
+
+- **Lo que se creía:** el evento no tenía dónde mostrar una descripción, y hacía falta
+  que el cliente decidiera qué texto poner.
+- **Lo que había de verdad, comprobado contra `GET /api/events` en producción:**
+  `EventModel.description` ya existe, `event_purchase_detail_screen.dart` ya la pinta
+  (línea ~130, sin cambios en esa parte), y **el Legacy Summit ya tiene una descripción
+  real**: «El encuentro de empresas familiares más importante de Latinoamérica. Tres
+  días de inmersión en estrategias de crecimiento, gobierno corporativo y bienestar
+  integral.» El dato está y se muestra.
+- **Lo que sí faltaba:** el párrafo no tenía ningún título. Sin rótulo, un texto suelto
+  entre la ubicación y la ficha técnica del evento no se lee como «esta es la
+  descripción» — se confunde con cualquier otro bloque de la pantalla. Es probable que
+  esto, no la ausencia del dato, sea lo que motivó el comentario de Diana.
+- **El fix:** se agregó el rótulo «DESCRIPCIÓN» (mismo estilo de sección dorada que
+  «PROGRAMAS ABIERTOS 2026» en `programs_screen.dart`) justo encima del párrafo.
+- **De paso, un bug real que apareció al revisar esto:** el texto de respaldo cuando
+  `description` viene vacío era el del propio Legacy Summit («39 sesiones, contenido de
+  Harvard...») y se mostraba igual en cualquier otro evento sin descripción, como si
+  fuera suya. Con el rótulo nuevo eso sería más engañoso, no menos, así que se cambió
+  por «Este evento todavía no tiene descripción.»
+- **Cómo se verificó sin ver la pantalla completa:** el volcado de accesibilidad de
+  `uiautomator` no expone el contenido de un `SingleChildScrollView` que quede fuera
+  del viewport visible —limitación de la herramienta, no del código—, así que ese
+  tramo de la pantalla no se pudo confirmar por adb. Lo confirmó el usuario a mano,
+  desplazándose en el Legacy Summit real.
+- **Alcance:** `lib/presentation/screens/eventos/event_purchase_detail_screen.dart`.
+- **Verificado:** `flutter analyze` sin avisos, `flutter test` 196/196. Confirmado en
+  producción por el usuario: el rótulo «DESCRIPCIÓN» aparece con el texto real del
+  Summit.
+- **Criterios de QA:** abrir el detalle de cualquier evento con descripción real y
+  confirmar que aparece bajo el rótulo «DESCRIPCIÓN»; abrir uno sin descripción y
+  confirmar que dice «Este evento todavía no tiene descripción», no texto del Summit.
+
+### [2026-08-22]: Corregir el teléfono al inscribirse a un evento actualiza el perfil
+
+Cierra el punto de producto «Aprovechar el celular pedido al inscribirse a un evento» de
+`docs/plan_revision_qa_diana_uribe.md`. Decisión del usuario: actualizar sin preguntar.
+
+- **El problema:** `EventPaymentScreen` precarga el teléfono con `auth.phone` y deja
+  editarlo para esa inscripción puntual (`participantPhone`), pero la corrección nunca
+  volvía al perfil. Diana: «¿podemos aprovechar que confirma y pide celular al
+  inscribirse a un evento y esto nos sirva para actualizar datos?»
+- **El fix:** tras registrar con éxito la inscripción, si el teléfono escrito es
+  distinto al del perfil, se llama a `AuthService().updateProfile(token, {'phone':
+  ...})` —el mismo patrón de actualización parcial de un solo campo que ya usa
+  `forums_list_screen.dart` para el alias— y se refresca `AuthProvider` con
+  `fetchProfile()`. Sin diálogo de confirmación, como se decidió.
+- **No bloquea la inscripción si falla:** va en su propio `try/catch`; el cupo ya quedó
+  reservado y un error de sincronización del perfil no debe perderlo.
+- **Alcance:** `lib/presentation/screens/eventos/event_payment_screen.dart`.
+- **Verificado:** `flutter analyze` sin avisos nuevos, `flutter test` 196/196 (los 11
+  casos de `event_payment_screen_test.dart` siguen pasando; no se agregó una prueba
+  nueva para la llamada de red porque `AuthService()` no está inyectado en esta
+  pantalla —mismo patrón sin inyectar que ya tiene `PaymentService()` en el mismo
+  archivo—, así que verificarlo por unit test habría exigido ampliar el alcance).
+  Comprobado en producción de punta a punta: se inscribió a Johan al Legacy Summit,
+  cambiando el teléfono a un número de prueba (`3009998877`); la pasarela de pago
+  falló como ya se sabe (CredibanCo bloqueado), pero el cupo quedó reservado y el
+  panel de administración confirma el teléfono nuevo en el perfil.
+- **Criterios de QA:** en un evento de pago, cambiar el teléfono del formulario de
+  inscripción y confirmar: el perfil debe quedar con el teléfono nuevo aunque la
+  pasarela de pago falle después.
+
+### [2026-08-22]: «Nuevo cada semana» deja de agotar el artículo ahí mismo
+
+Cierra el punto de producto «"Nuevo cada semana" muestra el artículo completo» de
+`docs/plan_revision_qa_diana_uribe.md`. Cambio mínimo, decisión del usuario: dejar de
+mostrar el título completo y el destino puntual, sin construir un resumen real
+multi-fuente (eventos + contenido + programas).
+
+- **El problema:** la tarjeta pedía el último post por GraphQL, mostraba su título
+  completo como subtítulo («Esta semana: "El gerente fusible..."») y el toque llevaba
+  directo a ese artículo. Diana: «sugiero que no se lea todo el artículo nuevo ahí, sino
+  que muestre qué evento habrá nuevo, qué artículo, qué programa inicia, etc. Y que al
+  dar clic lleve a la sección correspondiente.»
+- **El fix:** se quitó la consulta a `getPosts(first: 1)` y el `FutureBuilder` que la
+  envolvía. El subtítulo vuelve a ser el texto genérico por rol que ya existía como
+  respaldo («Esta semana: video de conversaciones difíciles, evento familiar...», y su
+  variante para empresa/junta), y el toque siempre lleva a Legacy Knowledge
+  (`/informandote`), no a un artículo puntual.
+- **Alcance:** `lib/presentation/screens/home/home_content_screen.dart`.
+- **Verificado:** `flutter analyze` sin avisos, `flutter test` 196/196. Comprobado en el
+  teléfono: el subtítulo ya no trae el título del artículo, y tocar la tarjeta abre
+  Legacy Knowledge.
+- **Esto invalida F9.5 del plan de 226 casos, no solo un detalle suyo.** F9.5 verificaba
+  justo el mecanismo que se quitó: «el destacado se sustituye por el último post real,
+  sin importar el rol». Ahora la tarjeta siempre muestra el texto genérico por rol; ya
+  no hay ninguna sustitución por contenido real. Es un cambio de comportamiento
+  deliberado —decisión del cliente—, no una regresión que haya que arreglar, pero deja
+  F9.5 desactualizado tal como está escrito. Anotado en `plan_pruebas.html`.
+
+### [2026-08-22]: Programas se restructura en 3 secciones, sin pantalla de detalle
+
+Cierra el punto de producto «Restructurar Programas» de
+`docs/plan_revision_qa_diana_uribe.md`.
+
+- **La propuesta de Diana traía 8 títulos; solo 4 existen tal cual en la tienda.**
+  Comprobado contra el GraphQL real de `lso.school` (32 productos en la categoría
+  «programas»): los 3 de «certificación EUDE» coinciden exacto. De los 5 de
+  «actualización», solo 1 coincide exacto (Juntas, Consejos y Directorios); 2 tienen un
+  programa real bajo un título distinto —«Gestión del Riesgo Cambiario: Conceptos y
+  Herramientas» en vez de «Curso Introducción al Manejo de Riesgo Cambiario...», y
+  «Gestión Patrimonial para Empresarios» en vez de «...y valoración de empresas»— y 2 no
+  tienen ningún programa parecido («Gestión de conflictos», «Board branding»). Decisión
+  del usuario: usar los títulos reales para los 2 que sí existen, dejar fuera los 2 que
+  no existen en absoluto, en vez de mostrar tarjetas sin destino.
+- **`programs_screen.dart` se restructuró de una lista plana de hasta 32 cursos** (con
+  matching heurístico por palabras del título para rellenar campos falsos: «si el título
+  contiene 'Propietarios'...») **a 3 secciones fijas**: certificación EUDE (3 programas),
+  actualización (3 programas, de los 5 propuestos), e in-company/in-family (sin producto
+  propio en la tienda — es un servicio a medida, la tarjeta lleva a Contáctenos).
+- **Cada fila abre directo la página de pago en `lso.school`**, en vez de la pantalla de
+  detalle interna. Es lo que pedía Diana: «no hay mucha información como para
+  convencerme de comprarlo, pero sí hay énfasis en que pague [...] que los redirija a la
+  página para pagar no más». La pantalla de detalle (`program_detail_screen.dart`) sigue
+  existiendo para cuando se llega por la búsqueda global, que no se tocó.
+- **Alcance:** `lib/presentation/screens/programs/programs_screen.dart` (reescrito).
+- **Verificado:** `flutter analyze` sin avisos nuevos, `flutter test` 196/196 (incluida
+  `biblioteca_alcanzable_test.dart`, que sigue pasando porque el enlace a `/libros`
+  y el texto «Biblioteca» se conservaron). Comprobado en el teléfono contra producción:
+  las imágenes reales de cada producto cargan, los precios («Cotización» o «USD $...»)
+  vienen del GraphQL, y tocar una fila abre el navegador externo en la página real del
+  producto (`lso.school/programas/programa-de-formacion-para-familias-empresarias-y-propietarios/`).
+- **Criterios de QA:**
+  1. Abrir LSO · Escuela: deben verse dos secciones con encabezado dorado
+     («PROGRAMAS CON CERTIFICACIÓN EUDE», «PROGRAMAS DE ACTUALIZACIÓN») y una tarjeta de
+     in-company al final.
+  2. Tocar cualquier fila de programa: debe abrir el navegador externo en `lso.school`,
+     no una pantalla dentro de la app.
+  3. Tocar la tarjeta in-company: debe abrir Contáctenos.
+
+### [2026-08-22]: Íconos en las filas de Perfil que no tenían
+
+- **El problema:** 6 de las filas del menú de Perfil no tenían ícono —«Mi Legacy Test»,
+  «Mi formación LSO», «Mis eventos», «Red de Gobierno», «Cambiar tipo de cuenta», «Mi
+  credencial»—, mientras el resto sí. Pedido directo del usuario al ver la lista con
+  «Mis favoritos» recién agregado (que sí trae ícono).
+- **El fix:** `Icons.quiz_outlined`, `Icons.school_outlined`,
+  `Icons.calendar_today_outlined`, `Icons.groups_outlined`, `Icons.swap_horiz_outlined` y
+  `Icons.qr_code_outlined` respectivamente, reutilizando semántica ya usada en otras
+  partes de la app (`groups_outlined` es el mismo de «Comunidad» en el menú «⋮»;
+  `calendar_today_outlined` es el mismo de la pestaña Eventos).
+- **Alcance:** `lib/presentation/screens/profile/profile_screen.dart`.
+- **Verificado:** `flutter analyze` sin avisos.
+
+### [2026-08-22]: Favoritos gana acceso propio en Perfil
+
+Cierra el punto 3 de la parte de producto de `docs/plan_revision_qa_diana_uribe.md`
+(«Dónde ubicar el acceso a Favoritos»). El usuario eligió agregarlo a la lista de Perfil,
+de primero.
+
+- **El problema:** Favoritos solo se alcanzaba desde el menú «⋮» de una pantalla de
+  detalle (Books, Chat, Foros...) — ninguna de las 5 pestañas principales tenía un
+  acceso propio. Quien guardaba un artículo desde el Inicio no tenía forma de volver a
+  encontrarlo sin toparse con ese menú por casualidad; es justo lo que le pasó a Diana.
+- **El fix:** nueva fila «Mis favoritos» en `profile_screen.dart`, primera de la lista
+  —antes de «Active Legacy+»—, con el mismo ícono (`Icons.bookmark_outline`) que ya usa
+  la entrada de Favoritos en el menú «⋮».
+- **Alcance:** `lib/presentation/screens/profile/profile_screen.dart`.
+- **Verificado:** `flutter analyze` sin avisos, `flutter test` 196/196. Comprobado en el
+  teléfono: «Mis favoritos» aparece de primera en Perfil y abre la pantalla de
+  favoritos.
+- **Criterios de QA:** abrir Perfil y confirmar que «Mis favoritos» es la primera fila
+  de la lista, antes de «Active Legacy+»; tocarla debe abrir la pantalla de Favoritos.
+
+### [2026-08-22]: Parte técnica de la revisión de Diana Uribe (LSO)
+
+Ver `docs/plan_revision_qa_diana_uribe.md` para el plan completo, incluida la parte de
+producto que sigue esperando decisión del cliente. Esta entrada cubre lo que sí se pudo
+resolver con código.
+
+- **El paso «Empresa» del registro solo distinguía Colombia de «Otro»**, y ese «Otro»
+  ofrecía tipos de identificación de persona (Pasaporte, Documento extranjero) para lo
+  que en realidad es el documento tributario de una empresa. Nuevo:
+  `domain/utils/identificacion_empresarial.dart`, con 17 países LATAM y su documento
+  real (RFC en México, RUC en Perú, RUT en Chile, CUIT en Argentina...). Colombia
+  conserva Cédula/Tarjeta de identidad además de NIT, porque un negocio unipersonal
+  puede tributar con su cédula. 5 pruebas nuevas.
+- **«Estado de Cliente/Alumni» no se entendía**: el desplegable lista las unidades de
+  Legacy sin explicar la pregunta. Se le agregó `helperText`: «¿Ya eres cliente o alumni
+  de alguna de estas unidades de Legacy?».
+- **El ícono del asistente cambiaba de forma sin motivo**: `Icons.psychology_outlined`
+  en el botón flotante de Inicio, `Icons.headphones_outlined` en el de Legacy Knowledge,
+  mismo botón y mismo destino (`/chatbot`) en los dos. Se unificó al de Inicio.
+- **«Red de Gobierno» (Perfil → Miembros) mostraba el error crudo del backend**:
+  `community_members_screen.dart` pintaba literal `'Error: $e'`, es decir
+  `"Error: Exception: connection already exists or is pending"`, sin traducir. Ahora
+  `_mensajeDeInvitacion` traduce los tres casos reales del backend
+  (`chat_service.go:41-61`: ya existe la conexión, está bloqueado, o te invitas a ti
+  mismo) y cualquier otro cae en un mensaje genérico en español.
+- **Investigado y descartado como bug — «Legacy+ no me reconoce como comunidad»**:
+  `legacy_plus_screen.dart` es una pantalla puramente informativa, sin ninguna lógica
+  de rol ni de estado de cuenta —de hecho no importa ningún provider—. El único
+  elemento tocable de toda la pantalla es la flecha de atrás: no hay ningún botón para
+  activarse, contactar ventas ni nada parecido. No es que la cuenta de Diana no
+  califique; es que la pantalla no ofrece ninguna acción. Queda para la parte de
+  producto del plan, no es código roto.
+- **Dejado para decisión del cliente — «Intereses» del registro**: la lista completa es
+  literalmente `['Gobierno corporativo', 'Familia empresaria']`
+  (`register_screen.dart:444`). No hay ninguna lista de categorías en el resto del
+  código de la que deducir cuáles faltan, así que no se inventó una — queda en la parte
+  de producto del plan.
+- **Alcance:**
+  - `lib/domain/utils/identificacion_empresarial.dart` — nuevo.
+  - `lib/presentation/screens/register_screen.dart` — país, tipo de identificación,
+    ayuda de «Estado de Cliente/Alumni».
+  - `lib/presentation/screens/informandote/informandote_screen.dart` — ícono del FAB.
+  - `lib/presentation/screens/chat/community_members_screen.dart` — mensaje de error.
+- **Verificado:** `flutter analyze` sin avisos nuevos (los 3 `info` de
+  `use_build_context_synchronously` en `community_members_screen.dart` ya existían
+  antes de tocar el archivo, confirmado con `git stash`). `flutter test`: 196/196.
+  Instalado en el teléfono conectado.
+- **Criterios de QA:**
+  1. Registrarse como empresa, elegir un país LATAM distinto de Colombia (por ejemplo
+     México) y confirmar que el tipo de identificación ofrece RFC, no Pasaporte
+     genérico.
+  2. En el mismo paso, ver que «Estado de Cliente/Alumni» trae una frase de ayuda debajo
+     del desplegable.
+  3. Comparar el ícono del botón flotante del asistente en Inicio y en Legacy Knowledge:
+     debe ser el mismo.
+  4. En Perfil → Red de Gobierno, invitar dos veces a la misma persona: el segundo
+     intento debe explicar en español que ya existe la invitación, no mostrar
+     `Exception: ...`.
+
+### [2026-08-22]: Cinco hallazgos del tramo 5 (21-08) cerrados, más una advertencia al salir
+
+Todos venían de `reports/20260820_ruta_pruebas_manuales.html`, sección «Lo que sacó la jornada del
+21-08» — hallazgos que ningún caso del plan buscaba.
+
+- **`GET /api/synergies` ya no devuelve `null` en vacío.** `ListSynergies`
+  (`internal/adapter/storage/postgres/synergy_repository.go`) declaraba `var synergies []domain.Synergy`:
+  sin filas, el slice quedaba `nil` y `encoding/json` lo serializa como `null`, no `[]`. Cambiado a
+  `make([]domain.Synergy, 0)`. Comprobado con `curl` local: `?category=NoExiste123` da `[]`.
+- **La ficha de programa ya no cruza sus propias etiquetas.** `_buildInfoRow('Certificación',
+  program.duration)` y `_buildInfoRow('Cuotas', program.type)` en `program_detail_screen.dart:190,195`
+  rotulaban duración como «Certificación» y tipo (Programa/Módulo/Curso) como «Cuotas» — ninguno de los
+  dos campos tiene que ver con esos nombres, ninguna certificación ni cuotas existe en el modelo. Ahora
+  dicen «Duración» y «Tipo».
+- **El buscador de Eventos ya no distingue tildes.** `applyEventFilters`
+  (`domain/utils/event_filters.dart`) comparaba con `.toLowerCase().contains(q)` sin más: buscar
+  «sesion» no encontraba «Sesión». Reutiliza `normalizar()` de `domain/utils/busqueda_global.dart`, la
+  misma función que ya evitaba este problema en el buscador global. 2 pruebas nuevas en
+  `event_filters_test.dart` (16/16 en verde).
+- **Favoritos y el Asistente dejan de salir en tema claro.** Las dos pantallas tenían `Colors.white`,
+  `Colors.grey` y `Colors.black87` cableados desde el commit inicial, mientras el resto de la app usa la
+  paleta oscura de `AppTheme` (`0xFF050B15`/`0xFF0B1A2E`/`0xFF2A4A75`). Quedaron con esos mismos tonos.
+  Comprobado en el teléfono: las dos pantallas —incluida la burbuja del bot, los chips de acción y la
+  caja de texto del Asistente— se ven ahora igual de oscuras que el resto de la app.
+- **Alcance:**
+  - `Backend/internal/adapter/storage/postgres/synergy_repository.go`
+  - `App-Movil/lib/presentation/screens/programs/program_detail_screen.dart`
+  - `App-Movil/lib/domain/utils/event_filters.dart` + `test/utils/event_filters_test.dart`
+  - `App-Movil/lib/presentation/screens/favorites/favorites_screen.dart`
+  - `App-Movil/lib/presentation/screens/chat/chatbot_screen.dart`
+- **Verificado:** `go build`/`go vet` limpios; `flutter analyze` sin avisos; `flutter test` 191/191 en
+  verde (185 antes + los 2 casos nuevos, más los ya existentes). Los cuatro cambios visuales se
+  comprobaron en el teléfono conectado con el APK reinstalado.
+
+🟢 **Pedido aparte durante esta ronda: advertencia al salir de la app.** Salió porque una notificación de
+otra app tapó un toque y disparó una salida accidental sin querer. `MainLayout` (el shell con la barra
+inferior) ahora envuelve su `Scaffold` en un `PopScope` que solo intercepta el botón atrás **en la
+pestaña Inicio** —en las demás, atrás sigue teniendo a dónde volver dentro de la app— y muestra
+«¿Salir de Legacy Network?» antes de cerrar. Comprobado en el teléfono: cancelar se queda en Inicio,
+salir cierra la app.
+- **Alcance:** `App-Movil/lib/presentation/screens/main_layout.dart`.
+- **Criterios de QA:**
+  1. En Inicio, tocar atrás: aparece «¿Salir de Legacy Network?» con Cancelar/Salir.
+  2. Cancelar deja la app abierta, en Inicio.
+  3. Salir cierra la app.
+  4. En cualquier otra pestaña, atrás navega dentro de la app sin mostrar el diálogo.
+
 ### [2026-08-20]: La Biblioteca ya se puede alcanzar
 
 - **El problema:** la ruta `/libros` existía desde el commit inicial y la pantalla estaba completa
