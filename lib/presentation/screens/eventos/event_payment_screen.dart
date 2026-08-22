@@ -8,6 +8,7 @@ import 'package:legacy_app/domain/providers/auth_provider.dart';
 import 'package:legacy_app/domain/providers/events_provider.dart';
 import '../../../config/utils/currency_formatter.dart';
 import '../../../data/services/payment_service.dart';
+import '../../../data/services/auth_service.dart';
 
 class EventPaymentScreen extends StatefulWidget {
   final EventModel event;
@@ -103,6 +104,8 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
         );
       }
 
+      await _sincronizarTelefonoDelPerfil(authProvider, token);
+
       final paymentService = PaymentService();
       final formUrl = await paymentService.createPaymentIntent(
         referenceType: 'EVENT',
@@ -146,6 +149,29 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
           _isLoading = false;
         });
       }
+    }
+  }
+
+  /// El teléfono de este formulario viene precargado con el del perfil, pero
+  /// hasta el 2026-08-22 corregirlo aquí solo quedaba en la inscripción: el
+  /// perfil se quedaba con el dato viejo. Decisión del cliente: si la persona
+  /// ya se molestó en corregirlo para que el evento la pueda contactar, vale
+  /// la pena guardarlo también en su perfil, sin preguntar.
+  ///
+  /// No debe tumbar la inscripción si falla: el cupo ya quedó reservado, y un
+  /// error de sincronización del perfil no es motivo para perderlo.
+  Future<void> _sincronizarTelefonoDelPerfil(
+    AuthProvider authProvider,
+    String token,
+  ) async {
+    final nuevoTelefono = _telefonoController.text.trim();
+    if (nuevoTelefono.isEmpty || nuevoTelefono == authProvider.phone) return;
+
+    try {
+      await AuthService().updateProfile(token, {'phone': nuevoTelefono});
+      await authProvider.fetchProfile();
+    } catch (e) {
+      print('No se pudo sincronizar el teléfono del perfil: $e');
     }
   }
 
