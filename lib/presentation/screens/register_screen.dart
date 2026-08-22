@@ -6,6 +6,7 @@ import '../../domain/providers/auth_provider.dart';
 import '../../config/theme/app_theme.dart'; // updated
 import '../widgets/custom_text_field.dart';
 import '../widgets/documentos_legales_enlaces.dart';
+import '../../domain/utils/identificacion_empresarial.dart';
 
 class RegisterScreen extends StatefulWidget {
   final String? role;
@@ -323,7 +324,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             decoration: const InputDecoration(
                               labelText: 'País',
                             ),
-                            items: ['Colombia', 'Otro']
+                            items: paisesLatam
                                 .map(
                                   (c) => DropdownMenuItem(
                                     value: c,
@@ -348,13 +349,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               labelText: 'Tipo de Identificación',
                             ),
                             items:
-                                (_selectedCountry == 'Colombia'
-                                        ? ['Cédula', 'Cédula de extranjería', 'NIT', 'Pasaporte', 'Tarjeta de identidad']
-                                        : [
-                                            'Pasaporte',
-                                            'Documento extranjero',
-                                            'Otro',
-                                          ])
+                                tiposIdentificacionPara(_selectedCountry)
                                     .map(
                                       (t) => DropdownMenuItem(
                                         value: t,
@@ -416,6 +411,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             initialValue: _selectedCustomerStatus,
                             decoration: const InputDecoration(
                               labelText: 'Estado de Cliente/Alumni',
+                              helperText: '¿Ya eres cliente o alumni de alguna de estas unidades de Legacy?',
+                              helperMaxLines: 2,
                             ),
                             items: [
                               'Legacy School of Ownership',
