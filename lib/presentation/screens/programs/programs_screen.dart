@@ -1,41 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../domain/models/program_model.dart';
 import '../../../data/services/graphql_service.dart';
 
-// Modelo de datos para programa LSO (estático, ajustado al diseño visual)
-class _LsoProgram {
-  final String title;
-  final String details;
-  final String price;
-  final String? priceNote;
-  final bool isQuote; // true = muestra "Cotización" en dorado en vez de precio
-  // La imagen del producto en la tienda de LSO. Puede faltar: no todos los
-  // programas la tienen cargada, y la tarjeta se dibuja igual sin ella.
-  final String? imageUrl;
+/// Programas de LSO agrupados en 3 secciones fijas, en vez de la lista plana
+/// de hasta 32 cursos que había hasta el 2026-08-22.
+///
+/// Estructura propuesta por el cliente (revisión de Diana Uribe, LSO,
+/// 22-08-2026): certificación con doble sello EUDE, actualización, e
+/// in-company/in-family. De los 8 títulos que trajo la propuesta original,
+/// 4 no existen en la tienda con ese nombre — comprobado contra el GraphQL de
+/// `lso.school` el mismo día. Dos tenían un programa real bajo un título
+/// distinto (se usa el real, con su enlace); dos no tienen ningún programa
+/// parecido y se dejaron fuera en vez de mostrar una tarjeta sin destino.
+const List<String> _titulosCertificacionEude = [
+  'Programa de Formación para Familias Empresarias y Propietarios',
+  'Certificación Internacional en Gobierno Corporativo',
+  'Programa de Formación de Consultores en Empresa Familiar',
+];
 
-  // El id y el enlace del producto en la tienda, tal como llegan del GraphQL.
-  //
-  // Se conservan porque la pantalla de detalle recibe un GraphqlProgram
-  // **reconstruido** a partir de esta tarjeta, y hasta el 2026-08-20 esa copia
-  // nacía sin enlace y con un id inventado a partir del título: «Inscribirme en
-  // LSO» no abría nada y avisaba de que no pudo. Lo que no se guarde aquí, se
-  // pierde por el camino.
-  final String? id;
-  final String? url;
-
-  const _LsoProgram({
-    required this.title,
-    required this.details,
-    required this.price,
-    this.priceNote,
-    this.isQuote = false,
-    this.imageUrl,
-    this.id,
-    this.url,
-  });
-}
+// "Curso Introducción al Manejo de Riesgo Cambiario en el Sector Real" y
+// "Gestión de conflictos en la empresa familiar" y "Board branding..." no
+// tienen programa real: solo estos tres existen en la tienda.
+const List<String> _titulosActualizacion = [
+  'Juntas, Consejos y Directorios que Crean Valor',
+  'Gestión del Riesgo Cambiario: Conceptos y Herramientas',
+  'Gestión Patrimonial para Empresarios',
+];
 
 class ProgramsScreen extends StatefulWidget {
   const ProgramsScreen({super.key});
@@ -45,7 +38,8 @@ class ProgramsScreen extends StatefulWidget {
 }
 
 class _ProgramsScreenState extends State<ProgramsScreen> {
-  List<_LsoProgram> _programs = [];
+  List<GraphqlProgram> _certificacionEude = [];
+  List<GraphqlProgram> _actualizacion = [];
   bool _isLoading = true;
 
   @override
@@ -56,31 +50,13 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
 
   Future<void> _fetchPrograms() async {
     try {
-      final graphqlPrograms = await GraphqlService().getPrograms(first: 20);
-      
+      // 32 programas hoy en la tienda; 50 deja margen sin tener que paginar.
+      final todos = await GraphqlService().getPrograms(first: 50);
+
       if (mounted) {
         setState(() {
-          _programs = graphqlPrograms.map((p) {
-            String cleanDetails = p.shortDescription != null && p.shortDescription!.isNotEmpty 
-                ? p.shortDescription!.replaceAll(RegExp(r'<[^>]*>'), '').trim() 
-                : '${p.modality} · ${p.type}';
-                
-            // Limitar details para que no sea muy largo si viene con mucho HTML
-            if (cleanDetails.length > 60) {
-              cleanDetails = '${cleanDetails.substring(0, 57)}...';
-            }
-
-            return _LsoProgram(
-              title: p.name,
-              details: cleanDetails,
-              price: p.precioConMoneda ?? 'Cotización',
-              priceNote: p.type,
-              isQuote: p.precioConMoneda == null,
-              imageUrl: p.imageUrl,
-              id: p.id,
-              url: p.url,
-            );
-          }).toList();
+          _certificacionEude = _porTitulos(todos, _titulosCertificacionEude);
+          _actualizacion = _porTitulos(todos, _titulosActualizacion);
           _isLoading = false;
         });
       }
@@ -92,6 +68,23 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
         });
       }
     }
+  }
+
+  /// Busca cada título en orden y solo incluye los que existen de verdad en
+  /// la tienda — si LSO renombra o retira un programa, la sección lo pierde
+  /// en vez de mostrar una tarjeta sin enlace.
+  List<GraphqlProgram> _porTitulos(List<GraphqlProgram> todos, List<String> titulos) {
+    return titulos
+        .map((titulo) {
+          for (final p in todos) {
+            if (p.name.trim().toLowerCase() == titulo.trim().toLowerCase()) {
+              return p;
+            }
+          }
+          return null;
+        })
+        .whereType<GraphqlProgram>()
+        .toList();
   }
 
   @override
@@ -142,19 +135,6 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
                       _buildEntradaBiblioteca(context),
                       const SizedBox(height: 28),
 
-                      // Etiqueta de sección
-                      Text(
-                        'PROGRAMAS ABIERTOS 2026',
-                        style: GoogleFonts.barlow(
-                          color: const Color(0xFFD9A74A),
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.4,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Lista de programas
                       if (_isLoading)
                         const Center(
                           child: Padding(
@@ -162,24 +142,104 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
                             child: CircularProgressIndicator(color: Color(0xFFD9A74A)),
                           ),
                         )
-                      else if (_programs.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 32),
-                          child: Center(
-                            child: Text(
-                              'No hay programas disponibles en este momento.',
-                              style: GoogleFonts.barlow(color: Colors.white70),
-                            ),
-                          ),
-                        )
-                      else
-                        ..._programs.map((p) => _ProgramCard(program: p)),
+                      else ...[
+                        _buildSeccion(
+                          titulo: 'PROGRAMAS CON CERTIFICACIÓN EUDE',
+                          descripcion: 'Doble sello internacional con EUDE Business School.',
+                          programas: _certificacionEude,
+                        ),
+                        const SizedBox(height: 28),
+                        _buildSeccion(
+                          titulo: 'PROGRAMAS DE ACTUALIZACIÓN',
+                          descripcion: null,
+                          programas: _actualizacion,
+                        ),
+                        const SizedBox(height: 28),
+                        _buildInCompany(context),
+                      ],
                     ],
                   ),
                 ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSeccion({
+    required String titulo,
+    required String? descripcion,
+    required List<GraphqlProgram> programas,
+  }) {
+    if (programas.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          titulo,
+          style: GoogleFonts.barlow(
+            color: const Color(0xFFD9A74A),
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.4,
+          ),
+        ),
+        if (descripcion != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            descripcion,
+            style: GoogleFonts.questrial(color: const Color(0xFF90A4BA), fontSize: 12),
+          ),
+        ],
+        const SizedBox(height: 12),
+        ...programas.map((p) => _ProgramRow(program: p)),
+      ],
+    );
+  }
+
+  /// Sin producto propio en la tienda: es un servicio a medida, no algo que
+  /// se compre con un clic. Lleva a Contáctenos, que ya existe.
+  Widget _buildInCompany(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/contacto'),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0B1A2E).withValues(alpha: 0.55),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+            width: 1.2,
+          ),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.design_services_outlined, color: Color(0xFFD9A74A), size: 26),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Programas in-company e in-family',
+                    style: GoogleFonts.barlow(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Diseñados a medida según las necesidades de su empresa o familia. Escríbanos para conversarlo.',
+                    style: GoogleFonts.questrial(color: const Color(0xFF90A4BA), fontSize: 12, height: 1.4),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Color(0xFF90A4BA), size: 20),
+          ],
         ),
       ),
     );
@@ -345,59 +405,47 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
   }
 }
 
-// ── Tarjeta de programa ────────────────────────────────────────────────────────
-class _ProgramCard extends StatelessWidget {
-  final _LsoProgram program;
+// ── Fila de programa ────────────────────────────────────────────────────────
+//
+// A diferencia de la tarjeta anterior, tocar esta fila no abre una pantalla
+// de detalle dentro de la app: va directo a la página de pago en lso.school.
+// Decisión del cliente (revisión de Diana Uribe, 22-08-2026): el detalle
+// interno no traía suficiente información para convencer de comprar, pero sí
+// insistía en pagar — mejor ir directo a donde de verdad se paga.
+class _ProgramRow extends StatelessWidget {
+  final GraphqlProgram program;
 
-  const _ProgramCard({required this.program});
+  const _ProgramRow({required this.program});
+
+  Future<void> _abrirEnLso(BuildContext context) async {
+    final enlace = program.url;
+    final messenger = ScaffoldMessenger.of(context);
+
+    bool abierto = false;
+    if (enlace != null) {
+      final uri = Uri.parse(enlace);
+      abierto = await canLaunchUrl(uri) &&
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+
+    if (!abierto) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('No pudimos abrir la página del programa. Está en lso.school.'),
+          duration: Duration(seconds: 4),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        // Map static program details to GraphqlProgram fields to populate the detail screen
-        String shortDesc = '🎓 LSO · Doble certificación LSO + EUDE';
-        String desc = '';
-        String format = 'Virtual en vivo + grabaciones';
-        String cert = 'LSO + EUDE 5★ QS';
-        String cuotas = 'Hasta 3 cuotas';
-
-        if (program.title.contains('Propietarios')) {
-          desc = 'USD 2.100 · o por módulo desde USD 630. Contenido académico de Harvard Business Impact y profesores de LATAM, Europa y EE.UU. Puede cursarse completo o por módulo.';
-        } else if (program.title.contains('Gobierno')) {
-          desc = 'USD 2.500. Formación avanzada para miembros de junta directiva, consejeros y accionistas de empresas en LATAM. Doble titulación internacional.';
-        } else if (program.title.contains('Consultores')) {
-          shortDesc = '🎓 LSO · Alianza ICOEF · doble certificación';
-          desc = 'USD 1.100. Especialización para consultores y asesores de familias empresarias. Metodología práctica y herramientas de intervención certificadas.';
-          cert = 'LSO + ICOEF';
-        } else if (program.title.contains('Company')) {
-          shortDesc = '🎓 LSO · Programas a medida';
-          desc = 'Cotización. Diseñamos el programa formativo o protocolo familiar que su organización y familia empresaria requieren, con flexibilidad total de agenda.';
-          format = 'Presencial / Híbrido a medida';
-          cert = 'LSO Certificación Corporativa';
-          cuotas = 'A convenir';
-        }
-
-        // El id y el enlace salen del producto real, no del título: son lo
-        // único que no se puede reconstruir aquí, y el enlace es lo que abre
-        // «Inscribirme en LSO».
-        final graphqlProgram = GraphqlProgram(
-          id: program.id ?? program.title.toLowerCase().replaceAll(' ', '-'),
-          name: program.title,
-          url: program.url,
-          description: desc,
-          shortDescription: shortDesc,
-          price: program.price,
-          modality: format,
-          duration: cert,
-          type: cuotas,
-        );
-
-        context.push('/programa-detalle', extra: graphqlProgram);
-      },
+      onTap: () => _abrirEnLso(context),
       child: Container(
         width: double.infinity,
-        margin: const EdgeInsets.only(bottom: 14),
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: const Color(0xFF0B1A2E).withValues(alpha: 0.55),
           borderRadius: BorderRadius.circular(12),
@@ -406,110 +454,70 @@ class _ProgramCard extends StatelessWidget {
             width: 1.2,
           ),
         ),
-        // clipBehavior recorta la imagen a las esquinas del contenedor; sin él
-        // sobresale por las cuatro puntas.
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildProgramImage(program.imageUrl),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+            _buildMiniatura(),
+            const SizedBox(width: 14),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-            // Título
-            Text(
-              program.title,
-              style: GoogleFonts.barlow(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                height: 1.25,
-              ),
-            ),
-            const SizedBox(height: 6),
-
-            // Detalles (horas · módulos · fecha)
-            Text(
-              program.details,
-              style: GoogleFonts.questrial(
-                fontSize: 12,
-                color: const Color(0xFF90A4BA),
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            // Precio o Cotización
-            Text(
-              program.price,
-              style: GoogleFonts.barlow(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFFD9A74A),
-              ),
-            ),
-
-            // Nota extra (debajo del precio)
-            if (program.priceNote != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                program.priceNote!,
-                style: GoogleFonts.questrial(
-                  fontSize: 12,
-                  color: const Color(0xFF90A4BA),
-                ),
-              ),
-            ],
+                  Text(
+                    program.name,
+                    style: GoogleFonts.barlow(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 1.25,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    program.precioConMoneda ?? 'Cotización',
+                    style: GoogleFonts.barlow(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFFD9A74A),
+                    ),
+                  ),
                 ],
               ),
             ),
+            const SizedBox(width: 8),
+            const Icon(Icons.open_in_new, color: Color(0xFF90A4BA), size: 18),
           ],
         ),
       ),
     );
   }
 
-  /// Cabecera de la tarjeta de programa. La imagen llega del producto en la
-  /// tienda de LSO; cuando falta se dibuja el mismo bloque con el emblema, para
-  /// que las tarjetas mantengan la altura y el listado no quede irregular.
-  Widget _buildProgramImage(String? url) {
-    const double alto = 132;
+  Widget _buildMiniatura() {
+    const double lado = 52;
+    final url = program.imageUrl;
 
     Widget marcador() => Container(
-      height: alto,
-      width: double.infinity,
-      color: const Color(0xFF13304A),
-      alignment: Alignment.center,
-      child: Icon(
-        Icons.school_outlined,
-        size: 40,
-        color: Colors.white.withValues(alpha: 0.25),
+      height: lado,
+      width: lado,
+      decoration: BoxDecoration(
+        color: const Color(0xFF13304A),
+        borderRadius: BorderRadius.circular(8),
       ),
+      alignment: Alignment.center,
+      child: Icon(Icons.school_outlined, size: 22, color: Colors.white.withValues(alpha: 0.25)),
     );
 
     if (url == null || url.isEmpty) return marcador();
 
-    return Image.network(
-      url,
-      height: alto,
-      width: double.infinity,
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) => marcador(),
-      loadingBuilder: (context, child, progress) {
-        if (progress == null) return child;
-        return Container(
-          height: alto,
-          width: double.infinity,
-          color: const Color(0xFF13304A),
-          alignment: Alignment.center,
-          child: const SizedBox(
-            height: 20,
-            width: 20,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
-        );
-      },
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image.network(
+        url,
+        height: lado,
+        width: lado,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => marcador(),
+      ),
     );
   }
 }
