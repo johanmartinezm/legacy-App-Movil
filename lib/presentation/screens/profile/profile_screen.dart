@@ -86,6 +86,21 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
 
+              // Antes de esto, Favoritos solo se alcanzaba desde el menú «⋮»
+              // de una pantalla de detalle (Books, Chat, Foros...) — ninguna
+              // de las 5 pestañas principales tenía un acceso propio. Quien
+              // guardaba un artículo desde el Inicio no tenía forma de volver
+              // a encontrarlo sin toparse con ese menú por casualidad. Va de
+              // primera en la lista porque es lo que más se usa a diario.
+              _buildMenuItem(
+                context,
+                title: 'Mis favoritos',
+                subtitle: 'Artículos y videos guardados',
+                onTap: () => context.push('/favorites'),
+                icon: Icons.bookmark_outline,
+              ),
+              const SizedBox(height: 12),
+
               _buildMenuItem(
                 context,
                 title: 'Active Legacy+',
@@ -101,6 +116,7 @@ class ProfileScreen extends StatelessWidget {
                 title: 'Mi Legacy Test',
                 subtitle: 'Próximamente',
                 onTap: () {},
+                icon: Icons.quiz_outlined,
                 isDisabled: true,
               ),
               const SizedBox(height: 12),
@@ -110,6 +126,7 @@ class ProfileScreen extends StatelessWidget {
                 title: 'Mi formación LSO',
                 subtitle: 'Explorar programas',
                 onTap: () => context.push('/programas'),
+                icon: Icons.school_outlined,
               ),
               const SizedBox(height: 12),
 
@@ -117,7 +134,8 @@ class ProfileScreen extends StatelessWidget {
                 context,
                 title: 'Mis eventos',
                 subtitle: 'Legacy Summit 2026',
-                onTap: () => context.go('/home?tab=1'), 
+                onTap: () => context.go('/home?tab=1'),
+                icon: Icons.calendar_today_outlined,
               ),
               const SizedBox(height: 12),
 
@@ -126,6 +144,7 @@ class ProfileScreen extends StatelessWidget {
                 title: 'Red de Gobierno',
                 subtitle: 'Encuentre consejeros',
                 onTap: () => context.push('/comunidad-miembros'),
+                icon: Icons.groups_outlined,
               ),
               const SizedBox(height: 12),
 
@@ -134,6 +153,7 @@ class ProfileScreen extends StatelessWidget {
                 title: 'Cambiar tipo de cuenta',
                 subtitle: 'Actual: $roleName',
                 onTap: () => context.push('/profile-selection'),
+                icon: Icons.swap_horiz_outlined,
               ),
               const SizedBox(height: 12),
 
@@ -142,9 +162,10 @@ class ProfileScreen extends StatelessWidget {
                 title: 'Mi credencial',
                 subtitle: 'QR de acceso a eventos',
                 onTap: () => context.push('/mi-credencial'),
+                icon: Icons.qr_code_outlined,
               ),
               const SizedBox(height: 12),
-              
+
               _buildMenuItem(
                 context,
                 title: 'Editar información personal',
