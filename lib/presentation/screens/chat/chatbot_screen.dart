@@ -97,7 +97,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF050B15),
       body: SafeArea(
         child: Column(
           children: [
@@ -133,7 +133,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                       'Bot escribiendo...',
                       style: GoogleFonts.questrial(
                         fontSize: 12,
-                        color: Colors.grey,
+                        color: const Color(0xFF90A4BA),
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -172,10 +172,10 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
       child: ActionChip(
         label: Text(
           label,
-          style: GoogleFonts.questrial(fontSize: 12, color: AppTheme.legacyBlue1),
+          style: GoogleFonts.questrial(fontSize: 12, color: AppTheme.legacyWhite),
         ),
-        backgroundColor: AppTheme.legacyBlue3.withValues(alpha: 0.05),
-        shape: StadiumBorder(side: BorderSide(color: AppTheme.legacyBlue3.withValues(alpha: 0.2))),
+        backgroundColor: const Color(0xFF0B1A2E).withValues(alpha: 0.65),
+        shape: StadiumBorder(side: BorderSide(color: const Color(0xFF2A4A75).withValues(alpha: 0.35))),
         onPressed: () {
           _messageController.text = message;
           _sendMessage();
@@ -187,29 +187,23 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
   Widget _buildInputArea() {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            offset: const Offset(0, -2),
-            blurRadius: 10,
-          ),
-        ],
-      ),
+      decoration: const BoxDecoration(color: Color(0xFF0B1A2E)),
       child: Row(
         children: [
           Expanded(
             child: TextField(
               controller: _messageController,
+              style: GoogleFonts.questrial(color: AppTheme.legacyWhite),
               decoration: InputDecoration(
                 hintText: 'Escribe un mensaje...',
-                hintStyle: GoogleFonts.questrial(color: Colors.grey),
+                hintStyle: GoogleFonts.questrial(
+                  color: AppTheme.legacyWhite.withValues(alpha: 0.4),
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25),
                   borderSide: BorderSide.none,
                 ),
-                fillColor: const Color(0xFFF5F5F5),
+                fillColor: Colors.white.withValues(alpha: 0.06),
                 filled: true,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 20,
@@ -259,20 +253,19 @@ class _ChatBubble extends StatelessWidget {
         decoration: BoxDecoration(
           color: message.isUser
               ? AppTheme.legacyBlue3
-              : const Color(0xFFF5F7F9),
+              : const Color(0xFF0B1A2E).withValues(alpha: 0.65),
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(20),
             topRight: const Radius.circular(20),
             bottomLeft: Radius.circular(message.isUser ? 20 : 0),
             bottomRight: Radius.circular(message.isUser ? 0 : 20),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          border: message.isUser
+              ? null
+              : Border.all(
+                  color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+                  width: 1.2,
+                ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,7 +276,7 @@ class _ChatBubble extends StatelessWidget {
               sanitizarHtml(message.text),
               textStyle: TextStyle(
                 fontFamily: GoogleFonts.questrial().fontFamily,
-                color: message.isUser ? Colors.white : Colors.black87,
+                color: AppTheme.legacyWhite,
                 fontSize: 14,
               ),
               onTapUrl: (url) async {
@@ -299,7 +292,9 @@ class _ChatBubble extends StatelessWidget {
             Text(
               '${message.time.hour}:${message.time.minute.toString().padLeft(2, '0')}',
               style: TextStyle(
-                color: message.isUser ? Colors.white70 : Colors.black45,
+                color: AppTheme.legacyWhite.withValues(
+                  alpha: message.isUser ? 0.7 : 0.45,
+                ),
                 fontSize: 10,
               ),
             ),
