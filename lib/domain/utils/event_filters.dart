@@ -8,6 +8,7 @@
 library;
 
 import '../models/event_model.dart';
+import 'busqueda_global.dart' show normalizar;
 
 /// Pestañas del listado.
 class EventTab {
@@ -67,7 +68,7 @@ List<EventModel> applyEventFilters(
   String query = '',
   String category = kTodasLasCategorias,
 }) {
-  final q = query.trim().toLowerCase();
+  final q = normalizar(query.trim());
   return events.where((e) {
     if (category != kTodasLasCategorias &&
         e.category.toLowerCase() != category.toLowerCase()) {
@@ -75,6 +76,6 @@ List<EventModel> applyEventFilters(
     }
     if (q.isEmpty) return true;
     final campos = [e.title, e.category, e.location ?? '', e.speaker ?? '', e.date];
-    return campos.any((c) => c.toLowerCase().contains(q));
+    return campos.any((c) => normalizar(c).contains(q));
   }).toList();
 }

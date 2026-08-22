@@ -131,5 +131,16 @@ void main() {
     test('una búsqueda sin coincidencias devuelve vacío', () {
       expect(applyEventFilters(todos, query: 'zzzz'), isEmpty);
     });
+
+    // Antes de este fix, "planificacion" (como se escribe en un teclado
+    // móvil) no encontraba "Planificación", igual que le pasaba al buscador
+    // global antes de tener normalizar(). Ver domain/utils/busqueda_global.dart.
+    test('encuentra por título sin tildes aunque el original las tenga', () {
+      expect(applyEventFilters(todos, query: 'planificacion').single.id, '3');
+    });
+
+    test('encuentra por lugar sin tildes aunque el original las tenga', () {
+      expect(applyEventFilters(todos, query: 'mexico').single.id, '2');
+    });
   });
 }
