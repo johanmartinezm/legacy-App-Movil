@@ -5,9 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../domain/providers/auth_provider.dart';
 import '../../../domain/providers/notification_provider.dart';
 import '../../../data/services/busqueda_service.dart';
-import '../../../data/services/graphql_service.dart';
-import '../../../domain/models/content_model.dart';
-import '../../../domain/models/graphql_post_model.dart';
 import '../../../domain/models/resultado_busqueda.dart';
 import '../../../domain/providers/chat_provider.dart';
 import '../../delegates/global_search_delegate.dart';
@@ -20,20 +17,12 @@ class HomeContentScreen extends StatefulWidget {
 }
 
 class _HomeContentScreenState extends State<HomeContentScreen> {
-  late Future<GraphqlPostsResponse> _latestPostFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _latestPostFuture = GraphqlService().getPosts(first: 1);
-  }
-
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final String name = authProvider.firstName ?? 'Usuario';
     final String role = authProvider.role ?? '';
-    
+
     String greetSub = 'Su legado avanza.';
     if (role == 'empresa') {
       greetSub = 'Su gobierno madura.';
@@ -47,11 +36,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           gradient: RadialGradient(
             center: Alignment(0.8, -0.8),
             radius: 1.5,
-            colors: [
-              Color(0xFF13304A),
-              Color(0xFF0E2C3B),
-              Color(0xFF050B15),
-            ],
+            colors: [Color(0xFF13304A), Color(0xFF0E2C3B), Color(0xFF050B15)],
             stops: [0.0, 0.5, 1.0],
           ),
         ),
@@ -87,11 +72,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                   ),
                 ],
               ),
-              Positioned(
-                bottom: 20,
-                right: 20,
-                child: _buildChatFAB(context),
-              ),
+              Positioned(bottom: 20, right: 20, child: _buildChatFAB(context)),
             ],
           ),
         ),
@@ -141,7 +122,11 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                     clipBehavior: Clip.none,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.notifications_none, color: Colors.white, size: 22),
+                        icon: const Icon(
+                          Icons.notifications_none,
+                          color: Colors.white,
+                          size: 22,
+                        ),
                         onPressed: () => context.push('/notifications'),
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
@@ -155,9 +140,15 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                             decoration: BoxDecoration(
                               color: const Color(0xFF5A93C4),
                               shape: BoxShape.circle,
-                              border: Border.all(color: const Color(0xFF050B15), width: 1.5),
+                              border: Border.all(
+                                color: const Color(0xFF050B15),
+                                width: 1.5,
+                              ),
                             ),
-                            constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
+                            constraints: const BoxConstraints(
+                              minWidth: 14,
+                              minHeight: 14,
+                            ),
                             child: Center(
                               child: Text(
                                 '$unreadCount',
@@ -182,7 +173,10 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                   height: 29,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0xFF7FB2D9), width: 1.5),
+                    border: Border.all(
+                      color: const Color(0xFF7FB2D9),
+                      width: 1.5,
+                    ),
                     gradient: const LinearGradient(
                       colors: [Color(0xFF2A5D7D), Color(0xFF123A4F)],
                       begin: Alignment.topLeft,
@@ -227,7 +221,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         }
       }
 
-      final todo = await BusquedaService().cargarTodo(miembros: chatProvider.members);
+      final todo = await BusquedaService().cargarTodo(
+        miembros: chatProvider.members,
+      );
 
       if (dialogContext != null && dialogContext!.mounted && isDialogActive) {
         Navigator.of(dialogContext!).pop();
@@ -282,8 +278,14 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
               height: 1.2,
             ),
             children: [
-              TextSpan(text: '$name. ', style: const TextStyle(color: Colors.white)),
-              TextSpan(text: sub, style: const TextStyle(color: Color(0xFF7FB2D9))),
+              TextSpan(
+                text: '$name. ',
+                style: const TextStyle(color: Colors.white),
+              ),
+              TextSpan(
+                text: sub,
+                style: const TextStyle(color: Color(0xFF7FB2D9)),
+              ),
             ],
           ),
         ),
@@ -291,92 +293,90 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     );
   }
 
+  // Antes de esto se pedía el último post por GraphQL y se mostraba su
+  // título completo, con el toque llevando directo a ese artículo puntual.
+  // Decisión del cliente (revisión de Diana Uribe, 22-08-2026): la tarjeta
+  // debe anunciar que hay novedades sin agotar el contenido ahí mismo, y
+  // llevar a la sección de Legacy Knowledge, no a un artículo en concreto —
+  // «Esta semana» puede traer un artículo, un video o un evento nuevo, y la
+  // tarjeta no distingue cuál fue.
   Widget _buildWeeklyHighlightCard(BuildContext context, String role) {
-    return FutureBuilder<GraphqlPostsResponse>(
-      future: _latestPostFuture,
-      builder: (context, snapshot) {
-        String subtitle = '';
-        if (role == 'junta') {
-          subtitle = 'Esta semana: masterclass del consejero independiente, nuevo evento...';
-        } else if (role == 'empresa') {
-          subtitle = 'Esta semana: caso de junta ceremonial, masterclass de gobierno...';
-        } else {
-          subtitle = 'Esta semana: video de conversaciones difíciles, evento familiar...';
-        }
+    String subtitle;
+    if (role == 'junta') {
+      subtitle =
+          'Esta semana: masterclass del consejero independiente, nuevo evento...';
+    } else if (role == 'empresa') {
+      subtitle =
+          'Esta semana: caso de junta ceremonial, masterclass de gobierno...';
+    } else {
+      subtitle =
+          'Esta semana: video de conversaciones difíciles, evento familiar...';
+    }
 
-        ContentItem? targetItem;
-        if (snapshot.hasData && snapshot.data!.posts.isNotEmpty) {
-          final post = snapshot.data!.posts.first;
-          subtitle = 'Esta semana: ${post.title}';
-          targetItem = post.toContentItem();
-        }
-
-        return GestureDetector(
-          onTap: () {
-            if (targetItem != null) {
-              if (targetItem.type == 'video') {
-                context.push('/video-detail', extra: targetItem);
-              } else {
-                context.push('/article-detail', extra: targetItem);
-              }
-            } else {
-              context.go('/informandote');
-            }
-          },
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [const Color(0xFF5A93C4).withValues(alpha: 0.08), Colors.transparent],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: const Color(0xFF5A93C4).withValues(alpha: 0.25),
-                width: 1.0,
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF5A93C4).withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(Icons.calendar_month_outlined, color: Color(0xFF7FB2D9), size: 20),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Nuevo cada semana',
-                        style: GoogleFonts.barlowCondensed(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.questrial(color: const Color(0xFF9FB2C2), fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Icon(Icons.chevron_right, color: Color(0xFF7FB2D9), size: 20),
-              ],
-            ),
+    return GestureDetector(
+      onTap: () => context.go('/informandote'),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              const Color(0xFF5A93C4).withValues(alpha: 0.08),
+              Colors.transparent,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        );
-      },
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: const Color(0xFF5A93C4).withValues(alpha: 0.25),
+            width: 1.0,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF5A93C4).withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.calendar_month_outlined,
+                color: Color(0xFF7FB2D9),
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Nuevo cada semana',
+                    style: GoogleFonts.barlowCondensed(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.questrial(
+                      color: const Color(0xFF9FB2C2),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.chevron_right, color: Color(0xFF7FB2D9), size: 20),
+          ],
+        ),
+      ),
     );
   }
 
@@ -598,19 +598,40 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                     color: Colors.white.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(11),
                   ),
-                  child: Icon(Icons.shield_outlined, color: Colors.white.withValues(alpha: 0.3), size: 20),
+                  child: Icon(
+                    Icons.shield_outlined,
+                    color: Colors.white.withValues(alpha: 0.3),
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Beneficios', style: GoogleFonts.barlowCondensed(color: Colors.white.withValues(alpha: 0.5), fontSize: 16, fontWeight: FontWeight.bold)),
-                      Text('Próximamente', style: GoogleFonts.questrial(color: const Color(0xFF9FB2C2).withValues(alpha: 0.5), fontSize: 11)),
+                      Text(
+                        'Beneficios',
+                        style: GoogleFonts.barlowCondensed(
+                          color: Colors.white.withValues(alpha: 0.5),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'Próximamente',
+                        style: GoogleFonts.questrial(
+                          color: const Color(0xFF9FB2C2).withValues(alpha: 0.5),
+                          fontSize: 11,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                Icon(Icons.lock_outline, color: Colors.white.withValues(alpha: 0.2), size: 20),
+                Icon(
+                  Icons.lock_outline,
+                  color: Colors.white.withValues(alpha: 0.2),
+                  size: 20,
+                ),
               ],
             ),
           ),
@@ -621,7 +642,11 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
               context.push('/miembros-info');
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Esta sección es exclusiva para clientes Legacy.')),
+                const SnackBar(
+                  content: Text(
+                    'Esta sección es exclusiva para clientes Legacy.',
+                  ),
+                ),
               );
             }
           },
@@ -629,37 +654,76 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: isCliente 
-                  ? [const Color(0xFF54C6A8).withValues(alpha: 0.06), const Color(0xFF54C6A8).withValues(alpha: 0.02)]
-                  : [Colors.white.withValues(alpha: 0.02), Colors.white.withValues(alpha: 0.01)],
+                colors: isCliente
+                    ? [
+                        const Color(0xFF54C6A8).withValues(alpha: 0.06),
+                        const Color(0xFF54C6A8).withValues(alpha: 0.02),
+                      ]
+                    : [
+                        Colors.white.withValues(alpha: 0.02),
+                        Colors.white.withValues(alpha: 0.01),
+                      ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: isCliente ? const Color(0xFF54C6A8).withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.05)),
+              border: Border.all(
+                color: isCliente
+                    ? const Color(0xFF54C6A8).withValues(alpha: 0.3)
+                    : Colors.white.withValues(alpha: 0.05),
+              ),
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: isCliente ? const Color(0xFF54C6A8).withValues(alpha: 0.13) : Colors.white.withValues(alpha: 0.05),
+                    color: isCliente
+                        ? const Color(0xFF54C6A8).withValues(alpha: 0.13)
+                        : Colors.white.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(11),
                   ),
-                  child: Icon(Icons.people_alt_outlined, color: isCliente ? const Color(0xFF54C6A8) : Colors.white.withValues(alpha: 0.3), size: 20),
+                  child: Icon(
+                    Icons.people_alt_outlined,
+                    color: isCliente
+                        ? const Color(0xFF54C6A8)
+                        : Colors.white.withValues(alpha: 0.3),
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Miembros', style: GoogleFonts.barlowCondensed(color: isCliente ? Colors.white : Colors.white.withValues(alpha: 0.5), fontSize: 16, fontWeight: FontWeight.bold)),
-                      Text('Comunidad del ecosistema Legacy', style: GoogleFonts.questrial(color: isCliente ? const Color(0xFF9FB2C2) : const Color(0xFF9FB2C2).withValues(alpha: 0.5), fontSize: 11)),
+                      Text(
+                        'Miembros',
+                        style: GoogleFonts.barlowCondensed(
+                          color: isCliente
+                              ? Colors.white
+                              : Colors.white.withValues(alpha: 0.5),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'Comunidad del ecosistema Legacy',
+                        style: GoogleFonts.questrial(
+                          color: isCliente
+                              ? const Color(0xFF9FB2C2)
+                              : const Color(0xFF9FB2C2).withValues(alpha: 0.5),
+                          fontSize: 11,
+                        ),
+                      ),
                     ],
                   ),
                 ),
                 if (!isCliente)
-                  Icon(Icons.lock_outline, color: Colors.white.withValues(alpha: 0.2), size: 20),
+                  Icon(
+                    Icons.lock_outline,
+                    color: Colors.white.withValues(alpha: 0.2),
+                    size: 20,
+                  ),
               ],
             ),
           ),
@@ -682,7 +746,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
             colors: [Color(0xFF7FB2D9), Color(0xFF1A2B4D), Color(0xFF0E1830)],
             stops: [-0.2, 0.4, 1.0],
           ),
-          border: Border.all(color: const Color(0xFF7FB2D9).withValues(alpha: 0.3)),
+          border: Border.all(
+            color: const Color(0xFF7FB2D9).withValues(alpha: 0.3),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -690,7 +756,10 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
             Align(
               alignment: Alignment.topRight,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF7FB2D9),
                   borderRadius: BorderRadius.circular(8),
@@ -744,7 +813,11 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                     ),
                   ),
                   const SizedBox(width: 6),
-                  const Icon(Icons.chevron_right, color: Color(0xFF06223A), size: 18),
+                  const Icon(
+                    Icons.chevron_right,
+                    color: Color(0xFF06223A),
+                    size: 18,
+                  ),
                 ],
               ),
             ),
