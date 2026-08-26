@@ -15,6 +15,54 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 const _clienteWebDeGoogle =
     '728967438065-l1fkjhhnr998gvtrg6oga2somie10tp9.apps.googleusercontent.com';
 
+/// Traduce lo que lanzan los SDK de Google y Apple a algo que se pueda leer.
+///
+/// Antes se ponía `e.toString()` directo en la pantalla, así que al cancelar el
+/// selector de cuenta —algo normal, no un fallo— aparecía un recuadro rojo con
+/// `GoogleSignInException(code: GoogleSignInExceptionCode.canceled, ...)`. Y un
+/// proyecto mal configurado mostraba el `ApiException: 10` en crudo.
+///
+/// Devuelve `null` cuando la persona canceló: ahí no hay nada que avisar.
+///
+/// Vive fuera de `AuthProvider` porque es una función pura y así se puede
+/// probar sin construir el provider, cuyo constructor arranca
+/// `checkLoginStatus()` y necesita la configuración cargada.
+String? mensajeDeErrorSocial(Object e) {
+  // Se comprueba con `if` y no con `switch` a proposito: el paquete añade
+  // codigos nuevos entre versiones, y un `switch` exhaustivo dejaria de
+  // compilar en cada actualizacion por un mensaje de error.
+  if (e is GoogleSignInException) {
+    if (e.code == GoogleSignInExceptionCode.canceled) return null;
+
+    const configuracion = {
+      GoogleSignInExceptionCode.clientConfigurationError,
+      GoogleSignInExceptionCode.providerConfigurationError,
+    };
+    if (configuracion.contains(e.code)) {
+      // El caso clasico: la huella del certificado con que se firmo el APK no
+      // esta registrada en Firebase. No es algo que el usuario pueda resolver,
+      // pero el mensaje tiene que orientar a quien lo reporte.
+      return 'El acceso con Google no está bien configurado en esta versión '
+          'de la app. Avísanos y entra con tu correo mientras tanto.';
+    }
+
+    return 'No se pudo completar el acceso con Google. Inténtalo de nuevo.';
+  }
+
+  if (e is SignInWithAppleAuthorizationException) {
+    if (e.code == AuthorizationErrorCode.canceled) return null;
+    return 'No se pudo completar el acceso con Apple. Inténtalo de nuevo.';
+  }
+
+  if (e is SignInWithAppleNotSupportedException) {
+    return 'Este dispositivo no admite el acceso con Apple. '
+        'Entra con tu correo y contraseña.';
+  }
+
+  // Lo que venga del backend ya llega redactado desde `auth_service`.
+  return e.toString().replaceAll('Exception: ', '');
+}
+
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService;
   final _storage = const FlutterSecureStorage();
@@ -308,7 +356,7 @@ class AuthProvider extends ChangeNotifier {
 
     } catch (e) {
       _isLoading = false;
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _errorMessage = mensajeDeErrorSocial(e);
       notifyListeners();
       return null;
     }

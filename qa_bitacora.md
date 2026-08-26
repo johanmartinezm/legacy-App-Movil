@@ -2,6 +2,34 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-25]: Cancelar el acceso con Google o Apple deja de parecer un error
+
+Salió al preparar F7 (los diez casos de acceso social), revisando el camino de error antes de
+ejercitarlo en el teléfono.
+
+- **El problema:** `handleSocialLogin` ponía `e.toString()` directo en `_errorMessage`, y la pantalla
+  de acceso lo pinta en el recuadro rojo. Así que **cancelar el selector de cuenta —que no es un
+  fallo— sacaba** `GoogleSignInException(code: GoogleSignInExceptionCode.canceled, ...)` en pantalla.
+  Y un proyecto mal configurado sacaba el `ApiException: 10` en crudo. Los errores de red sí estaban
+  redactados (`auth_service.dart`), pero los de los SDK no pasaban por ahí.
+- **El fix:** `mensajeDeErrorSocial()`, función pura fuera de `AuthProvider`. Devuelve **`null` al
+  cancelar** —no hay nada que avisar— y un mensaje redactado para lo demás. El caso de configuración
+  orienta a entrar por correo mientras se arregla.
+- **Se comprueba con `if` y no con `switch`** a propósito: `GoogleSignInExceptionCode` gana valores
+  entre versiones del paquete, y un `switch` exhaustivo dejaría de compilar en cada actualización.
+  Ya pasó dos veces al escribir esto (`providerConfigurationError` y `uiUnavailable`).
+- **Vive fuera de la clase** porque el constructor de `AuthProvider` arranca `checkLoginStatus()` y
+  necesita la configuración cargada; como función suelta se prueba sin montar nada.
+- **Alcance:** `lib/domain/providers/auth_provider.dart`,
+  `test/providers/errores_login_social_test.dart` (nuevo, 7 casos).
+- **Verificado:** `flutter analyze` sin errores ni advertencias; `flutter test` **212/212** (205 + 7).
+- **Criterios de QA:**
+  1. **Tocar «Google» y cerrar el selector** sin elegir cuenta: no aparece ningún recuadro rojo.
+  2. **Elegir una cuenta de Google** con el APK de release: entra, o lleva al registro si la cuenta no
+     existe.
+  3. **En iOS, tocar «Apple» y cancelar**: tampoco aparece error.
+  4. **Ningún mensaje de error** debe mostrar texto entre paréntesis con nombres de clases o códigos.
+
 ### [2026-08-25]: La app pasa a llamarse «Legacy Network»
 
 - **Decisión del usuario** (2026-08-25), junto con la de clasificar la app **solo para mayores de
