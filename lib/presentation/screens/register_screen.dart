@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:provider/provider.dart';
+import 'package:legacy_app/domain/utils/formato_telefono.dart';
 import '../../domain/providers/auth_provider.dart';
 import '../../config/theme/app_theme.dart'; // updated
 import '../widgets/custom_text_field.dart';
@@ -265,12 +266,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             hint: '+57 300 123 4567',
                             controller: _phoneController,
                             keyboardType: TextInputType.phone,
-                            // No es `digitsOnly`: el propio ejemplo lleva `+` y
-                            // espacios, y hay quien escribe el indicativo entre
-                            // paréntesis. Lo que se bloquea son las letras.
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'[0-9+\-() ]')),
-                            ],
+                            inputFormatters: formateadoresDeTelefono,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Ingresa tu teléfono';

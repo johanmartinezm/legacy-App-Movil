@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:legacy_app/domain/utils/formato_telefono.dart';
 import '../../../data/services/asesoria_service.dart';
 import '../../../domain/providers/auth_provider.dart';
 
@@ -639,6 +641,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
                     controller: _whatsappController,
                     hint: '+57 ...',
                     keyboardType: TextInputType.phone,
+                    inputFormatters: formateadoresDeTelefono,
                     validator: (val) {
                       if (val == null || val.trim().isEmpty) {
                         return 'Por favor ingrese su número de contacto';
@@ -1216,6 +1219,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
     required TextEditingController controller,
     required String hint,
     TextInputType keyboardType = TextInputType.text,
+    List<TextInputFormatter>? inputFormatters,
     String? Function(String?)? validator,
   }) {
     return Column(
@@ -1232,6 +1236,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
           validator: validator,
           style: GoogleFonts.questrial(color: Colors.white, fontSize: 15),
           decoration: InputDecoration(

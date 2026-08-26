@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:legacy_app/domain/models/event_model.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import 'package:legacy_app/domain/providers/auth_provider.dart';
 import 'package:legacy_app/domain/providers/events_provider.dart';
+import 'package:legacy_app/domain/utils/formato_telefono.dart';
 import '../../../config/utils/currency_formatter.dart';
 import '../../../data/services/payment_service.dart';
 import '../../../data/services/auth_service.dart';
@@ -414,6 +416,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
                                 key: const Key('pago-telefono'),
                                 controller: _telefonoController,
                                 keyboardType: TextInputType.phone,
+                                inputFormatters: formateadoresDeTelefono,
                                 validator: (v) =>
                                     (v == null || v.trim().isEmpty)
                                     ? 'Escribe un teléfono de contacto'
@@ -545,6 +548,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
     Key? key,
     TextEditingController? controller,
     TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
@@ -552,6 +556,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
       controller: controller,
       validator: validator,
       keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       style: GoogleFonts.questrial(color: Colors.white),
       decoration: InputDecoration(
         labelText: label,

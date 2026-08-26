@@ -2,6 +2,46 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-26]: Los campos de teléfono dejan de aceptar letras
+
+Repaso de los cuatro hallazgos que quedaban de la jornada del 21-08. **Tres ya estaban resueltos** en
+rondas posteriores y solo se confirmaron; el cuarto estaba a medias.
+
+| Hallazgo | Estado real |
+|---|---|
+| Selector de fecha en inglés | ya resuelto: `main.dart:525` fija `locale: es` con los tres delegados de `flutter_localizations` |
+| Rótulos sin tilde en el registro | ya resuelto: «Teléfono», «País», «Identificación», «Número», «Contraseña», «Generación» |
+| Enlaces legales ilegibles | ya resuelto: `documentos_legales_enlaces.dart` pasó de 1.13:1 a ~6:1 usando `colorScheme.primary` |
+| **Teclado numérico acepta letras** | **a medias**: el registro sí filtraba, asesoría y el pago de un evento no |
+
+- **El problema:** `TextInputType.phone` **elige el teclado que se ofrece, no lo que se acepta**. Con
+  un teclado predictivo, uno físico, un pegado desde el portapapeles o la app compilada para web, un
+  teléfono acaba con letras dentro. Nadie lo nota hasta que hay que llamar a esa persona — y el del
+  formulario de pago es justamente el teléfono de contacto de quien compra.
+- **El fix:** `domain/utils/formato_telefono.dart`, un único `formateadoresDeTelefono` que usan los
+  tres formularios. El registro tenía el suyo escrito a mano; ahora comparte el mismo.
+- **No es `digitsOnly` a propósito:** el ejemplo del propio campo es `+57 300 123 4567` y hay quien
+  escribe el indicativo entre paréntesis. Se bloquean las letras, no los signos del formato. Hay un
+  caso de prueba que avisa si alguien lo cambia a `digitsOnly`.
+- **Los dos widgets que construyen campos** (`_buildInputField` en asesoría y `_buildTextField` en el
+  pago) no aceptaban `inputFormatters`; ahora sí, así que el siguiente campo que lo necesite ya puede
+  pasarlo.
+- **Alcance:** `lib/domain/utils/formato_telefono.dart` (nuevo),
+  `lib/presentation/screens/asesoria/asesoria_screen.dart`,
+  `lib/presentation/screens/eventos/event_payment_screen.dart`,
+  `lib/presentation/screens/register_screen.dart`,
+  `test/utils/formato_telefono_test.dart` (nuevo, 6 casos).
+- **Verificado:** `flutter analyze` sin errores ni advertencias (los 49 `info` son los de siempre) y
+  `flutter test` **218/218**.
+- ⚠️ **No se probó en el teléfono**: los casos son de una función pura y se cubren en test, pero
+  escribir letras en los tres campos con un teclado real no lo ha hecho nadie.
+- **Criterios de QA:**
+  1. **En el registro**, campo «Teléfono»: intentar escribir letras — no entran; `+`, espacios,
+     guiones y paréntesis sí.
+  2. **En «Asesoría»**, campo «WhatsApp»: lo mismo.
+  3. **En el pago de un evento**, campo «Teléfono»: lo mismo.
+  4. **Pegar un texto con letras** en cualquiera de los tres: entra solo lo que es un teléfono.
+
 ### [2026-08-25]: F7 — el acceso con Google en Android queda verificado en producción
 
 Primera vez que se ejercita el acceso social de verdad. Se hizo con el **APK de release** apuntando a
