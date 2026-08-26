@@ -2,6 +2,24 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-25]: La app se declara solo para iPhone, no para iPad
+
+- **El problema:** el proyecto iOS declaraba `TARGETED_DEVICE_FAMILY = "1,2"` —iPhone **y** iPad— en
+  las tres configuraciones. Es el valor que trae Flutter al crear el proyecto, no una decisión. Con
+  iPad declarado, Apple **exige capturas de iPad de 13"** en la ficha y revisa que la app se vea bien
+  en esa pantalla. **Nadie ha abierto nunca la app en un iPad**, y está diseñada en vertical para
+  teléfono.
+- **El fix:** `TARGETED_DEVICE_FAMILY = "1"` en Debug, Release y Profile.
+- **Decisión del usuario** (2026-08-25): quitar el iPad en vez de producir esas capturas y probar en
+  tablet. Si alguna vez se quiere iPad, hay que devolver el valor **y** hacer el trabajo de diseño y
+  pruebas que implica; no es solo cambiar el número.
+- **`UISupportedInterfaceOrientations~ipad` se deja en `Info.plist`**: es inerte sin iPad declarado y
+  quitarlo no aporta nada.
+- **Alcance:** `ios/Runner.xcodeproj/project.pbxproj`.
+- **Criterios de QA:**
+  1. En App Store Connect, la ficha **no** debe pedir capturas de iPad.
+  2. El build de TestFlight sigue instalándose y abriendo en iPhone.
+
 ### [2026-08-25]: Cinco arreglos previos al envío a las tiendas
 
 Lote de higiene de cara a la revisión de App Store y Play. Ninguno depende de textos legales ni de
