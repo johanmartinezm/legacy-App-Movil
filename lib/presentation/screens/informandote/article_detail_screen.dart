@@ -153,7 +153,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                   icon: const Icon(Icons.share, color: Colors.white, size: 18),
                   onPressed: () {
                     Share.share(
-                      'Lee este artículo en Legacy App:\n${_article.title}',
+                      'Lee este artículo en Legacy Network:\n${_article.title}',
                     ); // ignore: deprecated_member_use
                   },
                 ),

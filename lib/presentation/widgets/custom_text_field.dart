@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../config/theme/app_theme.dart';
 
 class CustomTextField extends StatefulWidget {
@@ -10,6 +11,12 @@ class CustomTextField extends StatefulWidget {
   final TextInputType keyboardType;
   final bool readOnly;
 
+  /// Filtros de entrada. Hacen falta porque `keyboardType` **no restringe** lo
+  /// que se puede escribir: solo sugiere un teclado. En Android se cambia a las
+  /// letras con una tecla, y cualquier teclado físico o el pegado saltan el
+  /// teclado por completo — así entraban letras en documento y teléfono.
+  final List<TextInputFormatter>? inputFormatters;
+
   const CustomTextField({
     super.key,
     required this.label,
@@ -19,6 +26,7 @@ class CustomTextField extends StatefulWidget {
     this.validator,
     this.keyboardType = TextInputType.text,
     this.readOnly = false,
+    this.inputFormatters,
   });
 
   @override
@@ -45,6 +53,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           readOnly: widget.readOnly,
           obscureText: widget.isPassword ? _obscureText : false,
           keyboardType: widget.keyboardType,
+          inputFormatters: widget.inputFormatters,
           validator: widget.validator,
           decoration: InputDecoration(
             hintText: widget.hint,

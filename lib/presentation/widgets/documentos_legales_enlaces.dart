@@ -7,8 +7,8 @@ import '../../data/config/documentos_legales.dart';
 /// Se repite en el registro y en los avisos legales, y ambas tiendas piden
 /// poder llegar a ellos desde la app.
 class DocumentosLegalesEnlaces extends StatelessWidget {
-  /// Color del texto. En el registro el fondo es claro; en otras pantallas puede
-  /// no serlo.
+  /// Color del texto. Por defecto el azul de acento del tema, que es el único
+  /// que se lee sobre el fondo oscuro; ver la nota de `build`.
   final Color? color;
   final double fontSize;
 
@@ -27,9 +27,13 @@ class DocumentosLegalesEnlaces extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // `primaryColor` no sirve aquí: con `brightness: dark` Flutter lo resuelve a
+    // `colorScheme.surface` (#0B1A2E), no a `primary`, y sobre el fondo del
+    // scaffold (#050B15) eso da un contraste de 1.13:1 — los enlaces quedaban
+    // ahi pero ilegibles. `colorScheme.primary` (#5A93C4) da ~6:1.
     final estilo = TextStyle(
       fontSize: fontSize,
-      color: color ?? Theme.of(context).primaryColor,
+      color: color ?? Theme.of(context).colorScheme.primary,
       decoration: TextDecoration.underline,
       fontWeight: FontWeight.w600,
     );

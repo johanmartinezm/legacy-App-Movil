@@ -2,6 +2,167 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-25]: F7 — el acceso con Google en Android queda verificado en producción
+
+Primera vez que se ejercita el acceso social de verdad. Se hizo con el **APK de release** apuntando a
+producción, no con uno de depuración: ver la trampa al final.
+
+- **Qué se probó:** en el teléfono conectado, tocar «Google» y elegir una cuenta que **ya tenía cuenta
+  en Legacy con correo y contraseña**. Es el camino más frecuente y el que más cosas encadena.
+- **Resultado:** entra a la cuenta existente, no crea una duplicada. `SocialLogin`
+  (`auth_service.go:297`) la encuentra por índice ciego del correo cuando la identidad social todavía
+  no está registrada, y enlaza el `google_id` para las próximas veces.
+- **El token sirve en rutas privadas**, que es donde fallaba antes: la pantalla de inicio pintó el
+  saludo con el nombre (`GET /api/me`) y «Mi credencial» cargó la inscripción real con su QR
+  (`GET /api/me/registrations`). Eso confirma que el JWT lleva el claim `sub`, sin el cual toda ruta
+  privada respondía 401.
+
+**Verificación previa de la configuración**, que es donde han estado los fallos:
+
+| Eslabón | Estado |
+|---|---|
+| SHA-1 del keystore de release ↔ `google-services.json` | coincide (`dad19859…89f`) |
+| `serverClientId` de la app ↔ cliente web del proyecto | coincide |
+| Cliente web ↔ `firebase.google_client_id` del backend | coincide |
+| `apple.bundle_id` ↔ bundle real de la app | coincide |
+
+🔴 **Trampa para la próxima vez: el SHA-1 del `debug.keystore` NO está registrado en Firebase.** Un
+APK de depuración falla el acceso con Google con `DEVELOPER_ERROR` (`ApiException: 10`) por
+configuración, no por defecto de la app. **F7 hay que probarlo con el APK de release**, o se obtiene
+un falso negativo. Las dos huellas registradas son la del keystore de subida y una segunda, que por
+descarte debería ser la de Play App Signing (no verificable sin Play Console).
+
+- **Lo que queda de F7:** el registro **de usuario nuevo** por Google (hace falta una cuenta de Google
+  sin registrar) y **los cuatro casos de iOS**, bloqueados por hardware: exigen subir un build a
+  TestFlight e instalarlo en un iPhone. No es trabajo pendiente, es falta de dispositivo.
+- **Criterios de QA** (para repetirlo):
+  1. Instalar el **APK de release**, no el de depuración.
+  2. Tocar «Google» y elegir una cuenta que ya tenga cuenta en Legacy: debe entrar a la suya.
+  3. Abrir «Mi credencial»: debe cargar las inscripciones, no quedarse vacía ni dar error.
+  4. Cerrar sesión y volver a entrar con Google: debe reconocerla ya por `google_id`.
+
+### [2026-08-25]: Cancelar el acceso con Google o Apple deja de parecer un error
+
+Salió al preparar F7 (los diez casos de acceso social), revisando el camino de error antes de
+ejercitarlo en el teléfono.
+
+- **El problema:** `handleSocialLogin` ponía `e.toString()` directo en `_errorMessage`, y la pantalla
+  de acceso lo pinta en el recuadro rojo. Así que **cancelar el selector de cuenta —que no es un
+  fallo— sacaba** `GoogleSignInException(code: GoogleSignInExceptionCode.canceled, ...)` en pantalla.
+  Y un proyecto mal configurado sacaba el `ApiException: 10` en crudo. Los errores de red sí estaban
+  redactados (`auth_service.dart`), pero los de los SDK no pasaban por ahí.
+- **El fix:** `mensajeDeErrorSocial()`, función pura fuera de `AuthProvider`. Devuelve **`null` al
+  cancelar** —no hay nada que avisar— y un mensaje redactado para lo demás. El caso de configuración
+  orienta a entrar por correo mientras se arregla.
+- **Se comprueba con `if` y no con `switch`** a propósito: `GoogleSignInExceptionCode` gana valores
+  entre versiones del paquete, y un `switch` exhaustivo dejaría de compilar en cada actualización.
+  Ya pasó dos veces al escribir esto (`providerConfigurationError` y `uiUnavailable`).
+- **Vive fuera de la clase** porque el constructor de `AuthProvider` arranca `checkLoginStatus()` y
+  necesita la configuración cargada; como función suelta se prueba sin montar nada.
+- **Alcance:** `lib/domain/providers/auth_provider.dart`,
+  `test/providers/errores_login_social_test.dart` (nuevo, 7 casos).
+- **Verificado:** `flutter analyze` sin errores ni advertencias; `flutter test` **212/212** (205 + 7).
+- **Criterios de QA:**
+  1. **Tocar «Google» y cerrar el selector** sin elegir cuenta: no aparece ningún recuadro rojo.
+  2. **Elegir una cuenta de Google** con el APK de release: entra, o lleva al registro si la cuenta no
+     existe.
+  3. **En iOS, tocar «Apple» y cancelar**: tampoco aparece error.
+  4. **Ningún mensaje de error** debe mostrar texto entre paréntesis con nombres de clases o códigos.
+
+### [2026-08-25]: La app pasa a llamarse «Legacy Network»
+
+- **Decisión del usuario** (2026-08-25), junto con la de clasificar la app **solo para mayores de
+  edad** en las dos tiendas, coherente con la sección 2 de los T&C.
+- **El problema:** el nombre no era ni siquiera consistente. Android instalaba `Legacy app`, iOS
+  `Legacy App`, y la web `legacy_app`. Ninguno es la marca, que es la que la gente busca en la tienda
+  y la que muestra la propia pantalla de acceso.
+- **Alcance:** `android/app/src/main/AndroidManifest.xml` (`android:label`),
+  `ios/Runner/Info.plist` (`CFBundleDisplayName`), `web/index.html` y `web/manifest.json`,
+  `lib/main.dart` (título de `MaterialApp`), y los textos visibles que lo nombraban:
+  `faq_data.dart`, los dos de compartir en `article_detail_screen.dart` y `video_detail_screen.dart`,
+  la versión en `custom_section_header.dart` y `pubspec.yaml`.
+- **De paso, el texto legal dejó de nombrar a una entidad que no existe.** `legal_notice_screen.dart`
+  decía «usted autoriza expresamente a **Legacy App** a recolectar…»; la responsable del tratamiento
+  es Legacy Network. Ese bloque se sustituirá entero por el que redactó Legacy Legal, pero mientras
+  tanto al menos nombra a quien corresponde.
+- **Lo que NO se tocó, a propósito:** el nombre del paquete Dart (`legacy_app` en `pubspec.yaml`, del
+  que cuelgan todos los `import package:legacy_app/...`), el `CFBundleName` de iOS —lo que se muestra
+  es `CFBundleDisplayName`— y `ios/ExportOptions.plist`, donde «Legacy App Store CI» es el nombre de
+  un **perfil de firma**, no de la app. Cambiar ese último rompería la firma del workflow.
+- **Verificado:** `flutter analyze` sin errores ni advertencias; `flutter test` 205/205.
+- **Criterios de QA:**
+  1. **Instalar el APK**: bajo el icono dice «Legacy Network», no «Legacy app».
+  2. **Multitarea de Android**: la tarjeta de la app muestra «Legacy Network».
+  3. **Compartir un artículo y un video**: el texto dice «en Legacy Network».
+  4. **Perfil › Acerca de**: muestra «Legacy Network v1.0.0».
+  5. **En iOS**, bajo el icono debe decir «Legacy Network» (requiere build nuevo de TestFlight).
+
+### [2026-08-25]: La app se declara solo para iPhone, no para iPad
+
+- **El problema:** el proyecto iOS declaraba `TARGETED_DEVICE_FAMILY = "1,2"` —iPhone **y** iPad— en
+  las tres configuraciones. Es el valor que trae Flutter al crear el proyecto, no una decisión. Con
+  iPad declarado, Apple **exige capturas de iPad de 13"** en la ficha y revisa que la app se vea bien
+  en esa pantalla. **Nadie ha abierto nunca la app en un iPad**, y está diseñada en vertical para
+  teléfono.
+- **El fix:** `TARGETED_DEVICE_FAMILY = "1"` en Debug, Release y Profile.
+- **Decisión del usuario** (2026-08-25): quitar el iPad en vez de producir esas capturas y probar en
+  tablet. Si alguna vez se quiere iPad, hay que devolver el valor **y** hacer el trabajo de diseño y
+  pruebas que implica; no es solo cambiar el número.
+- **`UISupportedInterfaceOrientations~ipad` se deja en `Info.plist`**: es inerte sin iPad declarado y
+  quitarlo no aporta nada.
+- **Alcance:** `ios/Runner.xcodeproj/project.pbxproj`.
+- **Criterios de QA:**
+  1. En App Store Connect, la ficha **no** debe pedir capturas de iPad.
+  2. El build de TestFlight sigue instalándose y abriendo en iPhone.
+
+### [2026-08-25]: Cinco arreglos previos al envío a las tiendas
+
+Lote de higiene de cara a la revisión de App Store y Play. Ninguno depende de textos legales ni de
+terceros; los cinco salen en el mismo build.
+
+- **Los enlaces legales eran ilegibles.** `documentos_legales_enlaces.dart` pintaba con
+  `Theme.of(context).primaryColor`, y con `brightness: dark` Flutter resuelve eso a
+  `colorScheme.surface` (`#0B1A2E`), no a `primary`. Sobre el fondo del scaffold (`#050B15`) daba
+  **1.13:1**. Pasa a `colorScheme.primary` (`#5A93C4`): **6.01:1**. Importa porque es la pantalla
+  donde se aceptan las condiciones, y las dos tiendas exigen poder llegar a los documentos.
+- **El teclado numérico admitía letras.** `keyboardType` solo sugiere un teclado; no restringe. En
+  Android se pasa a las letras con una tecla, y un teclado físico o un pegado lo saltan del todo.
+  `CustomTextField` gana `inputFormatters` (opcional, para no tocar los campos de texto libre) y se
+  aplica en Número de Identificación (`digitsOnly`) y Teléfono (dígitos más `+ - ( ) espacio`, porque
+  el propio ejemplo del campo lleva indicativo).
+- **El selector de fecha salía en inglés.** `MaterialApp.router` no declaraba localización. Se añade
+  `flutter_localizations` con los tres delegados globales y `locale: es` fijo — la app es solo en
+  español, así que no sigue al idioma del dispositivo. Obligó a subir `intl` de `^0.19.0` a `^0.20.2`,
+  que es lo que fija el SDK.
+- **Tildes en el registro:** «Contrasena» → «Contraseña», «Minimo» → «Mínimo», «Las contrasenas no
+  coinciden» → «contraseñas». El resto de rótulos ya estaban bien.
+- **Permisos de almacenamiento heredados en Android.** `READ_EXTERNAL_STORAGE` y
+  `WRITE_EXTERNAL_STORAGE` quedan acotados con `maxSdkVersion` (32 y 28). Desde Android 13 la
+  fototeca va por `READ_MEDIA_IMAGES` y desde Android 10 el de escritura no concede nada; sin el
+  tope, Play los ve como permisos de almacenamiento amplio y pregunta por ellos en la ficha.
+
+- **Alcance:** `lib/presentation/widgets/documentos_legales_enlaces.dart`,
+  `lib/presentation/widgets/custom_text_field.dart`, `lib/presentation/screens/register_screen.dart`,
+  `lib/main.dart`, `pubspec.yaml`, `android/app/src/main/AndroidManifest.xml`,
+  `test/screens/documentos_legales_test.dart` (+2), `test/widgets/campos_numericos_test.dart` (nuevo,
+  5 casos), `test/widget_test.dart` (+2).
+- **Verificado:** `flutter analyze` sin errores ni advertencias (49 `info` preexistentes, ninguno de
+  estos archivos); `flutter test` **205/205** (196 previos + 9). El test de contraste calcula el ratio
+  WCAG real y falla con el color anterior.
+- **Criterios de QA:**
+  1. **En el registro**, los dos enlaces legales se leen sin esfuerzo sobre el fondo oscuro, y siguen
+     abriendo cada uno su documento.
+  2. **En Perfil › Avisos legales**, los mismos enlaces se leen igual de bien.
+  3. **Número de Identificación**: intentar escribir letras no deja nada; pegar «abc123» deja «123».
+  4. **Teléfono**: `+57 300 123 4567` se escribe entero; las letras no entran.
+  5. **Nombre y empresa** siguen aceptando tildes y eñes («Compañía Muñoz»).
+  6. **Fecha de nacimiento**: el selector abre en español —meses, «Cancelar», «Aceptar»— incluso con
+     el teléfono configurado en inglés.
+  7. **Registro completo**: los rótulos de contraseña llevan tilde y el error de longitud dice
+     «Mínimo 6 caracteres».
+  8. **Subir foto de perfil** desde galería y desde cámara sigue funcionando en Android 13+ y en uno
+     anterior a 13, si hay a mano.
+
 ### [2026-08-22]: «Ver mi credencial» ya no queda en negro al llegar desde el detalle de un evento
 
 Del mismo tramo 5 del 21-08: «se abrió desde el detalle de un evento y salió una pantalla en negro; la

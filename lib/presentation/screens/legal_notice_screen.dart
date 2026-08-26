@@ -48,13 +48,13 @@ class LegalNoticeScreen extends StatelessWidget {
                       _SectionTitle(context, '1. Habeas Data y Privacidad'),
                       const SizedBox(height: 8),
                       const Text(
-                        'De conformidad con la normativa vigente sobre protección de datos personales (Habeas Data), al registrarse en esta aplicación, usted autoriza expresamente a Legacy App a recolectar, almacenar y tratar sus datos personales. Estos datos serán utilizados exclusivamente para la prestación de los servicios ofrecidos, mejoras en la experiencia de usuario y comunicaciones relacionadas. Usted tiene derecho a conocer, actualizar y rectificar sus datos personales solicitándolo a través de nuestros canales de atención.',
+                        'De conformidad con la normativa vigente sobre protección de datos personales (Habeas Data), al registrarse en esta aplicación, usted autoriza expresamente a Legacy Network a recolectar, almacenar y tratar sus datos personales. Estos datos serán utilizados exclusivamente para la prestación de los servicios ofrecidos, mejoras en la experiencia de usuario y comunicaciones relacionadas. Usted tiene derecho a conocer, actualizar y rectificar sus datos personales solicitándolo a través de nuestros canales de atención.',
                       ),
                       const SizedBox(height: 24),
                       _SectionTitle(context, '2. Exención de Responsabilidad'),
                       const SizedBox(height: 8),
                       const Text(
-                        'Legacy App implementa mecanismos de seguridad estándar en la industria para proteger su información y la integridad del software. Sin embargo, el usuario reconoce y acepta que el uso de la tecnología conlleva riesgos inherentes y que ningún sistema es infalible.\n\nLegacy App no se hace responsable por:',
+                        'Legacy Network implementa mecanismos de seguridad estándar en la industria para proteger su información y la integridad del software. Sin embargo, el usuario reconoce y acepta que el uso de la tecnología conlleva riesgos inherentes y que ningún sistema es infalible.\n\nLegacy Network no se hace responsable por:',
                       ),
                       const SizedBox(height: 8),
                       _BulletPoint('Interrupciones, fallos o errores en el funcionamiento del software.'),

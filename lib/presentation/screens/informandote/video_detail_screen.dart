@@ -253,8 +253,8 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                           null,
                           onTap: () {
                             final text = _video.videoUrl != null
-                                ? 'Mira este video en Legacy App:\n${_video.title}\n${_video.videoUrl}'
-                                : 'Mira este contenido en Legacy App:\n${_video.title}';
+                                ? 'Mira este video en Legacy Network:\n${_video.title}\n${_video.videoUrl}'
+                                : 'Mira este contenido en Legacy Network:\n${_video.title}';
                             Share.share(text); // ignore: deprecated_member_use
                           },
                         ),

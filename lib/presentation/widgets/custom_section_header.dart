@@ -127,7 +127,7 @@ class CustomSectionHeader extends StatelessWidget {
                       builder: (context) => AlertDialog(
                         title: const Text('Acerca de esta app'),
                         content: const Text(
-                          'Legacy App v1.0.0\n\nPlataforma para familias empresarias.',
+                          'Legacy Network v1.0.0\n\nPlataforma para familias empresarias.',
                         ),
                         actions: [
                           TextButton(
