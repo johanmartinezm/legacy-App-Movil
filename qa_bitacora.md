@@ -2,6 +2,34 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-25]: La app pasa a llamarse «Legacy Network»
+
+- **Decisión del usuario** (2026-08-25), junto con la de clasificar la app **solo para mayores de
+  edad** en las dos tiendas, coherente con la sección 2 de los T&C.
+- **El problema:** el nombre no era ni siquiera consistente. Android instalaba `Legacy app`, iOS
+  `Legacy App`, y la web `legacy_app`. Ninguno es la marca, que es la que la gente busca en la tienda
+  y la que muestra la propia pantalla de acceso.
+- **Alcance:** `android/app/src/main/AndroidManifest.xml` (`android:label`),
+  `ios/Runner/Info.plist` (`CFBundleDisplayName`), `web/index.html` y `web/manifest.json`,
+  `lib/main.dart` (título de `MaterialApp`), y los textos visibles que lo nombraban:
+  `faq_data.dart`, los dos de compartir en `article_detail_screen.dart` y `video_detail_screen.dart`,
+  la versión en `custom_section_header.dart` y `pubspec.yaml`.
+- **De paso, el texto legal dejó de nombrar a una entidad que no existe.** `legal_notice_screen.dart`
+  decía «usted autoriza expresamente a **Legacy App** a recolectar…»; la responsable del tratamiento
+  es Legacy Network. Ese bloque se sustituirá entero por el que redactó Legacy Legal, pero mientras
+  tanto al menos nombra a quien corresponde.
+- **Lo que NO se tocó, a propósito:** el nombre del paquete Dart (`legacy_app` en `pubspec.yaml`, del
+  que cuelgan todos los `import package:legacy_app/...`), el `CFBundleName` de iOS —lo que se muestra
+  es `CFBundleDisplayName`— y `ios/ExportOptions.plist`, donde «Legacy App Store CI» es el nombre de
+  un **perfil de firma**, no de la app. Cambiar ese último rompería la firma del workflow.
+- **Verificado:** `flutter analyze` sin errores ni advertencias; `flutter test` 205/205.
+- **Criterios de QA:**
+  1. **Instalar el APK**: bajo el icono dice «Legacy Network», no «Legacy app».
+  2. **Multitarea de Android**: la tarjeta de la app muestra «Legacy Network».
+  3. **Compartir un artículo y un video**: el texto dice «en Legacy Network».
+  4. **Perfil › Acerca de**: muestra «Legacy Network v1.0.0».
+  5. **En iOS**, bajo el icono debe decir «Legacy Network» (requiere build nuevo de TestFlight).
+
 ### [2026-08-25]: La app se declara solo para iPhone, no para iPad
 
 - **El problema:** el proyecto iOS declaraba `TARGETED_DEVICE_FAMILY = "1,2"` —iPhone **y** iPad— en

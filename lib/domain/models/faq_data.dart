@@ -120,7 +120,7 @@ const List<SeccionFaq> seccionesFaq = [
     ),
     PreguntaFrecuente(
       '¿Por qué no me llegan las notificaciones?',
-      'Revisa que las notificaciones estén activadas para Legacy App en los ajustes de tu teléfono. '
+      'Revisa que las notificaciones estén activadas para Legacy Network en los ajustes de tu teléfono. '
           'Con la app abierta en pantalla no aparece el aviso del sistema: el mensaje se muestra '
           'dentro de la propia app.',
     ),

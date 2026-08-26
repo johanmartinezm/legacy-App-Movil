@@ -1,6 +1,6 @@
 {
-    "name": "legacy_app",
-    "short_name": "legacy_app",
+    "name": "Legacy Network",
+    "short_name": "Legacy Network",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#ffffff",

@@ -513,7 +513,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Legacy App',
+      title: 'Legacy Network',
       theme: AppTheme.lightTheme,
       scrollBehavior: MyCustomScrollBehavior(),
       routerConfig: router,
