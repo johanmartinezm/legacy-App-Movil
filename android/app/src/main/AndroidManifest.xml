@@ -1,8 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!--
+      Los dos permisos de almacenamiento quedan acotados a las versiones donde
+      todavía hacen algo. Desde Android 13 (API 33) la fototeca se pide con
+      READ_MEDIA_IMAGES, y WRITE_EXTERNAL_STORAGE no concede nada desde Android
+      10 (API 29). Sin el maxSdkVersion, Play los ve declarados como permisos de
+      almacenamiento amplio y pregunta por ellos en la ficha.
+    -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"/>
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
 
     <!-- Camera is not strictly required for the app to run, but needed for profile photo -->

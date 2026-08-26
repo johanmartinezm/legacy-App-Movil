@@ -84,4 +84,58 @@ void main() {
     expect(app.theme?.colorScheme.primary,
         AppTheme.lightTheme.colorScheme.primary);
   });
+
+  group('la app está en español', () {
+    // El selector de fecha del registro salía en inglés: `MaterialApp` no
+    // declaraba delegados de localización, así que los widgets de Material
+    // caían a su idioma por defecto aunque el resto de la app estuviera en
+    // español.
+    testWidgets('declara el español y no sigue al idioma del dispositivo', (
+      WidgetTester tester,
+    ) async {
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) => const Scaffold(body: Text('inicio')),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await tester.pumpWidget(MyApp(router: router));
+      await tester.pumpAndSettle();
+
+      final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
+      expect(app.locale, const Locale('es'));
+      expect(app.supportedLocales, contains(const Locale('es')));
+      expect(app.localizationsDelegates, isNotNull);
+    });
+
+    testWidgets('los textos de Material llegan traducidos', (
+      WidgetTester tester,
+    ) async {
+      late MaterialLocalizations textos;
+
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) {
+              textos = MaterialLocalizations.of(context);
+              return const Scaffold(body: Text('inicio'));
+            },
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await tester.pumpWidget(MyApp(router: router));
+      await tester.pumpAndSettle();
+
+      // Si faltaran los delegados, esto sería "Cancel" y "OK".
+      expect(textos.cancelButtonLabel, 'Cancelar');
+      expect(textos.datePickerHelpText, isNot(contains('Select')));
+    });
+  });
 }

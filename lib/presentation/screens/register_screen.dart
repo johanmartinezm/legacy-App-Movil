@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:provider/provider.dart';
@@ -264,6 +265,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             hint: '+57 300 123 4567',
                             controller: _phoneController,
                             keyboardType: TextInputType.phone,
+                            // No es `digitsOnly`: el propio ejemplo lleva `+` y
+                            // espacios, y hay quien escribe el indicativo entre
+                            // paréntesis. Lo que se bloquea son las letras.
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[0-9+\-() ]')),
+                            ],
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Ingresa tu teléfono';
@@ -370,6 +377,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             hint: '1234567890',
                             controller: _identificationNumberController,
                             keyboardType: TextInputType.number,
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                             validator: (val) {
                               if (val == null || val.isEmpty) {
                                 return 'Ingresa el número de identificación';
@@ -525,13 +533,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const SizedBox(height: 24),
 
                           CustomTextField(
-                            label: 'Contrasena',
+                            label: 'Contraseña',
                             hint: '********',
                             controller: _passwordController,
                             isPassword: true,
                             validator: (value) {
                               if (value == null || value.length < 6) {
-                                return 'Minimo 6 caracteres';
+                                return 'Mínimo 6 caracteres';
                               }
                               return null;
                             },
@@ -539,13 +547,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const SizedBox(height: 16),
 
                           CustomTextField(
-                            label: 'Confirmar Contrasena',
+                            label: 'Confirmar Contraseña',
                             hint: '********',
                             controller: _confirmPasswordController,
                             isPassword: true,
                             validator: (value) {
                               if (value != _passwordController.text) {
-                                return 'Las contrasenas no coinciden';
+                                return 'Las contraseñas no coinciden';
                               }
                               return null;
                             },

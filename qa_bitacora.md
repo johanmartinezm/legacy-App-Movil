@@ -2,6 +2,54 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-25]: Cinco arreglos previos al envío a las tiendas
+
+Lote de higiene de cara a la revisión de App Store y Play. Ninguno depende de textos legales ni de
+terceros; los cinco salen en el mismo build.
+
+- **Los enlaces legales eran ilegibles.** `documentos_legales_enlaces.dart` pintaba con
+  `Theme.of(context).primaryColor`, y con `brightness: dark` Flutter resuelve eso a
+  `colorScheme.surface` (`#0B1A2E`), no a `primary`. Sobre el fondo del scaffold (`#050B15`) daba
+  **1.13:1**. Pasa a `colorScheme.primary` (`#5A93C4`): **6.01:1**. Importa porque es la pantalla
+  donde se aceptan las condiciones, y las dos tiendas exigen poder llegar a los documentos.
+- **El teclado numérico admitía letras.** `keyboardType` solo sugiere un teclado; no restringe. En
+  Android se pasa a las letras con una tecla, y un teclado físico o un pegado lo saltan del todo.
+  `CustomTextField` gana `inputFormatters` (opcional, para no tocar los campos de texto libre) y se
+  aplica en Número de Identificación (`digitsOnly`) y Teléfono (dígitos más `+ - ( ) espacio`, porque
+  el propio ejemplo del campo lleva indicativo).
+- **El selector de fecha salía en inglés.** `MaterialApp.router` no declaraba localización. Se añade
+  `flutter_localizations` con los tres delegados globales y `locale: es` fijo — la app es solo en
+  español, así que no sigue al idioma del dispositivo. Obligó a subir `intl` de `^0.19.0` a `^0.20.2`,
+  que es lo que fija el SDK.
+- **Tildes en el registro:** «Contrasena» → «Contraseña», «Minimo» → «Mínimo», «Las contrasenas no
+  coinciden» → «contraseñas». El resto de rótulos ya estaban bien.
+- **Permisos de almacenamiento heredados en Android.** `READ_EXTERNAL_STORAGE` y
+  `WRITE_EXTERNAL_STORAGE` quedan acotados con `maxSdkVersion` (32 y 28). Desde Android 13 la
+  fototeca va por `READ_MEDIA_IMAGES` y desde Android 10 el de escritura no concede nada; sin el
+  tope, Play los ve como permisos de almacenamiento amplio y pregunta por ellos en la ficha.
+
+- **Alcance:** `lib/presentation/widgets/documentos_legales_enlaces.dart`,
+  `lib/presentation/widgets/custom_text_field.dart`, `lib/presentation/screens/register_screen.dart`,
+  `lib/main.dart`, `pubspec.yaml`, `android/app/src/main/AndroidManifest.xml`,
+  `test/screens/documentos_legales_test.dart` (+2), `test/widgets/campos_numericos_test.dart` (nuevo,
+  5 casos), `test/widget_test.dart` (+2).
+- **Verificado:** `flutter analyze` sin errores ni advertencias (49 `info` preexistentes, ninguno de
+  estos archivos); `flutter test` **205/205** (196 previos + 9). El test de contraste calcula el ratio
+  WCAG real y falla con el color anterior.
+- **Criterios de QA:**
+  1. **En el registro**, los dos enlaces legales se leen sin esfuerzo sobre el fondo oscuro, y siguen
+     abriendo cada uno su documento.
+  2. **En Perfil › Avisos legales**, los mismos enlaces se leen igual de bien.
+  3. **Número de Identificación**: intentar escribir letras no deja nada; pegar «abc123» deja «123».
+  4. **Teléfono**: `+57 300 123 4567` se escribe entero; las letras no entran.
+  5. **Nombre y empresa** siguen aceptando tildes y eñes («Compañía Muñoz»).
+  6. **Fecha de nacimiento**: el selector abre en español —meses, «Cancelar», «Aceptar»— incluso con
+     el teléfono configurado en inglés.
+  7. **Registro completo**: los rótulos de contraseña llevan tilde y el error de longitud dice
+     «Mínimo 6 caracteres».
+  8. **Subir foto de perfil** desde galería y desde cámara sigue funcionando en Android 13+ y en uno
+     anterior a 13, si hay a mano.
+
 ### [2026-08-22]: «Ver mi credencial» ya no queda en negro al llegar desde el detalle de un evento
 
 Del mismo tramo 5 del 21-08: «se abrió desde el detalle de un evento y salió una pantalla en negro; la
