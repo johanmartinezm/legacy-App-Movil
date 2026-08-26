@@ -2,6 +2,45 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-25]: F7 — el acceso con Google en Android queda verificado en producción
+
+Primera vez que se ejercita el acceso social de verdad. Se hizo con el **APK de release** apuntando a
+producción, no con uno de depuración: ver la trampa al final.
+
+- **Qué se probó:** en el teléfono conectado, tocar «Google» y elegir una cuenta que **ya tenía cuenta
+  en Legacy con correo y contraseña**. Es el camino más frecuente y el que más cosas encadena.
+- **Resultado:** entra a la cuenta existente, no crea una duplicada. `SocialLogin`
+  (`auth_service.go:297`) la encuentra por índice ciego del correo cuando la identidad social todavía
+  no está registrada, y enlaza el `google_id` para las próximas veces.
+- **El token sirve en rutas privadas**, que es donde fallaba antes: la pantalla de inicio pintó el
+  saludo con el nombre (`GET /api/me`) y «Mi credencial» cargó la inscripción real con su QR
+  (`GET /api/me/registrations`). Eso confirma que el JWT lleva el claim `sub`, sin el cual toda ruta
+  privada respondía 401.
+
+**Verificación previa de la configuración**, que es donde han estado los fallos:
+
+| Eslabón | Estado |
+|---|---|
+| SHA-1 del keystore de release ↔ `google-services.json` | coincide (`dad19859…89f`) |
+| `serverClientId` de la app ↔ cliente web del proyecto | coincide |
+| Cliente web ↔ `firebase.google_client_id` del backend | coincide |
+| `apple.bundle_id` ↔ bundle real de la app | coincide |
+
+🔴 **Trampa para la próxima vez: el SHA-1 del `debug.keystore` NO está registrado en Firebase.** Un
+APK de depuración falla el acceso con Google con `DEVELOPER_ERROR` (`ApiException: 10`) por
+configuración, no por defecto de la app. **F7 hay que probarlo con el APK de release**, o se obtiene
+un falso negativo. Las dos huellas registradas son la del keystore de subida y una segunda, que por
+descarte debería ser la de Play App Signing (no verificable sin Play Console).
+
+- **Lo que queda de F7:** el registro **de usuario nuevo** por Google (hace falta una cuenta de Google
+  sin registrar) y **los cuatro casos de iOS**, bloqueados por hardware: exigen subir un build a
+  TestFlight e instalarlo en un iPhone. No es trabajo pendiente, es falta de dispositivo.
+- **Criterios de QA** (para repetirlo):
+  1. Instalar el **APK de release**, no el de depuración.
+  2. Tocar «Google» y elegir una cuenta que ya tenga cuenta en Legacy: debe entrar a la suya.
+  3. Abrir «Mi credencial»: debe cargar las inscripciones, no quedarse vacía ni dar error.
+  4. Cerrar sesión y volver a entrar con Google: debe reconocerla ya por `google_id`.
+
 ### [2026-08-25]: Cancelar el acceso con Google o Apple deja de parecer un error
 
 Salió al preparar F7 (los diez casos de acceso social), revisando el camino de error antes de
