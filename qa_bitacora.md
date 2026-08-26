@@ -2,6 +2,41 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-26]: F7 — el registro de un usuario nuevo por Google queda verificado
+
+Con esto **F7 queda cerrado en todo lo que no exige un iPhone**: solo faltan los cuatro casos de iOS,
+que piden subir un build a TestFlight y un dispositivo real.
+
+- **Qué se probó:** en el teléfono conectado, con el **APK de release** recién compilado (con los
+  cambios de hoy dentro), tocar «Google» y elegir una cuenta de Google **que no tenía cuenta en
+  Legacy**. Es el camino que faltaba: el del 25-08 cubrió la cuenta que ya existía.
+- **Resultado: pasa.** La app abre «Crear Cuenta» con el formulario **prellenado**: Nombre «Johan»,
+  Apellido «Martinez» y el correo de esa cuenta. El teléfono queda vacío, con su marcador de posición.
+- **Detalle que conviene saber:** el backend solo devuelve `name` como una cadena
+  (`user_handler.go`, rama del 404), y es la app la que la parte en nombre y apellido. Con una cuenta
+  de Google cuyo nombre tenga tres palabras, el reparto no tiene por qué salir bien; nadie lo ha
+  probado.
+- **No se crea nada.** `SocialLogin` devuelve `"user not registered"` y el handler responde **404** con
+  el correo y el nombre solo para prellenar. Comprobado contra la base de producción: **16 usuarios
+  antes y 16 después**.
+- **Al salir del formulario con la flecha de la pantalla** se vuelve al acceso sin ningún recuadro de
+  error, que es el comportamiento correcto.
+- 🔴 **Dos trampas del recorrido, para la próxima vez:**
+  1. **La pantalla de acceso no es alcanzable con sesión abierta.** `main.dart:277` redirige `/login`
+     a `/home` si hay sesión, así que el enlace profundo `legacyapp://app/login` **no sirve**: hay que
+     cerrar sesión de verdad.
+  2. **`input keyevent 4` cerró la app entera** estando en el acceso, como ya estaba anotado. Para
+     cerrar el teclado o volver atrás, usar la flecha de la pantalla.
+- **Lo que queda de F7:** los cuatro casos de iOS (Google y Apple, entrar y registrarse), bloqueados
+  por hardware. No es trabajo pendiente.
+- **Criterios de QA** (para repetirlo):
+  1. Instalar el **APK de release**, no el de depuración —el SHA-1 del `debug.keystore` no está en
+     Firebase y da `ApiException: 10`, que es un falso negativo—.
+  2. Cerrar sesión, tocar «Google» y elegir una cuenta **sin registrar**: debe abrirse «Crear Cuenta».
+  3. El nombre y el correo deben venir rellenos; el teléfono, vacío.
+  4. Volver atrás con la flecha: se vuelve al acceso sin error.
+  5. Comprobar en la base que **no se creó** ningún usuario.
+
 ### [2026-08-26]: Los campos de teléfono dejan de aceptar letras
 
 Repaso de los cuatro hallazgos que quedaban de la jornada del 21-08. **Tres ya estaban resueltos** en
