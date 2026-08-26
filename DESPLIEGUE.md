@@ -29,21 +29,29 @@ pruebas con esta configuración escribe en la base de datos real.
 `ConfigService` resuelve la URL por plataforma: `10.0.2.2` en el emulador Android, `localhost` en
 web e iOS.
 
-**Diferencia entre `config.json` y `config.json.prod`.** No son iguales: cambian los GraphQL
-externos.
+**Diferencia entre las tres variantes.** Comprobado el 2026-08-25: `config.json` y `config.json.prod`
+son **idénticos**, y lo único que cambia en `config.json.develop` es a qué API apunta.
 
-| Clave | `config.json` (activo) | `config.json.prod` |
+| Clave | `config.json` y `.prod` | `config.json.develop` |
 |---|---|---|
-| `graphql_url` | `https://lso.school/graphql` | `https://app.legacynetworkco.com/lso-api` |
-| `content_graphql_url` | `https://legacynetworkco.com/graphql` | `https://app.legacynetworkco.com/content-api` |
+| `api_url_web` / `api_url_ios` | `https://legacy.intelyclick.com` | `http://localhost:8080` |
+| `api_url_android` | `https://legacy.intelyclick.com` | `http://10.0.2.2:8080` |
+| `environment` | `production` | `development` |
 
-Decide cuál de las dos es la buena **antes** de compilar: la app consume esos endpoints para los
-cursos y para las noticias de WordPress, y usar el juego equivocado deja secciones vacías.
+Los dos GraphQL externos (`graphql_url` a `lso.school` y `content_graphql_url` a
+`legacynetworkco.com`) son **los mismos en las tres**.
+
+Hasta el 2026-08-25 esta sección afirmaba que `.prod` apuntaba a `app.legacynetworkco.com/lso-api` y
+`/content-api`. No es así, y esos dominios no responden. Si alguien los necesita alguna vez, hay que
+volver a crearlos: no están en ninguna de las tres variantes.
+
+**El archivo activo apunta a producción.** Para trabajar en local hay que copiar `config.json.develop`
+encima de `config.json` — y acordarse de deshacerlo antes de compilar un release.
 
 ## 2. Subir la versión
 
 ```bash
-grep '^version:' pubspec.yaml     # actualmente 1.0.0+8
+grep '^version:' pubspec.yaml     # el número real, no el que ponga aquí
 ```
 
 El número tras el `+` es el `versionCode` de Android. **Play Store rechaza un `versionCode` ya
@@ -147,7 +155,7 @@ esquema de URL de `ios/Runner/Info.plist`, o el acceso con Google deja de volver
 
 **No confundir las dos claves `.p8`:** `AuthKey_H4DGAZR68T.p8` es la de App Store Connect API, la que
 usa el workflow para subir builds. `AuthKey_6W3PXQC2A6.p8` es la de APNs. Apple solo permite dos
-claves APNs por cuenta y **cada una se descarga una única vez**; ambas viven en `docs/ios/`, fuera de
+claves APNs por cuenta y **cada una se descarga una única vez**; ambas viven en `docs/ios/` **de la raíz del monorepo** (no en `App-Movil/`), fuera de
 git.
 
 ## iOS
@@ -170,16 +178,15 @@ flutter build ipa --release --obfuscate --split-debug-info=build/ios/symbols
 2. ~~Deployment target desalineado~~ → `15.0` en las tres configuraciones y en
    `Flutter/AppFrameworkInfo.plist`, que era un tercer sitio donde también decía 13.0.
 
-**Sigue pendiente, y es motivo de rechazo en la revisión:** falta
-`com.apple.developer.applesignin`. La app ofrece login con Google y la directriz **4.8** obliga
-entonces a ofrecer también Sign in with Apple; la dependencia `sign_in_with_apple` ya está en el
-proyecto, pero sin el entitlement el login falla en ejecución. **Orden correcto:** primero habilitar
-la capability *Sign in with Apple* en el App ID desde el portal de Apple, y solo después añadir la
-clave al entitlements — al revés, la firma falla porque el perfil no la incluye.
-
-Conviene declarar `ITSAppUsesNonExemptEncryption` en `Info.plist` para no responder el cuestionario
-de cumplimiento de exportación en cada subida. Es una **declaración legal** sobre el cifrado que usa
-la app, así que la decide quien publica: si solo se usa HTTPS estándar, el valor es `false`.
+3. ~~Falta `com.apple.developer.applesignin`~~ → ya declarado en `Runner.entitlements` (`Default`),
+   con la capability *Sign in with Apple* habilitada en el App ID. La app ofrece login con Google y
+   la directriz **4.8** obliga entonces a ofrecer también el de Apple. **Si alguna vez hay que
+   rehacerlo, el orden importa:** primero la capability en el App ID desde el portal, y solo después
+   la clave en el entitlements — al revés la firma falla, porque el perfil no la incluye.
+4. ~~`ITSAppUsesNonExemptEncryption` sin declarar~~ → `false` en `Info.plist` desde el 2026-08-10, así
+   que cada build deja de quedar en *Missing Compliance*. Es una **declaración legal** sobre el
+   cifrado de la app: vale `false` porque la app no cifra por su cuenta —solo HTTPS y el Keychain—, y
+   el AES-256 vive en el backend. Si eso cambia, hay que revisarla.
 
 ## Compilar iOS sin un Mac: GitHub Actions
 
@@ -241,14 +248,18 @@ distribución, y por eso viaja como secreto.
 
 Caduca **al año**. Cuando expire, el workflow fallará al firmar y hay que repetir el paso 4 completo
 —CSR nuevo, portal, `.p12` nuevo— y actualizar los dos secretos. Los archivos del proceso quedaron
-en `docs/ios/` (fuera de git): ahí están la clave privada, el `.cer`, el `.p12` y su contraseña.
+en `docs/ios/` de la raíz del monorepo, no en `App-Movil/` (y fuera de git): ahí están la clave privada, el `.cer`, el `.p12` y su contraseña.
 
 ### Cada vez que se quiera publicar
 
 *Actions → iOS · TestFlight → Run workflow*, indicando el **número de build**, que **debe ser mayor
-que el último subido**. La última versión conocida es `1.0.0+10`, así que el siguiente sería `11`.
-Si se deja vacío, se usa el de `pubspec.yaml` y TestFlight rechazará el envío si ese número ya
-existe.
+que el último subido**. Si se deja vacío, se usa el de `pubspec.yaml` y TestFlight rechazará el envío
+si ese número ya existe.
+
+**No confíes en ningún número escrito en este archivo**: se queda viejo enseguida. El que manda es el
+de `pubspec.yaml`, y el último realmente subido se mira en TestFlight o en Play Console. Al 2026-08-25
+`pubspec.yaml` va por `1.0.0+19`, pero el último build documentado como subido es el ad-hoc
+`1.0.0+16` (`qa_bitacora.md`): de los builds 17, 18 y 19 no hay constancia de que se publicaran.
 
 El `.ipa` queda como artefacto de la ejecución durante 14 días, aunque la subida falle: así un
 problema al publicar no obliga a repetir veinte minutos de compilación.
@@ -350,11 +361,42 @@ que describe una facultad de la empresa, no un procedimiento para la persona usu
 una página que explique cómo pedirlo y **qué se conserva** —las inscripciones y los mensajes se
 anonimizan, no se borran—, coherente con lo que ya avisa el diálogo de la app.
 
+⚠️ **Cuidado con el texto que redactó Legacy Legal el 2026-08-12**: describe la eliminación como un
+trámite por correo con **5 días hábiles** de plazo. La app no funciona así desde el 2026-08-06: en
+*Perfil → Eliminar mi cuenta* la cuenta se anonimiza **al instante**, que es justo lo que exige la
+directriz 5.1.1(v). Si esa página se publica tal cual, describirá un procedimiento que no existe.
+Está señalado en `reports/20260825_faltantes_texto_paola.md`.
+
 ### Lo demás que sigue pendiente
 
-- Cuestionario **App Privacy** (Apple) y **Data Safety** (Google).
-- **Cuenta de demo para el revisor de Apple**: la app exige login y sin credenciales la rechazan.
-- `ITSAppUsesNonExemptEncryption` en `Info.plist`, o cada build queda en *Missing Compliance*.
+Revisado el 2026-08-25 contra el código y las bitácoras.
+
+- **Capturas de pantalla y activos de ficha.** No existe ni un archivo en el repositorio: hacen falta
+  capturas de iPhone 6.9" y 6.5" y de Play. Las prepara desarrollo, y es el único bloqueo de envío
+  que no depende de nadie de fuera.
+- **Cuestionario App Privacy (Apple) y Data Safety (Google).** La lista de datos que los alimenta ya
+  está verificada (arriba), pero no se pueden responder mientras la política publicada no tenga el
+  apartado de la app: quedarían contradiciendo lo publicado.
+- **Textos de ficha**: descripción, subtítulo, palabras clave, categoría y clasificación por edad
+  coherente con el límite de mayoría de edad de los T&C.
+- **Probar el login con Google y con Apple** en iOS y en Android. Sin ejecutar todavía, y es lo
+  primero que toca un revisor.
+- **Icono de la ficha:** el del build (`ios/Runner/Assets.xcassets/AppIcon.appiconset/`) está bien,
+  sin canal alfa. Pero `assets/images/flutter_icons/ios/Icon-1024.png` **sí lo tiene**, y App Store
+  rechaza el icono con alfa — no tomes ese para la ficha.
+- **La cuenta de demo del revisor**: renombrar el evento `[PRUEBA QA] Evento gratuito de
+  verificacion` al que está inscrita, porque ese nombre le sale en la credencial, y cargar sus
+  credenciales en *App Store Connect → App Review Information*.
+- **Decisión de negocio abierta**: los T&C publicados ofrecen eventos "virtuales o presenciales", y un
+  evento virtual es contenido digital que la directriz **3.1.1** obliga a cobrar dentro de la app. El
+  esquema tampoco distingue modalidad. No bloquea el envío, pero es lo que más probablemente provoque
+  un rechazo.
+
+**Ya resuelto, no lo vuelvas a buscar:** cuenta de demo creada y verificada en producción
+(`reports/20260812_cuenta_demo_apple.md`); `ITSAppUsesNonExemptEncryption` en `false`;
+`com.apple.developer.applesignin` declarado; bloquear y reportar personas (directriz 1.2); eliminar
+cuenta desde la app (directriz 5.1.1(v)); y la prueba cerrada de 14 días de Play, que **no aplica**
+por ser cuenta de Organización.
 
 ## Web
 
