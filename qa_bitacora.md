@@ -2,6 +2,65 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-08-26]: El nombre de Google se reparte bien con dos apellidos
+
+Salió de verificar F7: al registrarse con Google, el formulario se prellenaba con nombre «Johan» y
+apellido «Martinez», que estaba bien **porque esa cuenta tiene dos palabras**.
+
+- **El problema:** el proveedor manda el nombre completo en **una sola cadena** y aquí se piden por
+  separado. La regla era «la primera palabra es el nombre, todo lo demás el apellido». Con cuatro
+  palabras —dos nombres y dos apellidos, que es lo normal aquí— «Johan Yezid Martinez Melo» quedaba
+  como nombre «Johan» y apellido «Yezid Martinez Melo».
+- **El fix:** `domain/utils/nombre_social.dart`. El apellido se queda con la **mitad de atrás,
+  redondeando hacia arriba**:
+
+  | Palabras | Nombre | Apellido |
+  |---|---|---|
+  | 1 | todo | vacío |
+  | 2 | 1 | 1 |
+  | 3 | 1 | 2 |
+  | 4 | 2 | 2 |
+  | 5 | 2 | 3 |
+
+- **Con tres palabras sigue siendo una apuesta** —«Juan Carlos Pérez» y «Juan Pérez Gómez» se
+  escriben igual— y se elige la de dos apellidos, que es la común entre quienes usan esta app.
+- **Con una sola palabra el apellido queda vacío a propósito:** inventarlo sería peor, y el
+  formulario lo pide obligatorio, así que quien se registra lo completa.
+- **Esto solo prellena.** Quien se registra puede corregirlo antes de enviar; por eso vale una regla
+  razonable y no hace falta acertar siempre.
+- **Vive fuera de la pantalla** para poder probarlo sin montar el formulario, como
+  `mensajeDeErrorSocial()` y `formateadoresDeTelefono`.
+- **Alcance:** `lib/domain/utils/nombre_social.dart` (nuevo),
+  `lib/presentation/screens/register_screen.dart`, `test/utils/nombre_social_test.dart` (nuevo, 10
+  casos).
+- **Verificado:** `flutter analyze` sin errores ni advertencias y `flutter test` **228/228**.
+- **Criterios de QA:**
+  1. **Registrarse con una cuenta de Google de cuatro palabras**: «Nombre» trae las dos primeras y
+     «Apellido» las dos últimas.
+  2. **Con una cuenta de dos palabras**: una y una, como antes.
+  3. **Corregir los dos campos a mano** antes de enviar: se guarda lo corregido.
+
+### [2026-08-26]: «Proponer Foro» pasa a llamarse «Crear foro»
+
+Último resto del hallazgo F16.3. El aviso al enviar y la cabecera de la pantalla ya se habían
+corregido el 22-08 —dicen que el foro se publica de inmediato—, pero el **título y el botón** seguían
+prometiendo un trámite que no existe.
+
+- **No hay ninguna aprobación**: el modelo solo tiene `active/locked/hidden/deleted`, y el foro queda
+  publicado y visible al instante. «Proponer» sugiere que alguien lo revisará.
+- **Qué cambia:** el título pasa a «Crear foro», el botón a «Publicar», la cabecera a «Crea un nuevo
+  tema de discusión» y el error a «Hubo un error al crear el foro».
+- **La ruta interna sigue siendo `/forum-propose`**: renombrarla rompería los enlaces profundos y no
+  la ve nadie.
+- **Que exista o no la aprobación sigue siendo decisión del cliente.** Esto no la implementa: deja de
+  prometerla, que es lo que sí se puede hacer sin esperar a nadie.
+- **Alcance:** `lib/presentation/screens/forums/forum_proposal_screen.dart`.
+- **Verificado:** `flutter analyze` limpio y `flutter test` 228/228.
+- **Criterios de QA:**
+  1. **Abrir el botón «+» de Foros Anónimos**: la pantalla se llama «Crear foro» y el botón dice
+     «Publicar».
+  2. **Publicar uno**: aparece en la lista al instante y el aviso lo dice.
+
 ### [2026-08-26]: F7 — el registro de un usuario nuevo por Google queda verificado
 
 Con esto **F7 queda cerrado en todo lo que no exige un iPhone**: solo faltan los cuatro casos de iOS,

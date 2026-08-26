@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:provider/provider.dart';
 import 'package:legacy_app/domain/utils/formato_telefono.dart';
+import 'package:legacy_app/domain/utils/nombre_social.dart';
 import '../../domain/providers/auth_provider.dart';
 import '../../config/theme/app_theme.dart'; // updated
 import '../widgets/custom_text_field.dart';
@@ -40,14 +41,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _isSocialLogin = true;
       _emailController.text = widget.socialData!['email'] ?? '';
       
-      final fullName = widget.socialData!['name'] ?? '';
-      final parts = fullName.split(' ');
-      if (parts.isNotEmpty) {
-        _firstNameController.text = parts.first;
-        if (parts.length > 1) {
-          _lastNameController.text = parts.sublist(1).join(' ');
-        }
-      }
+      // El proveedor manda el nombre completo en una sola cadena y aquí se
+      // piden por separado. La regla vive en domain/utils para poder probarla:
+      // antes la primera palabra era el nombre y todo lo demás el apellido, y
+      // «Johan Yezid Martinez Melo» quedaba como «Johan» + «Yezid Martinez Melo».
+      final reparto = repartirNombre(widget.socialData!['name']);
+      _firstNameController.text = reparto.nombre;
+      _lastNameController.text = reparto.apellido;
     }
   }
 

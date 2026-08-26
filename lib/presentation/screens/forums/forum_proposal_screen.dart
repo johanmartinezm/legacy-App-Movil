@@ -50,7 +50,7 @@ class _ForumProposalScreenState extends State<ForumProposalScreen> {
       context.pop();
     } catch (e) {
       if (!mounted) return;
-      String message = 'Hubo un error al proponer el foro.';
+      String message = 'Hubo un error al crear el foro.';
       if (e.toString().contains('alias_required')) {
         message = 'Debes configurar un Alias en tu perfil antes de participar en los foros.';
       }
@@ -67,7 +67,11 @@ class _ForumProposalScreenState extends State<ForumProposalScreen> {
     return Scaffold(
       backgroundColor: AppTheme.legacyBlue1,
       appBar: AppBar(
-        title: const Text('Proponer Foro'),
+        // «Crear» y no «Proponer»: el foro se publica al instante y no lo
+        // revisa nadie —el modelo solo tiene active/locked/hidden/deleted—.
+        // El aviso y la cabecera ya lo decían desde el 22-08; el título y el
+        // botón eran lo único que seguía prometiendo un trámite que no existe.
+        title: const Text('Crear foro'),
         backgroundColor: AppTheme.legacyBlue2,
       ),
       body: SingleChildScrollView(
@@ -78,7 +82,7 @@ class _ForumProposalScreenState extends State<ForumProposalScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                'Propón un nuevo tema de discusión',
+                'Crea un nuevo tema de discusión',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -134,7 +138,7 @@ class _ForumProposalScreenState extends State<ForumProposalScreen> {
                 child: _isSubmitting 
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text(
-                        'Proponer',
+                        'Publicar',
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
               ),
