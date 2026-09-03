@@ -2,6 +2,39 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-09-03]: Mi credencial explica la espera en vez de mandar a escribir
+
+Retoque de una línea que acompaña a la fase 3 de la carga masiva
+(`reports/20260826_plan_carga_masiva.md` §7). No hay cambio de comportamiento: la pantalla ya sabía
+qué hacer sin código de acceso —tiene una rama de tres casos: enlace, QR y sin QR— y una inscripción
+importada cae sola en ese estado.
+
+Lo que cambia es **lo que dice**. Desde la fase 3 hay un caso nuevo que no existía: una inscripción
+**confirmada** que todavía no tiene código, porque se importó con el interruptor de credencial
+apagado y la organización la generará antes del evento. A esa persona el texto de antes —«Sin código
+disponible · Escríbenos si necesitas tu código de acceso para este evento»— la mandaba a escribir por
+algo que no hizo mal y que ya está resuelto.
+
+- Antes: **Sin código disponible** · «Escríbenos si necesitas tu código de acceso para este evento.»
+- Ahora: **Tu código está en camino** · «Tu inscripción está confirmada. Tu código de acceso estará
+  disponible antes del evento.»
+
+El caso de **pendiente de pago** no se toca: ahí el mensaje sigue diciendo que el cupo está reservado
+y que el código aparecerá cuando se confirme el pago, que es la verdad de ese estado.
+
+- **Alcance:** `lib/presentation/screens/profile/mi_credencial_screen.dart` (`_buildSinQr`).
+- **Verificado:** `flutter analyze` sobre el archivo, sin avisos.
+
+- **Criterios de QA:**
+  1. Importar a alguien a un evento presencial **sin** generar la credencial (desde el panel).
+  2. Entrar a la app con esa cuenta → **Mi credencial** → el evento: se ve «Tu código está en camino»
+     y la explicación, no el mensaje de escribir.
+  3. Generar su credencial desde el panel y volver a abrir la pantalla: ahora se ve el QR.
+  4. En una inscripción pendiente de pago, el mensaje sigue siendo el de siempre.
+  5. En un evento virtual, la pantalla sigue mostrando el enlace de la sesión y nunca un QR.
+
+---
+
 ### [2026-09-02]: Tres campos de perfil y el cambio de contraseña obligatorio
 
 Parte de la app de los dos cortes previos a la carga masiva del Summit; el detalle del backend está

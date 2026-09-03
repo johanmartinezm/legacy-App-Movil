@@ -333,6 +333,13 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
   Widget _buildSinQr(RegistrationModel reg) {
     // El backend no manda el código de una inscripción sin pagar: no da derecho
     // a entrar, así que se explica en vez de enseñar un hueco.
+    //
+    // Desde la carga masiva de asistentes hay un segundo caso, y es el que
+    // manda el texto de abajo: una inscripción **confirmada** que todavía no
+    // tiene código porque se importó con el interruptor de credencial apagado
+    // (reports/20260826_plan_carga_masiva.md §4.1). Esa persona no hizo nada
+    // mal y su credencial va a llegar, así que «escríbenos» era seco y además
+    // engañoso.
     final pendiente = reg.estaPendienteDePago;
     return Container(
       width: double.infinity,
@@ -350,7 +357,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
           ),
           const SizedBox(height: 10),
           Text(
-            pendiente ? 'Pendiente de pago' : 'Sin código disponible',
+            pendiente ? 'Pendiente de pago' : 'Tu código está en camino',
             style: GoogleFonts.barlow(
               fontSize: 15,
               fontWeight: FontWeight.bold,
@@ -361,7 +368,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
           Text(
             pendiente
                 ? 'Tu cupo está reservado. Cuando se confirme el pago aparecerá aquí tu código de acceso.'
-                : 'Escríbenos si necesitas tu código de acceso para este evento.',
+                : 'Tu inscripción está confirmada. Tu código de acceso estará disponible antes del evento.',
             textAlign: TextAlign.center,
             style: GoogleFonts.questrial(
               fontSize: 13,
