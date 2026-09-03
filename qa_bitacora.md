@@ -2,6 +2,55 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-09-03]: Build de iOS ad-hoc, con lo desplegado hoy
+
+La pareja del APK del mismo día: la app se prueba en las dos plataformas antes de publicar, y iOS
+solo compila en macOS, así que va por el runner de GitHub. **No se publicó nada.**
+
+- **Lanzado como `tipo_de_build=adhoc`, no `testflight`**, que es lo que corresponde a un build para
+  probar: se firma con el perfil que instala **directo en los dispositivos registrados**, no pasa por
+  App Store Connect y **no consume un número de build**. Por eso tampoco hizo falta subir el `+N` de
+  `pubspec.yaml`, que solo importa cuando el destino es TestFlight.
+- **`subir_a_testflight=false` se pasó igualmente.** En ad-hoc el workflow lo ignora, pero teclearlo
+  cada vez es lo que evita el accidente del 22-08, cuando omitirlo dejó un build subido a App Store
+  Connect. Comprobado en la ejecución: el paso «Subir a TestFlight» aparece **omitido**.
+- Run `33805342626`, sobre `main` — se comprobó que el commit del remoto era el mismo que el local
+  antes de lanzar, porque el runner compila lo que hay en GitHub, no lo que hay en el disco.
+- 14m47s, artefacto `legacy-ios-adhoc-26`.
+
+**Comprobado que el `.ipa` trae lo de hoy**, con la misma prueba que el APK pero sobre
+`Payload/Runner.app/Frameworks/App.framework/App`:
+
+| Fragmento | Resultado |
+|---|---|
+| `en camino` (texto nuevo) | presente |
+| `disponible antes del evento` (nuevo) | presente |
+| `necesitas tu c…` (viejo) | **0** |
+| `Sin c…` (viejo) | **0** |
+
+**Y que es un ad-hoc de verdad**, leyendo el `embedded.mobileprovision` del propio `.ipa`:
+
+| | |
+|---|---|
+| Perfil | `Legacy Ad Hoc QA` |
+| Tipo | ad-hoc (lleva `ProvisionedDevices`) |
+| Dispositivos | **3 registrados** |
+| Caduca | 2027-08-06 |
+| Bundle · versión | `co.legacynetwork.legacyapp` · 1.0.0 (19), iOS 15.0 mínimo |
+
+Que lleve `ProvisionedDevices` es lo que lo distingue de uno de App Store: **solo instala en esos
+tres dispositivos**. Si el iPhone donde se va a probar no está entre ellos, no instalará, y el
+síntoma no dice por qué — hay que registrar el UDID y volver a compilar.
+
+- **Alcance:** ninguno; es un build.
+- **Ruta del artefacto:** `build/ios-adhoc/legacy-ios-adhoc-26/legacy_app.ipa` (17,6 MB). Está dentro
+  de `build/`, que no versiona git y borra cualquier `flutter clean`. **El artefacto de GitHub caduca
+  a los 15 días**, así que la copia buena es esta.
+
+- **Criterios de QA:** los mismos cinco del APK del mismo día, sobre un dispositivo registrado.
+
+---
+
 ### [2026-09-03]: APK de pruebas instalado en el teléfono, con lo desplegado hoy
 
 Build para probar contra el backend y el panel que se desplegaron hoy a producción. **No se publicó
