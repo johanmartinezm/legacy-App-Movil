@@ -2,6 +2,60 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-09-03]: APK de pruebas instalado en el teléfono, con lo desplegado hoy
+
+Build para probar contra el backend y el panel que se desplegaron hoy a producción. **No se publicó
+nada en las tiendas.**
+
+- **Compilado desde `main` limpio** (`0e94780`), release, `arm64`, ofuscado con los símbolos en
+  `build/app/outputs/symbols`. 28,5 MB.
+- **Apunta a producción** (`assets/config/config.json` → `https://legacy.intelyclick.com`), que es lo
+  que se quiere probar: escribe en la base real.
+- **Instalado con `adb install -r`, no con `flutter install`.** El `firstInstallTime` siguió siendo
+  el del 2 de septiembre y solo cambió el `lastUpdateTime`: **la sesión se conservó** y la app
+  arrancó ya identificada, sin volver a pedir credenciales.
+- `versionCode` 19, el mismo: para probar en el dispositivo da igual repetirlo, y el número solo
+  importa de cara a Play.
+
+**Comprobado que el APK trae lo de hoy, no que "el build salió bien".** Se buscó dentro del
+`libapp.so` del propio APK instalado:
+
+| Fragmento | Resultado |
+|---|---|
+| `en camino` (texto nuevo) | presente |
+| `disponible antes del evento` (nuevo) | presente |
+| `necesitas tu c…` (texto viejo) | **0 apariciones** |
+| `Sin c…` (viejo) | **0 apariciones** |
+
+Que el viejo haya desaparecido es la mitad que importa: un APK que conserva los dos textos sería uno
+que no se recompiló. Y como el árbol estaba limpio en `0e94780`, el APK es exactamente `main`, así
+que incluye también el arreglo del sector —el commit siguiente al del texto—.
+
+**Estado del teléfono al terminar:** proceso vivo, `MainActivity` en primer plano, sin errores en el
+log. Se le desactivó la rotación automática para poder navegar —está en horizontal y la app es
+vertical— y **se le devolvió** al acabar.
+
+**Lo que no se ejercitó, y por qué:** llegar a *Editar perfil* para ver el desplegable de Sector
+mostrando el valor real. La lista de *Mi perfil* no engancha con el swipe de `adb`, y forzar la
+navegación hasta un formulario que puede guardar sobre la **cuenta real en producción** no compensa.
+El arreglo ya está probado contra la API: con `{"sector": ...}` la columna queda vacía y con
+`{"industry": ...}` se guarda.
+
+- **Alcance:** ninguno; es un build, no un cambio de código.
+- **Ruta del artefacto:** `build/app/outputs/flutter-apk/app-release.apk`. Está dentro de
+  `build/`, que no versiona git y borra cualquier `flutter clean`.
+
+- **Criterios de QA:**
+  1. Abrir la app: entra sin pedir credenciales (la sesión sobrevivió a la instalación).
+  2. **Perfil → Editar perfil**: el desplegable de *Sector* muestra el valor guardado, no
+     «Tecnología» fijo. Cambiarlo, guardar, salir y volver: se conserva.
+  3. Cambiar solo el teléfono y guardar: el sector **no** cambia. Es la comprobación que antes
+     fallaba.
+  4. Los tres campos nuevos —sexo, departamento y dirección— aparecen en editar perfil y se guardan.
+  5. **Mi credencial** de un evento sin código: dice «Tu código está en camino», no «Escríbenos».
+
+---
+
 ### [2026-09-03]: El sector del perfil por fin se guarda — y antes habría borrado el real
 
 Estaba anotado en el propio código desde el 2026-09-02 como «arreglarlo es aparte». Se cierra aquí, y
