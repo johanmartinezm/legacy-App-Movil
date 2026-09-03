@@ -2,6 +2,54 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-09-03]: El sector del perfil por fin se guarda — y antes habría borrado el real
+
+Estaba anotado en el propio código desde el 2026-09-02 como «arreglarlo es aparte». Se cierra aquí, y
+resultó ser **dos fallos encadenados**, no el uno que decía la nota:
+
+🔴 **La clave era la equivocada.** `_saveProfile` mandaba `'sector'` y el campo del backend se llama
+`Industry`, con `json:"industry"` (`domain/user.go`). `performUpdate` vuelca el JSON tal cual sobre
+el struct, así que **una clave que no coincide no falla: se ignora**. Ese desplegable llevaba meses
+sin guardar nada y nadie recibía un solo error.
+
+Comprobado contra el servidor, que es lo que convierte la sospecha en hecho:
+
+| Se manda | `industry` en la base después |
+|---|---|
+| `{"sector": "Finanzas"}` | `''` |
+| `{"industry": "Finanzas"}` | `'Finanzas'` |
+
+🔴 **Y el sector no se cargaba del perfil**, que es la mitad peor y no estaba vista. `_selectedSector`
+arrancaba fijo en `'Tecnología'` y no se leía nunca del perfil, así que **arreglar solo la clave
+habría sido peor que dejarlo roto**: cualquiera que abriera «editar perfil» y guardara —para cambiar
+su teléfono, por ejemplo— le habría escrito «Tecnología» encima de su sector real.
+
+**De paso, la misma guarda para «Generación».** Tenía exactamente el mismo agujero latente:
+`data['generation'] ?? 'Segunda'` asigna lo que venga, y un valor que no esté en la lista **revienta
+el desplegable de Material**. Es el fallo que ya se vio el 25-08 con el tipo de documento. Ahora los
+dos comprueban contra su lista antes de asignar, como ya hacía `sexo`.
+
+Las dos listas pasaron de estar escritas dentro del `build` a ser constantes, porque ahora hay que
+comprobar contra ellas y tenerlas en dos sitios es pedir que se separen.
+
+- **Alcance:** `lib/presentation/screens/profile/profile_edit_screen.dart` (`_opcionesDeSector` y
+  `_opcionesDeGeneracion`, la carga de los dos en `_loadProfileData`, y `'industry'` en
+  `_saveProfile`).
+- **Verificado:** `flutter analyze` sin avisos nuevos —el único del archivo ya estaba—. Y contra el
+  servidor local, la tabla de arriba.
+
+- **Criterios de QA:**
+  1. Entrar a **editar perfil** con una cuenta que tenga sector guardado: el desplegable muestra
+     **su** sector, no «Tecnología».
+  2. Cambiarlo, guardar, salir y volver a entrar: se conserva el nuevo.
+  3. Con una cuenta que no tenga sector, el desplegable muestra «Otro» y no revienta.
+  4. Cambiar solo el teléfono y guardar: el sector se queda como estaba —esta es la que importa, y es
+     la que habría fallado si solo se arreglaba la clave—.
+  5. Lo mismo con «Generación»: se carga la guardada, y una cuenta con un valor raro no rompe la
+     pantalla.
+
+---
+
 ### [2026-09-03]: Mi credencial explica la espera en vez de mandar a escribir
 
 Retoque de una línea que acompaña a la fase 3 de la carga masiva

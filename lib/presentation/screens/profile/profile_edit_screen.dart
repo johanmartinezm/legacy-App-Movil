@@ -37,6 +37,27 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final TextEditingController _departamentoController = TextEditingController();
   final TextEditingController _direccionController = TextEditingController();
 
+  // Las dos listas viven aquí y no dentro del `build` porque hay que comprobar
+  // contra ellas lo que llega del perfil: un valor guardado que no esté en la
+  // lista revienta el desplegable de Material.
+  static const List<String> _opcionesDeGeneracion = [
+    'Primera (Fundador)',
+    'Segunda',
+    'Tercera',
+    'Cuarta',
+    'Quinta o más',
+  ];
+  static const List<String> _opcionesDeSector = [
+    'Agroindustria',
+    'Comercio',
+    'Construcción',
+    'Finanzas',
+    'Manufactura',
+    'Servicios',
+    'Tecnología',
+    'Otro',
+  ];
+
   String _selectedGeneration = 'Segunda';
   String _selectedSector = 'Tecnología';
 
@@ -87,8 +108,26 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         _aliasController.text = data['alias'] ?? '';
         _companyController.text = data['company_name'] ?? '';
         _jobTitleController.text = data['job_title'] ?? '';
-        // Handle dropdowns or defaults
-        _selectedGeneration = data['generation'] ?? 'Segunda';
+        // Handle dropdowns or defaults.
+        //
+        // Los dos se comprueban contra su lista antes de asignarlos: un valor
+        // guardado que no esté en ella revienta el desplegable, y por la base
+        // pueden pasar valores escritos desde el panel o traídos por la carga
+        // masiva.
+        final generacion = (data['generation'] ?? '').toString();
+        _selectedGeneration = _opcionesDeGeneracion.contains(generacion)
+            ? generacion
+            : 'Segunda';
+
+        // **El sector no se cargaba en absoluto**, y eso era la mitad peor del
+        // fallo: el desplegable arrancaba siempre en 'Tecnología', así que
+        // guardar el perfil habría pisado el sector real de la persona en
+        // cuanto la otra mitad —mandarlo con la clave correcta— se arreglara.
+        // El campo del backend es `industry` (`domain/user.go`), no `sector`.
+        final sector = (data['industry'] ?? '').toString();
+        _selectedSector = _opcionesDeSector.contains(sector)
+            ? sector
+            : 'Otro';
         _departamentoController.text = data['departamento'] ?? '';
         _direccionController.text = data['direccion'] ?? '';
         // Un valor que no este en la lista reventaria el desplegable, y el
@@ -206,11 +245,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         'company_name': _companyController.text,
         'job_title': _jobTitleController.text,
         'generation': _selectedGeneration,
-        'sector': _selectedSector,
-        // Las tres claves coinciden con las etiquetas json del backend
-        // (domain/user.go). Comprobado: 'sector' de la linea de arriba NO
-        // coincide con ninguna —el campo es 'industry'— y por eso ese
-        // desplegable no guarda nada; arreglarlo es aparte.
+        // 'industry', no 'sector': el campo del backend se llama `Industry`
+        // (`domain/user.go`) y `performUpdate` vuelca el JSON tal cual sobre el
+        // struct, así que una clave que no coincide **no falla, se ignora**.
+        // Con 'sector' este desplegable no guardó nada durante meses.
+        //
+        // La regla, para los que vengan: comprueba la clave contra la etiqueta
+        // `json:` del backend. No hay error que avise.
+        'industry': _selectedSector,
         'sexo': _selectedSexo == _sexoSinEspecificar ? '' : _selectedSexo,
         'departamento': _departamentoController.text,
         'direccion': _direccionController.text,
@@ -472,26 +514,16 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                               _buildDropdown(
                                 'Generación',
                                 _selectedGeneration,
-                                [
-                                  'Primera (Fundador)',
-                                  'Segunda',
-                                  'Tercera',
-                                  'Cuarta',
-                                  'Quinta o más',
-                                ],
+                                _opcionesDeGeneracion,
                                 Icons.groups_outlined,
                               ),
                               const SizedBox(height: 16),
-                              _buildDropdown('Sector', _selectedSector, [
-                                'Agroindustria',
-                                'Comercio',
-                                'Construcción',
-                                'Finanzas',
-                                'Manufactura',
-                                'Servicios',
-                                'Tecnología',
-                                'Otro',
-                              ], Icons.category_outlined),
+                              _buildDropdown(
+                                'Sector',
+                                _selectedSector,
+                                _opcionesDeSector,
+                                Icons.category_outlined,
+                              ),
                             ],
                           ),
                         ),
