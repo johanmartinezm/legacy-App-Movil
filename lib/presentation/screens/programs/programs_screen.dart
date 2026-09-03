@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../domain/models/program_model.dart';
 import '../../../data/services/graphql_service.dart';
+import '../../widgets/boton_volver.dart';
 
 /// Programas de LSO agrupados en 3 secciones fijas, en vez de la lista plana
 /// de hasta 32 cursos que había hasta el 2026-08-22.
@@ -303,34 +304,7 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Botón de retorno
-          GestureDetector(
-            onTap: () {
-              if (context.canPop()) {
-                context.pop();
-              } else {
-                context.go('/home');
-              }
-            },
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: const Color(0xFF0B1A2E),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: const Color(0xFF1E3A5F).withValues(alpha: 0.5),
-                  width: 1,
-                ),
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.arrow_back_ios_new,
-                  color: Colors.white,
-                  size: 15,
-                ),
-              ),
-            ),
-          ),
+          const BotonVolver(),
           const SizedBox(width: 14),
 
           // Título y subtítulo

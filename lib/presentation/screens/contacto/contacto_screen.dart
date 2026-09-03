@@ -5,6 +5,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/services/contacto_service.dart';
 import '../../../domain/providers/auth_provider.dart';
+import '../../../domain/utils/volver_atras.dart';
+import '../../widgets/boton_volver.dart';
 
 /// Pantalla "Contactenos" del documento de alcance.
 ///
@@ -110,10 +112,7 @@ class _ContactoScreenState extends State<ContactoScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Contáctenos'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
+        leading: const BotonVolver(),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -144,7 +143,7 @@ class _ContactoScreenState extends State<ContactoScreen> {
         ),
         const SizedBox(height: 32),
         FilledButton(
-          onPressed: () => context.pop(),
+          onPressed: () => volverAtras(context),
           child: const Text('Volver'),
         ),
         TextButton(

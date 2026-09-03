@@ -11,6 +11,7 @@ import 'package:legacy_app/domain/utils/formato_telefono.dart';
 import '../../../config/utils/currency_formatter.dart';
 import '../../../data/services/payment_service.dart';
 import '../../../data/services/auth_service.dart';
+import '../../widgets/boton_volver.dart';
 
 class EventPaymentScreen extends StatefulWidget {
   final EventModel event;
@@ -255,14 +256,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.white,
-            size: 20,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: const BotonVolver(),
         title: Text(
           'Confirmar Registro',
           style: GoogleFonts.barlow(

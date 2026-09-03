@@ -8,6 +8,7 @@ import '../../domain/models/program_model.dart';
 import '../../domain/models/resultado_busqueda.dart';
 import '../../domain/models/synergy_model.dart';
 import '../../domain/utils/busqueda_global.dart';
+import '../widgets/boton_volver.dart';
 
 /// La busqueda de la lupa. Sustituye a `ContentSearchDelegate`, que solo miraba
 /// el contenido: el documento de alcance la llama "Busqueda Global" y ahora
@@ -52,10 +53,7 @@ class GlobalSearchDelegate extends SearchDelegate<ResultadoBusqueda?> {
       ];
 
   @override
-  Widget? buildLeading(BuildContext context) => IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 16),
-        onPressed: () => close(context, null),
-      );
+  Widget? buildLeading(BuildContext context) => BotonVolver(onTap: () => close(context, null));
 
   @override
   Widget buildResults(BuildContext context) => _lista(context);

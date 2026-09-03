@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../domain/models/registration_model.dart';
 import '../../../domain/providers/auth_provider.dart';
 import '../../../domain/providers/events_provider.dart';
+import '../../widgets/boton_volver.dart';
 
 /// Mi credencial: el QR de acceso de **todos** los eventos en los que el usuario
 /// está inscrito.
@@ -47,11 +48,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new,
-              color: Colors.white, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: const BotonVolver(),
         title: Text(
           'Mi credencial',
           style: GoogleFonts.barlow(

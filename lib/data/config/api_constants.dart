@@ -15,6 +15,10 @@ class ApiConstants {
   static const String imageUploadEndpoint = '/api/images/upload';
   static String imageUrl(String name) => '$baseUrl/api/images/$name';
 
+  // Paginas de informacion que edita el panel (hoy, Legacy Board). Publicas:
+  // no exigen sesion, igual que los banners.
+  static String paginaEndpoint(String slug) => '/api/paginas/$slug';
+
   static const String meEndpoint = '/api/me';
   static const String changePasswordEndpoint = '/api/me/change-password';
   static const String fcmTokenEndpoint = '/api/me/fcm-token';

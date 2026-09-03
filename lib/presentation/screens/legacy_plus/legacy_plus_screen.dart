@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:go_router/go_router.dart';
+import '../../widgets/boton_volver.dart';
 
 class LegacyPlusScreen extends StatelessWidget {
   const LegacyPlusScreen({super.key});
@@ -31,34 +31,7 @@ class LegacyPlusScreen extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
                 child: Row(
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        if (context.canPop()) {
-                          context.pop();
-                        } else {
-                          context.go('/home');
-                        }
-                      },
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0B1A2E).withValues(alpha: 0.85),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: const Color(0xFF1E3A5F).withValues(alpha: 0.5),
-                            width: 1,
-                          ),
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.arrow_back_ios_new,
-                            color: Colors.white,
-                            size: 14,
-                          ),
-                        ),
-                      ),
-                    ),
+                    const BotonVolver(),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(

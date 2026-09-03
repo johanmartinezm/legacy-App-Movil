@@ -2,6 +2,149 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-09-02]: Una sola flecha de atrás en toda la app
+
+Reportado por el cliente: cada sección dibujaba la suya. Al inventariarlas salieron **tres iconos**
+—`arrow_back`, `arrow_back_ios` y `arrow_back_ios_new`—, **seis tamaños** (14, 15, 16, 18, 20 y el 24
+por defecto) y **cinco envoltorios** distintos: círculo transparente con borde blanco en Perfil y en
+la ficha de miembros, círculo con fondo azul en Eventos y en el detalle de artículo, cuadrado
+redondeado de 8 en Legacy Knowledge, Programas y Legacy+, cuadrado de 10 con otro relleno en
+Asesorías, y el icono pelado en las diez pantallas restantes.
+
+- **Ahora hay un solo widget:** `presentation/widgets/boton_volver.dart`. Círculo de 32 px con fondo
+  `#0B1A2E` al 60 % y borde blanco al 15 %, con `arrow_back_ios_new` blanco de 16.
+- **El fondo del círculo no es decorativo:** hay pantallas donde la flecha cae sobre una foto —el
+  detalle de un artículo, la ficha de un libro— y el icono suelto se perdía encima de la imagen.
+- **El área que responde al dedo es de 44 px**, mayor que el círculo. Varias flechas eran de 14 px
+  sin envoltorio.
+- **Se anuncia como botón con la etiqueta «Volver»** para los lectores de pantalla; antes eran iconos
+  mudos dentro de un `GestureDetector`.
+- **De paso arregla la navegación en las que faltaban.** Diez pantallas seguían con
+  `Navigator.pop(context)` o `context.pop()` a secas; ahora todas pasan por `volverAtras`, así que
+  ninguna se queda muerta al abrirse por enlace profundo o desde una notificación.
+- **Cada pantalla conserva su destino** cuando no hay pila: la ficha de miembros vuelve a Comunidad,
+  el detalle de programa a Programas, Avisos Legales y la selección de perfil al acceso, y el resto a
+  Inicio.
+- **El buscador global es la excepción a propósito**: su flecha cierra la búsqueda
+  (`close(context, null)`), no navega, así que usa el mismo botón con su `onTap`.
+
+- **Alcance:** `lib/presentation/widgets/boton_volver.dart` (nuevo) y las 22 flechas de
+  `asesoria` (3), `books`, `comunidad/miembros_info`, `contacto`, `delegates/global_search`,
+  `eventos` (3), `faq`, `informandote` (2), `legacy_plus`, `legal_notice`, `notifications`,
+  `paginas`, `profile` (3), `profile_selection`, `programs` (2) y `widgets/custom_section_header`.
+  Pruebas: `test/widgets/boton_volver_test.dart` (nuevo) y actualización del icono buscado en
+  `test/widgets/flecha_atras_test.dart` y `test/screens/pagina_informativa_screen_test.dart`.
+- **Verificado:** `flutter analyze` sin issues nuevos y `flutter test` **249/249**. Y en el teléfono,
+  con el APK instalado: Legacy Knowledge, Asesorías, Legacy+ y Avisos Legales —que antes tenían tres
+  tratamientos distintos— muestran ahora el mismo círculo, del mismo tamaño y en la misma posición.
+  La de Avisos Legales, además, se tocó y llevó a Inicio.
+- **Criterios de QA:**
+  1. **Recorrer Inicio, Eventos, Legacy Knowledge, Programas, Asesorías, Legacy+, Perfil, Mi
+     credencial, Notificaciones, Contáctenos y el detalle de un artículo**: la flecha se ve idéntica
+     en todas —mismo círculo, mismo tamaño, misma posición—.
+  2. **Sobre una foto** (detalle de artículo, ficha de libro): la flecha se distingue del fondo.
+  3. **Tocar cerca del borde del círculo**: responde igual, porque el área es mayor que lo que se ve.
+  4. **Abrir el buscador global y tocar su flecha**: cierra la búsqueda, no navega a Inicio.
+
+### [2026-09-02]: Las flechas de atrás no servían al llegar por enlace profundo
+
+Reportado al probar en el teléfono, y reproducido por adb: abriendo `legacyapp://app/legacy-board` y
+tocando la flecha, la pantalla se quedaba ahí.
+
+- **La causa no era la pantalla, era la puerta.** `context.pop()` no tiene nada que quitar cuando la
+  pantalla es la primera de la pila, y por enlace profundo —o desde un aviso push— lo es. Entrando
+  desde la tarjeta de Inicio, que apila, la flecha sí funcionaba: por eso pasó la primera ronda.
+- **El arreglo:** `context.canPop() ? context.pop() : context.go('/home')`. Con pila se comporta como
+  antes; sin ella, lleva a Inicio en vez de no hacer nada.
+- **Es el mismo patrón del hallazgo de «Ver mi credencial» del 21-08**: el defecto vivía en por dónde
+  se llegaba, no en la pantalla.
+- **Las otras cinco pantallas con el mismo defecto se arreglaron igual**, a petición del cliente en
+  la misma sesión: `miembros_info`, `contacto`, `faq`, `legal_notice` y `profile_selection`. La
+  regla quedó en un solo sitio, `domain/utils/volver_atras.dart`, en vez de repetida siete veces.
+  - **Son siete puntos, no cinco:** además de las flechas, el botón «Volver» de la confirmación de
+    Contáctenos y el «Cancelar» de Avisos Legales hacían el mismo `pop()` sin pila.
+  - **El destino sin pila no es el mismo para todas.** Los miembros vuelven a Comunidad
+    (`/home?tab=2`), Contáctenos y Preguntas frecuentes a Inicio, y **Avisos Legales y la selección
+    de perfil van a `/login`**, porque son pantallas del registro y se abren sin sesión; si además
+    hay sesión, el router reenvía de `/login` a `/home`, así que sirve para los dos casos.
+- **Alcance:** `lib/domain/utils/volver_atras.dart` (nuevo),
+  `lib/presentation/screens/paginas/pagina_informativa_screen.dart`,
+  `lib/presentation/screens/comunidad/miembros_info_screen.dart`,
+  `lib/presentation/screens/contacto/contacto_screen.dart`,
+  `lib/presentation/screens/faq/faq_screen.dart`,
+  `lib/presentation/screens/legal_notice_screen.dart`,
+  `lib/presentation/screens/profile_selection_screen.dart`,
+  `test/screens/pagina_informativa_screen_test.dart` y `test/utils/volver_atras_test.dart` (nuevos).
+- **Verificado:** `flutter analyze` sin issues nuevos y `flutter test` **245/245**. Las dos puertas
+  están cubiertas por pruebas —desde Inicio y entrando directo a la ruta—, y el ayudante tiene las
+  suyas propias. La puerta del enlace directo es la que fallaba antes del arreglo.
+- **Comprobado en el teléfono, no solo en pruebas.** Sin sesión iniciada solo dos de las seis
+  pantallas son alcanzables —`/legal-notice` y `/profile-selection` están en la lista blanca del
+  redirect—, y las dos se abrieron por enlace profundo: la flecha llevó al acceso en vez de quedarse
+  quieta. Las otras cuatro exigen sesión, así que ahí manda la prueba automática.
+- ⚠️ **Al instalar se perdió la sesión del teléfono**: `flutter install` desinstala la versión previa
+  siempre. Para conservarla, `adb install -r build/app/outputs/flutter-apk/app-release.apk`, que es
+  como se instaló esta.
+- **Criterios de QA:**
+  1. **Abrir Legacy Board desde la tarjeta de Inicio y tocar la flecha**: vuelve a Inicio.
+  2. **Abrir `legacyapp://app/legacy-board` con sesión iniciada y tocar la flecha**: entra a Inicio en
+     vez de quedarse quieta.
+  3. **El botón físico de atrás** en el segundo caso sigue cerrando la app: es cómo se llegó, no un
+     fallo de la pantalla.
+  4. **Repetir el caso 2 con las otras cinco**: `legacyapp://app/contacto`, `/faq`, `/legal-notice`,
+     `/profile-selection` y la ficha de miembros. Ninguna flecha debe quedarse quieta.
+  5. **Enviar un mensaje en Contáctenos y tocar «Volver»** en la pantalla de confirmación: sale de
+     ahí también cuando se llegó por enlace directo.
+
+### [2026-09-02]: Legacy Board entra a Inicio como página editable
+
+Pedido del cliente: que Legacy Board esté en Inicio, de primero, y que su información se pueda
+actualizar desde el panel en vez de venir escrita en la app. Por decisión suya **es solo informativa
+por ahora** —sin formulario ni correos— y **el botón de Comunidad se queda como estaba**, con su
+diálogo y su envío de solicitud.
+
+- **Primera tarjeta del grid «Explore libremente»**, antes de Legacy Knowledge. Va con `push` y no
+  con `go`: se entra a leer y se vuelve, así que la pantalla se apila sobre la sección actual.
+- **El texto no viaja en la app.** La pantalla pide `GET /api/paginas/legacy-board`, que es público:
+  pedir sesión para leer un texto informativo dejaría la pantalla en blanco a quien tenga el token
+  caducado.
+- **La pantalla es genérica.** `PaginaInformativaScreen` recibe un `slug` y pinta lo que venga:
+  añadir otra página informativa es registrar una ruta más, no escribir otra pantalla.
+- **Los párrafos se separan por línea en blanco**, no por salto simple: al escribir en el panel es
+  normal cortar la línea a mano y eso no debe partir el párrafo. La regla vive en el modelo, fuera
+  del widget, para poder probarla sin montar la pantalla.
+- **Tres estados que sí se ven:** rueda mientras carga; si el panel despublica la página, «Esta
+  sección no está disponible por el momento» con botón de reintentar; y si el contenido está vacío,
+  «Pronto publicaremos el contenido de esta sección». La barra conserva siempre el título, para que
+  un fallo de red no parezca una pantalla rota.
+- **La imagen de cabecera es opcional** y, si no carga, desaparece sin tumbar el texto.
+- **El backend se desplegó el mismo día**, así que el circuito quedó cerrado: la pantalla se abrió en
+  el teléfono contra producción y pintó el título, el subtítulo y los párrafos. Antes del despliegue
+  mostraba el aviso de «no disponible», que es exactamente lo que debía hacer con un 404.
+
+- **Alcance:**
+  - `lib/domain/models/pagina_informativa_model.dart` (nuevo)
+  - `lib/data/services/paginas_service.dart` (nuevo)
+  - `lib/data/config/api_constants.dart` (`paginaEndpoint`)
+  - `lib/presentation/screens/paginas/pagina_informativa_screen.dart` (nuevo)
+  - `lib/main.dart` (ruta `/legacy-board`)
+  - `lib/presentation/screens/home/home_content_screen.dart` (tarjeta, primera del grid)
+  - `test/models/pagina_informativa_test.dart`, `test/services/paginas_service_test.dart`,
+    `test/screens/pagina_informativa_screen_test.dart` (nuevos)
+- **Verificado:** `flutter analyze` sin issues nuevos y `flutter test` **241/241** (13 nuevos: 5 del modelo, 4 del servicio y 4 de la pantalla). La
+  pantalla se probó contra el backend local con las tres respuestas —200, 404 y 500— y el APK de
+  release quedó instalado en el teléfono.
+
+- **Criterios de QA:**
+  1. **Abrir Inicio y mirar «Explore libremente»**: la primera tarjeta es «Legacy Board».
+  2. **Tocarla**: se abre la pantalla con el título, el subtítulo y el texto que hay en el panel.
+  3. **Cambiar el texto en el panel, salir de la pantalla y volver a entrar**: se ve lo nuevo, sin
+     reinstalar la app.
+  4. **Despublicar la página en el panel**: la pantalla muestra «Esta sección no está disponible por
+     el momento» con el botón «Reintentar», y al volver a publicarla el botón la carga.
+  5. **En modo avión**: sale el aviso de conexión con «Reintentar», no una pantalla en blanco.
+  6. **Comunidad → Legacy Board sigue igual**: abre el diálogo de siempre con los dos contactos.
+
 ### [2026-08-26]: El nombre de Google se reparte bien con dos apellidos
 
 Salió de verificar F7: al registrarse con Google, el formulario se prellenaba con nombre «Johan» y

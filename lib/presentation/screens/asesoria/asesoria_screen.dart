@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 import 'package:legacy_app/domain/utils/formato_telefono.dart';
 import '../../../data/services/asesoria_service.dart';
 import '../../../domain/providers/auth_provider.dart';
+import '../../widgets/boton_volver.dart';
 
 class AsesoriaScreen extends StatefulWidget {
   const AsesoriaScreen({super.key});
@@ -358,34 +358,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () {
-              if (context.canPop()) {
-                context.pop();
-              } else {
-                context.go('/home');
-              }
-            },
-            child: Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.12),
-                  width: 1,
-                ),
-                color: Colors.white.withValues(alpha: 0.04),
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.arrow_back_ios_new,
-                  color: Colors.white,
-                  size: 14,
-                ),
-              ),
-            ),
-          ),
+          const BotonVolver(),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -724,32 +697,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _showForm = false;
-              });
-            },
-            child: Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.12),
-                  width: 1,
-                ),
-                color: Colors.white.withValues(alpha: 0.04),
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.arrow_back_ios_new,
-                  color: Colors.white,
-                  size: 14,
-                ),
-              ),
-            ),
-          ),
+          const BotonVolver(),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -863,32 +811,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _showCalendar = false;
-              });
-            },
-            child: Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.12),
-                  width: 1,
-                ),
-                color: Colors.white.withValues(alpha: 0.04),
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.arrow_back_ios_new,
-                  color: Colors.white,
-                  size: 14,
-                ),
-              ),
-            ),
-          ),
+          const BotonVolver(),
           const SizedBox(width: 16),
           Expanded(
             child: Column(

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../widgets/documentos_legales_enlaces.dart';
+import '../../domain/utils/volver_atras.dart';
+import '../widgets/boton_volver.dart';
 
 class LegalNoticeScreen extends StatelessWidget {
   const LegalNoticeScreen({super.key});
@@ -11,10 +13,7 @@ class LegalNoticeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Avisos Legales'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
+        leading: const BotonVolver(destino: '/login'),
       ),
       body: SafeArea(
         child: Padding(
@@ -84,7 +83,7 @@ class LegalNoticeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               TextButton(
-                onPressed: () => context.pop(),
+                onPressed: () => volverAtras(context, destino: '/login'),
                 child: const Text('Cancelar'),
               ),
             ],

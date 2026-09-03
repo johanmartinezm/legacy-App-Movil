@@ -50,7 +50,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('DETALLE'), findsWidgets);
 
-    await tester.tap(find.byIcon(Icons.arrow_back_ios));
+    await tester.tap(find.byIcon(Icons.arrow_back_ios_new));
     await tester.pumpAndSettle();
 
     expect(find.text('ORIGEN'), findsWidgets);
@@ -67,7 +67,7 @@ void main() {
     r.go('/detalle');
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byIcon(Icons.arrow_back_ios));
+    await tester.tap(find.byIcon(Icons.arrow_back_ios_new));
     await tester.pumpAndSettle();
 
     expect(find.text('INICIO'), findsWidgets);

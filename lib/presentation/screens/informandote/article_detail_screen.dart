@@ -14,6 +14,7 @@ import 'package:legacy_app/domain/providers/auth_provider.dart';
 import 'package:legacy_app/data/services/post_service.dart';
 import 'package:legacy_app/data/services/graphql_service.dart';
 import 'package:legacy_app/data/config/image_helper.dart';
+import '../../widgets/boton_volver.dart';
 
 class ArticleDetailScreen extends StatefulWidget {
   final ContentItem article;
@@ -136,16 +137,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
           SliverAppBar(
             expandedHeight: 200,
             pinned: true,
-            leading: Padding(
-              padding: const EdgeInsets.only(left: 8.0, top: 4.0, bottom: 4.0),
-              child: CircleAvatar(
-                backgroundColor: const Color(0xFF0B1A2E).withValues(alpha: 0.6),
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 16),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ),
-            ),
+            leading: const BotonVolver(),
             actions: [
               CircleAvatar(
                 backgroundColor: const Color(0xFF0B1A2E).withValues(alpha: 0.6),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import '../../widgets/boton_volver.dart';
 
 class MiembrosInfoScreen extends StatelessWidget {
   const MiembrosInfoScreen({super.key});
@@ -12,18 +13,7 @@ class MiembrosInfoScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
-            ),
-            child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 14),
-          ),
-          onPressed: () => context.pop(),
-        ),
+        leading: const BotonVolver(destino: '/home?tab=2'),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../domain/models/program_model.dart';
+import '../../widgets/boton_volver.dart';
 
 class ProgramDetailScreen extends StatelessWidget {
   final GraphqlProgram program;
@@ -72,34 +72,7 @@ class ProgramDetailScreen extends StatelessWidget {
               // ── Botón Atrás Superior ──────────────────────────────────────────
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                child: GestureDetector(
-                  onTap: () {
-                    if (context.canPop()) {
-                      context.pop();
-                    } else {
-                      context.go('/programas');
-                    }
-                  },
-                  child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0B1A2E),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: const Color(0xFF1E3A5F).withValues(alpha: 0.5),
-                        width: 1,
-                      ),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.arrow_back_ios_new,
-                        color: Colors.white,
-                        size: 15,
-                      ),
-                    ),
-                  ),
-                ),
+                child: const BotonVolver(destino: '/programas'),
               ),
 
               // ── Contenido Principal Desplazable ──────────────────────────────

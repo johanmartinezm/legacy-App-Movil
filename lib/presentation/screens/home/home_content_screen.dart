@@ -416,6 +416,17 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
       mainAxisSpacing: 12,
       childAspectRatio: 0.95,
       children: [
+        // Primero del grid por decisión del 2026-09-02. El contenido de esta
+        // pantalla lo edita el panel, no viaja en la app: por eso es una ruta
+        // propia y no el diálogo que sigue viviendo en Comunidad.
+        _buildModuleCard(
+          context: context,
+          title: 'Legacy Board',
+          subtitle: 'Gobierno corporativo para familias empresarias',
+          icon: Icons.dashboard,
+          iconColor: const Color(0xFFD9B87F),
+          onTap: () => context.push('/legacy-board'),
+        ),
         _buildModuleCard(
           context: context,
           // "Legacy Knowledge" es el nombre oficial de la sección desde el

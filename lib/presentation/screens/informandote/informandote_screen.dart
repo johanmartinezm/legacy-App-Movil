@@ -10,6 +10,7 @@ import '../../../data/services/custom_content_service.dart';
 import '../../../data/services/video_canal_service.dart';
 import '../../../domain/models/video_canal_model.dart';
 import '../../../domain/utils/busqueda_global.dart';
+import '../../widgets/boton_volver.dart';
 
 class InformandoteScreen extends StatefulWidget {
   const InformandoteScreen({super.key});
@@ -203,31 +204,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
                 child: Row(
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        if (context.canPop()) {
-                          context.pop();
-                        } else {
-                          context.go('/home');
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0B1A2E),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: const Color(0xFF1E3A5F).withValues(alpha: 0.5),
-                            width: 1,
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.arrow_back_ios_new,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                      ),
-                    ),
+                    const BotonVolver(),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(

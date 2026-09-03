@@ -4,6 +4,7 @@ import 'package:legacy_app/domain/models/event_model.dart';
 import '../../../data/config/image_helper.dart';
 import '../../widgets/eventos/event_action_button.dart';
 import '../../widgets/eventos/event_survey_button.dart';
+import '../../widgets/boton_volver.dart';
 
 class EventPurchaseDetailScreen extends StatelessWidget {
   final EventModel event;
@@ -20,14 +21,7 @@ class EventPurchaseDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.white,
-            size: 20,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: const BotonVolver(),
         title: Text(
           'Detalle Evento',
           style: GoogleFonts.barlow(

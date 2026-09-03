@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../domain/providers/auth_provider.dart';
 import '../../config/theme/app_theme.dart';
+import 'boton_volver.dart';
 
 class CustomSectionHeader extends StatelessWidget {
   /// El nombre de la pantalla, bajo el logotipo. Va en mayúsculas, como el
@@ -78,21 +79,7 @@ class CustomSectionHeader extends StatelessWidget {
         children: [
           // Left: back / toggle / menu dots
           if (showBackButton)
-            GestureDetector(
-              onTap: () {
-                if (context.canPop()) {
-                  context.pop();
-                } else {
-                  // Sin nada que desapilar solo pasa al entrar de fuera: una
-                  // notificacion o un enlace. Se vuelve al Inicio y no a
-                  // Comunidad, que es donde caia todo el mundo viniera de donde
-                  // viniera. Si esto salta al tocar atras dentro de la app, es
-                  // que a esa pantalla se llego con go en vez de push.
-                  context.go('/home');
-                }
-              },
-              child: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
-            )
+            const BotonVolver()
           else if (showDescriptionToggle)
             GestureDetector(
               onTap: onDescriptionToggle,

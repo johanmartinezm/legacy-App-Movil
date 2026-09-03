@@ -10,6 +10,7 @@ import '../../../domain/providers/events_provider.dart';
 import '../../../domain/providers/auth_provider.dart';
 import 'event_purchase_detail_screen.dart';
 import 'agenda_screen.dart';
+import '../../widgets/boton_volver.dart';
 
 class EventosScreen extends StatefulWidget {
   const EventosScreen({super.key});
@@ -158,28 +159,7 @@ class _EventosScreenState extends State<EventosScreen> {
       child: Row(
         children: [
           // Back Button
-          GestureDetector(
-            onTap: () {
-              if (context.canPop()) {
-                context.pop();
-              } else {
-                context.go('/home');
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF0B1A2E).withValues(alpha: 0.6),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new,
-                color: Colors.white,
-                size: 16,
-              ),
-            ),
-          ),
+          const BotonVolver(),
           const SizedBox(width: 14),
           // Title & Subtitle
           Expanded(

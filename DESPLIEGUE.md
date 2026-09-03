@@ -257,9 +257,10 @@ que el último subido**. Si se deja vacío, se usa el de `pubspec.yaml` y TestFl
 si ese número ya existe.
 
 **No confíes en ningún número escrito en este archivo**: se queda viejo enseguida. El que manda es el
-de `pubspec.yaml`, y el último realmente subido se mira en TestFlight o en Play Console. Al 2026-08-25
-`pubspec.yaml` va por `1.0.0+19`, pero el último build documentado como subido es el ad-hoc
-`1.0.0+16` (`qa_bitacora.md`): de los builds 17, 18 y 19 no hay constancia de que se publicaran.
+de `pubspec.yaml`, y el último realmente subido se mira en TestFlight o en Play Console. Al 2026-09-02
+`pubspec.yaml` va por `1.0.0+19`, y **ese número ya está ocupado en App Store Connect**: la ejecución
+del 2026-08-22 se lanzó sin `subir_a_testflight=false` y terminó con `UPLOAD SUCCEEDED`. El próximo
+envío arranca por tanto en `+20`.
 
 El `.ipa` queda como artefacto de la ejecución durante 14 días, aunque la subida falle: así un
 problema al publicar no obliga a repetir veinte minutos de compilación.
@@ -319,7 +320,7 @@ anticipar desde Windows: casi todos solo aparecen en macOS o contra los servidor
 | `X does not support provisioning profiles, but provisioning profile ... has been manually specified` | Se pasaron ajustes de firma por línea de comandos a `xcodebuild`: se aplican a **todos** los targets, y los Swift Packages de Firebase o GoogleSignIn no los admiten. La firma va en `ExportOptions.plist`, no en el archive |
 | `The file .../Runner.ipa cannot be found` | El `.ipa` toma el nombre del **producto** (`legacy_app.ipa`), no el del target. El workflow ya lo descubre solo |
 | `This app was built with the iOS X SDK... must be built with the iOS 26 SDK or later` | Apple subió el SDK mínimo. Hay que cambiar el runner a una imagen con un Xcode más nuevo; el paso "Version de Xcode y SDK" del log dice con cuál se está compilando |
-| Build rechazado por número repetido | Subir el número de build. El **11** ya está usado |
+| Build rechazado por número repetido | Subir el número de build. Al 2026-09-02 el último ocupado es el **19** |
 | En TestFlight sale *Missing Compliance* | Cuestionario de cifrado; se responde en App Store Connect o se declara `ITSAppUsesNonExemptEncryption` |
 
 **El `.ipa` queda como artefacto de la ejecución aunque la subida falle**, así que un problema al
@@ -327,8 +328,9 @@ publicar no obliga a repetir la compilación.
 
 ## Requisitos de ficha, comunes a las dos tiendas
 
-Nada de esta sección es código, y es lo que hoy impide publicar. Se rellena en Play Console y en
-App Store Connect.
+Nada de esta sección es código; se rellena en Play Console y en App Store Connect. Desde el
+2026-09-02 **ya no queda aquí nada que dependa de terceros**: los textos legales que faltaban están
+publicados.
 
 ### Política de privacidad
 
@@ -336,67 +338,83 @@ App Store Connect.
 https://legacynetworkco.com/politica-de-privacidad/
 ```
 
-Pública y accesible sin instalar la app —verificado—, fechada el 2026-06-02. Va en el campo
-*Privacy Policy URL* de las dos fichas.
+Va en el campo *Privacy Policy URL* de las dos fichas.
 
-**Es una política corporativa, no de la app**, y de ahí salen sus dos problemas:
+**Ya cubre la app.** Verificado contra la página publicada el 2026-09-02: trae el numeral 6,
+«Tratamiento de datos personales a través de la aplicación móvil Legacy», que era exactamente lo que
+faltaba. Con eso desaparecen los dos problemas que tenía la versión corporativa:
 
-1. **No menciona la aplicación móvil.** Solo habla de Legacy Network como empresa y de plataformas
-   de terceros (WhatsApp). Apple (directriz 5.1.1) y Google exigen que la política cubra los datos
-   que recoge **la app**. Basta añadir un apartado que la nombre y liste lo que recoge.
-2. **Declara datos que la app no toca**: salud, biométricos, financieros, antecedentes laborales.
-   Los cuestionarios *App Privacy* y *Data Safety* deben reflejar lo que la app recoge de verdad —
-   nombre, correo, teléfono, alias, bio, foto, tokens FCM y el pago por Credibanco—, **no lo que
-   dice la política**. Declarar salud o biométricos en Data Safety dispara requisitos adicionales
-   que aquí no aplican, y una inconsistencia entre ficha y política es motivo de revisión en Google.
+1. **6.1 lista los datos que recoge la app** —nombre, correo, teléfono, tipo y número de documento,
+   fecha de nacimiento, alias, foto, inscripciones y asistencia, compras de eventos, identificador de
+   dispositivo para las notificaciones— y dice expresamente que la app **no accede a GPS** y **no usa
+   publicidad, rastreo ni analítica**, aclarando que las demás categorías que menciona la política
+   (salud, biométricos, centrales de riesgo) **no se recogen a través de la app**. Esa separación es
+   la que permite responder los cuestionarios sin contradecir lo publicado.
+2. **6.3 nombra a los terceros**: Google y Apple para el acceso, Firebase para las notificaciones y
+   Credibanco para los pagos, aclarando que los datos de tarjeta no los almacena Legacy Network.
 
-### Eliminación de cuenta: falta la URL web
+Los cuestionarios *App Privacy* y *Data Safety* se responden con esa lista —nombre, correo, teléfono,
+alias, bio, foto, tokens FCM y el pago por Credibanco—. **No declares salud ni biométricos** aunque
+la parte corporativa de la política los mencione: dispara requisitos adicionales que aquí no aplican,
+y la propia política ya dice que la app no los toca.
+
+### Eliminación de cuenta
 
 Apple se cubre con el borrado dentro de la app (`DELETE /api/me`, implementado el 2026-08-06).
-**Google Play exige además una URL pública** donde se pueda solicitar la eliminación sin instalar
-la app, en *Play Console → Contenido de la app → Eliminación de datos*.
+**Google Play exige además una URL pública** donde se pueda solicitar la eliminación sin instalar la
+app, en *Play Console → Contenido de la app → Eliminación de datos*.
 
-La política actual no sirve para eso: dice que Legacy Network "podrá proceder con la supresión",
-que describe una facultad de la empresa, no un procedimiento para la persona usuaria. Hace falta
-una página que explique cómo pedirlo y **qué se conserva** —las inscripciones y los mensajes se
-anonimizan, no se borran—, coherente con lo que ya avisa el diálogo de la app.
+**Sirve la misma URL de la política.** Su numeral **6.6** ya describe el procedimiento real: Perfil →
+«Eliminar mi cuenta», el mecanismo de confirmación, y la cuenta **anonimizada de forma inmediata**.
+Dice también qué se conserva anonimizado —las inscripciones y los mensajes de chat, para que la otra
+persona siga viendo su conversación—, que el nuevo registro con el mismo correo crea una cuenta
+distinta, y deja el correo de soporte como vía alterna para quien ya desinstaló la app. Los T&C
+publicados dicen lo mismo en su **cláusula 13.1**, que también apareció.
 
-⚠️ **Cuidado con el texto que redactó Legacy Legal el 2026-08-12**: describe la eliminación como un
-trámite por correo con **5 días hábiles** de plazo. La app no funciona así desde el 2026-08-06: en
-*Perfil → Eliminar mi cuenta* la cuenta se anonimiza **al instante**, que es justo lo que exige la
-directriz 5.1.1(v). Si esa página se publica tal cual, describirá un procedimiento que no existe.
-Está señalado en `reports/20260825_faltantes_texto_paola.md`.
+No hay página dedicada: `/eliminar-cuenta/`, `/eliminacion-de-datos/` y las dos variantes de
+«autorización» responden **404** (comprobado el 2026-09-02). Si algún día se crea una, tiene que
+seguir diciendo *inmediata*: el borrador de los **5 días hábiles** que circuló en agosto describe un
+trámite por correo que la app no hace desde el 2026-08-06.
 
-### Lo demás que sigue pendiente
+### Lo que falta para enviar
 
-Revisado el 2026-08-25 contra el código y las bitácoras.
+Revisado el 2026-09-02. Todo lo que queda se hace desde aquí, sin esperar a nadie.
 
-- **Capturas de pantalla y activos de ficha.** No existe ni un archivo en el repositorio: hacen falta
-  capturas de iPhone 6.9" y 6.5" y de Play. Las prepara desarrollo, y es el único bloqueo de envío
-  que no depende de nadie de fuera.
-- **Cuestionario App Privacy (Apple) y Data Safety (Google).** La lista de datos que los alimenta ya
-  está verificada (arriba), pero no se pueden responder mientras la política publicada no tenga el
-  apartado de la app: quedarían contradiciendo lo publicado.
-- **Textos de ficha**: descripción, subtítulo, palabras clave, categoría y clasificación por edad
-  coherente con el límite de mayoría de edad de los T&C.
-- **Probar el login con Google y con Apple** en iOS y en Android. Sin ejecutar todavía, y es lo
-  primero que toca un revisor.
+- **Subir el número de build.** `pubspec.yaml` está en `1.0.0+19` y el **+19 ya se usó** en el
+  TestFlight del 22-08. Un envío nuevo empieza por dejarlo en `+20`.
+- **Cuestionario App Privacy (Apple) y Data Safety (Google).** Ya se pueden responder: la lista de
+  datos está arriba y la política publicada ya no la contradice. Era el bloqueo principal.
+- **Capturas y activos de ficha: hechos** (2026-08-25). Están en `reports/capturas_20260825/ficha/`:
+  cinco pantallas en `appstore_69/` (1320×2868) y en `play/` (1242×2208) —Inicio, Eventos, Mi
+  credencial, Legacy Knowledge y Legacy+—, más `grafico_funciones_1024x500.png`, obligatorio en Play,
+  y `icono_512x512.png`. Se capturaron contra un **entorno local con datos inventados**, no contra
+  producción: no aparece ninguna persona real ni ningún QR de check-in auténtico. El `LEEME.md` de esa
+  carpeta explica cómo regenerarlas. Ojo: `reports/` está fuera de git, así que esas imágenes no
+  viajan con el repositorio.
+- **Textos de ficha:** hay borradores —nombre, subtítulo, descripción corta, palabras clave y
+  descripción completa— con el recuento de caracteres ya medido contra el límite de cada tienda, en
+  `reports/capturas_20260825/textos_ficha.py`. Falta pegarlos y decidir categoría y clasificación por
+  edad, coherente con el límite de mayoría de edad de los T&C.
+- **Probar el login con Google y con Apple en iOS.** En Android quedó verificado el 2026-08-26
+  (hallazgo F7, en `qa_bitacora.md`). Los cuatro casos de iOS —entrar y registrarse, con cada
+  proveedor— siguen **sin ejecutar por falta de hardware**, y es lo primero que toca un revisor.
 - **Icono de la ficha:** el del build (`ios/Runner/Assets.xcassets/AppIcon.appiconset/`) está bien,
   sin canal alfa. Pero `assets/images/flutter_icons/ios/Icon-1024.png` **sí lo tiene**, y App Store
   rechaza el icono con alfa — no tomes ese para la ficha.
 - **La cuenta de demo del revisor**: renombrar el evento `[PRUEBA QA] Evento gratuito de
   verificacion` al que está inscrita, porque ese nombre le sale en la credencial, y cargar sus
   credenciales en *App Store Connect → App Review Information*.
-- **Decisión de negocio abierta**: los T&C publicados ofrecen eventos "virtuales o presenciales", y un
-  evento virtual es contenido digital que la directriz **3.1.1** obliga a cobrar dentro de la app. El
-  esquema tampoco distingue modalidad. No bloquea el envío, pero es lo que más probablemente provoque
-  un rechazo.
+- **Decisión de negocio abierta**: los T&C publicados siguen ofreciendo eventos "virtuales o
+  presenciales" —comprobado el 2026-09-02—, y un evento virtual es contenido digital que la directriz
+  **3.1.1** obliga a cobrar dentro de la app. El esquema tampoco distingue modalidad. No bloquea el
+  envío, pero es lo que más probablemente provoque un rechazo.
 
-**Ya resuelto, no lo vuelvas a buscar:** cuenta de demo creada y verificada en producción
-(`reports/20260812_cuenta_demo_apple.md`); `ITSAppUsesNonExemptEncryption` en `false`;
-`com.apple.developer.applesignin` declarado; bloquear y reportar personas (directriz 1.2); eliminar
-cuenta desde la app (directriz 5.1.1(v)); y la prueba cerrada de 14 días de Play, que **no aplica**
-por ser cuenta de Organización.
+**Ya resuelto, no lo vuelvas a buscar:** el apartado de la app en la política de privacidad y la
+cláusula 13.1 de los T&C, publicados y verificados el 2026-09-02; las capturas y el gráfico de
+funciones; cuenta de demo creada y verificada en producción (`reports/20260812_cuenta_demo_apple.md`);
+`ITSAppUsesNonExemptEncryption` en `false`; `com.apple.developer.applesignin` declarado; bloquear y
+reportar personas (directriz 1.2); eliminar cuenta desde la app (directriz 5.1.1(v)); y la prueba
+cerrada de 14 días de Play, que **no aplica** por ser cuenta de Organización.
 
 ## Web
 
@@ -411,8 +429,10 @@ el panel Angular (`legacy_frontend`). Si se quiere publicar la app web hay que d
 dónde: subdominio propio o una ruta enrutada en HAProxy, con su contenedor nginx.
 
 Ten en cuenta que la web usa `localhost` como API salvo que `config.json` diga otra cosa, y que el
-backend tiene `CORS AllowedOrigins: "*"` — funcionará desde cualquier origen, pero eso es un
-problema de seguridad del backend, no una garantía en la que apoyarse.
+backend **ya no acepta cualquier origen**: `main.go` filtra con `origenPermitido`, que solo deja pasar
+`https://legacy.intelyclick.com` y cualquier `localhost` (comprobado contra producción el 2026-08-26).
+Si la app web se publica en otro dominio, hay que añadirlo a `origenesDeConfianza` o el navegador
+bloqueará todas las llamadas.
 
 ## Al cerrar la entrega
 

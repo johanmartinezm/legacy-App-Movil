@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../domain/models/faq_data.dart';
 import '../../../domain/utils/busqueda_global.dart';
+import '../../widgets/boton_volver.dart';
 
 /// Preguntas frecuentes, en cuatro secciones.
 ///
@@ -52,10 +53,7 @@ class _FaqScreenState extends State<FaqScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Preguntas frecuentes'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
+        leading: const BotonVolver(),
       ),
       body: SafeArea(
         child: Column(

@@ -25,6 +25,7 @@ import 'presentation/screens/home_screen.dart';
 import 'presentation/screens/informandote/informandote_screen.dart';
 import 'presentation/screens/legal_notice_screen.dart';
 import 'presentation/screens/contacto/contacto_screen.dart';
+import 'presentation/screens/paginas/pagina_informativa_screen.dart';
 import 'presentation/screens/faq/faq_screen.dart';
 import 'presentation/screens/profile_selection_screen.dart';
 import 'presentation/screens/splash_screen.dart';
@@ -366,6 +367,16 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
             GoRoute(
               path: '/contacto',
               builder: (context, state) => const ContactoScreen(),
+            ),
+            // Legacy Board. El texto no viaja en la app: lo edita el panel y
+            // la pantalla lo pide por su slug, asi que cambiarlo no exige
+            // publicar una version nueva en las tiendas.
+            GoRoute(
+              path: '/legacy-board',
+              builder: (context, state) => const PaginaInformativaScreen(
+                slug: 'legacy-board',
+                tituloProvisional: 'Legacy Board',
+              ),
             ),
             GoRoute(
               path: '/faq',

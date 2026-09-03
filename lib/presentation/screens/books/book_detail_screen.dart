@@ -6,6 +6,7 @@ import '../../../domain/models/book_model.dart';
 import '../../../domain/utils/abrir_en_lso.dart';
 import '../../../../config/theme/app_theme.dart';
 import '../../../data/config/image_helper.dart';
+import '../../widgets/boton_volver.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final GraphqlBook book;
@@ -61,10 +62,7 @@ class BookDetailScreen extends StatelessWidget {
       expandedHeight: 400,
       pinned: true,
       backgroundColor: AppTheme.legacyBlue1,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-        onPressed: () => Navigator.pop(context),
-      ),
+      leading: const BotonVolver(),
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           fit: StackFit.expand,
