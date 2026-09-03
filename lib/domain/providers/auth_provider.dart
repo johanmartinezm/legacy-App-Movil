@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -79,6 +80,12 @@ class AuthProvider extends ChangeNotifier {
   String? _role;
   String? _alias;
 
+  /// Cuentas creadas por la carga masiva: su contraseña es el número de
+  /// documento, así que la app las lleva a cambiarla antes de dejarlas entrar.
+  /// Llega en `GET /api/me` —no en la respuesta del login, que solo trae el
+  /// token—. Ver reports/20260826_plan_carga_masiva.md §2.5.
+  bool _debeCambiarContrasena = false;
+
   AuthProvider({AuthService? authService})
     : _authService = authService ?? AuthService() {
     checkLoginStatus();
@@ -95,6 +102,7 @@ class AuthProvider extends ChangeNotifier {
   String? get email => _email;
   String? get phone => _phone;
   String? get role => _role;
+  bool get debeCambiarContrasena => _debeCambiarContrasena;
 
   /// Nombre y apellido juntos, sin espacios sobrantes si falta alguno.
   /// `null` cuando no hay ninguno de los dos, para que quien lo use pueda
@@ -158,8 +166,20 @@ class AuthProvider extends ChangeNotifier {
     _phone = await _storage.read(key: 'user_phone');
     _role = await _storage.read(key: 'user_role');
     _alias = await _storage.read(key: 'user_alias');
-    if (_token != null && (_customerStatus == null || _userID == null || _firstName == null || _email == null)) {
-      await fetchProfile();
+    if (_token != null) {
+      if (_customerStatus == null ||
+          _userID == null ||
+          _firstName == null ||
+          _email == null) {
+        await fetchProfile();
+      } else {
+        // Sin esperar: los datos guardados alcanzan para pintar la app, pero
+        // `debe_cambiar_contrasena` es estado del servidor y no se persiste.
+        // Sin este refresco, alguien que cerrara la app en la pantalla de
+        // cambio obligatorio volvería a entrar sin la obligación. Cuando
+        // llegue, el notifyListeners despierta al router.
+        unawaited(fetchProfile());
+      }
     }
     if (_token != null) {
       _registerDeviceToken();
@@ -195,10 +215,22 @@ class AuthProvider extends ChangeNotifier {
       if (_alias != null) {
         await _storage.write(key: 'user_alias', value: _alias);
       }
+      // No se guarda en el almacenamiento seguro a propósito: es un estado del
+      // servidor y quedarse con una copia vieja significaría o encerrar a quien
+      // ya cambió la contraseña, o dejar pasar a quien no.
+      _debeCambiarContrasena = profile['debe_cambiar_contrasena'] == true;
       notifyListeners();
     } catch (e) {
       debugPrint('Error fetching profile: $e');
     }
+  }
+
+  /// La llama la pantalla de cambio obligatorio al terminar. Evita depender de
+  /// un `fetchProfile` que puede fallar por red justo después de cambiarla.
+  void marcarContrasenaCambiada() {
+    if (!_debeCambiarContrasena) return;
+    _debeCambiarContrasena = false;
+    notifyListeners();
   }
 
   Future<String?> getSavedEmail() async {
@@ -383,6 +415,7 @@ class AuthProvider extends ChangeNotifier {
       _lastName = profile['last_name'];
       _email = profile['email'] ?? email;
       _role = profile['role'];
+      _debeCambiarContrasena = profile['debe_cambiar_contrasena'] == true;
 
       if (rememberMe) {
         await _storage.write(key: 'auth_token', value: _token);

@@ -26,6 +26,7 @@ import 'presentation/screens/informandote/informandote_screen.dart';
 import 'presentation/screens/legal_notice_screen.dart';
 import 'presentation/screens/contacto/contacto_screen.dart';
 import 'presentation/screens/paginas/pagina_informativa_screen.dart';
+import 'presentation/screens/profile/cambiar_contrasena_screen.dart';
 import 'presentation/screens/faq/faq_screen.dart';
 import 'presentation/screens/profile_selection_screen.dart';
 import 'presentation/screens/splash_screen.dart';
@@ -275,6 +276,15 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
           return '/login';
         }
 
+        // Cuentas creadas por una carga masiva: su contrasena es el numero de
+        // documento. No se les deja usar la app hasta cambiarla, vengan por
+        // donde vengan —incluido un enlace profundo o una notificacion—.
+        if (isAuthenticated &&
+            authProvider.debeCambiarContrasena &&
+            state.uri.path != '/cambiar-contrasena') {
+          return '/cambiar-contrasena';
+        }
+
         if (isAuthenticated && isLoggingIn) {
           return '/home';
         }
@@ -318,6 +328,13 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
             final txId = q['tx_id'] ?? q['order_id'] ?? q['orderId'] ?? '';
             return PaymentCallbackScreen(orderId: txId);
           },
+        ),
+
+        // Fuera del ShellRoute a proposito: sin barra inferior, que seria una
+        // salida de una pantalla de la que no se puede salir.
+        GoRoute(
+          path: '/cambiar-contrasena',
+          builder: (context, state) => const CambiarContrasenaScreen(),
         ),
 
         ShellRoute(

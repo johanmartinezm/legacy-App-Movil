@@ -232,8 +232,15 @@ class AuthService {
       '${ApiConstants.baseUrl}${ApiConstants.changePasswordEndpoint}',
     );
 
+    // El envio y la lectura de la respuesta van por separado a proposito.
+    // Cuando los dos estaban dentro del mismo try, el `throw` del motivo real
+    // —"la contrasena actual no es correcta"— lo atrapaba el catch de abajo y
+    // salia por pantalla como "Error de conexion: Exception: la contrasena
+    // actual no es correcta". Atrapado el 2026-09-02 por la prueba de la
+    // pantalla de cambio obligatorio.
+    late final http.Response response;
     try {
-      final response = await _client.post(
+      response = await _client.post(
         url,
         headers: {
           'Content-Type': 'application/json',
@@ -244,19 +251,19 @@ class AuthService {
           'new_password': newPassword,
         }),
       );
-
-      if (response.statusCode != 200) {
-        String message;
-        try {
-          final errorBody = jsonDecode(response.body);
-          message = errorBody['message'] ?? 'Error al cambiar contraseña';
-        } catch (_) {
-          message = 'Error del servidor (${response.statusCode})';
-        }
-        throw Exception(message);
-      }
     } catch (e) {
-      throw Exception('Error de conexión: $e');
+      throw Exception('Error de conexión');
+    }
+
+    if (response.statusCode != 200) {
+      String message;
+      try {
+        final errorBody = jsonDecode(response.body);
+        message = errorBody['message'] ?? 'Error al cambiar contraseña';
+      } catch (_) {
+        message = 'Error del servidor (${response.statusCode})';
+      }
+      throw Exception(message);
     }
   }
 

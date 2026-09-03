@@ -2,6 +2,51 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-09-02]: Tres campos de perfil y el cambio de contraseña obligatorio
+
+Parte de la app de los dos cortes previos a la carga masiva del Summit; el detalle del backend está
+en `Backend/qa_bitacora.md` del mismo día.
+
+- **Tres controles nuevos en editar perfil:** Sexo (desplegable), Departamento y Dirección. **Solo
+  ahí**: ni en ver perfil ni en ninguna lista, que es lo que pide el plan §3.1.
+- **El desplegable de sexo tolera lo que venga.** Un valor importado que no esté en la lista
+  reventaría `DropdownButtonFormField`, así que cae en «Sin especificar», que al guardar viaja como
+  cadena vacía y no como ese texto.
+- ⚠️ **Las claves del JSON coinciden con las etiquetas del backend**, que era la trampa anotada en el
+  plan: en ese mismo formulario `'sector'` no coincide con ninguna —el campo es `industry`— y por eso
+  ese desplegable no guarda nada desde siempre. **Sigue sin arreglarse**: es de otro alcance.
+- **Pantalla de cambio obligatorio** (`/cambiar-contrasena`), distinta del diálogo voluntario de
+  editar perfil: sin flecha, sin cancelar, con `PopScope` y **fuera del `ShellRoute`**, porque la
+  barra inferior sería una salida de una pantalla de la que no se puede salir.
+- **El desvío vive en el `redirect` del router**, así que atrapa también los enlaces profundos y las
+  notificaciones: con la bandera puesta, cualquier ruta lleva ahí.
+- **La bandera se lee al iniciar sesión y al restaurar la sesión.** Lo segundo hacía falta: el
+  arranque solo pedía el perfil si faltaba algún dato guardado, así que quien cerrara la app en esa
+  pantalla volvía a entrar sin la obligación. Ahora se refresca en segundo plano —sin bloquear el
+  arranque— y el `notifyListeners` despierta al router.
+- **Al cambiar la contraseña la obligación se levanta en local**, sin releer el perfil: si la red
+  fallara justo después, la persona quedaría encerrada con la contraseña ya cambiada.
+- 🟢 **Un fallo viejo que salió al probar esto:** `AuthService.changePassword` envolvía el motivo real
+  en el `catch` de conexión, así que una contraseña actual equivocada se mostraba como «Error de
+  conexión: Exception: …». Ahora el envío y la lectura de la respuesta van separados. **Afecta
+  también al diálogo voluntario**, que llevaba el mismo defecto.
+
+- **Alcance:** `lib/presentation/screens/profile/profile_edit_screen.dart`,
+  `lib/presentation/screens/profile/cambiar_contrasena_screen.dart` (nueva),
+  `lib/domain/providers/auth_provider.dart`, `lib/data/services/auth_service.dart`, `lib/main.dart`,
+  `test/screens/cambio_contrasena_obligatorio_test.dart` (nuevo, 5 casos).
+- **Verificado:** `flutter analyze` sin issues nuevos y `flutter test` **254/254**. El recorrido
+  contra el servidor local está en la entrada del backend.
+- **Criterios de QA:**
+  1. **Editar perfil**: aparecen Sexo, Departamento y Dirección debajo de Ubicación; se guardan y se
+     ven al reabrir.
+  2. **«Sin especificar»** se puede dejar tal cual y no escribe ese texto en la cuenta.
+  3. **Con una cuenta importada** (bandera puesta): al entrar, la app lleva a «Cambia tu contraseña»
+     y el botón físico de atrás no saca de ahí.
+  4. **Escribir mal la contraseña actual**: el aviso dice que no es correcta, no «error de conexión».
+  5. **Cambiarla**: entra a Inicio y, al volver a abrir la app, ya no la vuelve a pedir.
+  6. **Una cuenta normal** no ve nada de esto.
+
 ### [2026-09-02]: Una sola flecha de atrás en toda la app
 
 Reportado por el cliente: cada sección dibujaba la suya. Al inventariarlas salieron **tres iconos**

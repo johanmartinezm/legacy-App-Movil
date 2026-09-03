@@ -31,8 +31,25 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final TextEditingController _companyController = TextEditingController();
   final TextEditingController _jobTitleController = TextEditingController();
 
+  // Sexo, departamento y direccion llegaron con la carga masiva del Summit
+  // (reports/20260826_plan_carga_masiva.md 3.1). Solo se ven aqui, dentro de
+  // editar perfil: ni en ver perfil ni en ninguna lista.
+  final TextEditingController _departamentoController = TextEditingController();
+  final TextEditingController _direccionController = TextEditingController();
+
   String _selectedGeneration = 'Segunda';
   String _selectedSector = 'Tecnología';
+
+  /// Lo que se muestra cuando la cuenta no tiene sexo registrado. Al guardar
+  /// viaja como cadena vacia, no con este texto.
+  static const String _sexoSinEspecificar = 'Sin especificar';
+  static const List<String> _opcionesDeSexo = [
+    _sexoSinEspecificar,
+    'Femenino',
+    'Masculino',
+    'Otro',
+  ];
+  String _selectedSexo = _sexoSinEspecificar;
   String _photoUrl = '';
 
   bool _isEditing = false;
@@ -72,6 +89,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         _jobTitleController.text = data['job_title'] ?? '';
         // Handle dropdowns or defaults
         _selectedGeneration = data['generation'] ?? 'Segunda';
+        _departamentoController.text = data['departamento'] ?? '';
+        _direccionController.text = data['direccion'] ?? '';
+        // Un valor que no este en la lista reventaria el desplegable, y el
+        // importador puede traer cualquier cosa escrita a mano.
+        final sexo = (data['sexo'] ?? '').toString();
+        _selectedSexo = _opcionesDeSexo.contains(sexo) && sexo.isNotEmpty
+            ? sexo
+            : _sexoSinEspecificar;
         _photoUrl = data['profile_image_url'] ?? '';
         _isLoading = false;
       });
@@ -99,6 +124,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     _aliasController.dispose();
     _companyController.dispose();
     _jobTitleController.dispose();
+    _departamentoController.dispose();
+    _direccionController.dispose();
     super.dispose();
   }
 
@@ -180,6 +207,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         'job_title': _jobTitleController.text,
         'generation': _selectedGeneration,
         'sector': _selectedSector,
+        // Las tres claves coinciden con las etiquetas json del backend
+        // (domain/user.go). Comprobado: 'sector' de la linea de arriba NO
+        // coincide con ninguna —el campo es 'industry'— y por eso ese
+        // desplegable no guarda nada; arreglarlo es aparte.
+        'sexo': _selectedSexo == _sexoSinEspecificar ? '' : _selectedSexo,
+        'departamento': _departamentoController.text,
+        'direccion': _direccionController.text,
       };
 
       await authService.updateProfile(authProvider.token!, body);
@@ -371,6 +405,25 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                           'Ubicación',
                           _locationController,
                           Icons.location_on_outlined,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildDropdown(
+                          'Sexo',
+                          _selectedSexo,
+                          _opcionesDeSexo,
+                          Icons.wc_outlined,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildTextField(
+                          'Departamento',
+                          _departamentoController,
+                          Icons.map_outlined,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildTextField(
+                          'Dirección',
+                          _direccionController,
+                          Icons.home_outlined,
                         ),
                         const SizedBox(height: 16),
                         _buildTextField(
@@ -970,6 +1023,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   setState(() {
                     if (label == 'Generación') _selectedGeneration = newValue!;
                     if (label == 'Sector') _selectedSector = newValue!;
+                    if (label == 'Sexo') _selectedSexo = newValue!;
                   });
                 },
               )
