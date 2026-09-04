@@ -2,6 +2,50 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-09-04]: Los dos criterios que faltaban del APK: el Sector, en pantalla
+
+Cierra lo que la entrada del 03-09 dejó anotado como no ejercitado. **Sin cambios de código**: es el
+mismo APK de ayer (`versionCode` 19, instalado el 03-09 a las 14:58), contra producción.
+
+**La sesión no sobrevivió la noche.** Ayer quedó escrito que sobrevivía a la instalación, y sobrevive;
+pero al retomar hoy la app arrancó pidiendo credenciales. No tiene que ver con el arreglo — se anota
+para no volver a dar por hecho que el teléfono sigue identificado al día siguiente.
+
+**Criterio 2 — el desplegable carga el valor guardado.** *Sector* muestra **«Comercio»**, no
+«Tecnología». De paso *Generación* muestra **«Primera (Fundador)»**, no el «Segunda» por defecto: la
+guarda que comprueba el valor contra su lista antes de asignarlo funciona en los dos.
+
+**Criterio 3 — guardar solo el teléfono ya no pisa el sector.** Se cambió `3009998877` por
+`3009998878`, se guardó, se salió de la pantalla y se volvió a entrar:
+
+| | Antes | Tras guardar y recargar |
+|---|---|---|
+| Teléfono | 3009998877 | **3009998878** |
+| Sector | Comercio | **Comercio** |
+
+**Que el teléfono vuelva cambiado es la mitad que prueba algo.** Al reabrir, la pantalla vuelve a
+pedir `/api/me` (`_loadProfileData`), así que lo que se ve sale de la base y no del formulario. El
+«Perfil actualizado correctamente» por sí solo no habría probado nada — es exactamente el falso
+veredicto de F20.5 el 21-08.
+
+**El teléfono se dejó como estaba:** devuelto a `3009998877` y confirmado con otra recarga.
+
+**Cómo se llegó al campo, que era el bloqueo real.** El `swipe` de `adb` sigue sin mover esta app,
+pero **`input keyevent 61` (TAB) mueve el foco al campo siguiente y Flutter arrastra la vista para
+mantenerlo visible**. Se enfoca un campo con un toque y desde ahí se baja a TAB limpios. Tres
+detalles: los desplegables no entran en el recorrido —se pasa de largo y se retrocede—; el teclado
+tapa el tercio inferior y hay que cerrarlo con `keyevent 4`, que mientras el teclado está arriba lo
+consume el IME y **no** cierra la app aunque se haya llegado por deep link; y para volver arriba no
+hay vuelta atrás, se sale de la pantalla y se entra otra vez. `wm density` no sirve de atajo: el
+sistema se redibuja pero la superficie de Flutter se queda igual.
+
+- **Alcance:** ninguno; no se tocó código. Solo la corrección de esta bitácora.
+
+- **Criterios de QA:** los del 03-09. Quedan sin ejercitar el 4 (sexo, departamento y dirección) y el
+  5 (*Mi credencial* sin código), que no dependen de este arreglo.
+
+---
+
 ### [2026-09-03]: Build de iOS ad-hoc, con lo desplegado hoy
 
 La pareja del APK del mismo día: la app se prueba en las dos plataformas antes de publicar, y iOS
@@ -89,6 +133,9 @@ mostrando el valor real. La lista de *Mi perfil* no engancha con el swipe de `ad
 navegación hasta un formulario que puede guardar sobre la **cuenta real en producción** no compensa.
 El arreglo ya está probado contra la API: con `{"sector": ...}` la columna queda vacía y con
 `{"industry": ...}` se guarda.
+
+> **Cerrado el 2026-09-04**, con el mismo APK: los criterios 2 y 3 se ejercitaron en pantalla. Ver la
+> entrada de ese día.
 
 - **Alcance:** ninguno; es un build, no un cambio de código.
 - **Ruta del artefacto:** `build/app/outputs/flutter-apk/app-release.apk`. Está dentro de
