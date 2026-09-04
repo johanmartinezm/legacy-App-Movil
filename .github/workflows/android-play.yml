@@ -131,7 +131,11 @@ jobs:
           fi
           printf '%s' "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/play-account.json"
 
-          gem install fastlane --no-document --quiet
+          # sudo, no `gem install` a secas: la imagen de ubuntu-latest trae
+          # los gems del sistema en /var/lib/gems, que el usuario del runner
+          # no puede escribir. Sin sudo falla con Gem::FilePermissionError
+          # despues de haber compilado el .aab entero (2026-09-04).
+          sudo gem install fastlane --no-document --quiet
           cd android
           # skip_upload_metadata: la ficha de la tienda se gestiona desde Play
           # Console, no desde el repositorio. Subirla desde aqui la
