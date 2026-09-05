@@ -2,6 +2,55 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-09-04]: El paquete de Android pasa a `com.legacynetworkco.app`
+
+Preparando el primer envío a Google Play. **No es una decisión de diseño: la impone Play.**
+
+La app ya existía en Play Console, creada con `com.legacynetworkco.app`, y ese nombre queda ligado a
+ella para siempre. Subir el `.aab` con el `applicationId` de siempre lo rechaza:
+
+> El nombre de paquete del archivo APK o Android App Bundle debe ser `com.legacynetworkco.app`.
+
+Y explica los dos errores anteriores: la API decía `Package not found` para
+`co.legacynetwork.legacyapp` porque en esa consola ese paquete no existe, y al intentar crear una app
+nueva con él salía «nombre ya está en uso» — está reservado por algo que no se ve, probablemente un
+borrador borrado. **En Play un nombre reservado no se libera nunca, ni borrando la app.**
+
+- **Alcance:**
+  - `android/app/build.gradle.kts` — `applicationId`, con el porqué en el propio archivo.
+  - `android/app/google-services.json` — regenerado desde Firebase. **+8 líneas, nada más:** el
+    cliente OAuth de Android para el paquete nuevo.
+
+🔴 **Lo que casi se rompe sin avisar:** `com.legacynetworkco.app` estaba registrado en Firebase pero
+**sin cliente OAuth de Android y sin ninguna huella SHA-1** —solo el cliente web—. Con el
+`applicationId` cambiado y sin tocar Firebase, **Google Sign-In habría fallado en todos los builds de
+este paquete**, incluido el APK de pruebas. Se registró en esa app la huella de
+`upload-keystore.jks` (`DA:D1:98:…:9F`, la misma que ya tenía el paquete viejo) y se bajó el
+`google-services.json` nuevo.
+
+**Un efecto secundario bueno:** `firebase_options.dart` declaraba desde siempre el `appId`
+`…cbe503a21a43578a809350`, que es **el de `com.legacynetworkco.app`**, no el del paquete que la app
+usaba. Es decir, el binario se llamaba de una forma e inicializaba Firebase con la ficha de otra.
+Funcionaba porque el proyecto es el mismo; con este cambio las dos cosas coinciden por primera vez.
+
+⚠️ **Android e iOS dejan de compartir identificador.** iOS sigue en `co.legacynetwork.legacyapp` y su
+envío a revisión no se ve afectado. No es elegante, pero no hay alternativa.
+
+⚠️ **Falta la segunda huella.** La de **Play App Signing** solo existe después de subir el primer
+`.aab`, y sin registrarla el login con Google falla **solo en las descargas de Play** — en un APK
+instalado a mano seguirá funcionando, así que no se nota probando.
+
+- **Criterios de QA:**
+  1. `adb shell dumpsys package com.legacynetworkco.app` muestra la app instalada; la anterior
+     (`co.legacynetwork.legacyapp`) queda como una instalación aparte y se puede desinstalar.
+  2. **Login con Google** en un APK de release de este paquete: entra. Es lo que se rompe si la
+     huella no está en la app correcta de Firebase.
+  3. Las notificaciones push siguen llegando.
+  4. Tras subir a Play y registrar la huella de App Signing, el login con Google funciona **también
+     en una descarga de la tienda**, que es un caso distinto del 2.
+
+---
+
 ### [2026-09-04]: Los dos criterios que faltaban del APK: el Sector, en pantalla
 
 Cierra lo que la entrada del 03-09 dejó anotado como no ejercitado. **Sin cambios de código**: es el

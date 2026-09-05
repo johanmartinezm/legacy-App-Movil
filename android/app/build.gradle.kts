@@ -33,8 +33,20 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "co.legacynetwork.legacyapp"
+        // El paquete lo fija Play, no nosotros: la app de Play Console se creo
+        // con `com.legacynetworkco.app` y ese nombre queda ligado a ella para
+        // siempre. Subir un bundle con otro applicationId lo rechaza con
+        // "El nombre de paquete del archivo APK o Android App Bundle debe ser
+        // com.legacynetworkco.app" (2026-09-04).
+        //
+        // El anterior era `co.legacynetwork.legacyapp`, que sigue siendo el
+        // bundle ID de iOS. Las dos plataformas dejan de coincidir a proposito:
+        // en Play el nombre reservado no se libera nunca, ni borrando la app.
+        //
+        // ⚠️ Al cambiarlo, Google Sign-In depende de que la huella SHA-1 este
+        // registrada en Firebase para ESTE paquete. La de `upload-keystore.jks`
+        // estaba solo en el paquete viejo.
+        applicationId = "com.legacynetworkco.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
