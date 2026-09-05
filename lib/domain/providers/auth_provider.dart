@@ -415,6 +415,13 @@ class AuthProvider extends ChangeNotifier {
       _lastName = profile['last_name'];
       _email = profile['email'] ?? email;
       _role = profile['role'];
+      // El alias tambien: sin esta linea, `_alias` se quedaba en null despues
+      // de iniciar sesion y la pantalla de foros
+      // (forums_list_screen.dart:29) pedia configurar uno **a quien ya lo
+      // tenia**. `fetchProfile` si lo leia, por eso el fallo solo aparecia
+      // justo despues del login. Comprobado el 2026-09-04 contra produccion:
+      // la cuenta traia alias en /api/me y la app mostraba el dialogo igual.
+      _alias = profile['alias'];
       _debeCambiarContrasena = profile['debe_cambiar_contrasena'] == true;
 
       if (rememberMe) {
@@ -430,6 +437,9 @@ class AuthProvider extends ChangeNotifier {
         }
         if (_role != null) {
           await _storage.write(key: 'user_role', value: _role);
+        }
+        if (_alias != null) {
+          await _storage.write(key: 'user_alias', value: _alias);
         }
       } else {
         _email = email;

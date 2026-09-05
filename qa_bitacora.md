@@ -2,6 +2,41 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-09-04]: Los foros pedían un alias a quien ya lo tenía
+
+Salió al probar en el teléfono el selector de fotos, con la cuenta de revisión de Apple. **No se ha
+compilado ni subido nada**: las dos tiendas están en revisión y esto queda para la siguiente versión.
+
+**El síntoma:** al abrir *Foros* justo después de iniciar sesión, la app muestra el diálogo
+«¡Bienvenido a los Foros! … necesitas configurar un Alias único» **aunque la cuenta ya tenga alias**.
+Comprobado contra producción: `GET /api/me` devolvía `alias: "revision-appstore"` y la app pedía uno
+igual. Se reprodujo dos veces, así que no era un arranque en frío.
+
+**La causa, en `auth_provider.dart`:** `login()` pide el perfil y copia siete campos —estado, id,
+nombre, apellido, correo, rol y la bandera de cambio de contraseña— **pero no el alias**. El otro
+método que carga el perfil, `fetchProfile()`, sí lo lee y lo guarda; por eso el fallo aparecía **solo
+justo después del login** y se curaba solo más adelante. `forums_list_screen.dart:29` pregunta por
+`auth.alias`, lo encontraba vacío y abría el diálogo.
+
+⚠️ **Le pasaba a cualquiera que iniciara sesión, no solo al revisor.** Y con una trampa dentro: quien
+escribiera ahí su alias real se lo encontraría rechazado por estar en uso —por él mismo—.
+
+- **Alcance:** `lib/domain/providers/auth_provider.dart`
+  - `login()` ahora asigna `_alias = profile['alias']`.
+  - Y lo persiste con «Recordarme», junto a los demás campos, para que tampoco falte al reabrir.
+
+- **Verificado:** `flutter analyze` de ese archivo, sin issues.
+
+- **Criterios de QA:**
+  1. Con una cuenta **que ya tenga alias**: cerrar sesión, entrar de nuevo y abrir *Foros*. **No**
+     debe aparecer el diálogo de alias.
+  2. Con una cuenta **sin alias**: el diálogo sigue apareciendo, que es su función.
+  3. Con «Recordarme» marcado: cerrar la app del todo, reabrirla y entrar a *Foros*. Tampoco debe
+     pedir alias.
+  4. Publicar en un foro después de eso: sale con el alias correcto, no con uno nuevo.
+
+---
+
 ### [2026-09-04]: El paquete de Android pasa a `com.legacynetworkco.app`
 
 Preparando el primer envío a Google Play. **No es una decisión de diseño: la impone Play.**
