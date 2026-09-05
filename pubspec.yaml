@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+20
+version: 1.0.0+21
 
 environment:
   sdk: ^3.9.2
@@ -45,6 +45,10 @@ dependencies:
   provider: ^6.1.5+1
   share_plus: ^12.0.1
   image_picker: ^1.2.1
+  # Directas, no transitivas, solo para poder activar el selector de fotos
+  # nativo de Android desde main.dart y ahorrarnos READ_MEDIA_IMAGES.
+  image_picker_android: ^0.8.12
+  image_picker_platform_interface: ^2.10.0
   http: ^1.6.0
   flutter_secure_storage: ^10.0.0
   # Lo fija `flutter_localizations`, que viene del SDK: no se puede quedar en

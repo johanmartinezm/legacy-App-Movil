@@ -12,7 +12,14 @@
         android:maxSdkVersion="32"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28"/>
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <!--
+      READ_MEDIA_IMAGES retirado el 2026-09-04. Play lo rechaza si no se
+      justifica acceso FRECUENTE a la fototeca, y aqui la galeria se abre
+      dos veces: foto de perfil e imagen adjunta de un foro. Las dos usan
+      ahora el selector de fotos de Android, que devuelve solo la imagen
+      elegida y no necesita permiso (main.dart, _usarSelectorDeFotosDeAndroid).
+      Si alguien lo vuelve a declarar, la version sera rechazada.
+    -->
 
     <!-- Camera is not strictly required for the app to run, but needed for profile photo -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />

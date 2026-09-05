@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:image_picker_android/image_picker_android.dart';
+import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'firebase_options.dart';
 import 'domain/providers/auth_provider.dart';
 import 'domain/providers/favorites_provider.dart';
@@ -74,9 +76,30 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Mensaje recibido en segundo plano: ${message.messageId}");
 }
 
+/// Activa el selector de fotos nativo en Android. En las demas plataformas no
+/// hace nada: `ImagePickerPlatform.instance` solo es `ImagePickerAndroid` ahi.
+void _usarSelectorDeFotosDeAndroid() {
+  final ImagePickerPlatform implementacion = ImagePickerPlatform.instance;
+  if (implementacion is ImagePickerAndroid) {
+    implementacion.useAndroidPhotoPicker = true;
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ConfigService.initialize();
+
+  // Selector de fotos de Android en vez del permiso READ_MEDIA_IMAGES.
+  //
+  // Play rechaza la version que declare ese permiso sin justificar acceso
+  // FRECUENTE a la fototeca (politica de Photo and Video Permissions), y aqui
+  // no lo hay: la galeria se abre en dos sitios, la foto de perfil y la imagen
+  // adjunta de un foro, y las dos son "elige una y subela". El propio aviso de
+  // Play dice que ese caso debe migrar al selector.
+  //
+  // Con el selector el sistema devuelve solo la imagen elegida y **no hace
+  // falta ningun permiso**, asi que READ_MEDIA_IMAGES sale del manifiesto.
+  _usarSelectorDeFotosDeAndroid();
 
   // Inicialización de Firebase con configuración de FlutterFire.
   // firebase_options.dart no tiene configuración para web: DefaultFirebaseOptions
