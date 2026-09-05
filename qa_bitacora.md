@@ -36,9 +36,20 @@ Funcionaba porque el proyecto es el mismo; con este cambio las dos cosas coincid
 ⚠️ **Android e iOS dejan de compartir identificador.** iOS sigue en `co.legacynetwork.legacyapp` y su
 envío a revisión no se ve afectado. No es elegante, pero no hay alternativa.
 
-⚠️ **Falta la segunda huella.** La de **Play App Signing** solo existe después de subir el primer
-`.aab`, y sin registrarla el login con Google falla **solo en las descargas de Play** — en un APK
-instalado a mano seguirá funcionando, así que no se nota probando.
+✅ **La segunda huella, registrada el mismo día.** La de **Play App Signing** solo existe después de
+subir el primer `.aab`; se registró en cuanto Play la genero
+(`FE:65:26:AD:1E:B8:04:4D:9C:78:3D:D4:11:7A:C5:45:D9:B0:7D:3D`, distinta de la de carga), junto con
+su SHA-256. Sin ella el login con Google falla **solo en las descargas de Play** — en un APK
+instalado a mano seguiria funcionando, asi que no se nota probando.
+
+**No hizo falta recompilar:** la comprobacion la hace Google del lado del servidor, comparando el
+paquete y la firma del APK contra los clientes OAuth del proyecto. El `google-services.json` del
+repositorio se actualizo igualmente para que el proximo build no arrastre el archivo viejo.
+
+**Donde estan las dos claves, que la consola no lo pone facil:** *Protegido con Play → Proteccion de
+Play Store → Administrar la firma de apps de Play*. La tarjeta de arriba («Clave de firma de la app»)
+es la de Google y **esconde las huellas detras de botones de copiar**; la de abajo («Certificado de
+clave de carga») es la propia y **si las muestra en texto**, que es justo la que no hace falta.
 
 - **Criterios de QA:**
   1. `adb shell dumpsys package com.legacynetworkco.app` muestra la app instalada; la anterior

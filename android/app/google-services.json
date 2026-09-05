@@ -102,6 +102,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "728967438065-o4feajndch9sdrhjm9tsh22r3c9vcctu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.legacynetworkco.app",
+            "certificate_hash": "fe6526ad1eb8044d9c783dd4117ac545d9b07d3d"
+          }
+        },
+        {
           "client_id": "728967438065-q4hse458kj4rbsaagnoejeoa6p45p37p.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
