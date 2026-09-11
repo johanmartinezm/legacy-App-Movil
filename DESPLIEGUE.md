@@ -398,9 +398,14 @@ Revisado el 2026-09-02. Todo lo que queda se hace desde aquí, sin esperar a nad
 - **Probar el login con Google y con Apple en iOS.** En Android quedó verificado el 2026-08-26
   (hallazgo F7, en `qa_bitacora.md`). Los cuatro casos de iOS —entrar y registrarse, con cada
   proveedor— siguen **sin ejecutar por falta de hardware**, y es lo primero que toca un revisor.
-- **Icono de la ficha:** el del build (`ios/Runner/Assets.xcassets/AppIcon.appiconset/`) está bien,
-  sin canal alfa. Pero `assets/images/flutter_icons/ios/Icon-1024.png` **sí lo tiene**, y App Store
-  rechaza el icono con alfa — no tomes ese para la ficha.
+- **Icono de la ficha:** desde el 2026-09-11 sirve cualquiera de los dos. El icono se regeneró
+  desde el símbolo oficial del manual —blanco sobre el Azul No.1— y tanto el del build
+  (`ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png`) como la fuente
+  (`assets/images/flutter_icons/icon-1024.png`) están **sin canal alfa**, que es lo que App Store
+  rechaza. El anterior sí lo tenía y además llevaba el símbolo deformado, con los círculos
+  convertidos en óvalos. Si vuelves a generarlo, `remove_alpha_ios: true` sigue en `pubspec.yaml`;
+  la única fuente que conserva alfa es `icon-foreground-1024.png`, que es la capa del icono
+  adaptativo de Android y **no** viaja a iOS.
 - **La cuenta de demo del revisor**: renombrar el evento `[PRUEBA QA] Evento gratuito de
   verificacion` al que está inscrita, porque ese nombre le sale en la credencial, y cargar sus
   credenciales en *App Store Connect → App Review Information*.

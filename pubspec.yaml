@@ -128,13 +128,20 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 
+# El icono sale del simbolo oficial (Log_LegNet-abierto.ai) en blanco sobre el
+# Azul No.1 del manual. `icon-1024.png` no lleva canal alfa: App Store rechaza
+# el icono de la ficha si lo tiene.
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   remove_alpha_ios: true
-  image_path: "assets/images/flutter_icons/ios/Icon-1024.png"
+  image_path: "assets/images/flutter_icons/icon-1024.png"
+  # Android recorta hasta un tercio del icono adaptativo segun el lanzador, asi
+  # que la capa frontal lleva el simbolo mas pequeno y el fondo va aparte.
+  adaptive_icon_background: "#162540"
+  adaptive_icon_foreground: "assets/images/flutter_icons/icon-foreground-1024.png"
   web:
     generate: true
-    image_path: "assets/images/flutter_icons/ios/Icon-1024.png"
-    background_color: "#ffffff"
-    theme_color: "#2196F3"
+    image_path: "assets/images/flutter_icons/icon-1024.png"
+    background_color: "#162540"
+    theme_color: "#162540"

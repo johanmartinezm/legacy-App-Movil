@@ -43,8 +43,18 @@ con una paleta de prototipo que no era la de la marca.
     Si un archivo falta o se renombra, la app no falla al compilar —solo deja un hueco—, así que el
     error tiene que salir aquí.
 
+  - **Icono de lanzador regenerado.** El anterior tenía el símbolo **deformado** —los círculos
+    eran óvalos, otro de los usos prohibidos del manual—, muy pequeño dentro del lienzo y con canal
+    alfa, que es justo lo que App Store rechaza en el icono de la ficha. El nuevo es el símbolo
+    blanco sobre el Azul No.1, sin alfa. Se añade icono **adaptativo** de Android: fondo
+    `#162540` y capa frontal aparte, porque el lanzador recorta hasta un tercio. El color de tema
+    de la web pasa de `#2196F3` —un azul de Material que nunca fue de la marca— a `#162540`.
+    Se retiran los PNG fuente del icono viejo (`flutter_icons/ios/`, `flutter_icons/android/`).
+
 - **Verificado:** `flutter analyze` sin errores ni avisos nuevos; `flutter test`, 256 en verde;
-  pantalla de login abierta en el navegador, con el logotipo en vector y sin el nombre duplicado.
+  pantalla de login abierta en el navegador, con el logotipo en vector y sin el nombre duplicado;
+  `flutter build apk --debug` compila con los recursos de icono nuevos, y el 1024 de iOS queda sin
+  canal alfa.
 
 - **Criterios de QA:**
   1. Abrir la app: en el **login** el logo se ve nítido, con «LEGACY Network®» dentro del propio
@@ -62,6 +72,10 @@ con una paleta de prototipo que no era la de la marca.
      `#162540`, las tarjetas `#1B3156` y los paneles `#183D6B`. Son más claros que antes; es el
      cambio esperado, no un error de render.
   7. Leer texto secundario (fechas, subtítulos) sobre tarjeta: debe leerse sin esfuerzo.
+  8. Instalar el APK y mirar el **icono en el escritorio del teléfono**: símbolo blanco sobre azul,
+     con los círculos redondos —no ovalados— y sin que el recorte del lanzador corte ninguno.
+  9. En iOS, comprobar el icono en la pantalla de inicio y que App Store Connect **no** rechaza el
+     de la ficha por transparencia.
 
 
 ### [2026-09-04]: Los foros pedían un alias a quien ya lo tenía
