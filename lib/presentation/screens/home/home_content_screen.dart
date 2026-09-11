@@ -89,7 +89,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           const Expanded(
             child: Align(
               alignment: Alignment.centerLeft,
-              child: LegacyLogo(height: 28),
+              child: LegacyLogo(height: 32),
             ),
           ),
           const SizedBox(width: 12),

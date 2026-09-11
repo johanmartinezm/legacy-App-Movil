@@ -226,7 +226,9 @@ class CustomSectionHeader extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const LegacyLogo(height: 20),
+                  // 26 de alto son ~82 de ancho: por encima de los 100 px
+                  // que pide el manual en cualquier pantalla de 2x o mas.
+                  const LegacyLogo(height: 26),
                   // La segunda línea dice DÓNDE estás. Hasta el 2026-08-20
                   // aquí iba siempre la marca, así que las diez pantallas que
                   // usan este encabezado se veían idénticas y ninguna se

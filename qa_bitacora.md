@@ -51,10 +51,20 @@ con una paleta de prototipo que no era la de la marca.
     de la web pasa de `#2196F3` —un azul de Material que nunca fue de la marca— a `#162540`.
     Se retiran los PNG fuente del icono viejo (`flutter_icons/ios/`, `flutter_icons/android/`).
 
+  - **Tamaño del logotipo corregido tras verlo en el teléfono.** Se había dejado a 20 dp de alto en
+    la cabecera de sección y 28 dp en el inicio, que dan 63 y 89 dp de ancho: por debajo de los
+    100 px que el manual fija como mínimo digital si la pantalla es de densidad 1x, y con el
+    «Network®» apretado incluso a 3x. Pasan a 26 y 32 dp. Comprobado en el aparato que los iconos
+    de la derecha —búsqueda, campana y avatar— no se desplazan.
+
 - **Verificado:** `flutter analyze` sin errores ni avisos nuevos; `flutter test`, 256 en verde;
-  pantalla de login abierta en el navegador, con el logotipo en vector y sin el nombre duplicado;
   `flutter build apk --debug` compila con los recursos de icono nuevos, y el 1024 de iOS queda sin
-  canal alfa.
+  canal alfa. **Probado en el Huawei YAL-L21** con el APK de release y sesión iniciada: login,
+  cabecera del inicio, cabecera de sección (Asistente), pestaña LEGACY+ en sus dos estados, perfil
+  y el icono tal como lo dibuja EMUI. Quedan los criterios de iOS, que necesitan Mac.
+
+  Ojo al instalar en ese teléfono: tiene tres perfiles de usuario y `adb install` responde
+  `Success` dejando la app en uno que no es el que se usa. Instalar con `adb install -r --user 0`.
 
 - **Criterios de QA:**
   1. Abrir la app: en el **login** el logo se ve nítido, con «LEGACY Network®» dentro del propio
