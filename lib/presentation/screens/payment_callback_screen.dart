@@ -118,7 +118,7 @@ class _PaymentCallbackScreenState extends State<PaymentCallbackScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF050B15),
+      backgroundColor: const Color(0xFF162540),
       body: Center(
         // Centrado mientras quepa; con la fuente ampliada, desplazable.
         child: SingleChildScrollView(
@@ -178,7 +178,7 @@ class _PaymentCallbackScreenState extends State<PaymentCallbackScreen> {
                       onPressed: () => context.go('/mi-credencial'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFD9A74A),
-                        foregroundColor: const Color(0xFF050B15),
+                        foregroundColor: const Color(0xFF162540),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 32,
                           vertical: 12,

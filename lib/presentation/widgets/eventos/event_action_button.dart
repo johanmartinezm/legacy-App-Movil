@@ -94,10 +94,10 @@ class _EventActionButtonState extends State<EventActionButton> {
           width: double.infinity,
           height: 52,
           decoration: BoxDecoration(
-            color: const Color(0xFF0B1A2E),
+            color: const Color(0xFF1B3156),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: const Color(0xFF1E3A5F).withValues(alpha: 0.4),
+              color: const Color(0xFF183D6B).withValues(alpha: 0.4),
             ),
           ),
           child: Center(
@@ -106,7 +106,7 @@ class _EventActionButtonState extends State<EventActionButton> {
               style: GoogleFonts.barlow(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF90A4BA),
+                color: const Color(0xFF9FB2C2),
                 letterSpacing: 1.0,
               ),
             ),
@@ -143,7 +143,7 @@ class _EventActionButtonState extends State<EventActionButton> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
           decoration: BoxDecoration(
-            color: const Color(0xFF13304A).withValues(alpha: 0.6),
+            color: const Color(0xFF183D6B).withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -164,7 +164,7 @@ class _EventActionButtonState extends State<EventActionButton> {
                 textAlign: TextAlign.center,
                 style: GoogleFonts.questrial(
                   fontSize: 12,
-                  color: const Color(0xFF90A4BA),
+                  color: const Color(0xFF9FB2C2),
                 ),
               ),
             ],
@@ -218,7 +218,7 @@ class _EventActionButtonState extends State<EventActionButton> {
               },
         style: _estiloDorado(),
         child: cargando
-            ? const CircularProgressIndicator(color: Color(0xFF050B15))
+            ? const CircularProgressIndicator(color: Color(0xFF162540))
             : Text(
                 gratis ? 'Reservar cupo gratis' : 'Reservar cupo · preventa',
                 style: GoogleFonts.barlow(
@@ -233,7 +233,7 @@ class _EventActionButtonState extends State<EventActionButton> {
   ButtonStyle _estiloDorado() {
     return ElevatedButton.styleFrom(
       backgroundColor: const Color(0xFFD9A74A),
-      foregroundColor: const Color(0xFF050B15),
+      foregroundColor: const Color(0xFF162540),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 0,
     );

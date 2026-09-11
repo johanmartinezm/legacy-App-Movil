@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:legacy_app/presentation/widgets/common/legacy_logo.dart';
 
 class MainLayout extends StatelessWidget {
   final Widget child;
@@ -65,7 +66,7 @@ class MainLayout extends StatelessWidget {
     final salir = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF0B1A2E),
+        backgroundColor: const Color(0xFF1B3156),
         title: Text(
           '¿Salir de Legacy Network?',
           style: GoogleFonts.barlow(
@@ -114,7 +115,7 @@ class MainLayout extends StatelessWidget {
           ),
           child: BottomNavigationBar(
             backgroundColor: const Color(
-              0xFF0B1A2E,
+              0xFF1B3156,
             ), // Premium dark theme blue-gray
             elevation: 0,
             items: <BottomNavigationBarItem>[
@@ -142,20 +143,18 @@ class MainLayout extends StatelessWidget {
               BottomNavigationBarItem(
                 icon: Padding(
                   padding: const EdgeInsets.only(bottom: 2.0),
-                  child: Image.asset(
-                    'assets/images/Logo.png',
+                  child: const LegacyLogo.simbolo(
                     height: 18,
                     width: 18,
-                    color: const Color(0xFF90A4BA),
+                    color: Color(0xFF9FB2C2),
                   ),
                 ),
                 activeIcon: Padding(
                   padding: const EdgeInsets.only(bottom: 2.0),
-                  child: Image.asset(
-                    'assets/images/Logo.png',
+                  child: const LegacyLogo.simbolo(
                     height: 18,
                     width: 18,
-                    color: const Color(0xFFD9A74A),
+                    color: Color(0xFFD9A74A),
                   ),
                 ),
                 label: 'LEGACY+',
@@ -171,7 +170,7 @@ class MainLayout extends StatelessWidget {
               0xFFD9A74A,
             ), // Selected tab is Premium Gold
             unselectedItemColor: const Color(
-              0xFF90A4BA,
+              0xFF9FB2C2,
             ), // Unselected is steel blue/gray
             showUnselectedLabels: true,
             type: BottomNavigationBarType.fixed,

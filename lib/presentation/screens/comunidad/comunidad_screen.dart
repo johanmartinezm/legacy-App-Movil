@@ -429,13 +429,13 @@ class _ComunidadScreenState extends State<ComunidadScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E2F4D).withValues(alpha: 0.1),
+                color: const Color(0xFF183D6B).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.lock_person_outlined,
                 size: 80,
-                color: Color(0xFF1E2F4D),
+                color: Color(0xFF183D6B),
               ),
             ),
             const SizedBox(height: 30),
@@ -445,7 +445,7 @@ class _ComunidadScreenState extends State<ComunidadScreen> {
               style: GoogleFonts.barlow(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF1E2F4D),
+                color: const Color(0xFF183D6B),
               ),
             ),
             const SizedBox(height: 15),
@@ -464,7 +464,7 @@ class _ComunidadScreenState extends State<ComunidadScreen> {
                 context.push('/asesoria');
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1E2F4D),
+                backgroundColor: const Color(0xFF183D6B),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 40,
@@ -509,7 +509,7 @@ class _ComunidadScreenState extends State<ComunidadScreen> {
                 width: size,
                 height: size,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E2F4D), // Darker blue for contrast
+                  color: const Color(0xFF183D6B), // Darker blue for contrast
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
@@ -578,7 +578,7 @@ class _ComunidadScreenState extends State<ComunidadScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F3A5D), // Dark teal/blue from mockup
+        color: const Color(0xFF183D6B), // Dark teal/blue from mockup
         borderRadius: BorderRadius.circular(15),
       ),
       child: Row(

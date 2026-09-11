@@ -109,7 +109,7 @@ class _EventosScreenState extends State<EventosScreen> {
             MaterialPageRoute(builder: (context) => const AgendaScreen()),
           );
         },
-        backgroundColor: const Color(0xFF0B1A2E),
+        backgroundColor: const Color(0xFF1B3156),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(28),
           side: const BorderSide(color: Color(0xFFC9A24B), width: 1.5),
@@ -178,7 +178,7 @@ class _EventosScreenState extends State<EventosScreen> {
                   'Experiencias y encuentros',
                   style: GoogleFonts.questrial(
                     fontSize: 12,
-                    color: const Color(0xFF90A4BA),
+                    color: const Color(0xFF9FB2C2),
                   ),
                 ),
               ],
@@ -219,7 +219,7 @@ class _EventosScreenState extends State<EventosScreen> {
         decoration: InputDecoration(
           isDense: true,
           filled: true,
-          fillColor: const Color(0xFF0B1A2E).withValues(alpha: 0.65),
+          fillColor: const Color(0xFF1B3156).withValues(alpha: 0.65),
           hintText: 'Buscar por nombre, lugar o conferencista',
           hintStyle: GoogleFonts.questrial(
             fontSize: 13,
@@ -227,7 +227,7 @@ class _EventosScreenState extends State<EventosScreen> {
           ),
           prefixIcon: const Icon(
             Icons.search,
-            color: Color(0xFF90A4BA),
+            color: Color(0xFF9FB2C2),
             size: 20,
           ),
           suffixIcon: _searchQuery.isEmpty
@@ -236,7 +236,7 @@ class _EventosScreenState extends State<EventosScreen> {
                   tooltip: 'Limpiar búsqueda',
                   icon: const Icon(
                     Icons.close,
-                    color: Color(0xFF90A4BA),
+                    color: Color(0xFF9FB2C2),
                     size: 18,
                   ),
                   onPressed: () {
@@ -252,7 +252,7 @@ class _EventosScreenState extends State<EventosScreen> {
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
             borderSide: BorderSide(
-              color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+              color: const Color(0xFF306C9E).withValues(alpha: 0.35),
               width: 1.2,
             ),
           ),
@@ -306,7 +306,7 @@ class _EventosScreenState extends State<EventosScreen> {
                   fontWeight: FontWeight.bold,
                   color: isSelected
                       ? const Color(0xFFE3C272)
-                      : const Color(0xFF90A4BA),
+                      : const Color(0xFF9FB2C2),
                 ),
               ),
             ),
@@ -364,7 +364,7 @@ class _EventosScreenState extends State<EventosScreen> {
             style: GoogleFonts.barlow(
               fontSize: 13,
               fontWeight: FontWeight.bold,
-              color: isSelected ? const Color(0xFF050B15) : const Color(0xFF90A4BA),
+              color: isSelected ? const Color(0xFF162540) : const Color(0xFF9FB2C2),
             ),
           ),
         ),
@@ -393,7 +393,7 @@ class _EventosScreenState extends State<EventosScreen> {
               textAlign: TextAlign.center,
               style: GoogleFonts.questrial(
                 fontSize: 14,
-                color: const Color(0xFF90A4BA),
+                color: const Color(0xFF9FB2C2),
               ),
             ),
             if (_hasActiveFilters) ...[
@@ -435,10 +435,10 @@ class _EventosScreenState extends State<EventosScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF0B1A2E).withValues(alpha: 0.65),
+        color: const Color(0xFF1B3156).withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+          color: const Color(0xFF306C9E).withValues(alpha: 0.35),
           width: 1.2,
         ),
       ),
@@ -476,7 +476,7 @@ class _EventosScreenState extends State<EventosScreen> {
                         event.date,
                         style: GoogleFonts.questrial(
                           fontSize: 12,
-                          color: const Color(0xFF90A4BA),
+                          color: const Color(0xFF9FB2C2),
                         ),
                       ),
                       // En un evento finalizado el precio ya no aplica.
@@ -509,17 +509,17 @@ class _EventosScreenState extends State<EventosScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF90A4BA).withValues(alpha: 0.12),
+                          color: const Color(0xFF9FB2C2).withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
-                            color: const Color(0xFF90A4BA).withValues(alpha: 0.4),
+                            color: const Color(0xFF9FB2C2).withValues(alpha: 0.4),
                             width: 1,
                           ),
                         ),
                         child: Text(
                           'FINALIZADO',
                           style: GoogleFonts.barlow(
-                            color: const Color(0xFF90A4BA),
+                            color: const Color(0xFF9FB2C2),
                             fontWeight: FontWeight.bold,
                             fontSize: 10,
                             letterSpacing: 0.8,
@@ -537,7 +537,7 @@ class _EventosScreenState extends State<EventosScreen> {
                         child: Text(
                           'L',
                           style: GoogleFonts.barlow(
-                            color: const Color(0xFF050B15),
+                            color: const Color(0xFF162540),
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                           ),
@@ -553,19 +553,19 @@ class _EventosScreenState extends State<EventosScreen> {
                         decoration: BoxDecoration(
                           color: esDePago
                               ? const Color(0xFF54C6A8).withValues(alpha: 0.12)
-                              : const Color(0xFF5BB0E6).withValues(alpha: 0.12),
+                              : const Color(0xFF70ABE0).withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
                             color: esDePago
                                 ? const Color(0xFF54C6A8).withValues(alpha: 0.4)
-                                : const Color(0xFF5BB0E6).withValues(alpha: 0.4),
+                                : const Color(0xFF70ABE0).withValues(alpha: 0.4),
                             width: 1,
                           ),
                         ),
                         child: Text(
                           esDePago ? 'PREVENTA' : 'GRATIS',
                           style: GoogleFonts.barlow(
-                            color: esDePago ? const Color(0xFF54C6A8) : const Color(0xFF5BB0E6),
+                            color: esDePago ? const Color(0xFF54C6A8) : const Color(0xFF70ABE0),
                             fontWeight: FontWeight.bold,
                             fontSize: 10,
                             letterSpacing: 0.8,

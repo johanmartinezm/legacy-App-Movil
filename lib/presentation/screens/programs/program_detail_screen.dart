@@ -51,16 +51,16 @@ class ProgramDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF050B15),
+      backgroundColor: const Color(0xFF162540),
       body: Container(
         decoration: const BoxDecoration(
           gradient: RadialGradient(
             center: Alignment(0.8, -0.8),
             radius: 1.5,
             colors: [
-              Color(0xFF13304A),
-              Color(0xFF0E2C3B),
-              Color(0xFF050B15),
+              Color(0xFF183D6B),
+              Color(0xFF183D6B),
+              Color(0xFF162540),
             ],
             stops: [0.0, 0.3, 1.0],
           ),
@@ -91,16 +91,16 @@ class ProgramDetailScreen extends StatelessWidget {
                           margin: const EdgeInsets.only(top: 10, bottom: 24),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: const Color(0xFF0B1A2E).withValues(alpha: 0.8),
+                            color: const Color(0xFF1B3156).withValues(alpha: 0.8),
                             border: Border.all(
-                              color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+                              color: const Color(0xFF306C9E).withValues(alpha: 0.35),
                               width: 1.5,
                             ),
                           ),
                           child: const Center(
                             child: Icon(
                               Icons.school_outlined,
-                              color: Color(0xFF5A93C4),
+                              color: Color(0xFF70ABE0),
                               size: 40,
                             ),
                           ),
@@ -124,7 +124,7 @@ class ProgramDetailScreen extends StatelessWidget {
                         program.shortDescription ?? '🎓 LSO · Doble certificación LSO + EUDE',
                         style: GoogleFonts.questrial(
                           fontSize: 14,
-                          color: const Color(0xFF90A4BA),
+                          color: const Color(0xFF9FB2C2),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -146,10 +146,10 @@ class ProgramDetailScreen extends StatelessWidget {
                         width: double.infinity,
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF0B1A2E).withValues(alpha: 0.65),
+                          color: const Color(0xFF1B3156).withValues(alpha: 0.65),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+                            color: const Color(0xFF306C9E).withValues(alpha: 0.35),
                             width: 1.2,
                           ),
                         ),
@@ -158,12 +158,12 @@ class ProgramDetailScreen extends StatelessWidget {
                             _buildInfoRow('Formato', program.modality),
                             const Padding(
                               padding: EdgeInsets.symmetric(vertical: 12),
-                              child: Divider(color: Color(0xFF1E3A5F), height: 1, thickness: 1),
+                              child: Divider(color: Color(0xFF183D6B), height: 1, thickness: 1),
                             ),
                             _buildInfoRow('Duración', program.duration),
                             const Padding(
                               padding: EdgeInsets.symmetric(vertical: 12),
-                              child: Divider(color: Color(0xFF1E3A5F), height: 1, thickness: 1),
+                              child: Divider(color: Color(0xFF183D6B), height: 1, thickness: 1),
                             ),
                             _buildInfoRow('Tipo', program.type),
                           ],
@@ -211,7 +211,7 @@ class ProgramDetailScreen extends StatelessWidget {
                         onPressed: () => _abrirEnLso(context),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFD9A74A),
-                          foregroundColor: const Color(0xFF050B15),
+                          foregroundColor: const Color(0xFF162540),
                           minimumSize: const Size(double.infinity, 54),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -235,7 +235,7 @@ class ProgramDetailScreen extends StatelessWidget {
                           backgroundColor: Colors.transparent,
                           foregroundColor: Colors.white,
                           side: BorderSide(
-                            color: const Color(0xFF1E3A5F).withValues(alpha: 0.5),
+                            color: const Color(0xFF183D6B).withValues(alpha: 0.5),
                             width: 1.5,
                           ),
                           minimumSize: const Size(double.infinity, 54),
@@ -271,7 +271,7 @@ class ProgramDetailScreen extends StatelessWidget {
         Text(
           label,
           style: GoogleFonts.questrial(
-            color: const Color(0xFF90A4BA),
+            color: const Color(0xFF9FB2C2),
             fontSize: 14,
           ),
         ),

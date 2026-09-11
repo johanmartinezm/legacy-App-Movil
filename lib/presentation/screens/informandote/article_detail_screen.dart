@@ -140,7 +140,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
             leading: const BotonVolver(),
             actions: [
               CircleAvatar(
-                backgroundColor: const Color(0xFF0B1A2E).withValues(alpha: 0.6),
+                backgroundColor: const Color(0xFF1B3156).withValues(alpha: 0.6),
                 child: IconButton(
                   icon: const Icon(Icons.share, color: Colors.white, size: 18),
                   onPressed: () {
@@ -152,7 +152,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
               ),
               const SizedBox(width: 8),
               CircleAvatar(
-                backgroundColor: const Color(0xFF0B1A2E).withValues(alpha: 0.6),
+                backgroundColor: const Color(0xFF1B3156).withValues(alpha: 0.6),
                 child: PopupMenuButton<String>(
                   icon: const Icon(Icons.more_vert, color: Colors.white, size: 18),
                   tooltip: 'Menú',
@@ -222,14 +222,14 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF5BB0E6).withValues(alpha: 0.12),
+                      color: const Color(0xFF70ABE0).withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFF5BB0E6).withValues(alpha: 0.3), width: 1),
+                      border: Border.all(color: const Color(0xFF70ABE0).withValues(alpha: 0.3), width: 1),
                     ),
                     child: Text(
                       _article.category.toUpperCase(),
                       style: GoogleFonts.barlow(
-                        color: const Color(0xFF5BB0E6),
+                        color: const Color(0xFF70ABE0),
                         fontWeight: FontWeight.bold,
                         fontSize: 10,
                         letterSpacing: 1.0,
@@ -254,7 +254,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                         height: 24,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: const Color(0xFF5BB0E6).withValues(alpha: 0.2),
+                          color: const Color(0xFF70ABE0).withValues(alpha: 0.2),
                           border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
                         ),
                         child: const Center(
@@ -266,7 +266,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                         '${_article.authorName ?? 'Legacy Research'} • ${_article.readTime ?? '8 min'}',
                         style: GoogleFonts.questrial(
                           fontSize: 13,
-                          color: const Color(0xFF90A4BA),
+                          color: const Color(0xFF9FB2C2),
                         ),
                       ),
                     ],
@@ -283,14 +283,14 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                             : Icons.thumb_up_alt_outlined,
                         '${_article.likes ?? 0}',
                         _article.isLikedByMe
-                            ? const Color(0xFF5BB0E6)
+                            ? const Color(0xFF70ABE0)
                             : const Color(0xFFE3C272),
                         onTap: _toggleLike,
                       ),
                       _buildStat(
                         Icons.remove_red_eye_outlined,
                         '${_article.totalViews ?? 0}',
-                        const Color(0xFF90A4BA),
+                        const Color(0xFF9FB2C2),
                       ),
                       _buildActionBtn(
                         context,
@@ -385,7 +385,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF0B1A2E).withValues(alpha: 0.6),
+                        color: const Color(0xFF1B3156).withValues(alpha: 0.6),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 1),
                       ),
@@ -399,7 +399,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Center(
-                              child: Icon(Icons.school_outlined, color: Color(0xFF5BB0E6), size: 22),
+                              child: Icon(Icons.school_outlined, color: Color(0xFF70ABE0), size: 22),
                             ),
                           ),
                           const SizedBox(width: 14),
@@ -419,7 +419,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                                 Text(
                                   'Escuela · precio especial para clientes',
                                   style: GoogleFonts.questrial(
-                                    color: const Color(0xFF90A4BA),
+                                    color: const Color(0xFF9FB2C2),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -507,7 +507,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: isFav ? const Color(0xFFE3C272).withValues(alpha: 0.15) : const Color(0xFF0B1A2E).withValues(alpha: 0.4),
+            color: isFav ? const Color(0xFFE3C272).withValues(alpha: 0.15) : const Color(0xFF1B3156).withValues(alpha: 0.4),
             border: Border.all(
               color: isFav ? const Color(0xFFE3C272) : Colors.white.withValues(alpha: 0.08),
             ),
@@ -518,14 +518,14 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
               Icon(
                 isFav ? Icons.bookmark : Icons.bookmark_border,
                 size: 18,
-                color: isFav ? const Color(0xFFE3C272) : const Color(0xFF90A4BA),
+                color: isFav ? const Color(0xFFE3C272) : const Color(0xFF9FB2C2),
               ),
               if (label != null) ...[
                 const SizedBox(width: 4),
                 Text(
                   isFav ? 'Guardado' : label,
                   style: GoogleFonts.questrial(
-                    color: isFav ? const Color(0xFFE3C272) : const Color(0xFF90A4BA),
+                    color: isFav ? const Color(0xFFE3C272) : const Color(0xFF9FB2C2),
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
@@ -539,19 +539,19 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFF0B1A2E).withValues(alpha: 0.4),
+        color: const Color(0xFF1B3156).withValues(alpha: 0.4),
         border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: const Color(0xFF90A4BA)),
+          Icon(icon, size: 18, color: const Color(0xFF9FB2C2)),
           if (label != null) ...[
             const SizedBox(width: 4),
             Text(
               label,
               style: GoogleFonts.questrial(
-                color: const Color(0xFF90A4BA),
+                color: const Color(0xFF9FB2C2),
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
               ),
@@ -567,7 +567,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFF0B1A2E).withValues(alpha: 0.4),
+        color: const Color(0xFF1B3156).withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.white.withValues(alpha: 0.06), width: 1),
       ),
@@ -578,7 +578,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: const Color(0xFF0B1A2E),
+              color: const Color(0xFF1B3156),
               borderRadius: BorderRadius.circular(8),
               image: item.imageUrl.isNotEmpty
                   ? DecorationImage(
@@ -611,7 +611,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                     'Por ${item.authorName} • ${item.readTime ?? item.duration ?? ''}',
                     style: GoogleFonts.questrial(
                       fontSize: 12,
-                      color: const Color(0xFF90A4BA),
+                      color: const Color(0xFF9FB2C2),
                     ),
                   ),
               ],

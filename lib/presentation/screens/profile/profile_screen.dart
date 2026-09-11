@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../widgets/perfil/eliminar_cuenta_dialog.dart';
 import '../../../domain/providers/auth_provider.dart';
 import '../../widgets/boton_volver.dart';
+import 'package:legacy_app/presentation/widgets/common/legacy_logo.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -16,7 +17,7 @@ class ProfileScreen extends StatelessWidget {
     final roleName = authProvider.role ?? authProvider.customerStatus ?? 'Miembro';
 
     return Scaffold(
-      backgroundColor: const Color(0xFF050B15),
+      backgroundColor: const Color(0xFF162540),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -44,9 +45,9 @@ class ProfileScreen extends StatelessWidget {
                 height: 100,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF7FB2D9), width: 1.5),
+                  border: Border.all(color: const Color(0xFF8AC6FB), width: 1.5),
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF2A5D7D), Color(0xFF123A4F)],
+                    colors: [Color(0xFF306C9E), Color(0xFF183D6B)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -250,14 +251,14 @@ class ProfileScreen extends StatelessWidget {
   }) {
     final titleColor = isDestructive ? Colors.redAccent : (isDisabled ? Colors.white.withValues(alpha: 0.4) : Colors.white);
     final subtitleColor = isDestructive ? Colors.redAccent.withValues(alpha: 0.7) : (isDisabled ? const Color(0xFF9FB2C2).withValues(alpha: 0.4) : const Color(0xFF9FB2C2));
-    final iconColor = isDestructive ? Colors.redAccent : (isDisabled ? const Color(0xFF7FB2D9).withValues(alpha: 0.4) : const Color(0xFF7FB2D9));
+    final iconColor = isDestructive ? Colors.redAccent : (isDisabled ? const Color(0xFF8AC6FB).withValues(alpha: 0.4) : const Color(0xFF8AC6FB));
     
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: const Color(0xFF0B1A2E).withValues(alpha: 0.5),
+          color: const Color(0xFF1B3156).withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: isDestructive ? Colors.redAccent.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.05)),
         ),
@@ -267,7 +268,7 @@ class ProfileScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: isPremium ? const Color(0xFF162A3B) : (isDestructive ? Colors.redAccent.withValues(alpha: 0.1) : Colors.transparent),
+                  color: isPremium ? const Color(0xFF1B3156) : (isDestructive ? Colors.redAccent.withValues(alpha: 0.1) : Colors.transparent),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon, color: iconColor, size: 20),
@@ -301,13 +302,12 @@ class ProfileScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF7FB2D9).withValues(alpha: 0.2),
+                  color: const Color(0xFF8AC6FB).withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
-                child: Image.asset(
-                  'assets/images/Logo.png',
+                child: const LegacyLogo.simbolo(
                   height: 16,
-                  color: const Color(0xFF7FB2D9),
+                  color: Color(0xFF8AC6FB),
                 ),
               ),
           ],

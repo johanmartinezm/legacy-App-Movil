@@ -97,7 +97,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF050B15),
+      backgroundColor: const Color(0xFF162540),
       body: SafeArea(
         child: Column(
           children: [
@@ -133,7 +133,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                       'Bot escribiendo...',
                       style: GoogleFonts.questrial(
                         fontSize: 12,
-                        color: const Color(0xFF90A4BA),
+                        color: const Color(0xFF9FB2C2),
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -174,8 +174,8 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
           label,
           style: GoogleFonts.questrial(fontSize: 12, color: AppTheme.legacyWhite),
         ),
-        backgroundColor: const Color(0xFF0B1A2E).withValues(alpha: 0.65),
-        shape: StadiumBorder(side: BorderSide(color: const Color(0xFF2A4A75).withValues(alpha: 0.35))),
+        backgroundColor: const Color(0xFF1B3156).withValues(alpha: 0.65),
+        shape: StadiumBorder(side: BorderSide(color: const Color(0xFF306C9E).withValues(alpha: 0.35))),
         onPressed: () {
           _messageController.text = message;
           _sendMessage();
@@ -187,7 +187,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
   Widget _buildInputArea() {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: const BoxDecoration(color: Color(0xFF0B1A2E)),
+      decoration: const BoxDecoration(color: Color(0xFF1B3156)),
       child: Row(
         children: [
           Expanded(
@@ -253,7 +253,7 @@ class _ChatBubble extends StatelessWidget {
         decoration: BoxDecoration(
           color: message.isUser
               ? AppTheme.legacyBlue3
-              : const Color(0xFF0B1A2E).withValues(alpha: 0.65),
+              : const Color(0xFF1B3156).withValues(alpha: 0.65),
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(20),
             topRight: const Radius.circular(20),
@@ -263,7 +263,7 @@ class _ChatBubble extends StatelessWidget {
           border: message.isUser
               ? null
               : Border.all(
-                  color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+                  color: const Color(0xFF306C9E).withValues(alpha: 0.35),
                   width: 1.2,
                 ),
         ),

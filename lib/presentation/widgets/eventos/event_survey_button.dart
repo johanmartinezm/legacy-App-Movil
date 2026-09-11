@@ -75,11 +75,11 @@ class _EventSurveyButtonState extends State<EventSurveyButton> {
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: yaRespondio
-              ? const Color(0xFF0B1A2E)
+              ? const Color(0xFF1B3156)
               : const Color(0xFFD9A74A),
           foregroundColor: yaRespondio
-              ? const Color(0xFF90A4BA)
-              : const Color(0xFF050B15),
+              ? const Color(0xFF9FB2C2)
+              : const Color(0xFF162540),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),

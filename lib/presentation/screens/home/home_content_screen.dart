@@ -8,6 +8,7 @@ import '../../../data/services/busqueda_service.dart';
 import '../../../domain/models/resultado_busqueda.dart';
 import '../../../domain/providers/chat_provider.dart';
 import '../../delegates/global_search_delegate.dart';
+import 'package:legacy_app/presentation/widgets/common/legacy_logo.dart';
 
 class HomeContentScreen extends StatefulWidget {
   const HomeContentScreen({super.key});
@@ -36,7 +37,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           gradient: RadialGradient(
             center: Alignment(0.8, -0.8),
             radius: 1.5,
-            colors: [Color(0xFF13304A), Color(0xFF0E2C3B), Color(0xFF050B15)],
+            colors: [Color(0xFF183D6B), Color(0xFF183D6B), Color(0xFF162540)],
             stops: [0.0, 0.5, 1.0],
           ),
         ),
@@ -85,23 +86,10 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
         children: [
-          Image.asset(
-            'assets/images/Logo.png',
-            height: 24,
-            fit: BoxFit.contain,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              'LEGACY NETWORK',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.barlow(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2.5,
-              ),
+          const Expanded(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: LegacyLogo(height: 28),
             ),
           ),
           const SizedBox(width: 12),
@@ -138,10 +126,10 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(2),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF5A93C4),
+                              color: const Color(0xFF70ABE0),
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: const Color(0xFF050B15),
+                                color: const Color(0xFF162540),
                                 width: 1.5,
                               ),
                             ),
@@ -153,7 +141,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                               child: Text(
                                 '$unreadCount',
                                 style: GoogleFonts.barlow(
-                                  color: const Color(0xFF0B1A2E),
+                                  color: const Color(0xFF1B3156),
                                   fontSize: 8,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -174,11 +162,11 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: const Color(0xFF7FB2D9),
+                      color: const Color(0xFF8AC6FB),
                       width: 1.5,
                     ),
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF2A5D7D), Color(0xFF123A4F)],
+                      colors: [Color(0xFF306C9E), Color(0xFF183D6B)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -284,7 +272,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
               ),
               TextSpan(
                 text: sub,
-                style: const TextStyle(color: Color(0xFF7FB2D9)),
+                style: const TextStyle(color: Color(0xFF8AC6FB)),
               ),
             ],
           ),
@@ -320,7 +308,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              const Color(0xFF5A93C4).withValues(alpha: 0.08),
+              const Color(0xFF70ABE0).withValues(alpha: 0.08),
               Colors.transparent,
             ],
             begin: Alignment.topLeft,
@@ -328,7 +316,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           ),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: const Color(0xFF5A93C4).withValues(alpha: 0.25),
+            color: const Color(0xFF70ABE0).withValues(alpha: 0.25),
             width: 1.0,
           ),
         ),
@@ -337,12 +325,12 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFF5A93C4).withValues(alpha: 0.15),
+                color: const Color(0xFF70ABE0).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(
                 Icons.calendar_month_outlined,
-                color: Color(0xFF7FB2D9),
+                color: Color(0xFF8AC6FB),
                 size: 20,
               ),
             ),
@@ -373,7 +361,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.chevron_right, color: Color(0xFF7FB2D9), size: 20),
+            const Icon(Icons.chevron_right, color: Color(0xFF8AC6FB), size: 20),
           ],
         ),
       ),
@@ -397,7 +385,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           child: Text(
             'Ver todo',
             style: GoogleFonts.questrial(
-              color: const Color(0xFF7FB2D9),
+              color: const Color(0xFF8AC6FB),
               fontSize: 13,
               fontWeight: FontWeight.bold,
             ),
@@ -435,7 +423,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           title: 'Legacy Knowledge',
           subtitle: 'Artículos, podcast, videos y libros',
           icon: Icons.menu_book,
-          iconColor: const Color(0xFF7FB2D9),
+          iconColor: const Color(0xFF8AC6FB),
           onTap: () => context.go('/informandote'),
         ),
         _buildModuleCard(
@@ -451,7 +439,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           title: 'LSO · Escuela',
           subtitle: 'Programas de formación',
           icon: Icons.school,
-          iconColor: const Color(0xFF5A93C4),
+          iconColor: const Color(0xFF70ABE0),
           onTap: () => context.push('/programas'),
         ),
         _buildModuleCard(
@@ -467,7 +455,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           title: 'Beneficios',
           subtitle: 'Próximamente',
           icon: Icons.shield_outlined,
-          iconColor: const Color(0xFF7FB2D9).withValues(alpha: 0.5),
+          iconColor: const Color(0xFF8AC6FB).withValues(alpha: 0.5),
           onTap: () => _showComingSoon(context),
         ),
         _buildModuleCard(
@@ -475,7 +463,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           title: 'Legacy+',
           subtitle: 'Cómo accedo',
           icon: Icons.my_location,
-          iconColor: const Color(0xFF5A93C4),
+          iconColor: const Color(0xFF70ABE0),
           onTap: () => context.go('/legacy-plus'),
         ),
         // push y no go: desde aquí se entra a escribir y se vuelve, así que la
@@ -575,7 +563,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           child: Text(
             'Cómo accedo',
             style: GoogleFonts.questrial(
-              color: const Color(0xFF7FB2D9),
+              color: const Color(0xFF8AC6FB),
               fontSize: 13,
               fontWeight: FontWeight.bold,
             ),
@@ -754,11 +742,11 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF7FB2D9), Color(0xFF1A2B4D), Color(0xFF0E1830)],
+            colors: [Color(0xFF8AC6FB), Color(0xFF1B3156), Color(0xFF162540)],
             stops: [-0.2, 0.4, 1.0],
           ),
           border: Border.all(
-            color: const Color(0xFF7FB2D9).withValues(alpha: 0.3),
+            color: const Color(0xFF8AC6FB).withValues(alpha: 0.3),
           ),
         ),
         child: Column(
@@ -772,13 +760,13 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF7FB2D9),
+                  color: const Color(0xFF8AC6FB),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   'PRÓXIMAMENTE',
                   style: GoogleFonts.barlow(
-                    color: const Color(0xFF06223A),
+                    color: const Color(0xFF162540),
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.0,
@@ -809,7 +797,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
-                color: const Color(0xFF7FB2D9),
+                color: const Color(0xFF8AC6FB),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
@@ -818,7 +806,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                   Text(
                     'Conocer el Legacy Test',
                     style: GoogleFonts.barlow(
-                      color: const Color(0xFF06223A),
+                      color: const Color(0xFF162540),
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
                     ),
@@ -826,7 +814,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                   const SizedBox(width: 6),
                   const Icon(
                     Icons.chevron_right,
-                    color: Color(0xFF06223A),
+                    color: Color(0xFF162540),
                     size: 18,
                   ),
                 ],
@@ -849,9 +837,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           gradient: const RadialGradient(
             center: Alignment(-0.3, -0.4),
             radius: 1.0,
-            colors: [Color(0xFF3A6F93), Color(0xFF0E2038)],
+            colors: [Color(0xFF306C9E), Color(0xFF1B3156)],
           ),
-          border: Border.all(color: const Color(0xFF5A93C4), width: 1.0),
+          border: Border.all(color: const Color(0xFF70ABE0), width: 1.0),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.7),
@@ -864,7 +852,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         child: const Center(
           child: Icon(
             Icons.psychology_outlined,
-            color: Color(0xFF7FB2D9),
+            color: Color(0xFF8AC6FB),
             size: 25,
           ),
         ),

@@ -44,7 +44,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
     final nombre = context.read<AuthProvider>().fullName;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF050B15),
+      backgroundColor: const Color(0xFF162540),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -115,7 +115,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
             textAlign: TextAlign.center,
             style: GoogleFonts.questrial(
               fontSize: 13,
-              color: const Color(0xFF90A4BA),
+              color: const Color(0xFF9FB2C2),
             ),
           ),
           const SizedBox(height: 20),
@@ -128,7 +128,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
             style: GoogleFonts.barlow(
               fontSize: 15,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF90A4BA),
+              color: const Color(0xFF9FB2C2),
             ),
           ),
           const SizedBox(height: 12),
@@ -148,7 +148,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 80),
       children: [
-        Icon(icono, size: 56, color: const Color(0xFF90A4BA)),
+        Icon(icono, size: 56, color: const Color(0xFF9FB2C2)),
         const SizedBox(height: 20),
         Text(
           titulo,
@@ -165,7 +165,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
           textAlign: TextAlign.center,
           style: GoogleFonts.questrial(
             fontSize: 14,
-            color: const Color(0xFF90A4BA),
+            color: const Color(0xFF9FB2C2),
           ),
         ),
       ],
@@ -182,10 +182,10 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF0B1A2E).withValues(alpha: 0.85),
+        color: const Color(0xFF1B3156).withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFF1E3A5F).withValues(alpha: 0.6),
+          color: const Color(0xFF183D6B).withValues(alpha: 0.6),
           width: 1.5,
         ),
       ),
@@ -205,7 +205,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
             [fecha, reg.eventLocation].where((v) => v != null && v.isNotEmpty).join(' • '),
             style: GoogleFonts.questrial(
               fontSize: 13,
-              color: const Color(0xFF90A4BA),
+              color: const Color(0xFF9FB2C2),
             ),
           ),
           const SizedBox(height: 16),
@@ -268,7 +268,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
       decoration: BoxDecoration(
-        color: const Color(0xFF13304A).withValues(alpha: 0.6),
+        color: const Color(0xFF183D6B).withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -293,7 +293,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
             textAlign: TextAlign.center,
             style: GoogleFonts.questrial(
               fontSize: 13,
-              color: const Color(0xFF90A4BA),
+              color: const Color(0xFF9FB2C2),
             ),
           ),
           const SizedBox(height: 14),
@@ -305,7 +305,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
               label: const Text('Entrar a la sesión'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFD9A74A),
-                foregroundColor: const Color(0xFF0B1A2E),
+                foregroundColor: const Color(0xFF1B3156),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -345,7 +345,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
       decoration: BoxDecoration(
-        color: const Color(0xFF13304A).withValues(alpha: 0.6),
+        color: const Color(0xFF183D6B).withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -372,7 +372,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
             textAlign: TextAlign.center,
             style: GoogleFonts.questrial(
               fontSize: 13,
-              color: const Color(0xFF90A4BA),
+              color: const Color(0xFF9FB2C2),
             ),
           ),
         ],

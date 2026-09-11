@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../domain/providers/auth_provider.dart';
 import '../../config/theme/app_theme.dart';
 import 'boton_volver.dart';
+import 'package:legacy_app/presentation/widgets/common/legacy_logo.dart';
 
 class CustomSectionHeader extends StatelessWidget {
   /// El nombre de la pantalla, bajo el logotipo. Va en mayúsculas, como el
@@ -214,48 +215,42 @@ class CustomSectionHeader extends StatelessWidget {
               ],
             ),
 
-          // Center: LEGACY Network — tipografía fiel al banner_logo.jpg
-          // LEGACY: Playfair Display Bold (serif elegante, crema cálida)
-          // Network®: Questrial Regular (sans-serif limpio, ya en uso en el proyecto)
+          // Center: el logotipo oficial mas el nombre de la pantalla.
+          //
+          // Hasta el 2026-09-11 «LEGACY» se escribia aqui en Playfair Display
+          // sobre crema, copiando un banner antiguo. El Manual de Imagen pone
+          // «cambiar la tipografia» entre los usos prohibidos del logo: la
+          // marca tiene la suya propia y esta versión en vector la respeta.
           Expanded(
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    'LEGACY',
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 21,
-                      fontWeight: FontWeight.w700,
-                      // Color crema cálida idéntico al banner_logo.jpg
-                      color: const Color(0xFFE8DCCA),
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                  // La segunda línea dice DÓNDE estás; «Network®» solo
-                  // cuando la pantalla no da nombre. Hasta el 2026-08-20 aquí
-                  // iba siempre la marca, así que las diez pantallas que usan
-                  // este encabezado se veían idénticas y ninguna se
+                  const LegacyLogo(height: 20),
+                  // La segunda línea dice DÓNDE estás. Hasta el 2026-08-20
+                  // aquí iba siempre la marca, así que las diez pantallas que
+                  // usan este encabezado se veían idénticas y ninguna se
                   // identificaba: el nombre que cada una pasaba en `title` no
                   // se pintaba en ninguna parte.
                   //
-                  // «LEGACY» se queda: es la mitad que reconoce la marca, y
-                  // perderla en las pantallas interiores sería peor que
-                  // repetir «Network®» diez veces.
-                  Text(
-                    title.trim().isEmpty ? 'Network®' : title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.questrial(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.white.withValues(alpha: 0.85),
-                      // Menos espaciado que el «Network®» que sustituye:
-                      // «MIEMBROS DE LA COMUNIDAD» son 24 caracteres y a 1.5
-                      // se acercaba demasiado a los iconos.
-                      letterSpacing: 1.0,
+                  // Cuando la pantalla no da nombre no se escribe nada: el
+                  // logotipo de arriba ya dice «Network®» y repetirlo debajo
+                  // duplicaría la marca.
+                  if (title.trim().isNotEmpty)
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.questrial(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white.withValues(alpha: 0.85),
+                        // Menos espaciado que el «Network®» que sustituye:
+                        // «MIEMBROS DE LA COMUNIDAD» son 24 caracteres y a 1.5
+                        // se acercaba demasiado a los iconos.
+                        letterSpacing: 1.0,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),

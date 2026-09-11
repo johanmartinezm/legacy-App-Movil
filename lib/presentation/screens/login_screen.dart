@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../domain/providers/auth_provider.dart';
 import '../../domain/providers/banner_provider.dart';
 import '../../config/theme/app_theme.dart';
+import 'package:legacy_app/presentation/widgets/common/legacy_logo.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -180,7 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     // Gradient matching the deep navy background of the reference image
     final bgGradient = RadialGradient(
-      colors: const [Color(0xFF13304A), Color(0xFF071324), Color(0xFF050B15)],
+      colors: const [Color(0xFF183D6B), Color(0xFF071324), Color(0xFF162540)],
       center: const Alignment(0.8, -0.6),
       radius: 1.5,
     );
@@ -202,28 +203,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 20),
-                    // Centered White Network/Logo from assets/images/logo_dark.png
-                    Align(
+                    // Version vertical del logo oficial, en blanco sobre el
+                    // fondo azul. Lleva el logotipo incorporado, asi que no se
+                    // vuelve a escribir el nombre de la marca debajo.
+                    const Align(
                       alignment: Alignment.center,
-                      child: Image.asset(
-                        'assets/images/Logo.png',
-                        height: 90,
-                        fit: BoxFit.contain,
+                      child: LegacyLogo(
+                        variante: LegacyLogoVariante.vertical,
+                        height: 140,
                       ),
                     ),
-                    const SizedBox(height: 24),
-
-                    // Brand Header
-                    Text(
-                      'Legacy Network',
-                      style: GoogleFonts.barlow(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 20),
                     Text(
                       'El futuro de su legado se construye hoy',
                       style: GoogleFonts.questrial(
@@ -337,7 +327,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         width: 1.5,
                                       ),
                                       activeColor: const Color(0xFFD9A74A),
-                                      checkColor: const Color(0xFF050B15),
+                                      checkColor: const Color(0xFF162540),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(4),
                                       ),
@@ -426,8 +416,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 borderRadius: BorderRadius.circular(12),
                                 gradient: const LinearGradient(
                                   colors: [
-                                    Color(0xFF1F5E80),
-                                    Color(0xFF123A4F),
+                                    Color(0xFF306C9E),
+                                    Color(0xFF183D6B),
                                   ],
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,

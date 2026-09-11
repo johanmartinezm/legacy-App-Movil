@@ -223,7 +223,7 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
           content: Text(
             '${message.notification!.title}: ${message.notification!.body}',
           ),
-          backgroundColor: const Color(0xFF0B1A2E),
+          backgroundColor: const Color(0xFF1B3156),
           action: esChat
               ? SnackBarAction(
                   label: 'Ver',

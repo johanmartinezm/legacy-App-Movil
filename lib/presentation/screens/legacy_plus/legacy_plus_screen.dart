@@ -8,16 +8,16 @@ class LegacyPlusScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF050B15),
+      backgroundColor: const Color(0xFF162540),
       body: Container(
         decoration: const BoxDecoration(
           gradient: RadialGradient(
             center: Alignment(0.8, -0.8),
             radius: 1.5,
             colors: [
-              Color(0xFF0D253A),
-              Color(0xFF061B2B),
-              Color(0xFF03070E),
+              Color(0xFF1B3156),
+              Color(0xFF162540),
+              Color(0xFF162540),
             ],
             stops: [0.0, 0.4, 1.0],
           ),
@@ -51,7 +51,7 @@ class LegacyPlusScreen extends StatelessWidget {
                             'El acceso completo al ecosistema',
                             style: GoogleFonts.questrial(
                               fontSize: 13,
-                              color: const Color(0xFF90A4BA),
+                              color: const Color(0xFF9FB2C2),
                             ),
                           ),
                         ],
@@ -78,7 +78,7 @@ class LegacyPlusScreen extends StatelessWidget {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              const Color(0xFF0F2036).withValues(alpha: 0.95),
+                              const Color(0xFF1B3156).withValues(alpha: 0.95),
                               const Color(0xFF081220).withValues(alpha: 0.95),
                             ],
                           ),
@@ -119,7 +119,7 @@ class LegacyPlusScreen extends StatelessWidget {
                                   style: GoogleFonts.barlow(
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
-                                    color: const Color(0xFF050B15),
+                                    color: const Color(0xFF162540),
                                   ),
                                 ),
                               ),
@@ -193,7 +193,7 @@ class LegacyPlusScreen extends StatelessWidget {
                         width: double.infinity,
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF0B1A2E).withValues(alpha: 0.85),
+                          color: const Color(0xFF1B3156).withValues(alpha: 0.85),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: const Color(0xFFD9A74A).withValues(alpha: 0.4),
@@ -217,7 +217,7 @@ class LegacyPlusScreen extends StatelessWidget {
                                   TextSpan(
                                     text: '/ año',
                                     style: GoogleFonts.questrial(
-                                      color: const Color(0xFF90A4BA),
+                                      color: const Color(0xFF9FB2C2),
                                       fontSize: 16,
                                     ),
                                   ),
@@ -309,7 +309,7 @@ class LegacyPlusScreen extends StatelessWidget {
                 description,
                 style: GoogleFonts.questrial(
                   fontSize: 13,
-                  color: const Color(0xFF90A4BA),
+                  color: const Color(0xFF9FB2C2),
                   height: 1.4,
                 ),
               ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/boton_volver.dart';
+import 'package:legacy_app/presentation/widgets/common/legacy_logo.dart';
 
 class ProfileSelectionScreen extends StatelessWidget {
   const ProfileSelectionScreen({super.key});
@@ -8,7 +9,7 @@ class ProfileSelectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B1A2E), // Dark blue from the image
+      backgroundColor: const Color(0xFF1B3156), // Dark blue from the image
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -22,18 +23,9 @@ class ProfileSelectionScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 10),
               // Logo
-              Image.asset(
-                'assets/images/Logo.png',
+              const LegacyLogo.simbolo(
                 height: 80,
                 width: 80,
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Icon(
-                    Icons.account_balance,
-                    color: Colors.white,
-                    size: 80,
-                  );
-                },
               ),
               const SizedBox(height: 24),
               // Welcome Text

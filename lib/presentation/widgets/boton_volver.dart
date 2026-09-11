@@ -43,7 +43,7 @@ class BotonVolver extends StatelessWidget {
               height: _diametro,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFF0B1A2E).withValues(alpha: 0.6),
+                color: const Color(0xFF1B3156).withValues(alpha: 0.6),
                 border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
               ),
               child: const Center(

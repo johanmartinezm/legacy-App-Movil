@@ -18,10 +18,10 @@ class GlobalSearchDelegate extends SearchDelegate<ResultadoBusqueda?> {
 
   GlobalSearchDelegate({required this.todo}) : super(searchFieldLabel: 'Buscar en Legacy');
 
-  static const _fondo = Color(0xFF050B15);
-  static const _tarjeta = Color(0xFF0B1A2E);
-  static const _borde = Color(0xFF2A4A75);
-  static const _apagado = Color(0xFF90A4BA);
+  static const _fondo = Color(0xFF162540);
+  static const _tarjeta = Color(0xFF1B3156);
+  static const _borde = Color(0xFF306C9E);
+  static const _apagado = Color(0xFF9FB2C2);
   static const _dorado = Color(0xFFD9A74A);
 
   @override
@@ -29,7 +29,7 @@ class GlobalSearchDelegate extends SearchDelegate<ResultadoBusqueda?> {
     return ThemeData(
       scaffoldBackgroundColor: _fondo,
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF0B1A2E),
+        backgroundColor: Color(0xFF1B3156),
         iconTheme: IconThemeData(color: Colors.white),
         elevation: 0,
       ),
@@ -167,9 +167,9 @@ class GlobalSearchDelegate extends SearchDelegate<ResultadoBusqueda?> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF132A44),
+                  color: const Color(0xFF1B3156),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFF1E3A5F).withValues(alpha: 0.4)),
+                  border: Border.all(color: const Color(0xFF183D6B).withValues(alpha: 0.4)),
                 ),
                 child: Icon(_icono(r), color: _dorado, size: 20),
               ),

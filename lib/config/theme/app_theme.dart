@@ -2,25 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Main Palette (Prototipo v3)
-  static const Color legacyBlue1 = Color(0xFF050B15); // Deep background (Radial center-edge)
-  static const Color legacyBlue2 = Color(0xFF0B1A2E); // Deep Navy (Panels/Surface)
-  static const Color legacyBlue3 = Color(0xFF123A4F); // Petrol / Active elements
-  static const Color legacyBlue4 = Color(0xFF5A93C4); // Steel Blue accent
-  static const Color legacyBlue5 = Color(0xFF7FB2D9); // Light steel blue
-  
+  // Paleta de marca — Manual de Imagen LEGACY Network (julio 2023)
+  // Los tres azules y el negro son los valores normativos del manual; los dos
+  // pasteles se toman del logo oficial (Log_LegNet-abierto.ai), que el manual
+  // ilustra pero no publica en hexadecimal.
+  static const Color legacyBlue1 = Color(0xFF162540); // Azul No.1 — fondo
+  static const Color legacyBlue2 = Color(0xFF183D6B); // Azul No.2 — paneles y acento
+  static const Color legacyBlue3 = Color(0xFF306C9E); // Azul No.3 — matiz de transicion
+  static const Color legacyBlue4 = Color(0xFF70ABE0); // Azul No.4 — pastel
+  static const Color legacyBlue5 = Color(0xFF8AC6FB); // Azul No.5 — pastel claro
+
+  // Escalon de apoyo: mezcla al 50% de Azul No.1 y Azul No.2. No es normativo,
+  // existe porque una interfaz oscura necesita un nivel entre fondo y panel.
+  static const Color legacySurface = Color(0xFF1B3156);
+
   static const Color legacyWhite = Color(0xFFE8EEF5); // Light text color (replacing pure white)
   static const Color legacyBlack = Color(0xFF000000);
-  
-  static const Color legacyGrey = Color(0xFF0B1A2E); // Adjusted for consistent dark base
-  
+
+  static const Color legacyGrey = Color(0xFF183D6B); // Adjusted for consistent dark base
+
   // Secondary Palette (accents)
-  static const Color legacyGold = Color(0xFF7FB2D9); // Replaced gold accent with steel-blue as per spec
+  static const Color legacyGold = Color(0xFF8AC6FB); // Replaced gold accent with steel-blue as per spec
   static const Color legacyGreen = Color(0xFF2F9E6B); 
   static const Color legacyGreenLight = Color(0xFF1B3D2F); 
   static const Color legacyGreenDark = Color(0xFF54C6A8); 
-  static const Color legacyRed = Color(0xFF771515); 
-  static const Color legacyOrange = Color(0xFF7FB2D9); 
+  static const Color legacyRed = Color(0xFF771515); // Rojo del manual
+  static const Color legacyOrange = Color(0xFF8AC6FB); 
 
   static const List<String> emojiFallbacks = [
     'Apple Color Emoji',

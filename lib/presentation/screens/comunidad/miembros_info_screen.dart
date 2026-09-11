@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/boton_volver.dart';
+import 'package:legacy_app/presentation/widgets/common/legacy_logo.dart';
 
 class MiembrosInfoScreen extends StatelessWidget {
   const MiembrosInfoScreen({super.key});
@@ -9,7 +10,7 @@ class MiembrosInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF050B15),
+      backgroundColor: const Color(0xFF162540),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -46,7 +47,7 @@ class MiembrosInfoScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0B1A2E),
+                  color: const Color(0xFF1B3156),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
                 ),
@@ -55,13 +56,12 @@ class MiembrosInfoScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF5A93C4).withValues(alpha: 0.2),
+                        color: const Color(0xFF70ABE0).withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Image.asset(
-                        'assets/images/Logo.png',
+                      child: const LegacyLogo.simbolo(
                         height: 24,
-                        color: const Color(0xFF7FB2D9),
+                        color: Color(0xFF8AC6FB),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -92,7 +92,7 @@ class MiembrosInfoScreen extends StatelessWidget {
               Text(
                 'CHATS POR PILAR',
                 style: GoogleFonts.barlowCondensed(
-                  color: const Color(0xFF7FB2D9),
+                  color: const Color(0xFF8AC6FB),
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.5,
@@ -125,7 +125,7 @@ class MiembrosInfoScreen extends StatelessWidget {
               Text(
                 'ADEMÁS',
                 style: GoogleFonts.barlowCondensed(
-                  color: const Color(0xFF7FB2D9),
+                  color: const Color(0xFF8AC6FB),
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.5,
@@ -157,8 +157,8 @@ class MiembrosInfoScreen extends StatelessWidget {
           child: ElevatedButton(
             onPressed: () => context.push('/legacy-plus'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF7FB2D9),
-              foregroundColor: const Color(0xFF050B15),
+              backgroundColor: const Color(0xFF8AC6FB),
+              foregroundColor: const Color(0xFF162540),
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -184,7 +184,7 @@ class MiembrosInfoScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF0B1A2E).withValues(alpha: 0.5),
+          color: const Color(0xFF1B3156).withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
@@ -193,10 +193,10 @@ class MiembrosInfoScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFF162A3B),
+              color: const Color(0xFF1B3156),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: const Color(0xFF7FB2D9), size: 24),
+            child: Icon(icon, color: const Color(0xFF8AC6FB), size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(

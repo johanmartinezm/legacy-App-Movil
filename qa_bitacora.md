@@ -2,6 +2,68 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-09-11]: La app se alinea con el Manual de Imagen y con el logo en vector
+
+El cliente entregó el vector maestro (`Log_LegNet-abierto.ai`, julio 2023) y el Manual de Imagen. La
+app llevaba meses con un **recorte en PNG** del símbolo —728×518, bordes dentados, sin el logotipo— y
+con una paleta de prototipo que no era la de la marca.
+
+**Lo que estaba mal, según el manual:**
+
+- El logo era un bitmap recortado a mano y solo existía en blanco.
+- Tres pantallas escribían el nombre de la marca **a mano, al lado del símbolo**, en Barlow o en
+  Playfair Display. El manual pone «cambiar la tipografía» entre los usos prohibidos (p. 10): el
+  logotipo tiene la suya, Gill Sans, y ya viene dentro del vector.
+- Los azules del tema (`#050B15`, `#0B1A2E`, `#123A4F`) no eran los del manual
+  (`#162540`, `#183D6B`, `#306C9E`), y había 263 azules más escritos a mano por las pantallas.
+
+- **Alcance:**
+  - `assets/images/brand/` (nuevo): 16 versiones del logo en SVG —horizontal, vertical y símbolo, en
+    color, blanco, negro, gris y mixto— más cinco PNG de respaldo. Todas salen del `.ai`, recortadas
+    a su contenido; el texto va en curvas, así que no hace falta licenciar Gill Sans.
+  - `lib/presentation/widgets/common/legacy_logo.dart` (nuevo): único punto por el que se dibuja el
+    logo. Solo expone las versiones que el manual autoriza y nunca deforma el vector.
+  - `lib/config/theme/app_theme.dart`: los cinco azules pasan a ser los del manual. Los dos pasteles
+    se toman del propio vector (`#70ABE0`, `#8AC6FB`), que el manual ilustra pero no publica en
+    hexadecimal. Se añade `legacySurface` (`#1B3156`, mezcla al 50 % de los azules 1 y 2) porque una
+    interfaz oscura necesita un escalón entre el fondo y los paneles.
+  - 28 archivos de pantalla: 263 azules sueltos reasignados a esa escala.
+  - El gris de texto secundario se unifica en `#9FB2C2`. El anterior (`#90A4BA`) se quedaba en 4,28:1
+    sobre el azul de panel, por debajo del mínimo AA; el nuevo da 5,01:1.
+  - `login_screen.dart`, `home_content_screen.dart` y `custom_section_header.dart` (este último lo
+    usan diez pantallas): fuera el nombre escrito a mano, entra el logotipo oficial.
+  - `profile_selection_screen.dart`, `profile_screen.dart`, `miembros_info_screen.dart`,
+    `main_layout.dart`: el símbolo en vector sustituye al recorte.
+  - Se retiran seis imágenes que quedaron sin uso: `Logo.png` y `Logo copy.png` (esta última, 5 MB
+    que se empaquetaban en cada build), `logo_dark.png`, `logo_transparente.png`, `logo.jpg` —la
+    marca **anterior**, con la «A» sin modificar— y `banner_logo.jpg`, el banner del que salía el
+    «LEGACY» en serif crema. Comprobado antes de borrar que no las nombra ningún archivo del
+    repositorio, ni siquiera por una ruta construida al vuelo.
+  - `test/widgets/legacy_logo_test.dart` (nuevo): recorre las nueve combinaciones de versión y tinta.
+    Si un archivo falta o se renombra, la app no falla al compilar —solo deja un hueco—, así que el
+    error tiene que salir aquí.
+
+- **Verificado:** `flutter analyze` sin errores ni avisos nuevos; `flutter test`, 256 en verde;
+  pantalla de login abierta en el navegador, con el logotipo en vector y sin el nombre duplicado.
+
+- **Criterios de QA:**
+  1. Abrir la app: en el **login** el logo se ve nítido, con «LEGACY Network®» dentro del propio
+     logo, y **no** aparece el nombre repetido debajo en otra tipografía.
+  2. Entrar y mirar la **cabecera del inicio**: el logotipo completo a la izquierda, sin el texto
+     «LEGACY NETWORK» espaciado que había antes.
+  3. Recorrer diez pantallas interiores (Miembros, Comunidad, Foros, Chat, Programas…): arriba el
+     logotipo y debajo **el nombre de esa pantalla**. En ninguna debe aparecer «LEGACY» en serif
+     color crema.
+  4. En la **barra inferior**, la pestaña LEGACY+ muestra el símbolo; gris al estar inactiva y
+     dorado al activarse, sin bordes dentados al ampliar.
+  5. Comprobar en un teléfono de pantalla pequeña que el logotipo de la cabecera no desplaza los
+     iconos de búsqueda y notificaciones.
+  6. Revisar que **ninguna pantalla quedó con dos azules distintos peleando**: el fondo es
+     `#162540`, las tarjetas `#1B3156` y los paneles `#183D6B`. Son más claros que antes; es el
+     cambio esperado, no un error de render.
+  7. Leer texto secundario (fechas, subtítulos) sobre tarjeta: debe leerse sin esfuerzo.
+
+
 ### [2026-09-04]: Los foros pedían un alias a quien ya lo tenía
 
 Salió al probar en el teléfono el selector de fotos, con la cuenta de revisión de Apple. **No se ha

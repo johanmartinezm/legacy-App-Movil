@@ -24,11 +24,11 @@ class FavoritesScreen extends StatelessWidget {
             color: AppTheme.legacyWhite,
           ),
         ),
-        backgroundColor: const Color(0xFF0B1A2E),
+        backgroundColor: const Color(0xFF1B3156),
         foregroundColor: AppTheme.legacyWhite,
         elevation: 0,
       ),
-      backgroundColor: const Color(0xFF050B15),
+      backgroundColor: const Color(0xFF162540),
       body: favoritesProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : favoritesProvider.favorites.isEmpty
@@ -71,10 +71,10 @@ class FavoritesScreen extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF0B1A2E).withValues(alpha: 0.65),
+          color: const Color(0xFF1B3156).withValues(alpha: 0.65),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+            color: const Color(0xFF306C9E).withValues(alpha: 0.35),
             width: 1.2,
           ),
         ),
@@ -145,7 +145,7 @@ class FavoritesScreen extends StatelessWidget {
                         Icon(
                           Icons.person_outline,
                           size: 14,
-                          color: const Color(0xFF90A4BA),
+                          color: const Color(0xFF9FB2C2),
                         ),
                         const SizedBox(width: 4),
                         Expanded(
@@ -153,7 +153,7 @@ class FavoritesScreen extends StatelessWidget {
                             item.authorName ?? 'Desconocido',
                             style: GoogleFonts.questrial(
                               fontSize: 12,
-                              color: const Color(0xFF90A4BA),
+                              color: const Color(0xFF9FB2C2),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

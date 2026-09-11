@@ -17,7 +17,7 @@ class EventPurchaseDetailScreen extends StatelessWidget {
     final String badgeText = event.isFree ? 'REGISTRO ABIERTO' : 'PREVENTA ABIERTA';
 
     return Scaffold(
-      backgroundColor: const Color(0xFF050B15),
+      backgroundColor: const Color(0xFF162540),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -39,9 +39,9 @@ class EventPurchaseDetailScreen extends StatelessWidget {
             center: Alignment(0.8, -0.8),
             radius: 1.5,
             colors: [
-              Color(0xFF13304A), // Accent steel blue
-              Color(0xFF0E2C3B), // Dark blue-gray
-              Color(0xFF050B15), // Ultra dark base
+              Color(0xFF183D6B), // Accent steel blue
+              Color(0xFF183D6B), // Dark blue-gray
+              Color(0xFF162540), // Ultra dark base
             ],
             stops: [0.0, 0.3, 1.0],
           ),
@@ -102,7 +102,7 @@ class EventPurchaseDetailScreen extends StatelessWidget {
                         children: [
                           const Icon(
                             Icons.place_outlined,
-                            color: Color(0xFF90A4BA),
+                            color: Color(0xFF9FB2C2),
                             size: 16,
                           ),
                           const SizedBox(width: 6),
@@ -110,7 +110,7 @@ class EventPurchaseDetailScreen extends StatelessWidget {
                             child: Text(
                               '${event.location ?? 'JW Marriott Bogotá'} • ${event.date}',
                               style: GoogleFonts.barlow(
-                                color: const Color(0xFF90A4BA),
+                                color: const Color(0xFF9FB2C2),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -162,10 +162,10 @@ class EventPurchaseDetailScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF0B1A2E).withValues(alpha: 0.85),
+                          color: const Color(0xFF1B3156).withValues(alpha: 0.85),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: const Color(0xFF1E3A5F).withValues(alpha: 0.4),
+                            color: const Color(0xFF183D6B).withValues(alpha: 0.4),
                             width: 1,
                           ),
                         ),
@@ -175,16 +175,16 @@ class EventPurchaseDetailScreen extends StatelessWidget {
                               'Speakers',
                               event.speaker ?? 'Sanjay Goel · M.J. Parada · G. Gómez',
                             ),
-                            const Divider(color: Color(0xFF1E3A5F), thickness: 0.5, height: 24),
+                            const Divider(color: Color(0xFF183D6B), thickness: 0.5, height: 24),
                             _buildInfoRow('Modelo', '7 dimensiones DINASTÍA'),
-                            const Divider(color: Color(0xFF1E3A5F), thickness: 0.5, height: 24),
+                            const Divider(color: Color(0xFF183D6B), thickness: 0.5, height: 24),
                             _buildInfoRow(
                               'Incluye',
                               (event.includes != null && event.includes!.trim().isNotEmpty)
                                   ? event.includes!.replaceAll('\n', ' · ')
                                   : 'Campus 45 días · libro · El Espectador 6m',
                             ),
-                            const Divider(color: Color(0xFF1E3A5F), thickness: 0.5, height: 24),
+                            const Divider(color: Color(0xFF183D6B), thickness: 0.5, height: 24),
                             _buildInfoRow(
                               'Alumni Summit',
                               'Acceso a Legacy+',
@@ -247,10 +247,10 @@ class EventPurchaseDetailScreen extends StatelessWidget {
         height: 180,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: const Color(0xFF0B1A2E),
+          color: const Color(0xFF1B3156),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: const Color(0xFF1E3A5F).withValues(alpha: 0.5),
+            color: const Color(0xFF183D6B).withValues(alpha: 0.5),
             width: 1,
           ),
         ),
@@ -270,7 +270,7 @@ class EventPurchaseDetailScreen extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFF1E3A5F).withValues(alpha: 0.5),
+          color: const Color(0xFF183D6B).withValues(alpha: 0.5),
           width: 1,
         ),
       ),
@@ -284,7 +284,7 @@ class EventPurchaseDetailScreen extends StatelessWidget {
               width: double.infinity,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => Container(
-                color: const Color(0xFF0B1A2E),
+                color: const Color(0xFF1B3156),
                 child: const Center(
                   child: Icon(
                     Icons.calendar_today_outlined,
@@ -302,7 +302,7 @@ class EventPurchaseDetailScreen extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      const Color(0xFF050B15).withValues(alpha: 0.7),
+                      const Color(0xFF162540).withValues(alpha: 0.7),
                     ],
                   ),
                 ),
@@ -323,7 +323,7 @@ class EventPurchaseDetailScreen extends StatelessWidget {
           child: Text(
             label,
             style: GoogleFonts.barlow(
-              color: const Color(0xFF90A4BA),
+              color: const Color(0xFF9FB2C2),
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),

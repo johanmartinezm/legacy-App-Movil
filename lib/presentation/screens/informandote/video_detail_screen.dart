@@ -146,7 +146,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
         return Scaffold(
           backgroundColor: AppTheme.legacyBlue1,
           appBar: AppBar(
-            backgroundColor: const Color(0xFF0B1A2E),
+            backgroundColor: const Color(0xFF1B3156),
             leading: const BackButton(color: Colors.white),
             title: Text(
               _video.title,
@@ -184,14 +184,14 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF5BB0E6).withValues(alpha: 0.12),
+                          color: const Color(0xFF70ABE0).withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: const Color(0xFF5BB0E6).withValues(alpha: 0.3), width: 1),
+                          border: Border.all(color: const Color(0xFF70ABE0).withValues(alpha: 0.3), width: 1),
                         ),
                         child: Text(
                           _video.category.toUpperCase(),
                           style: GoogleFonts.barlow(
-                            color: const Color(0xFF5BB0E6),
+                            color: const Color(0xFF70ABE0),
                             fontWeight: FontWeight.bold,
                             fontSize: 10,
                             letterSpacing: 1.0,
@@ -214,7 +214,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                       '${_video.views ?? "0 vistas"} • ${_video.date ?? ""}',
                       style: GoogleFonts.questrial(
                         fontSize: 12,
-                        color: const Color(0xFF90A4BA),
+                        color: const Color(0xFF9FB2C2),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -240,7 +240,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                         _buildStat(
                           Icons.remove_red_eye_outlined,
                           '${_video.views ?? 0}',
-                          const Color(0xFF90A4BA),
+                          const Color(0xFF9FB2C2),
                         ),
                         _buildActionBtn(
                           context,
@@ -268,14 +268,14 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF0B1A2E).withValues(alpha: 0.6),
+                        color: const Color(0xFF1B3156).withValues(alpha: 0.6),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
                       ),
                       child: Row(
                         children: [
                           CircleAvatar(
-                            backgroundColor: const Color(0xFF5BB0E6).withValues(alpha: 0.2),
+                            backgroundColor: const Color(0xFF70ABE0).withValues(alpha: 0.2),
                             radius: 20,
                             backgroundImage: _video.authorAvatar != null
                                 ? NetworkImage(ImageHelper.getProxiedImageUrl(
@@ -304,7 +304,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                                     _video.authorRole!,
                                     style: GoogleFonts.questrial(
                                       fontSize: 11,
-                                      color: const Color(0xFF90A4BA),
+                                      color: const Color(0xFF9FB2C2),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -479,7 +479,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: isFav ? const Color(0xFFE3C272).withValues(alpha: 0.15) : const Color(0xFF0B1A2E).withValues(alpha: 0.4),
+            color: isFav ? const Color(0xFFE3C272).withValues(alpha: 0.15) : const Color(0xFF1B3156).withValues(alpha: 0.4),
             border: Border.all(
               color: isFav ? const Color(0xFFE3C272) : Colors.white.withValues(alpha: 0.08),
             ),
@@ -490,14 +490,14 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
               Icon(
                 isFav ? Icons.bookmark : Icons.bookmark_border,
                 size: 18,
-                color: isFav ? const Color(0xFFE3C272) : const Color(0xFF90A4BA),
+                color: isFav ? const Color(0xFFE3C272) : const Color(0xFF9FB2C2),
               ),
               if (label != null) ...[
                 const SizedBox(width: 4),
                 Text(
                   isFav ? 'Guardado' : label,
                   style: GoogleFonts.questrial(
-                    color: isFav ? const Color(0xFFE3C272) : const Color(0xFF90A4BA),
+                    color: isFav ? const Color(0xFFE3C272) : const Color(0xFF9FB2C2),
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
@@ -513,19 +513,19 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: const Color(0xFF0B1A2E).withValues(alpha: 0.4),
+          color: const Color(0xFF1B3156).withValues(alpha: 0.4),
           border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 18, color: const Color(0xFF90A4BA)),
+            Icon(icon, size: 18, color: const Color(0xFF9FB2C2)),
             if (label != null) ...[
               const SizedBox(width: 4),
               Text(
                 label,
                 style: GoogleFonts.questrial(
-                  color: const Color(0xFF90A4BA),
+                  color: const Color(0xFF9FB2C2),
                   fontWeight: FontWeight.bold,
                   fontSize: 12,
                 ),
@@ -544,7 +544,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFF0B1A2E).withValues(alpha: 0.4),
+        color: const Color(0xFF1B3156).withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.white.withValues(alpha: 0.06), width: 1),
       ),
@@ -557,7 +557,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0B1A2E),
+                    color: const Color(0xFF1B3156),
                     borderRadius: BorderRadius.circular(8),
                         image: item.imageUrl.isNotEmpty
                             ? DecorationImage(
@@ -615,7 +615,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                     '${item.authorName!} • ${item.views ?? ''}',
                     style: GoogleFonts.questrial(
                       fontSize: 12,
-                      color: const Color(0xFF90A4BA),
+                      color: const Color(0xFF9FB2C2),
                     ),
                   ),
               ],

@@ -91,16 +91,16 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF050B15),
+      backgroundColor: const Color(0xFF162540),
       body: Container(
         decoration: const BoxDecoration(
           gradient: RadialGradient(
             center: Alignment(0.8, -0.8),
             radius: 1.5,
             colors: [
-              Color(0xFF13304A),
-              Color(0xFF0E2C3B),
-              Color(0xFF050B15),
+              Color(0xFF183D6B),
+              Color(0xFF183D6B),
+              Color(0xFF162540),
             ],
             stops: [0.0, 0.3, 1.0],
           ),
@@ -191,7 +191,7 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
           const SizedBox(height: 4),
           Text(
             descripcion,
-            style: GoogleFonts.questrial(color: const Color(0xFF90A4BA), fontSize: 12),
+            style: GoogleFonts.questrial(color: const Color(0xFF9FB2C2), fontSize: 12),
           ),
         ],
         const SizedBox(height: 12),
@@ -208,10 +208,10 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: const Color(0xFF0B1A2E).withValues(alpha: 0.55),
+          color: const Color(0xFF1B3156).withValues(alpha: 0.55),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+            color: const Color(0xFF306C9E).withValues(alpha: 0.35),
             width: 1.2,
           ),
         ),
@@ -234,12 +234,12 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
                   const SizedBox(height: 4),
                   Text(
                     'Diseñados a medida según las necesidades de su empresa o familia. Escríbanos para conversarlo.',
-                    style: GoogleFonts.questrial(color: const Color(0xFF90A4BA), fontSize: 12, height: 1.4),
+                    style: GoogleFonts.questrial(color: const Color(0xFF9FB2C2), fontSize: 12, height: 1.4),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Color(0xFF90A4BA), size: 20),
+            const Icon(Icons.chevron_right, color: Color(0xFF9FB2C2), size: 20),
           ],
         ),
       ),
@@ -256,10 +256,10 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: const Color(0xFF0B1A2E).withValues(alpha: 0.55),
+          color: const Color(0xFF1B3156).withValues(alpha: 0.55),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+            color: const Color(0xFF306C9E).withValues(alpha: 0.35),
           ),
         ),
         child: Row(
@@ -282,14 +282,14 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
                   Text(
                     'Los libros de LSO',
                     style: GoogleFonts.questrial(
-                      color: const Color(0xFF90A4BA),
+                      color: const Color(0xFF9FB2C2),
                       fontSize: 12,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Color(0xFF90A4BA), size: 20),
+            const Icon(Icons.chevron_right, color: Color(0xFF9FB2C2), size: 20),
           ],
         ),
       ),
@@ -326,7 +326,7 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
                   'La escuela del propietario en LATAM',
                   style: GoogleFonts.questrial(
                     fontSize: 12,
-                    color: const Color(0xFF90A4BA),
+                    color: const Color(0xFF9FB2C2),
                   ),
                 ),
               ],
@@ -343,10 +343,10 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF0B1A2E).withValues(alpha: 0.65),
+        color: const Color(0xFF1B3156).withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+          color: const Color(0xFF306C9E).withValues(alpha: 0.35),
           width: 1.2,
         ),
       ),
@@ -369,7 +369,7 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
             'Harvard Business Impact. Alumni LSO acceden a Legacy+ con precio especial.',
             style: GoogleFonts.questrial(
               fontSize: 13,
-              color: const Color(0xFF90A4BA),
+              color: const Color(0xFF9FB2C2),
               height: 1.5,
             ),
           ),
@@ -421,10 +421,10 @@ class _ProgramRow extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: const Color(0xFF0B1A2E).withValues(alpha: 0.55),
+          color: const Color(0xFF1B3156).withValues(alpha: 0.55),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+            color: const Color(0xFF306C9E).withValues(alpha: 0.35),
             width: 1.2,
           ),
         ),
@@ -459,7 +459,7 @@ class _ProgramRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.open_in_new, color: Color(0xFF90A4BA), size: 18),
+            const Icon(Icons.open_in_new, color: Color(0xFF9FB2C2), size: 18),
           ],
         ),
       ),
@@ -474,7 +474,7 @@ class _ProgramRow extends StatelessWidget {
       height: lado,
       width: lado,
       decoration: BoxDecoration(
-        color: const Color(0xFF13304A),
+        color: const Color(0xFF183D6B),
         borderRadius: BorderRadius.circular(8),
       ),
       alignment: Alignment.center,

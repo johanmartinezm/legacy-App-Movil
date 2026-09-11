@@ -166,10 +166,10 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFF050B15),
+      backgroundColor: const Color(0xFF162540),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/chatbot'),
-        backgroundColor: const Color(0xFF0B1A2E),
+        backgroundColor: const Color(0xFF1B3156),
         shape: CircleBorder(
           side: BorderSide(
             color: const Color(0xFFD9A74A),
@@ -188,9 +188,9 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
             center: Alignment(0.8, -0.8),
             radius: 1.5,
             colors: [
-              Color(0xFF13304A),
-              Color(0xFF0E2C3B),
-              Color(0xFF050B15),
+              Color(0xFF183D6B),
+              Color(0xFF183D6B),
+              Color(0xFF162540),
             ],
             stops: [0.0, 0.3, 1.0],
           ),
@@ -224,7 +224,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
                             'Conocimiento aplicado • nuevo cada semana',
                             style: GoogleFonts.questrial(
                               fontSize: 13,
-                              color: const Color(0xFF90A4BA),
+                              color: const Color(0xFF9FB2C2),
                             ),
                           ),
                         ],
@@ -248,12 +248,12 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
                   decoration: InputDecoration(
                     hintText: 'Buscar en Legacy Knowledge',
                     hintStyle: GoogleFonts.questrial(
-                      color: const Color(0xFF90A4BA),
+                      color: const Color(0xFF9FB2C2),
                       fontSize: 14,
                     ),
                     prefixIcon: const Icon(
                       Icons.search,
-                      color: Color(0xFF90A4BA),
+                      color: Color(0xFF9FB2C2),
                       size: 20,
                     ),
                     suffixIcon: _consulta.isEmpty
@@ -261,7 +261,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
                         : IconButton(
                             icon: const Icon(
                               Icons.close,
-                              color: Color(0xFF90A4BA),
+                              color: Color(0xFF9FB2C2),
                               size: 18,
                             ),
                             tooltip: 'Limpiar',
@@ -271,19 +271,19 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
                             },
                           ),
                     filled: true,
-                    fillColor: const Color(0xFF0B1A2E).withValues(alpha: 0.55),
+                    fillColor: const Color(0xFF1B3156).withValues(alpha: 0.55),
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(vertical: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
-                        color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+                        color: const Color(0xFF306C9E).withValues(alpha: 0.35),
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
-                        color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+                        color: const Color(0xFF306C9E).withValues(alpha: 0.35),
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
@@ -319,7 +319,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
                     : RefreshIndicator(
                         onRefresh: _fetchInitialPosts,
                         color: const Color(0xFFD9A74A),
-                        backgroundColor: const Color(0xFF0B1A2E),
+                        backgroundColor: const Color(0xFF1B3156),
                         child: SingleChildScrollView(
                           controller: _scrollController,
                           physics: const AlwaysScrollableScrollPhysics(),
@@ -383,7 +383,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
                                             : 'Nada coincide con "${_consulta.trim()}".',
                                         textAlign: TextAlign.center,
                                         style: GoogleFonts.questrial(
-                                          color: const Color(0xFF90A4BA),
+                                          color: const Color(0xFF9FB2C2),
                                           fontSize: 14,
                                         ),
                                       ),
@@ -427,7 +427,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: isSelected ? const Color(0xFFD9A74A) : const Color(0xFF0B1A2E).withValues(alpha: 0.4),
+            color: isSelected ? const Color(0xFFD9A74A) : const Color(0xFF1B3156).withValues(alpha: 0.4),
             border: Border.all(
               color: isSelected ? const Color(0xFFD9A74A) : Colors.white10,
               width: 1,
@@ -436,7 +436,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
           child: Text(
             filterName,
             style: GoogleFonts.questrial(
-              color: isSelected ? const Color(0xFF050B15) : const Color(0xFF90A4BA),
+              color: isSelected ? const Color(0xFF162540) : const Color(0xFF9FB2C2),
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               fontSize: 13,
             ),
@@ -450,10 +450,10 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF0B1A2E).withValues(alpha: 0.65),
+        color: const Color(0xFF1B3156).withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+          color: const Color(0xFF306C9E).withValues(alpha: 0.35),
           width: 1.2,
         ),
       ),
@@ -462,7 +462,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFF132A44),
+              color: const Color(0xFF1B3156),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
@@ -488,7 +488,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
                 Text(
                   'Cada lunes publicamos contenido nuevo. Active notificaciones.',
                   style: GoogleFonts.questrial(
-                    color: const Color(0xFF90A4BA),
+                    color: const Color(0xFF9FB2C2),
                     fontSize: 13,
                   ),
                 ),
@@ -517,10 +517,10 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFF0B1A2E).withValues(alpha: 0.65),
+        color: const Color(0xFF1B3156).withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFF2A4A75).withValues(alpha: 0.35),
+          color: const Color(0xFF306C9E).withValues(alpha: 0.35),
           width: 1.2,
         ),
       ),
@@ -539,10 +539,10 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: const Color(0xFF132A44),
+                color: const Color(0xFF1B3156),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: const Color(0xFF1E3A5F).withValues(alpha: 0.4),
+                  color: const Color(0xFF183D6B).withValues(alpha: 0.4),
                 ),
               ),
               child: Icon(
@@ -572,7 +572,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
                   Text(
                     _getSubtitleForPost(post),
                     style: GoogleFonts.questrial(
-                      color: const Color(0xFF90A4BA),
+                      color: const Color(0xFF9FB2C2),
                       fontSize: 13,
                     ),
                   ),
@@ -652,7 +652,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
           child: Text(
             'L',
             style: GoogleFonts.barlow(
-              color: const Color(0xFF050B15),
+              color: const Color(0xFF162540),
               fontSize: 12,
               fontWeight: FontWeight.bold,
             ),

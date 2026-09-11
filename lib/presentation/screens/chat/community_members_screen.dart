@@ -42,7 +42,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
     final myId = context.read<AuthProvider>().userID;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF050B15),
+      backgroundColor: const Color(0xFF162540),
       body: SafeArea(
         child: Column(
           children: [
@@ -143,8 +143,8 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF7FB2D9),
-                            foregroundColor: const Color(0xFF050B15),
+                            backgroundColor: const Color(0xFF8AC6FB),
+                            foregroundColor: const Color(0xFF162540),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),

@@ -209,7 +209,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
             textAlign: TextAlign.center,
             style: GoogleFonts.questrial(
               fontSize: 14,
-              color: const Color(0xFF90A4BA),
+              color: const Color(0xFF9FB2C2),
             ),
           ),
           const SizedBox(height: 28),
@@ -221,7 +221,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
               onPressed: () => context.push('/mi-credencial'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFD9A74A),
-                foregroundColor: const Color(0xFF050B15),
+                foregroundColor: const Color(0xFF162540),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -241,7 +241,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
             onPressed: () => context.go('/eventos'),
             child: Text(
               'Volver a eventos',
-              style: GoogleFonts.questrial(color: const Color(0xFF90A4BA)),
+              style: GoogleFonts.questrial(color: const Color(0xFF9FB2C2)),
             ),
           ),
         ],
@@ -252,7 +252,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF050B15),
+      backgroundColor: const Color(0xFF162540),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -274,9 +274,9 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
             center: Alignment(0.8, -0.8),
             radius: 1.5,
             colors: [
-              Color(0xFF13304A), // Accent steel blue
-              Color(0xFF0E2C3B), // Dark blue-gray
-              Color(0xFF050B15), // Ultra dark base
+              Color(0xFF183D6B), // Accent steel blue
+              Color(0xFF183D6B), // Dark blue-gray
+              Color(0xFF162540), // Ultra dark base
             ],
             stops: [0.0, 0.3, 1.0],
           ),
@@ -303,12 +303,12 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   color: const Color(
-                                    0xFF0B1A2E,
+                                    0xFF1B3156,
                                   ).withValues(alpha: 0.85),
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
                                     color: const Color(
-                                      0xFF1E3A5F,
+                                      0xFF183D6B,
                                     ).withValues(alpha: 0.6),
                                     width: 1.5,
                                   ),
@@ -329,7 +329,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
                                       '${widget.event.date} • ${widget.event.location ?? "Online"}',
                                       style: GoogleFonts.questrial(
                                         fontSize: 14,
-                                        color: const Color(0xFF90A4BA),
+                                        color: const Color(0xFF9FB2C2),
                                       ),
                                     ),
                                     const SizedBox(height: 16),
@@ -449,12 +449,12 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   color: const Color(
-                                    0xFF0B1A2E,
+                                    0xFF1B3156,
                                   ).withValues(alpha: 0.85),
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
                                     color: const Color(
-                                      0xFF1E3A5F,
+                                      0xFF183D6B,
                                     ).withValues(alpha: 0.4),
                                     width: 1,
                                   ),
@@ -467,7 +467,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
                                       'TOTAL A PAGAR:',
                                       style: GoogleFonts.barlow(
                                         fontWeight: FontWeight.bold,
-                                        color: const Color(0xFF90A4BA),
+                                        color: const Color(0xFF9FB2C2),
                                       ),
                                     ),
                                     Text(
@@ -507,7 +507,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
                               0xFFD9A74A,
                             ), // Premium gold
                             foregroundColor: const Color(
-                              0xFF050B15,
+                              0xFF162540,
                             ), // Dark contrast text
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -516,7 +516,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
                           ),
                           child: _isLoading
                               ? const CircularProgressIndicator(
-                                  color: Color(0xFF050B15),
+                                  color: Color(0xFF162540),
                                 )
                               : Text(
                                   'PROCEDER AL PAGO',
@@ -556,27 +556,27 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
         labelText: label,
         hintText: hint,
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        labelStyle: GoogleFonts.questrial(color: const Color(0xFF90A4BA)),
+        labelStyle: GoogleFonts.questrial(color: const Color(0xFF9FB2C2)),
         hintStyle: GoogleFonts.questrial(
           color: Colors.white.withValues(alpha: 0.3),
         ),
         filled: true,
-        fillColor: const Color(0xFF0B1A2E).withValues(alpha: 0.6),
+        fillColor: const Color(0xFF1B3156).withValues(alpha: 0.6),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: const Color(0xFF1E3A5F).withValues(alpha: 0.4),
+            color: const Color(0xFF183D6B).withValues(alpha: 0.4),
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: const Color(0xFF1E3A5F).withValues(alpha: 0.4),
+            color: const Color(0xFF183D6B).withValues(alpha: 0.4),
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF5A93C4), width: 1.5),
+          borderSide: const BorderSide(color: Color(0xFF70ABE0), width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -601,13 +601,13 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF13304A).withValues(alpha: 0.4)
-              : const Color(0xFF0B1A2E).withValues(alpha: 0.6),
+              ? const Color(0xFF183D6B).withValues(alpha: 0.4)
+              : const Color(0xFF1B3156).withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
                 ? const Color(0xFF00F2FE)
-                : const Color(0xFF1E3A5F).withValues(alpha: 0.4),
+                : const Color(0xFF183D6B).withValues(alpha: 0.4),
             width: 1.5,
           ),
         ),
@@ -618,7 +618,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
               label,
               style: GoogleFonts.questrial(
                 fontWeight: FontWeight.bold,
-                color: isSelected ? Colors.white : const Color(0xFF90A4BA),
+                color: isSelected ? Colors.white : const Color(0xFF9FB2C2),
               ),
             ),
             Container(
@@ -632,12 +632,12 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
                 border: Border.all(
                   color: isSelected
                       ? const Color(0xFF00F2FE)
-                      : const Color(0xFF90A4BA),
+                      : const Color(0xFF9FB2C2),
                   width: 2,
                 ),
               ),
               child: isSelected
-                  ? const Icon(Icons.check, size: 14, color: Color(0xFF050B15))
+                  ? const Icon(Icons.check, size: 14, color: Color(0xFF162540))
                   : null,
             ),
           ],
