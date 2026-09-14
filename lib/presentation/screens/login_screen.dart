@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +8,7 @@ import '../../domain/providers/auth_provider.dart';
 import '../../domain/providers/banner_provider.dart';
 import '../../config/theme/app_theme.dart';
 import 'package:legacy_app/presentation/widgets/common/legacy_logo.dart';
+import '../widgets/boton_apple_nativo.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -551,66 +551,47 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 20),
 
                     // --- Google / Apple login buttons layout ---
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            height: 52,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.02),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.white12),
-                            ),
-                            child: InkWell(
-                              onTap: () => _handleSocialLogin('google'),
-                              borderRadius: BorderRadius.circular(12),
-                              child: Center(
-                                child: Text(
-                                  'Google',
-                                  style: GoogleFonts.barlow(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                  ),
-                                ),
+                    //
+                    // Apple primero y a todo el ancho. La guía pide que el botón
+                    // de Sign in with Apple no quede por debajo de las otras
+                    // opciones de acceso, y a media fila su rótulo —«Iniciar
+                    // sesión con Apple»— no cabe sin recortarse.
+                    //
+                    // Apple solo donde funciona. En Android, Sign in with Apple
+                    // exige un Service ID y una URL de retorno web que no están
+                    // configurados, así que el botón solo llevaba a un error.
+                    // Apple lo exige en iOS —directriz 4.8, por ofrecer
+                    // Google—, no en las demás plataformas.
+                    if (BotonAppleNativo.disponible) ...[
+                      BotonAppleNativo(
+                        onPressed: () => _handleSocialLogin('apple'),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    SizedBox(
+                      width: double.infinity,
+                      child: Container(
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.02),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white12),
+                        ),
+                        child: InkWell(
+                          onTap: () => _handleSocialLogin('google'),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Center(
+                            child: Text(
+                              'Continuar con Google',
+                              style: GoogleFonts.barlow(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 15,
                               ),
                             ),
                           ),
                         ),
-                        // Apple solo donde funciona. En Android, Sign in with
-                        // Apple exige un Service ID y una URL de retorno web que
-                        // no están configurados, así que el botón solo llevaba a
-                        // un error. Apple lo exige en iOS —directriz 4.8, por
-                        // ofrecer Google—, no en las demás plataformas.
-                        if (defaultTargetPlatform == TargetPlatform.iOS ||
-                            defaultTargetPlatform == TargetPlatform.macOS) ...[
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Container(
-                              height: 52,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.02),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.white12),
-                              ),
-                              child: InkWell(
-                                onTap: () => _handleSocialLogin('apple'),
-                                borderRadius: BorderRadius.circular(12),
-                                child: Center(
-                                  child: Text(
-                                    'Apple',
-                                    style: GoogleFonts.barlow(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
+                      ),
                     ),
                     const SizedBox(height: 28),
 

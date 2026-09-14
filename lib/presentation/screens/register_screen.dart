@@ -26,7 +26,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _birthDateController = TextEditingController();
   final _companyController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -70,7 +69,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _lastNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
-    _birthDateController.dispose();
     _companyController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -119,7 +117,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           identificationType: _selectedIdentificationType,
           identificationNumber: _identificationNumberController.text,
           customerStatus: _selectedCustomerStatus,
-          birthDate: _birthDateController.text,
           generation: _selectedGeneration,
           industry: _selectedSector,
           interests: _selectedInterests,
@@ -276,36 +273,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Fecha de nacimiento (date picker)
-                          Text(
-                            'Fecha de nacimiento',
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 8),
-                          TextFormField(
-                            controller: _birthDateController,
-                            readOnly: true,
-                            decoration: const InputDecoration(
-                              hintText: 'DD/MM/AAAA',
-                            ),
-                            onTap: () async {
-                              final DateTime? picked = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime(1990),
-                                firstDate: DateTime(1900),
-                                lastDate: DateTime.now(),
-                              );
-                              if (picked != null) {
-                                _birthDateController.text =
-                                    '${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}';
-                              }
-                            },
-                          ),
+                          // Aquí estaba la fecha de nacimiento. Se retiró el
+                          // 2026-09-14 por el rechazo de Apple bajo la
+                          // directriz 5.1.1(v): la app no la necesita para
+                          // funcionar, así que no puede pedirla en el registro.
+                          // Técnicamente ya era opcional —no tenía validator y
+                          // el backend acepta el campo vacío—, pero se veía
+                          // obligatoria entre campos que sí lo son, y eso es lo
+                          // que juzga la revisión.
+                          //
+                          // El dato no se pierde: la columna sigue ahí y el
+                          // panel la edita (user-form-dialog) y la carga masiva
+                          // la trae. Lo que ya no hay es dónde escribirla desde
+                          // la app.
 
                           // Sin casilla, la barra de este paso es más baja que
-                          // la del siguiente, pero 20 no bastaban para librarla
-                          // y la fecha de nacimiento quedaba debajo.
+                          // la del siguiente, pero 20 no bastaban para librarla.
                           const SizedBox(height: 96),
                         ],
                       ),
@@ -344,12 +327,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           const SizedBox(height: 16),
 
+                          // El documento de identidad es opcional desde el
+                          // 2026-09-14. La directriz 5.1.1(v) de Apple solo
+                          // permite exigir datos personales que la app necesite
+                          // para funcionar, y la app funciona entera sin él: lo
+                          // pide la organización para la acreditación de los
+                          // eventos presenciales, no el producto. En la misma
+                          // revisión rechazaron la fecha de nacimiento por esto.
                           DropdownButtonFormField<String>(
                             key: ValueKey(_selectedCountry),
                             isExpanded: true,
                             initialValue: _selectedIdentificationType,
                             decoration: const InputDecoration(
-                              labelText: 'Tipo de Identificación',
+                              labelText: 'Tipo de Identificación (opcional)',
                             ),
                             items:
                                 tiposIdentificacionPara(_selectedCountry)
@@ -363,23 +353,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             onChanged: (val) => setState(
                               () => _selectedIdentificationType = val,
                             ),
-                            validator: (val) =>
-                                val == null ? 'Selecciona un tipo' : null,
                           ),
                           const SizedBox(height: 16),
 
                           CustomTextField(
-                            label: 'Número de Identificación',
+                            label: 'Número de Identificación (opcional)',
                             hint: '1234567890',
                             controller: _identificationNumberController,
                             keyboardType: TextInputType.number,
                             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                            validator: (val) {
-                              if (val == null || val.isEmpty) {
-                                return 'Ingresa el número de identificación';
-                              }
-                              return null;
-                            },
                           ),
                           const SizedBox(height: 16),
 

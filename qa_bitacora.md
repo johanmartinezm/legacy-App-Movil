@@ -2,6 +2,61 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-09-14]: Responde al segundo rechazo de App Review (2.1(a), 4 y 5.1.1(v))
+
+Apple revisó la 1.0 (21) por segunda vez y levantó tres puntos nuevos. Ninguno era el binario de
+iPadOS 27 que sugería el texto del rechazo.
+
+**El fallo de Sign in with Apple no estaba en la app: estaba en lo que se guardaba.** El registro
+manda el `identityToken` entero como `apple_id` (`register_screen.dart:113`) y el backend lo guardaba
+tal cual, cuando `SocialLogin` busca por el claim `sub`. Un JWT de ~900 caracteres no coincide nunca,
+así que solo quedaba el respaldo de buscar por correo — y Apple manda el correo **únicamente en la
+primera autorización de cada Apple ID con la app**. Desde el segundo intento no quedaba nada con qué
+reconocer la cuenta: 404, la app empujaba al formulario de registro y el correo ya existente lo
+rechazaba. Por eso falló en los dos dispositivos del revisor: la primera autorización ya la había
+gastado en la ronda del 4 de septiembre. El arreglo y la migración van en el backend; aquí no hizo
+falta tocar el flujo.
+
+- **Alcance:**
+  - `ios/Runner/AppDelegate.swift`: registra una vista de plataforma con
+    `ASAuthorizationAppleIDButton`, el botón del propio sistema. El anterior era un contenedor propio
+    con el texto «Apple», y el motivo citado por Apple fue que el arte del logotipo no venía de Apple
+    Design Resources. El `SignInWithAppleButton` del paquete tampoco lo resolvía: lo pinta con un
+    `CustomPainter`. Con el botón del sistema no hay ningún recurso gráfico que revisar.
+    Vive dentro de `AppDelegate.swift` y no en un archivo propio porque añadir un `.swift` obliga a
+    editar `project.pbxproj` a mano, y aquí no hay un Mac donde comprobar que quedó referenciado.
+  - `lib/presentation/widgets/boton_apple_nativo.dart` (nuevo): el envoltorio en Dart. El toque viaja
+    por `MethodChannel`; quien pide la credencial sigue siendo `auth_provider.dart`.
+  - `lib/presentation/screens/login_screen.dart`: Apple arriba y a todo el ancho, Google debajo. La
+    guía pide que el botón de Apple no quede por debajo de las otras opciones, y a media fila su
+    rótulo no cabe. El de Google pasa a decir «Continuar con Google».
+  - `lib/presentation/screens/register_screen.dart`: **fuera la fecha de nacimiento** y el tipo y
+    número de identificación pasan a «(opcional)», sin `validator`. Directriz 5.1.1(v): solo se puede
+    exigir lo que la app necesita para funcionar. La fecha ya era opcional de hecho —no tenía
+    `validator` y el backend acepta el campo vacío— pero se veía obligatoria entre campos que sí lo
+    son, y eso es lo que juzga la revisión. El documento no lo señalaron; se adelanta porque corre el
+    mismo riesgo y una tercera ronda cuesta otra semana. El dato sigue existiendo: lo edita el panel
+    y lo trae la carga masiva.
+  - `pubspec.yaml`: build 23 → 24.
+
+- **Criterios de QA:**
+  1. En un iPhone físico con la build 24 desde TestFlight, abrir la pantalla de acceso: el botón de
+     Apple es el negro/blanco del sistema, con la manzana, y dice «Iniciar sesión con Apple».
+     **Este punto es el que no se pudo comprobar desde Windows: no hay forma de renderizar una vista
+     nativa de iOS aquí.** Si el botón no aparece o sale en blanco, la vista de plataforma no se
+     registró y no se debe enviar la build.
+  2. Repetir en un iPad. El botón ocupa el ancho de la tarjeta de acceso y no se recorta.
+  3. Tocar el botón: se abre la hoja del sistema de Sign in with Apple, no un error.
+  4. Entrar con un Apple ID **que ya haya usado la app antes** (es el caso del revisor: Ajustes →
+     tu nombre → Inicio de sesión con Apple debe listar «Legacy Network»). Tiene que entrar a Inicio,
+     no mandar al formulario de registro. Antes de este cambio, aquí salía el error.
+  5. Con un Apple ID nuevo: manda al registro con el nombre y el correo ya rellenos, se completa y
+     entra. Cerrar sesión y volver a entrar con Apple: entra directo.
+  6. En el formulario de registro, paso «Persona»: **no hay campo de fecha de nacimiento**.
+  7. Dejar el tipo y el número de identificación vacíos y continuar: el formulario avanza y la cuenta
+     se crea. Comprobar en el panel que esa cuenta aparece sin documento.
+  8. Android no cambia: no hay botón de Apple y el registro sigue funcionando igual.
+
 ### [2026-09-11]: La app se alinea con el Manual de Imagen y con el logo en vector
 
 El cliente entregó el vector maestro (`Log_LegNet-abierto.ai`, julio 2023) y el Manual de Imagen. La
