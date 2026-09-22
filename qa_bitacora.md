@@ -2,6 +2,53 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-09-21]: La build 24 llega a TestFlight y el botón de Apple se ve por primera vez
+
+Apple tiene en revisión la **1.0 (21)** —confirmado en App Store Connect, con el mensaje del
+**12-09 13:09**, no del 14 como decía la entrada anterior—. De los tres puntos, el de Sign in with
+Apple es del servidor y se arregla sin app nueva, pero los de la directriz 4 y la 5.1.1(v) viajan en
+el binario: con la 21 seleccionada el revisor vuelve a ver el botón de texto y la fecha de
+nacimiento por mucho que se explique en el Resolution Center. La 24 se compiló y subió; figura en
+TestFlight como «Finalizado» (21-09, 5:17 PM, entrega `ef53e4c4`). **Sigue sin engancharse a la
+versión rechazada**, que apunta a la 21.
+
+**El criterio 1 de la entrada del 14-09 quedaba sin comprobar** —el botón nativo no se puede
+renderizar desde Windows y no hay Mac ni dispositivo iOS a mano— y era el más caro de dar por
+bueno a ciegas: si la vista de plataforma no queda registrada, en su lugar aparece un hueco en
+blanco y el rechazo por la directriz 4 se repite. Se resolvió sin dispositivo, en simuladores dentro
+del propio runner de macOS. El botón del sistema se dibuja: manzana, «Sign in with Apple», a todo el
+ancho y encima del de Google, sin ninguna excepción en los logs de los dos simuladores. Sale en
+inglés porque el simulador está en inglés; el control se traduce según el idioma del dispositivo y
+no hay nada que tocar.
+
+Dos cosas que aparecieron al mirar las capturas y que no bloquean el reenvío: en el iPad la app corre
+en modo compatibilidad —el proyecto está marcado como solo-iPhone, `TARGETED_DEVICE_FAMILY = "1"`— y
+dentro de esa ventana el botón de Apple queda por debajo del pliegue, así que hay que desplazar para
+llegar a él; y el permiso de notificaciones se pide en la pantalla de acceso, antes de que el usuario
+haya hecho nada.
+
+- **Alcance:**
+  - `.github/workflows/ios-simulador-captura.yml` (nuevo): compila para simulador, arranca un iPhone
+    17 Pro Max y un iPad Air 11" —los dos modelos del revisor—, instala, lanza, saca tres capturas
+    espaciadas de cada uno y guarda el log del proceso. No toca ningún secreto: un build de
+    simulador no se firma. Sirve para lo que se ve en pantalla; el simulador no puede completar
+    Sign in with Apple ni recibir push.
+  - Sin cambios de código: la 24 es `91d1c91` tal cual.
+  - Capturas en `docs/ios/publicacion/20260921_boton_apple_{iphone,ipad}_simulador.png`, fuera de
+    git.
+
+- **Criterios de QA:**
+  1. En App Store Connect → Distribution → «App para iOS 1.0» → Editar → sección **Compilación**:
+     quitar la 1.0.0 (21) y elegir la **1.0.0 (24)**. Al guardar, «Volver a enviar a revisión de
+     apps» deja de estar en gris. **No reenviar todavía.**
+  2. Lanzar «iOS · Captura en simulador» y descargar el artefacto: en `iphone_3.png` el botón es el
+     del sistema, con la manzana, a todo el ancho y por encima del de Google.
+  3. En `ipad_3.png` el botón queda fuera de la vista: comprobar, cuando se decida, que entra en
+     pantalla sin desplazar.
+  4. Pendiente de decisión: mover la petición de notificaciones a después del primer uso.
+  5. Sign in with Apple de punta a punta sigue sin poder probarse aquí: necesita el backend
+     desplegado y un dispositivo real, o alguien del grupo interno `LegacyGroup` con un iPhone.
+
 ### [2026-09-14]: Responde al segundo rechazo de App Review (2.1(a), 4 y 5.1.1(v))
 
 Apple revisó la 1.0 (21) por segunda vez y levantó tres puntos nuevos. Ninguno era el binario de
