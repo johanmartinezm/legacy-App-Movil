@@ -107,10 +107,10 @@ const List<SeccionFaq> seccionesFaq = [
   SeccionFaq('Privacidad y notificaciones', [
     PreguntaFrecuente(
       '¿Qué datos guarda Legacy Network sobre mí?',
-      'Los que registras: nombre, correo, teléfono, fecha de nacimiento, documento, empresa y cargo, '
-          'además de lo que publicas en la app. Los datos personales y los mensajes se guardan '
-          'cifrados. El detalle completo está en la política de privacidad, enlazada desde Avisos '
-          'legales.',
+      'Los que registras: nombre, correo, teléfono, país, empresa y cargo, además de lo que publicas '
+          'en la app. El documento de identidad es opcional y no hace falta para usarla. Los datos '
+          'personales y los mensajes se guardan cifrados. El detalle completo está en la política de '
+          'privacidad, enlazada desde Avisos legales.',
     ),
     PreguntaFrecuente(
       '¿Quién ve mi perfil?',
