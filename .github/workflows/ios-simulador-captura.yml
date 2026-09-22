@@ -1,0 +1,127 @@
+name: iOS · Captura en simulador
+
+# Arranca la app en simuladores de iPhone y de iPad y sube las capturas como
+# artefacto.
+#
+# Existe porque el desarrollo se hace en Windows y no hay ningun Mac ni ningun
+# dispositivo iOS a mano: hay cosas que solo se pueden comprobar VIENDOLAS. El
+# caso que lo motivo es el boton de Sign in with Apple
+# (ASAuthorizationAppleIDButton, registrado en AppDelegate.swift): es una vista
+# nativa, no la dibuja Flutter, y si la vista de plataforma no queda registrada
+# aparece un hueco en blanco. Apple ya rechazo la app una vez por ese boton;
+# reenviar sin haberlo visto es apostar.
+#
+# No sustituye a una prueba en un dispositivo real: el simulador no puede
+# completar Sign in with Apple ni recibir notificaciones push. Sirve para lo que
+# se ve en pantalla.
+#
+# No necesita certificado ni provisioning profile: un build de simulador no se
+# firma. Por eso este workflow no toca ningun secreto.
+
+on:
+  workflow_dispatch:
+    inputs:
+      segundos_de_espera:
+        description: 'Segundos a esperar tras lanzar la app antes de la primera captura'
+        required: false
+        default: '25'
+
+concurrency:
+  group: ios-simulador
+  cancel-in-progress: true
+
+jobs:
+  capturar:
+    runs-on: macos-26
+    timeout-minutes: 45
+
+    steps:
+      - name: Descargar el codigo
+        uses: actions/checkout@v4
+
+      - name: Preparar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          # La misma que compila los releases: si aqui se viera bien con otra
+          # version, la comprobacion no valdria para lo que se envia a Apple.
+          flutter-version: '3.44.8'
+          channel: stable
+          cache: true
+
+      - name: Dependencias
+        run: flutter pub get
+
+      - name: Compilar para simulador
+        # --simulator: binario x86_64/arm64 de simulador, sin firmar.
+        run: flutter build ios --simulator --debug
+
+      - name: Capturar en iPhone y en iPad
+        env:
+          ESPERA: ${{ github.event.inputs.segundos_de_espera || '25' }}
+        run: |
+          set -uo pipefail
+          BUNDLE=co.legacynetwork.legacyapp
+          APP=build/ios/iphonesimulator/Runner.app
+          mkdir -p capturas
+
+          if [ ! -d "$APP" ]; then
+            echo "No se genero $APP"; exit 1
+          fi
+
+          echo "--- simuladores disponibles ---"
+          xcrun simctl list devices available
+
+          # Se eligen por nombre y se cae a cualquiera del tipo si el runner no
+          # trae ese modelo: los nombres cambian con cada version de Xcode y no
+          # merece la pena que el workflow se rompa por eso.
+          buscar() {
+            xcrun simctl list devices available \
+              | grep -E "^ +$1" \
+              | head -1 \
+              | sed -E 's/.*\(([0-9A-Fa-f-]{36})\).*/\1/'
+          }
+
+          IPHONE=$(buscar "iPhone 17 Pro Max"); [ -n "$IPHONE" ] || IPHONE=$(buscar "iPhone")
+          IPAD=$(buscar "iPad Air 11"); [ -n "$IPAD" ] || IPAD=$(buscar "iPad")
+
+          capturar() {
+            local udid="$1" etiqueta="$2"
+            if [ -z "$udid" ]; then
+              echo "no hay simulador para $etiqueta, se omite"; return 0
+            fi
+            echo "=== $etiqueta ($udid) ==="
+            xcrun simctl boot "$udid" || true
+            xcrun simctl bootstatus "$udid" -b
+
+            xcrun simctl install "$udid" "$APP"
+            xcrun simctl launch "$udid" "$BUNDLE" || true
+
+            # Varias capturas espaciadas: la app pasa por un splash antes del
+            # login, y una sola foto puede caer justo ahi.
+            sleep "$ESPERA"
+            xcrun simctl io "$udid" screenshot "capturas/${etiqueta}_1.png" || true
+            sleep 10
+            xcrun simctl io "$udid" screenshot "capturas/${etiqueta}_2.png" || true
+            sleep 15
+            xcrun simctl io "$udid" screenshot "capturas/${etiqueta}_3.png" || true
+
+            # El log del proceso dice si algo revento antes de pintar.
+            xcrun simctl spawn "$udid" log show --last 3m \
+              --predicate 'process == "Runner"' --style compact \
+              > "capturas/${etiqueta}_log.txt" 2>&1 || true
+
+            xcrun simctl shutdown "$udid" || true
+          }
+
+          capturar "$IPHONE" iphone
+          capturar "$IPAD" ipad
+
+          ls -la capturas
+
+      - name: Subir las capturas
+        uses: actions/upload-artifact@v4
+        with:
+          name: capturas-simulador-${{ github.run_number }}
+          path: capturas/
+          retention-days: 14
+          if-no-files-found: error
