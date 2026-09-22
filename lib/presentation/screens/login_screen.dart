@@ -186,6 +186,19 @@ class _LoginScreenState extends State<LoginScreen> {
       radius: 1.5,
     );
 
+    // En una pantalla corta el contenido no cabe y el boton de Sign in with
+    // Apple queda por debajo del pliegue: hay que desplazar para verlo. Pasa en
+    // la ventana de compatibilidad del iPad —la app esta marcada como
+    // solo-iPhone, asi que en un iPad corre escalada y con menos puntos
+    // logicos— y pasaria igual en un iPhone pequeno. Comprobado el 2026-09-21
+    // en el simulador de un iPad Air 11", que es uno de los dos dispositivos
+    // donde reviso Apple.
+    //
+    // Importa porque ese boton es justo el motivo del rechazo por la directriz
+    // 4: conviene que el revisor lo tenga delante sin buscarlo. En modo
+    // compacto se recorta el logo y los huecos verticales; no se quita nada.
+    final compacto = MediaQuery.sizeOf(context).height < 850;
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(gradient: bgGradient),
@@ -202,18 +215,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 20),
+                    SizedBox(height: compacto ? 8 : 20),
                     // Version vertical del logo oficial, en blanco sobre el
                     // fondo azul. Lleva el logotipo incorporado, asi que no se
                     // vuelve a escribir el nombre de la marca debajo.
-                    const Align(
+                    Align(
                       alignment: Alignment.center,
                       child: LegacyLogo(
                         variante: LegacyLogoVariante.vertical,
-                        height: 140,
+                        height: compacto ? 96 : 140,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: compacto ? 12 : 20),
                     Text(
                       'El futuro de su legado se construye hoy',
                       style: GoogleFonts.questrial(
@@ -222,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 36),
+                    SizedBox(height: compacto ? 20 : 36),
 
                     // --- Form Fields ---
                     Text(
@@ -364,7 +377,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 28),
+                    SizedBox(height: compacto ? 16 : 28),
 
                     // --- Login Button ---
                     Consumer<AuthProvider>(
@@ -546,9 +559,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: compacto ? 14 : 24),
                     const Divider(color: Colors.white10),
-                    const SizedBox(height: 20),
+                    SizedBox(height: compacto ? 14 : 20),
 
                     // --- Google / Apple login buttons layout ---
                     //
