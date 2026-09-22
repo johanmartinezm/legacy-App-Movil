@@ -2,6 +2,40 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-09-21]: El FAQ deja de anunciar la fecha de nacimiento y el botón de Apple cabe en iPad
+
+Dos cabos sueltos de la respuesta a App Review, los dos vistos mirando las capturas y el texto, no
+el código.
+
+**El texto de privacidad contradecía el arreglo de la 5.1.1(v).** La fecha de nacimiento salió del
+registro el 14-09, pero la pregunta «¿Qué datos guarda Legacy Network sobre mí?» seguía respondiendo
+que se guardan «nombre, correo, teléfono, **fecha de nacimiento**, documento, empresa y cargo». Es
+texto de privacidad dentro de la app: lo primero que lee un revisor que viene por esa directriz.
+Ahora enumera lo que de verdad se pide y aclara que el documento es opcional.
+
+**El botón de Apple quedaba por debajo del pliegue en el iPad.** No era un problema del iPad: la app
+está marcada como solo-iPhone (`TARGETED_DEVICE_FAMILY = "1"`), así que en un iPad corre escalada,
+con menos puntos lógicos de alto, y el contenido no cabía. En un iPhone pequeño habría pasado lo
+mismo. Siendo ese botón el motivo del rechazo por la directriz 4, que hubiera que desplazar para
+verlo era justo lo que no convenía. Se resolvió con un modo compacto por debajo de 850 puntos de
+alto; por encima, la pantalla queda idéntica.
+
+- **Alcance:**
+  - `lib/domain/models/faq_data.dart`: la respuesta de «¿Qué datos guarda Legacy Network sobre mí?».
+  - `lib/presentation/screens/login_screen.dart`: modo compacto —logo 140 → 96 y huecos verticales
+    36 → 20, 28 → 16, 24 → 14, 20 → 12—. No se quita ni se reordena ningún elemento.
+  - Capturas nuevas en `docs/ios/publicacion/20260921_boton_apple_{iphone,ipad}_compacto.png`.
+
+- **Criterios de QA:**
+  1. En el simulador de un iPad Air 11" (workflow «iOS · Captura en simulador»), la pantalla de
+     acceso muestra el botón «Sign in with Apple» completo **sin desplazar**. Verificado el 21-09:
+     `ipad_3.png` del run 35679981427.
+  2. En un iPhone 17 Pro Max la pantalla no cambia respecto a antes: logo de 140, mismos huecos.
+     Verificado en el mismo run, `iphone_3.png`.
+  3. Mi perfil → Preguntas frecuentes → «¿Qué datos guarda Legacy Network sobre mí?»: no menciona la
+     fecha de nacimiento y dice que el documento es opcional.
+  4. `flutter analyze` sin errores ni warnings y los 256 tests en verde. Corrido en local el 21-09.
+
 ### [2026-09-21]: La build 24 llega a TestFlight y el botón de Apple se ve por primera vez
 
 Apple tiene en revisión la **1.0 (21)** —confirmado en App Store Connect, con el mensaje del
