@@ -112,17 +112,26 @@ canalices.
 
 ### Subir a Play Store
 
+Lo normal es el workflow **«Android · Play Store»** (`android-play.yml`): compila, firma y sube al
+canal que se elija, producción incluida. La primera subida que funcionó fue la 26, el 2026-09-25.
+
 ```bash
-./upload_play_store.sh          # fastlane supply, track "internal"
+./upload_play_store.sh          # alternativa local: fastlane supply, track "internal"
 ```
 
-Necesita `android/api-key.json` (cuenta de servicio de Google Play con permiso de publicación) y
-`fastlane` instalado. El script sube al canal **interno**; la promoción a producción se hace desde
-Play Console.
+El script necesita `android/api-key.json` (cuenta de servicio de Google Play con permiso de
+publicación) y `fastlane` instalado.
 
-El `package_name` del `Appfile` y el `applicationId` de `build.gradle.kts:37` coinciden en
-`co.legacynetwork.legacyapp`, que es el paquete firmado y publicado. Si alguna vez dejan de
-coincidir, la subida automatizada apunta a una aplicación distinta de la compilada sin avisar.
+**El paquete de Android es `com.legacynetworkco.app`**, el de `applicationId` en
+`build.gradle.kts`. No es `co.legacynetwork.legacyapp`: ese es el bundle id de **iOS**. El workflow y
+el `Appfile` usaban el de iOS, Play respondía «Package not found» y hasta la 22 el .aab se subió a
+mano. Si alguna vez dejan de coincidir, la subida apunta a otra aplicación.
+
+**Notas de la versión.** Van en `android/fastlane/metadata/android/es-419/changelogs/<versionCode>.txt`,
+con 500 caracteres como máximo, y el workflow las sube junto con el .aab. **Para producción son
+obligatorias**: si falta el archivo, el workflow falla antes de subir, porque `supply` publicaría la
+versión sin notas y sin avisar. En los demás canales solo avisa. La ficha, las imágenes y las
+capturas siguen gestionándose en Play Console: no se suben desde el repositorio.
 
 ### Antes de publicar
 

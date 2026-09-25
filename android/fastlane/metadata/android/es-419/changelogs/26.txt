@@ -1,0 +1,4 @@
+• Nueva imagen: logotipo e icono actualizados.
+• Registro más ágil: ya no se pide la fecha de nacimiento y el documento de identidad es opcional.
+• Preguntas frecuentes actualizadas.
+• Mejoras de estabilidad.

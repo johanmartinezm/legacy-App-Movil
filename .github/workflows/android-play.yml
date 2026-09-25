@@ -137,6 +137,30 @@ jobs:
           # despues de haber compilado el .aab entero (2026-09-04).
           sudo gem install fastlane --no-document --quiet
           cd android
+
+          # Notas de la version: fastlane/metadata/android/es-419/changelogs/
+          # <versionCode>.txt. Si falta, supply sube la version sin notas y sin
+          # avisar, asi que en produccion se exige; en los demas canales basta
+          # un aviso. Play admite 500 caracteres por idioma.
+          CODIGO="${{ github.event.inputs.build_number }}"
+          if [ -z "$CODIGO" ]; then
+            CODIGO=$(grep '^version:' ../pubspec.yaml | sed 's/.*+//' | tr -d '[:space:]')
+          fi
+          NOTAS="fastlane/metadata/android/es-419/changelogs/$CODIGO.txt"
+          if [ -f "$NOTAS" ]; then
+            CARACTERES=$(wc -m < "$NOTAS")
+            if [ "$CARACTERES" -gt 500 ]; then
+              echo "::error::$NOTAS tiene $CARACTERES caracteres; Play admite 500."
+              exit 1
+            fi
+            echo "notas de la version $CODIGO:"; cat "$NOTAS"
+          elif [ "${{ github.event.inputs.track }}" = "production" ]; then
+            echo "::error::Falta $NOTAS. Escribe las notas de la version $CODIGO antes de subir a produccion."
+            exit 1
+          else
+            echo "::warning::Sin notas para la version $CODIGO ($NOTAS)."
+          fi
+
           # skip_upload_metadata: la ficha de la tienda se gestiona desde Play
           # Console, no desde el repositorio. Subirla desde aqui la
           # sobrescribiria con lo que hubiera en fastlane/metadata.
@@ -148,7 +172,9 @@ jobs:
             --package_name com.legacynetworkco.app \
             --aab ../build/app/outputs/bundle/release/app-release.aab \
             --track "${{ github.event.inputs.track }}" \
+            --metadata_path fastlane/metadata/android \
             --skip_upload_metadata true \
+            --skip_upload_changelogs false \
             --skip_upload_images true \
             --skip_upload_screenshots true \
             --release_status completed
