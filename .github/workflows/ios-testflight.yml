@@ -217,6 +217,17 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO
 
+          # Sin firmar, el archive tampoco lleva los entitlements, y
+          # exportArchive re-firma con los que YA trae el binario (filtrados por
+          # el perfil), no con los del .entitlements del proyecto. Desde el
+          # 2026-08-12 hasta la build 24 todos los .ipa salieron sin
+          # applesignin ni aps-environment: Sign in with Apple devolvia el error
+          # 1000 y App Review rechazo la 24 por eso. Una firma ad-hoc con el
+          # fichero los deja dentro para que el export los conserve.
+          codesign --force --sign - \
+            --entitlements Runner/Runner.entitlements \
+            "$RUNNER_TEMP/Runner.xcarchive/Products/Applications/Runner.app"
+
           # El fichero de opciones decide el tipo de .ipa que sale: uno para
           # App Store y otro instalable en los dispositivos del perfil ad-hoc.
           OPCIONES=ExportOptions.plist
@@ -242,6 +253,20 @@ jobs:
           RUTA_IPA=$(ls "$RUNNER_TEMP"/ipa/*.ipa | head -1)
           echo "RUTA_IPA=$RUTA_IPA" >> "$GITHUB_ENV"
           echo "ipa generado: $RUTA_IPA"
+
+          # Se comprueba sobre el .ipa final porque el fallo no da ningun aviso:
+          # la app compila, sube y arranca, y solo se rompe al pulsar el boton.
+          REVISION="$RUNNER_TEMP/revision"
+          rm -rf "$REVISION" && mkdir -p "$REVISION"
+          unzip -q "$RUTA_IPA" -d "$REVISION"
+          codesign -d --entitlements - --xml "$REVISION"/Payload/*.app > "$REVISION/entitlements.plist"
+          cat "$REVISION/entitlements.plist"; echo
+          for clave in com.apple.developer.applesignin aps-environment; do
+            if ! grep -q "$clave" "$REVISION/entitlements.plist"; then
+              echo "::error::El .ipa se firmo sin el entitlement $clave"
+              exit 1
+            fi
+          done
 
       - name: Guardar el IPA como artefacto
         # Queda descargable desde la pagina de la ejecucion aunque la subida
