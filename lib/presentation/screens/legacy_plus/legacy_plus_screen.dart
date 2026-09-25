@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../domain/utils/plataforma.dart';
 import '../../widgets/boton_volver.dart';
 
 class LegacyPlusScreen extends StatelessWidget {
@@ -177,8 +178,13 @@ class LegacyPlusScreen extends StatelessWidget {
                       const SizedBox(height: 32),
 
                       // SECTION 2: SI AÚN NO ES CLIENTE NI ALUMNI
+                      // En iOS no hay precio que anunciar (ver
+                      // ocultarVentaLegacyPlus), así que la sección pasa a
+                      // describir lo que incluye.
                       Text(
-                        'SI AÚN NO ES CLIENTE NI ALUMNI',
+                        ocultarVentaLegacyPlus
+                            ? 'QUÉ INCLUYE'
+                            : 'SI AÚN NO ES CLIENTE NI ALUMNI',
                         style: GoogleFonts.barlow(
                           color: const Color(0xFFD9A74A),
                           fontSize: 12,
@@ -189,54 +195,56 @@ class LegacyPlusScreen extends StatelessWidget {
                       const SizedBox(height: 16),
 
                       // Price box
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1B3156).withValues(alpha: 0.85),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: const Color(0xFFD9A74A).withValues(alpha: 0.4),
-                            width: 1,
+                      if (!ocultarVentaLegacyPlus) ...[
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1B3156).withValues(alpha: 0.85),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: const Color(0xFFD9A74A).withValues(alpha: 0.4),
+                              width: 1,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              RichText(
+                                text: TextSpan(
+                                  style: GoogleFonts.barlow(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  children: [
+                                    const TextSpan(
+                                      text: 'COP 1.790.000 ',
+                                      style: TextStyle(color: Color(0xFFD9A74A)),
+                                    ),
+                                    TextSpan(
+                                      text: '/ año',
+                                      style: GoogleFonts.questrial(
+                                        color: const Color(0xFF9FB2C2),
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'O su equivalente en USD según la TRM del día. Acceso a comunidad, Red de Gobierno (4 búsquedas incluidas) y contenido Legacy+.',
+                                style: GoogleFonts.questrial(
+                                  color: const Color(0xFFE8EEF5).withValues(alpha: 0.85),
+                                  fontSize: 13,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            RichText(
-                              text: TextSpan(
-                                style: GoogleFonts.barlow(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                children: [
-                                  const TextSpan(
-                                    text: 'COP 1.790.000 ',
-                                    style: TextStyle(color: Color(0xFFD9A74A)),
-                                  ),
-                                  TextSpan(
-                                    text: '/ año',
-                                    style: GoogleFonts.questrial(
-                                      color: const Color(0xFF9FB2C2),
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'O su equivalente en USD según la TRM del día. Acceso a comunidad, Red de Gobierno (4 búsquedas incluidas) y contenido Legacy+.',
-                              style: GoogleFonts.questrial(
-                                color: const Color(0xFFE8EEF5).withValues(alpha: 0.85),
-                                fontSize: 13,
-                                height: 1.4,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
+                        const SizedBox(height: 24),
+                      ],
 
                       // Benefits check items
                       _buildCheckItem(

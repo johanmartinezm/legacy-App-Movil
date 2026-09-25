@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/perfil/eliminar_cuenta_dialog.dart';
 import '../../../domain/providers/auth_provider.dart';
+import '../../../domain/utils/plataforma.dart';
 import '../../widgets/boton_volver.dart';
 import 'package:legacy_app/presentation/widgets/common/legacy_logo.dart';
 
@@ -86,15 +87,20 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              _buildMenuItem(
-                context,
-                title: 'Active Legacy+',
-                subtitle: 'Comunidad, Red de Gobierno y más',
-                icon: Icons.shield_outlined,
-                onTap: () => context.push('/legacy-plus'),
-                isPremium: true,
-              ),
-              const SizedBox(height: 12),
+              // Fuera en iOS: es una invitación a comprar sin compra dentro de
+              // la app (ver ocultarVentaLegacyPlus). La pantalla sigue
+              // accesible desde el Inicio, solo como información.
+              if (!ocultarVentaLegacyPlus) ...[
+                _buildMenuItem(
+                  context,
+                  title: 'Active Legacy+',
+                  subtitle: 'Comunidad, Red de Gobierno y más',
+                  icon: Icons.shield_outlined,
+                  onTap: () => context.push('/legacy-plus'),
+                  isPremium: true,
+                ),
+                const SizedBox(height: 12),
+              ],
               
               _buildMenuItem(
                 context,

@@ -2,6 +2,44 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-09-25]: Sign in with Apple firmado de verdad y Legacy+ sin precio en iOS
+
+Tercer rechazo de App Review (24-09, build 24), con dos puntos.
+
+**2.1(a): Sign in with Apple fallaba, y no por el backend.** El mensaje «No se pudo completar el acceso
+con Apple» solo sale de una `SignInWithAppleAuthorizationException`: el sistema rechazaba la petición
+antes de llegar al servidor. Abriendo el .ipa de la 24, el binario iba firmado **sin
+`com.apple.developer.applesignin` ni `aps-environment`**. Desde el 2026-08-12 el workflow archiva con
+`CODE_SIGNING_ALLOWED=NO`, y `exportArchive` conserva los entitlements que trae el binario, que eran
+ninguno. Afecta a todas las builds de iOS desde esa fecha: tampoco podían recibir push. Ahora el
+workflow firma el .app ad-hoc con `Runner.entitlements` antes de exportar y **falla** si al .ipa
+final le falta alguna de las dos claves.
+
+**2.1(b): preguntan por el modelo de negocio.** Lo provocaba la pantalla Legacy+ con «COP 1.790.000 /
+año» y el «Active Legacy+» del perfil: anunciar el precio de algo con contenido reservado, sin compra
+dentro de la app, es terreno de la directriz 3.1.1. Nada se desbloquea —el backend no modela ninguna
+membresía—, así que en iOS se retira la venta y se deja la información. Android y web no cambian.
+
+- **Alcance:**
+  - `.github/workflows/ios-testflight.yml`: firma con entitlements y comprobación del .ipa (build 25).
+  - `lib/domain/utils/plataforma.dart`: `ocultarVentaLegacyPlus`, cierto solo en iOS.
+  - `lib/presentation/screens/legacy_plus/legacy_plus_screen.dart`: sin el recuadro de precio en iOS;
+    la sección pasa a titularse «QUÉ INCLUYE».
+  - `lib/presentation/screens/profile/profile_screen.dart`: sin la entrada «Active Legacy+» en iOS.
+  - `pubspec.yaml`: 1.0.0+26.
+
+- **Criterios de QA:**
+  1. En la ejecución del workflow de la build, el paso «Archivar y exportar» imprime los entitlements
+     del .ipa y entre ellos están `com.apple.developer.applesignin` y `aps-environment`.
+  2. Con la build desde TestFlight en un iPhone o iPad, «Sign in with Apple» abre la hoja del sistema
+     y, tras autorizar, entra a la app o lleva al registro con el correo rellenado. No aparece el
+     recuadro rojo.
+  3. En iOS, Inicio → Legacy+ → «Cómo accedo» muestra «YA TIENE LEGACY+ SI ES...» y «QUÉ INCLUYE»
+     con las cuatro ventajas, sin ningún precio.
+  4. En iOS, Mi perfil no tiene la entrada «Active Legacy+».
+  5. En Android, la pantalla Legacy+ sigue mostrando «COP 1.790.000 / año» y el perfil sigue
+     teniendo «Active Legacy+».
+
 ### [2026-09-21]: El FAQ deja de anunciar la fecha de nacimiento y el botón de Apple cabe en iPad
 
 Dos cabos sueltos de la respuesta a App Review, los dos vistos mirando las capturas y el texto, no
