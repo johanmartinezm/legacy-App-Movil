@@ -140,9 +140,12 @@ jobs:
           # skip_upload_metadata: la ficha de la tienda se gestiona desde Play
           # Console, no desde el repositorio. Subirla desde aqui la
           # sobrescribiria con lo que hubiera en fastlane/metadata.
+          # El paquete de Android no es el bundle id de iOS
+          # (co.legacynetwork.legacyapp): con ese, Play respondia "Package not
+          # found" y hasta la 22 el .aab se subia a mano.
           fastlane supply \
             --json_key "$RUNNER_TEMP/play-account.json" \
-            --package_name co.legacynetwork.legacyapp \
+            --package_name com.legacynetworkco.app \
             --aab ../build/app/outputs/bundle/release/app-release.aab \
             --track "${{ github.event.inputs.track }}" \
             --skip_upload_metadata true \
