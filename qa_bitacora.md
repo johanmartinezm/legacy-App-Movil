@@ -2,6 +2,17 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-02]: La app apunta a la API de `app.legacynetworkco.com`
+- **Alcance:** `assets/config/config.json` y `assets/config/config.json.prod` (las tres
+  `api_url_*`). El servidor nuevo sirve la API en ese dominio, detrás de Cloudflare. Las versiones ya
+  instaladas siguen llamando a `legacy.intelyclick.com` hasta que se actualicen desde la tienda.
+- **Criterios de QA:**
+  1. Instalar el build, cerrar sesión e iniciarla con correo y contraseña: entra.
+  2. Abrir Eventos, Foros y Chat: cargan sin error de conexión.
+  3. Subir una imagen a un foro y verla publicada.
+  4. Registrar una cuenta nueva: llega el correo de verificación y su enlace abre
+     `https://app.legacynetworkco.com/verify-email?...` (no `legacy.intelyclick.com`).
+
 ### [2026-09-25]: Sign in with Apple firmado de verdad y Legacy+ sin precio en iOS
 
 Tercer rechazo de App Review (24-09, build 24), con dos puntos.
