@@ -28,7 +28,7 @@ verifica que Flutter siga apuntando ahí y no al JDK de Android Studio.
 cat assets/config/config.json
 ```
 
-**Por defecto apunta a producción** (`https://legacy.intelyclick.com`). Hay tres variantes en la
+**Por defecto apunta a producción** (`https://app.legacynetworkco.com`). Hay tres variantes en la
 misma carpeta y se cambian copiando una sobre otra:
 
 - Release → `config.json` con URLs de producción

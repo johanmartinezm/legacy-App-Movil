@@ -23,7 +23,7 @@ cp assets/config/config.json.develop assets/config/config.json   # trabajar en l
 cp assets/config/config.json.prod    assets/config/config.json   # volver a producción
 ```
 
-El archivo por defecto **ya apunta a producción** (`https://legacy.intelyclick.com`). Un build de
+El archivo por defecto **ya apunta a producción** (`https://app.legacynetworkco.com`, desde el 2026-10-02; antes `legacy.intelyclick.com`). Un build de
 pruebas con esta configuración escribe en la base de datos real.
 
 `ConfigService` resuelve la URL por plataforma: `10.0.2.2` en el emulador Android, `localhost` en
@@ -34,8 +34,8 @@ son **idénticos**, y lo único que cambia en `config.json.develop` es a qué AP
 
 | Clave | `config.json` y `.prod` | `config.json.develop` |
 |---|---|---|
-| `api_url_web` / `api_url_ios` | `https://legacy.intelyclick.com` | `http://localhost:8080` |
-| `api_url_android` | `https://legacy.intelyclick.com` | `http://10.0.2.2:8080` |
+| `api_url_web` / `api_url_ios` | `https://app.legacynetworkco.com` | `http://localhost:8080` |
+| `api_url_android` | `https://app.legacynetworkco.com` | `http://10.0.2.2:8080` |
 | `environment` | `production` | `development` |
 
 Los dos GraphQL externos (`graphql_url` a `lso.school` y `content_graphql_url` a
