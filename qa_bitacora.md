@@ -2,6 +2,21 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-12]: Ficha del evento: Modelo desde el evento e Incluye como lista
+- **Alcance:** `lib/domain/models/event_model.dart` (campo `model`),
+  `lib/presentation/screens/eventos/event_purchase_detail_screen.dart` y
+  `test/screens/ficha_evento_test.dart`. «Modelo» deja de ser texto fijo del Summit: sale de
+  `event.model` en cualquier categoría y solo si trae texto. «Incluye» con varios ítems pasa de un
+  bloque alineado a la derecha y unido con « · » a una lista con viñetas a lo ancho; se quita la
+  viñeta escrita en cada línea («- », «• », «* »). Con un solo ítem sigue en la fila. Requiere el
+  backend con `model` (desplegado el mismo día); contra uno anterior la fila no saldría en ningún
+  evento.
+- **Criterios de QA:**
+  1. Legacy Summit 2026 (Pasados): «Modelo · 7 dimensiones DINASTÍA»; «Incluye» como seis viñetas
+     legibles, sin «· -».
+  2. Sesión de bienvenida: sin fila Modelo.
+  3. Cargar un modelo a una masterclass desde el panel y reabrirla en la app: aparece la fila.
+
 ### [2026-10-12]: La ficha del evento deja de mostrar los datos del Summit en otros eventos
 - **Alcance:** `lib/presentation/screens/eventos/event_purchase_detail_screen.dart` y el test nuevo
   `test/screens/ficha_evento_test.dart`. «Modelo · 7 dimensiones DINASTÍA», «Alumni Summit · Acceso
