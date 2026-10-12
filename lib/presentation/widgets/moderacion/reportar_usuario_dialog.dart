@@ -137,7 +137,7 @@ class _ReportarUsuarioDialogState extends State<ReportarUsuarioDialog> {
               'escribirte, bloquéala también.',
               style: GoogleFonts.barlow(
                 fontSize: 12,
-                color: Colors.grey.shade700,
+                color: const Color(0xFF9FB2C2),
               ),
             ),
             if (_error != null) ...[

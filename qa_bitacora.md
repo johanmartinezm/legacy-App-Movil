@@ -2,6 +2,17 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-12]: Notas secundarias legibles en tres diálogos oscuros
+- **Alcance:** `widgets/moderacion/menu_moderacion.dart` (¿Bloquear?),
+  `widgets/moderacion/reportar_usuario_dialog.dart` (Reportar usuario) y
+  `widgets/perfil/eliminar_cuenta_dialog.dart` (Eliminar cuenta). La nota pequeña de cada uno estaba
+  en gris oscuro (`grey.shade700` / `#6B7A8D`) sobre el azul del diálogo; pasa a `#9FB2C2`, el gris
+  azulado de los textos secundarios de Asesoría.
+- **Criterios de QA:**
+  1. En el chat, menú de un usuario → Bloquear: «Puedes deshacerlo cuando quieras…» se lee bien.
+  2. Menú → Reportar: «Reportar no bloquea a esta persona…» se lee bien.
+  3. Perfil → Eliminar cuenta: «Tus inscripciones a eventos y los mensajes…» se lee bien.
+
 ### [2026-10-12]: Textos y estrellas legibles en popups y campos de fondo claro
 - **Alcance:** el tema de la app es oscuro, así que todo texto sin color propio sale casi blanco y
   `RatingBar` pinta las estrellas vacías con el `disabledColor` del tema (blanco translúcido). Sobre

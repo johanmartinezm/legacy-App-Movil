@@ -83,7 +83,7 @@ class _EliminarCuentaDialogState extends State<EliminarCuentaDialog> {
             'Tus inscripciones a eventos y los mensajes que enviaste se '
             'conservan sin tu nombre, porque forman parte del historial de '
             'otras personas y de eventos ya pagados.',
-            style: GoogleFonts.questrial(fontSize: 13, color: const Color(0xFF6B7A8D)),
+            style: GoogleFonts.questrial(fontSize: 13, color: const Color(0xFF9FB2C2)),
           ),
           const SizedBox(height: 16),
           Text(

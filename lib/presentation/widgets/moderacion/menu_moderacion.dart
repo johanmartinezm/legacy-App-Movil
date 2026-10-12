@@ -125,7 +125,7 @@ Future<bool> _confirmarBloqueo(
             'bloqueadas.',
             style: GoogleFonts.barlow(
               fontSize: 12,
-              color: Colors.grey.shade700,
+              color: const Color(0xFF9FB2C2),
             ),
           ),
         ],
