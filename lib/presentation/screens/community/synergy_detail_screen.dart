@@ -262,9 +262,10 @@ class _SynergyDetailScreenState extends State<SynergyDetailScreen> {
           Expanded(
             child: TextField(
               controller: _commentController,
+              style: const TextStyle(color: Colors.black87),
               decoration: InputDecoration(
                 hintText: 'Escribe tu opinión o consejo...',
-                hintStyle: const TextStyle(fontSize: 14),
+                hintStyle: const TextStyle(fontSize: 14, color: Colors.black45),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: BorderSide.none),
                 fillColor: Colors.grey[100],
                 filled: true,

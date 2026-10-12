@@ -212,9 +212,10 @@ class _EventSurveyDialogState extends State<EventSurveyDialog> {
           key: const Key('survey-comment'),
           controller: _commentController,
           maxLines: 3,
+          style: const TextStyle(color: Colors.black87),
           decoration: InputDecoration(
             hintText: '¿Qué mejorarías? (opcional)',
-            hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+            hintStyle: const TextStyle(color: Colors.black45, fontSize: 14),
             filled: true,
             fillColor: Colors.grey[50],
             border: OutlineInputBorder(
@@ -294,7 +295,7 @@ class _EventSurveyDialogState extends State<EventSurveyDialog> {
               children: [
                 Text(
                   '¿Lo recomendarías?',
-                  style: GoogleFonts.barlow(fontSize: 15),
+                  style: GoogleFonts.barlow(fontSize: 15, color: Colors.black87),
                 ),
                 Text(
                   survey.wouldRecommend! ? 'Sí' : 'No',
@@ -356,13 +357,16 @@ class _EventSurveyDialogState extends State<EventSurveyDialog> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: GoogleFonts.barlow(fontSize: 15)),
+          Text(
+            label,
+            style: GoogleFonts.barlow(fontSize: 15, color: Colors.black87),
+          ),
           Row(
             children: List.generate(
               5,
               (i) => Icon(
                 i < value ? Icons.star_rounded : Icons.star_border_rounded,
-                color: Colors.amber,
+                color: i < value ? Colors.amber : Colors.grey[400],
                 size: 20,
               ),
             ),
@@ -401,6 +405,8 @@ class _EventSurveyDialogState extends State<EventSurveyDialog> {
             itemCount: 5,
             itemSize: 32,
             itemPadding: const EdgeInsets.symmetric(horizontal: 2),
+            // Ver RatingDialog: sin esto las vacías son invisibles sobre blanco.
+            unratedColor: Colors.grey[400],
             itemBuilder: (context, _) =>
                 const Icon(Icons.star_rounded, color: Colors.amber),
             onRatingUpdate: onChanged,
@@ -423,6 +429,7 @@ class _EventSurveyDialogState extends State<EventSurveyDialog> {
         ChoiceChip(
           key: const Key('survey-recommend-yes'),
           label: const Text('Sí'),
+          labelStyle: const TextStyle(color: Colors.black87),
           selected: _wouldRecommend == true,
           onSelected: (s) => setState(() => _wouldRecommend = s ? true : null),
         ),
@@ -430,6 +437,7 @@ class _EventSurveyDialogState extends State<EventSurveyDialog> {
         ChoiceChip(
           key: const Key('survey-recommend-no'),
           label: const Text('No'),
+          labelStyle: const TextStyle(color: Colors.black87),
           selected: _wouldRecommend == false,
           onSelected: (s) => setState(() => _wouldRecommend = s ? false : null),
         ),

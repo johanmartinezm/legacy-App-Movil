@@ -126,8 +126,10 @@ class _ParticipandoScreenState extends State<ParticipandoScreen> {
         children: [
           TextField(
             onChanged: (valor) => setState(() => _busqueda = valor),
+            style: const TextStyle(color: Colors.black87),
             decoration: InputDecoration(
               hintText: 'Buscar entre mis eventos...',
+              hintStyle: const TextStyle(color: Colors.black45),
               prefixIcon: const Icon(Icons.search),
               filled: true,
               fillColor: const Color(0xFFF5F5F5),

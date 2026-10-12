@@ -200,7 +200,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   Icons.photo_library,
                   color: AppTheme.legacyBlue2,
                 ),
-                title: Text('Galería', style: GoogleFonts.questrial()),
+                title: Text(
+                  'Galería',
+                  style: GoogleFonts.questrial(color: Colors.black87),
+                ),
                 onTap: () {
                   _pickImage(ImageSource.gallery);
                   Navigator.of(context).pop();
@@ -211,7 +214,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   Icons.photo_camera,
                   color: AppTheme.legacyBlue2,
                 ),
-                title: Text('Cámara', style: GoogleFonts.questrial()),
+                title: Text(
+                  'Cámara',
+                  style: GoogleFonts.questrial(color: Colors.black87),
+                ),
                 onTap: () {
                   _pickImage(ImageSource.camera);
                   Navigator.of(context).pop();
@@ -553,11 +559,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             style: GoogleFonts.questrial(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
+                              color: Colors.black87,
                             ),
                           ),
                           subtitle: Text(
                             'Actualiza tu clave de acceso',
-                            style: GoogleFonts.questrial(fontSize: 14),
+                            style: GoogleFonts.questrial(
+                              fontSize: 14,
+                              color: Colors.black54,
+                            ),
                           ),
                           trailing: const Icon(
                             Icons.arrow_forward_ios,
@@ -893,19 +903,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         TextField(
           controller: controller,
           obscureText: !isVisible,
-          style: GoogleFonts.questrial(fontSize: 16),
+          style: GoogleFonts.questrial(fontSize: 16, color: Colors.black87),
           decoration: InputDecoration(
             prefixIcon: Icon(icon, color: AppTheme.legacyBlue3, size: 20),
             suffixIcon: IconButton(
               icon: Icon(
                 isVisible ? Icons.visibility_off : Icons.visibility,
-                color: Colors.grey[400],
+                color: Colors.grey[600],
                 size: 18,
               ),
               onPressed: onToggle,
             ),
             hintText: '••••••••',
-            hintStyle: TextStyle(color: Colors.grey[300]),
+            hintStyle: const TextStyle(color: Colors.black45),
             filled: true,
             fillColor: Colors.grey[50],
             contentPadding: const EdgeInsets.symmetric(
@@ -1030,6 +1040,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 initialValue: currentValue,
                 icon: const Icon(Icons.arrow_drop_down),
                 style: GoogleFonts.questrial(color: Colors.black, fontSize: 16),
+                // El menú desplegable usaría el azul oscuro del tema y las
+                // opciones, en negro, no se leerían.
+                dropdownColor: Colors.white,
                 decoration: InputDecoration(
                   prefixIcon: Icon(icon, color: AppTheme.legacyBlue3, size: 20),
                   contentPadding: const EdgeInsets.symmetric(

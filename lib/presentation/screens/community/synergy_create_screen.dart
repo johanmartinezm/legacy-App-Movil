@@ -102,12 +102,14 @@ class _SynergyCreateScreenState extends State<SynergyCreateScreen> {
                       ),
                       const SizedBox(height: 30),
                       TextFormField(
+                        style: const TextStyle(color: Colors.black87),
                         decoration: _inputDecoration('Título de la Sinergia', 'Ej: Expansión en mercado europeo'),
                         validator: (v) => v!.isEmpty ? 'Requerido' : null,
                         onSaved: (v) => _title = v!,
                       ),
                       const SizedBox(height: 20),
                       TextFormField(
+                        style: const TextStyle(color: Colors.black87),
                         decoration: _inputDecoration('Descripción detallada', 'Explica tu idea o necesidad...'),
                         maxLines: 8,
                         validator: (v) => v!.length < 20 ? 'Sé más descriptivo' : null,
@@ -144,6 +146,7 @@ class _SynergyCreateScreenState extends State<SynergyCreateScreen> {
     return InputDecoration(
       labelText: label,
       hintText: hint,
+      hintStyle: const TextStyle(color: Colors.black45),
       labelStyle: const TextStyle(color: AppTheme.legacyBlue1, fontWeight: FontWeight.bold),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
       enabledBorder: OutlineInputBorder(

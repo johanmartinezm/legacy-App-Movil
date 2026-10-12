@@ -2,6 +2,30 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-12]: Textos y estrellas legibles en popups y campos de fondo claro
+- **Alcance:** el tema de la app es oscuro, así que todo texto sin color propio sale casi blanco y
+  `RatingBar` pinta las estrellas vacías con el `disabledColor` del tema (blanco translúcido). Sobre
+  fondo blanco nada de eso se veía. Texto escrito pasa a `black87`, placeholders a `black45`,
+  estrellas vacías a `grey[400]`. Archivos: `widgets/eventos/rating_dialog.dart`,
+  `widgets/eventos/event_survey_dialog.dart` (también etiquetas de «Ya enviaste tu opinión» y chips
+  Sí/No), `screens/comunidad/comunidad_screen.dart` (diálogo del Board),
+  `screens/profile/profile_edit_screen.dart` (hoja Galería/Cámara, fila «Cambiar Contraseña», diálogo
+  de cambio de contraseña y menú de Sexo/Generación/Sector, que tenía opciones negras sobre azul
+  oscuro), `community/synergy_list|detail|create_screen.dart`, `chat/individual_chat_screen.dart` y
+  `participando/participando_screen.dart`. Los popups y campos sobre fondo oscuro no se tocaron: ahí
+  el texto claro es el correcto.
+- **Criterios de QA:**
+  1. Calificar una charla (Agenda o Cronograma): las cinco estrellas vacías se ven en gris; al tocar
+     se vuelven ámbar. El comentario se escribe en negro.
+  2. Encuesta del evento: las cuatro filas de estrellas en gris, chips «Sí»/«No» legibles, comentario
+     en negro. Al reabrirla, «Ya enviaste tu opinión» muestra etiquetas en negro y estrellas vacías
+     en gris.
+  3. Comunidad → ¿Quieres ser de nuestro Board?: el mensaje se escribe en negro.
+  4. Editar perfil: «Cambiar Contraseña» se lee; sus tres campos se escriben en negro; la hoja de
+     foto muestra «Galería» y «Cámara»; el desplegable de Sexo tiene fondo blanco y opciones legibles.
+  5. Sinergias (buscar, crear, comentar), chat individual y Mis eventos: el texto escrito y el
+     placeholder se leen.
+
 ### [2026-10-12]: Asesoría: se quita «Así nos conocen y nos contratan.»
 - **Alcance:** `lib/presentation/screens/asesoria/asesoria_screen.dart`, tarjeta «Asesoría abierta a
   todos». El párrafo termina ahora en «…cómo nuestras cinco unidades pueden acompañarle.».

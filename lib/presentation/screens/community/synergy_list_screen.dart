@@ -115,8 +115,10 @@ class _SynergyListScreenState extends State<SynergyListScreen> {
             child: TextField(
               controller: _searchController,
               onChanged: (v) => _fetchSynergies(),
+              style: const TextStyle(color: Colors.black87),
               decoration: InputDecoration(
                 hintText: 'Buscar propuestas...',
+                hintStyle: const TextStyle(color: Colors.black45),
                 prefixIcon: const Icon(Icons.search, color: AppTheme.legacyBlue1),
                 filled: true,
                 fillColor: Colors.transparent,

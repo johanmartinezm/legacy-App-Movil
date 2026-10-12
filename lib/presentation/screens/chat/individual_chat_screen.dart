@@ -254,6 +254,7 @@ class _IndividualChatScreenState extends State<IndividualChatScreen> {
             child: TextField(
               controller: _messageController,
               focusNode: _focusNode,
+              style: GoogleFonts.questrial(color: Colors.black87),
               decoration: InputDecoration(
                 hintText: 'Escribe un mensaje de confianza...',
                 hintStyle: GoogleFonts.questrial(

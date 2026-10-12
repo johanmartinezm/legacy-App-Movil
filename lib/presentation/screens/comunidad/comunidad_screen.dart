@@ -306,11 +306,14 @@ class _ComunidadScreenState extends State<ComunidadScreen> {
                       controller: messageController,
                       maxLines: 4,
                       autofocus: true,
-                      style: GoogleFonts.questrial(fontSize: 15),
+                      style: GoogleFonts.questrial(
+                        fontSize: 15,
+                        color: Colors.black87,
+                      ),
                       decoration: InputDecoration(
                         hintText: 'Añade tu propuesta o mensaje aquí...',
                         hintStyle: GoogleFonts.questrial(
-                          color: Colors.grey[400],
+                          color: Colors.black45,
                         ),
                         fillColor: Colors.grey[50],
                         filled: true,

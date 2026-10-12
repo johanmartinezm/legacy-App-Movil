@@ -142,6 +142,9 @@ class _RatingDialogState extends State<RatingDialog> {
                 allowHalfRating: true,
                 itemCount: 5,
                 itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                // Sin esto las vacías toman el disabledColor del tema oscuro
+                // (blanco translúcido) y no se ven sobre el fondo blanco.
+                unratedColor: Colors.grey[400],
                 itemBuilder: (context, _) =>
                     const Icon(Icons.star_rounded, color: Colors.amber),
                 onRatingUpdate: (rating) {
@@ -152,9 +155,10 @@ class _RatingDialogState extends State<RatingDialog> {
               TextField(
                 controller: _commentController,
                 maxLines: 3,
+                style: const TextStyle(color: Colors.black87),
                 decoration: InputDecoration(
                   hintText: 'Escribe tus comentarios aquí...',
-                  hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+                  hintStyle: const TextStyle(color: Colors.black45, fontSize: 14),
                   filled: true,
                   fillColor: Colors.grey[50],
                   border: OutlineInputBorder(
