@@ -16,6 +16,21 @@ class EventPurchaseDetailScreen extends StatelessWidget {
     // Determine the badge text based on event details
     final String badgeText = event.isFree ? 'REGISTRO ABIERTO' : 'PREVENTA ABIERTA';
 
+    final esSummit = event.category.toLowerCase() == 'summit';
+    final speaker = event.speaker?.trim() ?? '';
+    final incluye = event.includes?.trim() ?? '';
+    final filasFicha = <Widget>[
+      if (speaker.isNotEmpty) _buildInfoRow('Speakers', speaker),
+      if (esSummit) _buildInfoRow('Modelo', '7 dimensiones DINASTÍA'),
+      if (incluye.isNotEmpty) _buildInfoRow('Incluye', incluye.replaceAll('\n', ' · ')),
+      if (esSummit)
+        _buildInfoRow(
+          'Alumni Summit',
+          'Acceso a Legacy+',
+          valueColor: const Color(0xFFD9A74A),
+        ),
+    ];
+
     return Scaffold(
       backgroundColor: const Color(0xFF162540),
       appBar: AppBar(
@@ -158,63 +173,59 @@ class EventPurchaseDetailScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 24),
 
-                      // Info Card Grid Table
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1B3156).withValues(alpha: 0.85),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: const Color(0xFF183D6B).withValues(alpha: 0.4),
-                            width: 1,
+                      // Ficha técnica
+                      //
+                      // Hasta el 2026-10-12 «Modelo», «Alumni Summit» y la nota
+                      // verde eran texto fijo, y Speakers e Incluye caían a los
+                      // datos del Summit cuando el evento no traía los suyos: una
+                      // masterclass anunciaba el campus de 45 días, el libro y la
+                      // suscripción a El Espectador como si fueran suyos. Ahora
+                      // cada fila sale solo si el evento tiene el dato, y lo
+                      // propio del Summit solo en los eventos de esa categoría.
+                      if (filasFicha.isNotEmpty) ...[
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1B3156).withValues(alpha: 0.85),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: const Color(0xFF183D6B).withValues(alpha: 0.4),
+                              width: 1,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              for (var i = 0; i < filasFicha.length; i++) ...[
+                                if (i > 0)
+                                  const Divider(color: Color(0xFF183D6B), thickness: 0.5, height: 24),
+                                filasFicha[i],
+                              ],
+                            ],
                           ),
                         ),
-                        child: Column(
-                          children: [
-                            _buildInfoRow(
-                              'Speakers',
-                              event.speaker ?? 'Sanjay Goel · M.J. Parada · G. Gómez',
-                            ),
-                            const Divider(color: Color(0xFF183D6B), thickness: 0.5, height: 24),
-                            _buildInfoRow('Modelo', '7 dimensiones DINASTÍA'),
-                            const Divider(color: Color(0xFF183D6B), thickness: 0.5, height: 24),
-                            _buildInfoRow(
-                              'Incluye',
-                              (event.includes != null && event.includes!.trim().isNotEmpty)
-                                  ? event.includes!.replaceAll('\n', ' · ')
-                                  : 'Campus 45 días · libro · El Espectador 6m',
-                            ),
-                            const Divider(color: Color(0xFF183D6B), thickness: 0.5, height: 24),
-                            _buildInfoRow(
-                              'Alumni Summit',
-                              'Acceso a Legacy+',
-                              valueColor: const Color(0xFFD9A74A),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
+                        const SizedBox(height: 20),
+                      ],
 
-                      // Alert Container (Teal/Green Alumni Note)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0C2423),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: const Color(0xFF124E48),
-                            width: 1,
+                      if (esSummit)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0C2423),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: const Color(0xFF124E48),
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            'Asistir al Summit lo convierte en alumni: acceso a comunidad y descuentos en el ecosistema.',
+                            style: GoogleFonts.questrial(
+                              color: const Color(0xFF5FF2DE),
+                              fontSize: 13,
+                              height: 1.4,
+                            ),
                           ),
                         ),
-                        child: Text(
-                          'Asistir al Summit lo convierte en alumni: acceso a comunidad y descuentos en el ecosistema.',
-                          style: GoogleFonts.questrial(
-                            color: const Color(0xFF5FF2DE),
-                            fontSize: 13,
-                            height: 1.4,
-                          ),
-                        ),
-                      ),
                       const SizedBox(height: 10),
                     ],
                   ),

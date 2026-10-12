@@ -2,6 +2,21 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-12]: La ficha del evento deja de mostrar los datos del Summit en otros eventos
+- **Alcance:** `lib/presentation/screens/eventos/event_purchase_detail_screen.dart` y el test nuevo
+  `test/screens/ficha_evento_test.dart`. «Modelo · 7 dimensiones DINASTÍA», «Alumni Summit · Acceso
+  a Legacy+» y la nota verde de alumni eran fijos en todos los eventos; ahora solo salen con
+  categoría `summit`. «Speakers» e «Incluye» caían a los del Summit si el evento no los traía
+  («Sanjay Goel…», «Campus 45 días · libro · El Espectador 6m»); ahora la fila solo sale si el
+  evento tiene el dato. Si no queda ninguna fila, la ficha no se pinta. Ninguna masterclass de
+  producción tiene «Incluye» cargado: lo que veían era el del Summit.
+- **Criterios de QA:**
+  1. Abrir MASTERCLASS 2026: muestra «Speakers · Johan Martínez» y nada más en la ficha; sin
+     Modelo, Incluye, Alumni Summit ni nota verde.
+  2. Abrir el Legacy Summit 2026: muestra Speakers, Modelo, Incluye (sus seis puntos) y Alumni
+     Summit, más la nota verde.
+  3. Cargar «Incluye» a una masterclass desde el panel y reabrirla: aparece la fila con ese texto.
+
 ### [2026-10-12]: Notas secundarias legibles en tres diálogos oscuros
 - **Alcance:** `widgets/moderacion/menu_moderacion.dart` (¿Bloquear?),
   `widgets/moderacion/reportar_usuario_dialog.dart` (Reportar usuario) y
