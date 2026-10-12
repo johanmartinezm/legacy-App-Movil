@@ -18,11 +18,16 @@ class EventPurchaseDetailScreen extends StatelessWidget {
 
     final esSummit = event.category.toLowerCase() == 'summit';
     final speaker = event.speaker?.trim() ?? '';
-    final incluye = event.includes?.trim() ?? '';
+    final modelo = event.model?.trim() ?? '';
+    final incluye = itemsDeIncluye(event.includes);
     final filasFicha = <Widget>[
       if (speaker.isNotEmpty) _buildInfoRow('Speakers', speaker),
-      if (esSummit) _buildInfoRow('Modelo', '7 dimensiones DINASTÍA'),
-      if (incluye.isNotEmpty) _buildInfoRow('Incluye', incluye.replaceAll('\n', ' · ')),
+      if (modelo.isNotEmpty) _buildInfoRow('Modelo', modelo),
+      // Un solo ítem cabe en la columna de la derecha; varios se leían como un
+      // bloque de 30 líneas alineado a la derecha, con « · » pegado a los
+      // guiones que ya trae el texto. Van como lista a lo ancho.
+      if (incluye.length == 1) _buildInfoRow('Incluye', incluye.first),
+      if (incluye.length > 1) _buildListaIncluye(incluye),
       if (esSummit)
         _buildInfoRow(
           'Alumni Summit',
@@ -325,6 +330,47 @@ class EventPurchaseDetailScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildListaIncluye(List<String> items) {
+    return Column(
+      key: const Key('ficha-incluye-lista'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Incluye',
+          style: GoogleFonts.barlow(
+            color: const Color(0xFF9FB2C2),
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 10),
+        for (final item in items)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(top: 6, right: 10),
+                  child: Icon(Icons.circle, size: 6, color: Color(0xFFD9A74A)),
+                ),
+                Expanded(
+                  child: Text(
+                    item,
+                    style: GoogleFonts.questrial(
+                      color: Colors.white,
+                      fontSize: 14,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
   Widget _buildInfoRow(String label, String value, {Color? valueColor}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -354,4 +400,16 @@ class EventPurchaseDetailScreen extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Los ítems de «Incluye», uno por línea como lo pide el panel. Se quita la
+/// viñeta que traiga escrita cada línea («- », «• », «* ») para no repetirla
+/// junto a la de la lista, y se descartan las líneas vacías.
+List<String> itemsDeIncluye(String? includes) {
+  if (includes == null) return const [];
+  return includes
+      .split(RegExp(r'\r?\n'))
+      .map((l) => l.trim().replaceFirst(RegExp(r'^[-•*]\s*'), '').trim())
+      .where((l) => l.isNotEmpty)
+      .toList();
 }

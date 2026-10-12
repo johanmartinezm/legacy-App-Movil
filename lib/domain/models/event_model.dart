@@ -23,6 +23,9 @@ class EventModel {
   final String imageUrl;
   final String description;
   final String? includes;
+  /// Modelo de trabajo del evento («7 dimensiones DINASTÍA»). Opcional: la
+  /// ficha solo pinta la fila si trae texto.
+  final String? model;
   final int categoryOrder;
   final int? attendeesCount;
   final List<WorkshopModel> workshops;
@@ -45,6 +48,7 @@ class EventModel {
     required this.imageUrl,
     required this.description,
     this.includes,
+    this.model,
     this.categoryOrder = 0,
     this.attendeesCount,
     this.workshops = const [],
@@ -73,6 +77,7 @@ class EventModel {
       imageUrl: imageUrl,
       description: description,
       includes: includes,
+      model: model,
       categoryOrder: categoryOrder,
       attendeesCount: attendeesCount ?? this.attendeesCount,
       workshops: workshops,
@@ -132,6 +137,7 @@ class EventModel {
       imageUrl: json['imageUrl'] ?? '',
       description: json['description'] ?? '',
       includes: json['includes'],
+      model: json['model'],
       categoryOrder: json['categoryOrder'] ?? 0,
       attendeesCount: json['attendeesCount'],
       workshops:

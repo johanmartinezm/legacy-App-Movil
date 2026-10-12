@@ -30,7 +30,12 @@ void main() {
     await ConfigService.initialize();
   });
 
-  EventModel evento(String categoria, {String? speaker, String? includes}) =>
+  EventModel evento(
+    String categoria, {
+    String? speaker,
+    String? includes,
+    String? model,
+  }) =>
       EventModel.fromJson({
         'id': 'event-1',
         'title': 'Evento de prueba',
@@ -44,6 +49,7 @@ void main() {
         'imageUrl': '',
         'speaker': speaker,
         'includes': includes,
+        'model': model,
       });
 
   Future<void> montar(WidgetTester tester, EventModel event) async {
@@ -89,18 +95,58 @@ void main() {
     );
 
     expect(find.text('Johan Martínez'), findsOneWidget);
-    expect(find.text('Material · Certificado'), findsOneWidget);
+    expect(find.byKey(const Key('ficha-incluye-lista')), findsOneWidget);
+    expect(find.text('Material'), findsOneWidget);
+    expect(find.text('Certificado'), findsOneWidget);
     expect(find.text('Modelo'), findsNothing);
     expect(find.text('Alumni Summit'), findsNothing);
     expect(find.textContaining('lo convierte en alumni'), findsNothing);
   });
 
   testWidgets('Summit: conserva modelo, alumni y la nota', (tester) async {
-    await montar(tester, evento('summit', speaker: 'Sanjay Goel, Ph.D.'));
+    await montar(
+      tester,
+      evento(
+        'summit',
+        speaker: 'Sanjay Goel, Ph.D.',
+        model: '7 dimensiones DINASTÍA',
+      ),
+    );
 
     expect(find.text('7 dimensiones DINASTÍA'), findsOneWidget);
     expect(find.text('Acceso a Legacy+'), findsOneWidget);
     expect(find.textContaining('lo convierte en alumni'), findsOneWidget);
     expect(find.text('Incluye'), findsNothing);
+  });
+
+  testWidgets('El modelo sale del evento, sea cual sea su categoría', (
+    tester,
+  ) async {
+    await montar(tester, evento('masterclass', model: 'Modelo propio'));
+    expect(find.text('Modelo'), findsOneWidget);
+    expect(find.text('Modelo propio'), findsOneWidget);
+  });
+
+  testWidgets('Summit sin modelo cargado: no muestra la fila', (tester) async {
+    await montar(tester, evento('summit'));
+    expect(find.text('Modelo'), findsNothing);
+    expect(find.text('7 dimensiones DINASTÍA'), findsNothing);
+  });
+
+  testWidgets('Incluye de un solo ítem va en la fila, no como lista', (
+    tester,
+  ) async {
+    await montar(tester, evento('masterclass', includes: 'Certificado'));
+    expect(find.text('Certificado'), findsOneWidget);
+    expect(find.byKey(const Key('ficha-incluye-lista')), findsNothing);
+  });
+
+  test('itemsDeIncluye quita viñetas escritas y líneas vacías', () {
+    expect(
+      itemsDeIncluye('- Libro\r\n\n• Campus\n* Coctel\n  Certificado  \n'),
+      ['Libro', 'Campus', 'Coctel', 'Certificado'],
+    );
+    expect(itemsDeIncluye(null), isEmpty);
+    expect(itemsDeIncluye('   '), isEmpty);
   });
 }
