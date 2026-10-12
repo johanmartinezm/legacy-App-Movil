@@ -2,6 +2,16 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-12]: Asesoría: se quita la fila «Respuesta ≤ 48 horas» de la confirmación
+- **Alcance:** `lib/presentation/screens/asesoria/asesoria_screen.dart`, pantalla «Solicitud
+  enviada». La tarjeta de estado queda solo con «Estado · En revisión». El texto de arriba («le
+  contactará en menos de 48 horas») no se tocó.
+- **Criterios de QA:**
+  1. Enviar una solicitud de asesoría desde la app.
+  2. En «Solicitud enviada», la tarjeta muestra solo «Estado · En revisión», sin separador ni fila
+     de «Respuesta».
+  3. «Volver al inicio» sigue llevando a Inicio.
+
 ### [2026-10-02]: La app apunta a la API de `app.legacynetworkco.com`
 - **Alcance:** `assets/config/config.json` y `assets/config/config.json.prod` (las tres
   `api_url_*`). El servidor nuevo sirve la API en ese dominio, detrás de Cloudflare. Las versiones ya

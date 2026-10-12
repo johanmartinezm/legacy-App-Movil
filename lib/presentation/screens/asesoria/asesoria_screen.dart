@@ -1043,55 +1043,23 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
               width: 1.2,
             ),
           ),
-          child: Column(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Estado',
-                    style: GoogleFonts.questrial(
-                      color: const Color(0xFF9FB2C2),
-                      fontSize: 14,
-                    ),
-                  ),
-                  Text(
-                    'En revisión',
-                    style: GoogleFonts.questrial(
-                      color: const Color(0xFFD9A74A),
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 14),
-                child: Divider(
-                  color: Color(0xFF183D6B),
-                  height: 1,
-                  thickness: 1,
+              Text(
+                'Estado',
+                style: GoogleFonts.questrial(
+                  color: const Color(0xFF9FB2C2),
+                  fontSize: 14,
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Respuesta',
-                    style: GoogleFonts.questrial(
-                      color: const Color(0xFF9FB2C2),
-                      fontSize: 14,
-                    ),
-                  ),
-                  Text(
-                    '≤ 48 horas',
-                    style: GoogleFonts.questrial(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+              Text(
+                'En revisión',
+                style: GoogleFonts.questrial(
+                  color: const Color(0xFFD9A74A),
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
