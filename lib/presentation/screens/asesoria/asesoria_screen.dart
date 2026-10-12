@@ -413,7 +413,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'No necesita ser cliente para empezar. Solicite una propuesta y conozca cómo nuestras cinco unidades pueden acompañarle. Así nos conocen y nos contratan.',
+            'No necesita ser cliente para empezar. Solicite una propuesta y conozca cómo nuestras cinco unidades pueden acompañarle.',
             style: GoogleFonts.questrial(
               color: const Color(0xFF9FB2C2),
               fontSize: 13,

@@ -2,6 +2,13 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-12]: Asesoría: se quita «Así nos conocen y nos contratan.»
+- **Alcance:** `lib/presentation/screens/asesoria/asesoria_screen.dart`, tarjeta «Asesoría abierta a
+  todos». El párrafo termina ahora en «…cómo nuestras cinco unidades pueden acompañarle.».
+- **Criterios de QA:**
+  1. Abrir Asesoría: la tarjeta «Asesoría abierta a todos» ya no muestra «Así nos conocen y nos
+     contratan.» y el párrafo termina en «pueden acompañarle.».
+
 ### [2026-10-12]: Asesoría: se quita la fila «Respuesta ≤ 48 horas» de la confirmación
 - **Alcance:** `lib/presentation/screens/asesoria/asesoria_screen.dart`, pantalla «Solicitud
   enviada». La tarjeta de estado queda solo con «Estado · En revisión». El texto de arriba («le
