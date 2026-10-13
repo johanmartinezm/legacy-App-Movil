@@ -145,8 +145,11 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                           _buildServicesHeader(context),
                           const SizedBox(height: 12),
                           _buildPremiumRows(context),
-                          const SizedBox(height: 28),
-                          _buildLegacyTestHero(context),
+                          // El banner final de Legacy Test («Descubra las
+                          // trampas de su familia empresaria») se retiró del
+                          // Inicio el 2026-10-13 a pedido del cliente. El botón
+                          // de Legacy Test de Comunidad sigue donde estaba.
+                          const SizedBox(height: 16),
                         ],
                       ),
                     ),
@@ -633,15 +636,6 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     );
   }
 
-  void _showComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Esta función estará disponible próximamente.'),
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
   Widget _buildServicesHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -900,108 +894,6 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                 color: Colors.white.withValues(alpha: 0.2),
                 size: 20,
               ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLegacyTestHero(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _showComingSoon(context),
-      child: _tarjeta(
-        slug: 'legacy-test',
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoracion: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF8AC6FB), Color(0xFF1B3156), Color(0xFF162540)],
-            stops: [-0.2, 0.4, 1.0],
-          ),
-          border: Border.all(
-            color: const Color(0xFF8AC6FB).withValues(alpha: 0.3),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Align(
-              alignment: Alignment.topRight,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF8AC6FB),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'PRÓXIMAMENTE',
-                  style: GoogleFonts.barlow(
-                    color: const Color(0xFF162540),
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.0,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _titulo(
-                'legacy-test',
-                'Descubra las trampas de su familia empresaria',
-              ),
-              style: GoogleFonts.barlowCondensed(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                height: 1.1,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _texto(
-                'legacy-test',
-                'Conteste gratis el diagnóstico del Modelo DINASTÍA. ¿Quiere profundizar? Conozca los niveles del Legacy Test.',
-              ),
-              style: GoogleFonts.questrial(
-                color: const Color(0xFFCFE0F0),
-                fontSize: 13,
-                height: 1.45,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFF8AC6FB),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Conocer el Legacy Test',
-                    style: GoogleFonts.barlow(
-                      color: const Color(0xFF162540),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  const Icon(
-                    Icons.chevron_right,
-                    color: Color(0xFF162540),
-                    size: 18,
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),

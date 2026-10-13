@@ -136,7 +136,10 @@ void main() {
     );
 
     expect(find.byKey(const Key('tarjeta-eventos-con-imagen')), findsOneWidget);
-    expect(find.byKey(const Key('tarjeta-legacy-test-con-imagen')), findsOneWidget);
+    // El banner de Legacy Test se retiró del Inicio el 2026-10-13: aunque el
+    // panel tenga imagen para él, no se pinta.
+    expect(find.byKey(const Key('tarjeta-legacy-test-con-imagen')), findsNothing);
+    expect(find.textContaining('Descubra las trampas'), findsNothing);
     // Beneficios ya solo es la fila de la sección Legacy+ (la tarjeta de la
     // cuadrícula se retiró el 2026-10-13).
     expect(find.byKey(const Key('tarjeta-beneficios-con-imagen')), findsOneWidget);
@@ -157,14 +160,13 @@ void main() {
       tester,
       servicio(() => secciones(
             const {},
-            titulos: {'eventos': 'Agenda 2026', 'legacy-test': 'Haga el test'},
+            titulos: {'eventos': 'Agenda 2026'},
             textos: {'eventos': 'Todo el calendario', 'miembros': 'Red de socios'},
           )),
     );
 
     expect(find.text('Agenda 2026'), findsOneWidget);
     expect(find.text('Todo el calendario'), findsOneWidget);
-    expect(find.text('Haga el test'), findsOneWidget);
     expect(find.text('Red de socios'), findsOneWidget);
     // Lo que el panel no cambió sigue con el de siempre.
     // «Legacy Board» sale dos veces: la tarjeta de la cuadrícula y la fila
