@@ -14,9 +14,10 @@ import 'package:legacy_app/domain/providers/notification_provider.dart';
 import 'package:legacy_app/presentation/screens/home/home_content_screen.dart';
 import 'package:provider/provider.dart';
 
-/// Las tarjetas del Inicio toman su imagen de GET /api/inicio/secciones, que
-/// edita el panel. Sin imagen —o sin backend— se pintan como siempre, con su
-/// icono: el Inicio no puede quedarse en blanco por un fallo de red.
+/// Las tarjetas del Inicio toman su imagen, su título y su texto de
+/// GET /api/inicio/secciones, que edita el panel. Lo que venga vacío —o todo,
+/// sin backend— se pinta como siempre: el Inicio no puede quedarse en blanco
+/// por un fallo de red.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -28,7 +29,12 @@ void main() {
   SeccionesInicioService servicio(http.Response Function() respuesta) =>
       SeccionesInicioService(client: MockClient((_) async => respuesta()));
 
-  http.Response secciones(Map<String, String> imagenes) => http.Response(
+  http.Response secciones(
+    Map<String, String> imagenes, {
+    Map<String, String> titulos = const {},
+    Map<String, String> textos = const {},
+  }) =>
+      http.Response(
         jsonEncode([
           for (final slug in const [
             'nuevo-cada-semana',
@@ -38,26 +44,54 @@ void main() {
             'miembros',
             'legacy-test',
           ])
-            {'slug': slug, 'nombre': slug, 'orden': 0, 'imagen_url': imagenes[slug] ?? ''},
+            {
+              'slug': slug,
+              'nombre': slug,
+              'orden': 0,
+              'imagen_url': imagenes[slug] ?? '',
+              'titulo': titulos[slug] ?? '',
+              'texto': textos[slug] ?? '',
+            },
         ]),
         200,
       );
 
   group('SeccionesInicioService', () {
-    test('devuelve solo las secciones con imagen', () async {
-      final imagenes = await servicio(
-        () => secciones({'eventos': ' https://x/e.jpg '}),
-      ).imagenes();
-      expect(imagenes, {'eventos': 'https://x/e.jpg'});
+    test('devuelve solo las secciones con algo cambiado, recortado', () async {
+      final r = await servicio(
+        () => secciones(
+          {'eventos': ' https://x/e.jpg '},
+          titulos: {'miembros': ' Comunidad '},
+        ),
+      ).secciones();
+      expect(r.keys, unorderedEquals(['eventos', 'miembros']));
+      expect(r['eventos']!.imagenUrl, 'https://x/e.jpg');
+      expect(r['eventos']!.titulo, isNull);
+      expect(r['miembros']!.titulo, 'Comunidad');
+      expect(r['miembros']!.imagenUrl, isNull);
+    });
+
+    test('un backend sin titulo ni texto sigue sirviendo la imagen', () async {
+      final r = await servicio(
+        () => http.Response(
+          jsonEncode([
+            {'slug': 'eventos', 'imagen_url': 'https://x/e.jpg'},
+          ]),
+          200,
+        ),
+      ).secciones();
+      expect(r['eventos']!.imagenUrl, 'https://x/e.jpg');
+      expect(r['eventos']!.titulo, isNull);
+      expect(r['eventos']!.texto, isNull);
     });
 
     test('un error del backend no rompe nada: mapa vacío', () async {
-      expect(await servicio(() => http.Response('boom', 500)).imagenes(), isEmpty);
-      expect(await servicio(() => http.Response('no es json', 200)).imagenes(), isEmpty);
+      expect(await servicio(() => http.Response('boom', 500)).secciones(), isEmpty);
+      expect(await servicio(() => http.Response('no es json', 200)).secciones(), isEmpty);
       expect(
         await SeccionesInicioService(
           client: MockClient((_) async => throw Exception('sin red')),
-        ).imagenes(),
+        ).secciones(),
         isEmpty,
       );
     });
@@ -113,6 +147,31 @@ void main() {
     expect(find.byIcon(Icons.calendar_month), findsNothing);
     // El texto sigue en su sitio.
     expect(find.text('Eventos'), findsOneWidget);
+  });
+
+  testWidgets('El título y el texto del panel sustituyen a los de la app', (
+    tester,
+  ) async {
+    await montar(
+      tester,
+      servicio(() => secciones(
+            const {},
+            titulos: {'eventos': 'Agenda 2026', 'legacy-test': 'Haga el test'},
+            textos: {'eventos': 'Todo el calendario', 'miembros': 'Red de socios'},
+          )),
+    );
+
+    expect(find.text('Agenda 2026'), findsOneWidget);
+    expect(find.text('Todo el calendario'), findsOneWidget);
+    expect(find.text('Haga el test'), findsOneWidget);
+    expect(find.text('Red de socios'), findsOneWidget);
+    // Lo que el panel no cambió sigue con el de siempre.
+    expect(find.text('Miembros'), findsOneWidget);
+    expect(find.text('Legacy Board'), findsOneWidget);
+    // Lo sustituido ya no aparece.
+    expect(find.text('Masterclass virtual en vivo y Legacy Summit presencial'), findsNothing);
+    // Sin imagen, conserva el icono.
+    expect(find.byKey(const Key('tarjeta-eventos')), findsOneWidget);
   });
 
   testWidgets('Sin backend, el Inicio se ve como siempre', (tester) async {

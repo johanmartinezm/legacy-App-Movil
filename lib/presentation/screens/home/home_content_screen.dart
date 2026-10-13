@@ -11,6 +11,7 @@ import '../../delegates/global_search_delegate.dart';
 import 'package:legacy_app/presentation/widgets/common/legacy_logo.dart';
 import '../../../data/services/secciones_inicio_service.dart';
 import 'widgets/fondo_con_imagen.dart';
+import 'package:legacy_app/config/theme/app_theme.dart';
 
 class HomeContentScreen extends StatefulWidget {
   /// Se inyecta en las pruebas; en la app se crea el de verdad.
@@ -23,10 +24,11 @@ class HomeContentScreen extends StatefulWidget {
 }
 
 class _HomeContentScreenState extends State<HomeContentScreen> {
-  /// `slug → URL` de las tarjetas que tienen imagen, cargadas desde el panel
-  /// (Imágenes del Inicio). Vacío hasta que responde el backend, y también si
-  /// falla: entonces cada tarjeta se pinta como siempre, con su icono.
-  Map<String, String> _imagenes = const {};
+  /// `slug → SeccionInicio` de las tarjetas con imagen, título o texto
+  /// cambiados desde el panel (Tarjetas del Inicio). Vacío hasta que responde
+  /// el backend, y también si falla: entonces cada tarjeta se pinta como
+  /// siempre, con su icono y sus textos de la app.
+  Map<String, SeccionInicio> _secciones = const {};
 
   @override
   void initState() {
@@ -35,9 +37,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
   }
 
   Future<void> _cargarImagenes() async {
-    final imagenes =
-        await (widget.seccionesService ?? SeccionesInicioService()).imagenes();
-    if (mounted && imagenes.isNotEmpty) setState(() => _imagenes = imagenes);
+    final secciones =
+        await (widget.seccionesService ?? SeccionesInicioService()).secciones();
+    if (mounted && secciones.isNotEmpty) setState(() => _secciones = secciones);
   }
 
   /// Envuelve el contenido de una tarjeta. Con imagen, la foto de fondo con su
@@ -52,7 +54,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     EdgeInsetsGeometry? margin,
     double? width,
   }) {
-    final url = _imagenes[slug];
+    final url = _secciones[slug]?.imagenUrl;
     final radio =
         (decoracion.borderRadius as BorderRadius?) ?? BorderRadius.zero;
     if (url == null) {
@@ -86,7 +88,15 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     );
   }
 
-  bool _conImagen(String slug) => _imagenes.containsKey(slug);
+  bool _conImagen(String slug) => _secciones[slug]?.imagenUrl != null;
+
+  /// Título y texto de la tarjeta: los del panel si los hay, si no los de
+  /// siempre, que se pasan como `porDefecto`.
+  String _titulo(String slug, String porDefecto) =>
+      _secciones[slug]?.titulo ?? porDefecto;
+
+  String _texto(String slug, String porDefecto) =>
+      _secciones[slug]?.texto ?? porDefecto;
 
   @override
   Widget build(BuildContext context) {
@@ -416,7 +426,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Nuevo cada semana',
+                    _titulo(slug, 'Nuevo cada semana'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.barlowCondensed(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -425,7 +437,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    subtitle,
+                    _texto(slug, subtitle),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.questrial(
@@ -491,7 +503,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           title: 'Legacy Board',
           subtitle: 'Gobierno corporativo para familias empresarias',
           icon: Icons.dashboard,
-          iconColor: const Color(0xFFD9B87F),
+          iconColor: AppTheme.legacyActive,
           onTap: () => context.push('/legacy-board'),
         ),
         _buildModuleCard(
@@ -604,7 +616,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
               ),
             const Spacer(),
             Text(
-              title,
+              _titulo(slug, title),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: GoogleFonts.barlowCondensed(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -613,7 +627,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
             ),
             const SizedBox(height: 2),
             Text(
-              subtitle,
+              _texto(slug, subtitle),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.questrial(
@@ -708,7 +722,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Beneficios',
+                        _titulo('beneficios', 'Beneficios'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.barlowCondensed(
                           color: Colors.white.withValues(alpha: 0.5),
                           fontSize: 16,
@@ -716,7 +732,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                         ),
                       ),
                       Text(
-                        'Próximamente',
+                        _texto('beneficios', 'Próximamente'),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.questrial(
                           color: const Color(0xFF9FB2C2).withValues(alpha: 0.5),
                           fontSize: 11,
@@ -799,7 +817,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Miembros',
+                        _titulo('miembros', 'Miembros'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.barlowCondensed(
                           color: isCliente
                               ? Colors.white
@@ -809,7 +829,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                         ),
                       ),
                       Text(
-                        'Comunidad del ecosistema Legacy',
+                        _texto('miembros', 'Comunidad del ecosistema Legacy'),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.questrial(
                           color: isCliente
                               ? const Color(0xFF9FB2C2)
@@ -880,7 +902,10 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Descubra las trampas de su familia empresaria',
+              _titulo(
+                'legacy-test',
+                'Descubra las trampas de su familia empresaria',
+              ),
               style: GoogleFonts.barlowCondensed(
                 color: Colors.white,
                 fontSize: 22,
@@ -890,7 +915,10 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Conteste gratis el diagnóstico del Modelo DINASTÍA. ¿Quiere profundizar? Conozca los niveles del Legacy Test.',
+              _texto(
+                'legacy-test',
+                'Conteste gratis el diagnóstico del Modelo DINASTÍA. ¿Quiere profundizar? Conozca los niveles del Legacy Test.',
+              ),
               style: GoogleFonts.questrial(
                 color: const Color(0xFFCFE0F0),
                 fontSize: 13,
