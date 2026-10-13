@@ -2,6 +2,21 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-12]: Inicio: imagen de fondo en las tarjetas, cambiable desde el panel
+- **Alcance:** `lib/data/services/secciones_inicio_service.dart`, `lib/data/config/api_constants.dart`,
+  `lib/presentation/screens/home/widgets/fondo_con_imagen.dart`,
+  `lib/presentation/screens/home/home_content_screen.dart` y
+  `test/screens/imagenes_inicio_test.dart`. Al abrir el Inicio se pide
+  `GET /api/inicio/secciones`; cada tarjeta con imagen la pinta de fondo con una capa oscura y sin su
+  icono, y la que no tiene, o si el backend falla, se ve como siempre. Tarjetas: Nuevo cada semana,
+  las ocho de Explore libremente, Beneficios y Miembros de Servicios Legacy, y Legacy Test.
+- **Criterios de QA:**
+  1. Sin imágenes cargadas, el Inicio se ve igual que antes.
+  2. Cargar imágenes desde el panel y volver a entrar al Inicio: cada tarjeta muestra su foto y el
+     título y el subtítulo se leen.
+  3. En modo avión, el Inicio carga con sus iconos, sin error.
+  4. Tocar cada tarjeta sigue llevando al mismo sitio.
+
 ### [2026-10-12]: Ficha del Summit: se quita la fila «Alumni Summit · Acceso a Legacy+»
 - **Alcance:** `lib/presentation/screens/eventos/event_purchase_detail_screen.dart` y
   `test/screens/ficha_evento_test.dart`. A pedido del cliente se retira la fila; la nota verde
