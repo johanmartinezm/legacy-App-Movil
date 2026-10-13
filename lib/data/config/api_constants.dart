@@ -20,6 +20,7 @@ class ApiConstants {
   static String paginaEndpoint(String slug) => '/api/paginas/$slug';
   // Imagen de cada tarjeta del Inicio, que el panel cambia. Pública.
   static const String seccionesInicioEndpoint = '/api/inicio/secciones';
+  static const String asesoriaUnidadesEndpoint = '/api/asesoria/unidades';
 
   static const String meEndpoint = '/api/me';
   static const String changePasswordEndpoint = '/api/me/change-password';

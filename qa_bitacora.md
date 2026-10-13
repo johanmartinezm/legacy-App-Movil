@@ -2,6 +2,69 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-13]: Asesoría: las unidades salen del panel
+- **Alcance:** `lib/data/services/asesoria_unidades_service.dart` (nuevo: `UnidadAsesoria`, mapa de
+  claves de icono y las cinco de siempre como respaldo), `api_constants.dart`
+  (`asesoriaUnidadesEndpoint`), `screens/asesoria/asesoria_screen.dart` y
+  `test/screens/asesoria_screen_test.dart`. «NUESTRAS UNIDADES» pinta las unidades activas del panel
+  en su orden; mientras cargan, o si el backend falla o no devuelve ninguna, las cinco de siempre.
+  Al tocar una, el formulario marca su necesidad; si no es una de «¿Qué necesita?», deja la que
+  estaba. Un icono desconocido se pinta con el genérico.
+- **Criterios de QA:**
+  1. Asesorías muestra las mismas cinco unidades que antes.
+  2. Cambiar una en el panel y volver a entrar: se ve el cambio.
+  3. En modo avión, salen las cinco de siempre sin error.
+  4. Tocar Aurum abre el formulario con «Patrimonio» marcado.
+
+### [2026-10-13]: Asesoría: «CONTACTAR» en las unidades y sin botón inferior
+- **Alcance:** `lib/presentation/screens/asesoria/asesoria_screen.dart` y
+  `test/screens/asesoria_screen_test.dart`. A pedido del cliente, la etiqueta de cada unidad pasa de
+  «ABIERTA» a «CONTACTAR» y se retira el botón fijo «Solicitar propuesta / agendar» del pie. Tocar
+  una unidad sigue abriendo el formulario, que ya era como se entraba.
+- **Criterios de QA:**
+  1. Asesorías: cada unidad muestra «CONTACTAR»; no hay botón al pie.
+  2. Tocar una unidad abre «Solicitar asesoría» con esa unidad elegida.
+
+### [2026-10-13]: Asesoría: se retira el recuadro de bienvenida
+- **Alcance:** `lib/presentation/screens/asesoria/asesoria_screen.dart` y
+  `test/screens/asesoria_screen_test.dart` (antes `asesoria_texto_test.dart`). A pedido del cliente
+  se quita entero el primer recuadro («No necesita ser cliente para empezar…»), que horas antes había
+  perdido su título y pasado a editarse desde el panel; con él se va la carga de ese texto. La
+  pantalla abre directamente con «NUESTRAS UNIDADES».
+- **Criterios de QA:**
+  1. Inicio → Asesorías: la pantalla empieza en «NUESTRAS UNIDADES», sin recuadro de texto encima.
+  2. Las unidades y el formulario funcionan como antes.
+
+### [2026-10-13]: Solicitar asesoría: indicativo obligatorio y detalle de hasta 500 palabras
+- **Alcance:** `lib/presentation/screens/asesoria/asesoria_screen.dart`, `lib/domain/utils/indicativos.dart`
+  (nuevo: 28 países, Colombia primero), `lib/domain/utils/contar_palabras.dart` (nuevo),
+  `formato_telefono.dart` (`formateadoresDeNumeroLocal`, sin `+`) y pruebas en
+  `test/screens/asesoria_texto_test.dart`, `test/utils/indicativos_test.dart` y
+  `test/utils/contar_palabras_test.dart`. El WhatsApp pasa a selector de indicativo (obligatorio,
+  sin valor inicial) + número (entre 6 y 14 dígitos); el correo lo recibe como «+57 300 123 4567».
+  Después de «¿Qué necesita?» hay un campo «Cuéntenos más (opcional)» con contador «n / 500
+  palabras»; por encima de 500 no deja enviar. El detalle va al final del mensaje del correo, bajo
+  «Detalle del caso:». Necesita el backend que escapa el HTML del correo (mismo día).
+- **Criterios de QA:**
+  1. Enviar sin indicativo: «Elija el indicativo»; al elegirlo, el aviso desaparece.
+  2. Un número de menos de 6 dígitos: «Número incompleto».
+  3. Escribir en el detalle: el contador sube; con más de 500 palabras sale «Máximo 500 palabras»
+     y no se envía.
+  4. Enviar con detalle: el correo trae el WhatsApp con indicativo y el «Detalle del caso».
+  5. Agendar una llamada también lleva el indicativo y el detalle.
+
+### [2026-10-13]: Solicitar asesoría: sin el plazo de 48 h y con la necesidad «Otro»
+- **Alcance:** `lib/presentation/screens/asesoria/asesoria_screen.dart` y
+  `test/screens/asesoria_texto_test.dart`. A pedido del cliente se quita «Le contactamos en 48h» bajo
+  el título del formulario, y por coherencia el «en menos de 48 horas» del mensaje final («… le
+  contactará.»). «¿Qué necesita?» suma «Otro» al final, que se envía con la categoría `OTRO`; el
+  backend la acepta sin cambios (solo la incluye en el correo).
+- **Criterios de QA:**
+  1. Asesorías → cualquier unidad: el formulario dice «Solicitar asesoría» sin la línea de 48h.
+  2. «¿Qué necesita?» muestra seis opciones, la última «Otro»; se puede elegir y enviar.
+  3. El correo de la solicitud llega con la necesidad «Otro».
+  4. El mensaje de confirmación ya no menciona 48 horas.
+
 ### [2026-10-13]: Asesoría: sin el título «Asesoría abierta a todos», texto desde el panel
 - **Alcance:** `lib/presentation/screens/asesoria/asesoria_screen.dart` y
   `test/screens/asesoria_texto_test.dart`. A pedido del cliente, el primer recuadro pierde el título

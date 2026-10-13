@@ -4,16 +4,18 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../config/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:legacy_app/domain/utils/formato_telefono.dart';
+import 'package:legacy_app/domain/utils/indicativos.dart';
+import 'package:legacy_app/domain/utils/contar_palabras.dart';
 import '../../../data/services/asesoria_service.dart';
-import '../../../data/services/secciones_inicio_service.dart';
+import '../../../data/services/asesoria_unidades_service.dart';
 import '../../../domain/providers/auth_provider.dart';
 import '../../widgets/boton_volver.dart';
 
 class AsesoriaScreen extends StatefulWidget {
   /// Se inyecta en las pruebas; por defecto, el real.
-  final SeccionesInicioService? seccionesService;
+  final AsesoriaUnidadesService? unidadesService;
 
-  const AsesoriaScreen({super.key, this.seccionesService});
+  const AsesoriaScreen({super.key, this.unidadesService});
 
   @override
   State<AsesoriaScreen> createState() => _AsesoriaScreenState();
@@ -33,49 +35,45 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _whatsappController = TextEditingController();
 
+  /// Detalle libre del caso, después de «¿Qué necesita?». Opcional, con tope
+  /// de [_maximoPalabras] palabras; viaja en el correo de la solicitud.
+  final TextEditingController _detalleController = TextEditingController();
+  static const _maximoPalabras = 500;
+
+  /// Indicativo del WhatsApp. Obligatorio y sin valor inicial desde el
+  /// 2026-10-13: uno preseleccionado se daría por bueno sin mirarlo.
+  Indicativo? _indicativo;
+
+  /// El detalle como bloque final del mensaje del correo, o nada si está vacío.
+  String get _detalleParaCorreo {
+    final detalle = _detalleController.text.trim();
+    return detalle.isEmpty ? '' : '\n\nDetalle del caso:\n$detalle';
+  }
+
+  String get _whatsappCompleto => _indicativo == null
+      ? _whatsappController.text.trim()
+      : telefonoCompleto(_indicativo!, _whatsappController.text);
+
   String _selectedNeed = 'Gobierno';
   bool _isSubmitting = false;
 
   int _selectedDay = 18;
   String _selectedTime = '11:00';
 
-  final List<Map<String, dynamic>> _options = [
-    {
-      'title': 'L&M Consultoría',
-      'subtitle': 'Gobierno corporativo, empresa familiar y patrimonio',
-      'icon': Icons.verified_user_outlined,
-      'need': 'Gobierno',
-      'originalTitle': 'ORDENAR',
-    },
-    {
-      'title': 'Aurum Legacy Advisors',
-      'subtitle': 'Finanzas estratégicas y crecimiento patrimonial',
-      'icon': Icons.trending_up,
-      'need': 'Patrimonio',
-      'originalTitle': 'CRECER',
-    },
-    {
-      'title': 'Legacy Legal',
-      'subtitle': 'Estructuración jurídica, tributaria y patrimonial',
-      'icon': Icons.balance,
-      'need': 'Legal/Tributario',
-      'originalTitle': 'PROTEGER',
-    },
-    {
-      'title': 'LSO',
-      'subtitle': 'Formación y certificación para propietarios',
-      'icon': Icons.school_outlined,
-      'need': 'Certificación',
-      'originalTitle': 'FORMAR',
-    },
-    {
-      'title': 'Network en Gobierno Corporativo',
-      'subtitle': 'Consejeros y miembros de junta',
-      'icon': Icons.groups_outlined,
-      'need': 'Gobierno',
-      'originalTitle': 'NETWORK',
-    },
-  ];
+  /// Unidades de «NUESTRAS UNIDADES». Salen del panel («Unidades de
+  /// Asesoría») desde el 2026-10-13; mientras cargan, o si el backend falla,
+  /// se ven las cinco de siempre.
+  List<UnidadAsesoria> _unidades = UnidadAsesoria.porDefecto;
+
+  Future<void> _cargarUnidades() async {
+    final unidades =
+        await (widget.unidadesService ?? AsesoriaUnidadesService()).unidades();
+    if (!mounted || unidades == null) return;
+    setState(() {
+      _unidades = unidades;
+      if (_selectedIndex >= unidades.length) _selectedIndex = 0;
+    });
+  }
 
   final List<String> _needs = [
     'Gobierno',
@@ -83,6 +81,8 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
     'Patrimonio',
     'Legal/Tributario',
     'Certificación',
+    // Desde el 2026-10-13, para lo que no encaja en las cinco unidades.
+    'Otro',
   ];
 
   final List<String> _times = [
@@ -101,23 +101,13 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
     'Patrimonio': 'CRECER',
     'Legal/Tributario': 'PROTEGER',
     'Certificación': 'FORMAR',
+    'Otro': 'OTRO',
   };
-
-  /// Texto del primer recuadro, si el panel lo cambió («Texto de Asesoría»).
-  /// Null hasta que responde el backend, o si falla: entonces el de siempre.
-  String? _textoBienvenida;
-
-  Future<void> _cargarTexto() async {
-    final secciones =
-        await (widget.seccionesService ?? SeccionesInicioService()).secciones();
-    final texto = secciones['asesoria-banner']?.texto;
-    if (mounted && texto != null) setState(() => _textoBienvenida = texto);
-  }
 
   @override
   void initState() {
     super.initState();
-    _cargarTexto();
+    _cargarUnidades();
     // Precargar datos del usuario autenticado si existen
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -137,6 +127,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _whatsappController.dispose();
+    _detalleController.dispose();
     super.dispose();
   }
 
@@ -157,8 +148,9 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
       final message =
           'Nombre: ${_nameController.text.trim()}\n'
           'Email: ${_emailController.text.trim()}\n'
-          'WhatsApp: ${_whatsappController.text.trim()}\n'
-          'Necesidad seleccionada: $_selectedNeed';
+          'WhatsApp: $_whatsappCompleto\n'
+          'Necesidad seleccionada: $_selectedNeed'
+          '$_detalleParaCorreo';
 
       await asesoriaService.requestAsesoria(
         token: authProvider.token ?? '',
@@ -197,8 +189,8 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
       final message =
           'Nombre: ${_nameController.text.trim()}\n'
           'Email: ${_emailController.text.trim()}\n'
-          'WhatsApp: ${_whatsappController.text.trim()}\n'
-          'Necesidad: $_selectedNeed\n'
+          'WhatsApp: $_whatsappCompleto\n'
+          'Necesidad: $_selectedNeed$_detalleParaCorreo\n'
           'Llamada solicitada para: $_selectedDay de Octubre de 2026 a las $_selectedTime';
 
       await asesoriaService.requestAsesoria(
@@ -279,7 +271,9 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
   void _navigateToForm(int index) {
     setState(() {
       _selectedIndex = index;
-      _selectedNeed = _options[index]['need'] as String;
+      final necesidad = _unidades[index].necesidad;
+      // Una necesidad que el formulario no conoce deja la que estaba.
+      if (_needs.contains(necesidad)) _selectedNeed = necesidad;
       _showForm = true;
       _showCalendar = false;
       _showSuccess = false;
@@ -343,9 +337,10 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // El recuadro de bienvenida («No necesita ser cliente…») se
+                // retiró el 2026-10-13 a pedido del cliente: la pantalla abre
+                // directamente con las unidades.
                 const SizedBox(height: 16),
-                _buildTopBannerCard(),
-                const SizedBox(height: 24),
                 Text(
                   'NUESTRAS UNIDADES',
                   style: GoogleFonts.barlow(
@@ -357,7 +352,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
                 ),
                 const SizedBox(height: 12),
                 ...List.generate(
-                  _options.length,
+                  _unidades.length,
                   (index) => _buildUnitCard(index),
                 ),
                 const SizedBox(height: 24),
@@ -365,7 +360,6 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
             ),
           ),
         ),
-        _buildBottomButtonArea(),
       ],
     );
   }
@@ -405,35 +399,8 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
     );
   }
 
-  Widget _buildTopBannerCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1B3156).withValues(alpha: 0.65),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFF306C9E).withValues(alpha: 0.35),
-          width: 1.2,
-        ),
-      ),
-      // Sin título desde el 2026-10-13 («Asesoría abierta a todos» se retiró a
-      // pedido del cliente); el texto lo edita el panel.
-      child: Text(
-        _textoBienvenida ??
-            'No necesita ser cliente para empezar. Solicite una propuesta y conozca cómo nuestras cinco unidades pueden acompañarle.',
-        key: const Key('asesoria-bienvenida'),
-        style: GoogleFonts.questrial(
-          color: const Color(0xFF9FB2C2),
-          fontSize: 13,
-          height: 1.4,
-        ),
-      ),
-    );
-  }
-
   Widget _buildUnitCard(int index) {
-    final option = _options[index];
+    final unidad = _unidades[index];
     final isSelected = _selectedIndex == index;
 
     return Container(
@@ -467,7 +434,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
                 ),
                 child: Center(
                   child: Icon(
-                    option['icon'] as IconData,
+                    unidad.icono,
                     color: AppTheme.legacyActive,
                     size: 22,
                   ),
@@ -479,7 +446,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      option['title'] as String,
+                      unidad.titulo,
                       style: GoogleFonts.barlow(
                         color: Colors.white,
                         fontSize: 15,
@@ -488,7 +455,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      option['subtitle'] as String,
+                      unidad.subtitulo,
                       style: GoogleFonts.questrial(
                         color: const Color(0xFF9FB2C2),
                         fontSize: 12,
@@ -512,8 +479,10 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
                     width: 1,
                   ),
                 ),
+                // «CONTACTAR» y no «ABIERTA» desde el 2026-10-13: toda la
+                // tarjeta abre el formulario, y la etiqueta lo dice.
                 child: Text(
-                  'ABIERTA',
+                  'CONTACTAR',
                   style: GoogleFonts.barlow(
                     color: const Color(0xFF00F2FE),
                     fontSize: 10,
@@ -523,38 +492,6 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomButtonArea() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-        color: Color(0xFF162540),
-        border: Border(top: BorderSide(color: Color(0xFF183D6B), width: 1)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: ElevatedButton(
-          onPressed: () => _navigateToForm(_selectedIndex),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.legacyActive,
-            foregroundColor: const Color(0xFF162540),
-            minimumSize: const Size(double.infinity, 52),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-            elevation: 2,
-          ),
-          child: Text(
-            'Solicitar propuesta / agendar',
-            style: GoogleFonts.barlow(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
           ),
         ),
       ),
@@ -616,19 +553,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  _buildInputField(
-                    label: 'WhatsApp',
-                    controller: _whatsappController,
-                    hint: '+57 ...',
-                    keyboardType: TextInputType.phone,
-                    inputFormatters: formateadoresDeTelefono,
-                    validator: (val) {
-                      if (val == null || val.trim().isEmpty) {
-                        return 'Por favor ingrese su número de contacto';
-                      }
-                      return null;
-                    },
-                  ),
+                  _buildWhatsappField(),
                   const SizedBox(height: 24),
                   Text(
                     '¿Qué necesita?',
@@ -646,6 +571,8 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
                         .map((need) => _buildNeedChip(need))
                         .toList(),
                   ),
+                  const SizedBox(height: 24),
+                  _buildDetalleField(),
                   const SizedBox(height: 36),
                   ElevatedButton(
                     onPressed: _isSubmitting ? null : _submitForm,
@@ -710,20 +637,14 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Sin «Le contactamos en 48h» desde el 2026-10-13, a pedido
+                // del cliente: no se promete un plazo.
                 Text(
                   'Solicitar asesoría',
                   style: GoogleFonts.barlow(
                     color: Colors.white,
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Le contactamos en 48h',
-                  style: GoogleFonts.questrial(
-                    color: const Color(0xFF9FB2C2),
-                    fontSize: 13,
                   ),
                 ),
               ],
@@ -1027,7 +948,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
           child: Text(
-            'Gracias. Un asesor de Legacy Network revisará su caso y le contactará en menos de 48 horas.',
+            'Gracias. Un asesor de Legacy Network revisará su caso y le contactará.',
             textAlign: TextAlign.center,
             style: GoogleFonts.questrial(
               color: const Color(0xFF9FB2C2),
@@ -1137,48 +1058,172 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
           inputFormatters: inputFormatters,
           validator: validator,
           style: GoogleFonts.questrial(color: Colors.white, fontSize: 15),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: GoogleFonts.questrial(
-              color: const Color(0xFF9FB2C2).withValues(alpha: 0.35),
-              fontSize: 15,
-            ),
-            filled: true,
-            fillColor: const Color(0xFF1B3156).withValues(alpha: 0.35),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: const Color(0xFF306C9E).withValues(alpha: 0.35),
-                width: 1.2,
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: const Color(0xFF306C9E).withValues(alpha: 0.35),
-                width: 1.2,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: AppTheme.legacyActive,
-                width: 1.2,
-              ),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.redAccent, width: 1.2),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.redAccent, width: 1.2),
-            ),
+          decoration: _decoracionCampo(hint),
+        ),
+      ],
+    );
+  }
+
+  InputDecoration _decoracionCampo(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: GoogleFonts.questrial(
+        color: const Color(0xFF9FB2C2).withValues(alpha: 0.35),
+        fontSize: 15,
+      ),
+      filled: true,
+      fillColor: const Color(0xFF1B3156).withValues(alpha: 0.35),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 16,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: const Color(0xFF306C9E).withValues(alpha: 0.35),
+          width: 1.2,
+        ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: const Color(0xFF306C9E).withValues(alpha: 0.35),
+          width: 1.2,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(
+          color: AppTheme.legacyActive,
+          width: 1.2,
+        ),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Colors.redAccent, width: 1.2),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Colors.redAccent, width: 1.2),
+      ),
+    );
+  }
+
+  /// Detalle libre del caso, hasta 500 palabras, con contador.
+  Widget _buildDetalleField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Cuéntenos más (opcional)',
+          style: GoogleFonts.questrial(
+            color: const Color(0xFF9FB2C2),
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
           ),
+        ),
+        const SizedBox(height: 8),
+        ValueListenableBuilder<TextEditingValue>(
+          valueListenable: _detalleController,
+          builder: (context, valor, _) {
+            final palabras = contarPalabras(valor.text);
+            final excedido = palabras > _maximoPalabras;
+            return TextFormField(
+              key: const Key('asesoria-detalle'),
+              controller: _detalleController,
+              minLines: 4,
+              maxLines: 10,
+              keyboardType: TextInputType.multiline,
+              textCapitalization: TextCapitalization.sentences,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              style: GoogleFonts.questrial(color: Colors.white, fontSize: 15),
+              decoration: _decoracionCampo(
+                'Situación de la empresa o la familia, qué espera de la asesoría…',
+              ).copyWith(
+                helperText: '$palabras / $_maximoPalabras palabras',
+                helperStyle: GoogleFonts.questrial(
+                  color: excedido ? Colors.redAccent : const Color(0xFF9FB2C2),
+                  fontSize: 12,
+                ),
+              ),
+              validator: (val) => contarPalabras(val ?? '') > _maximoPalabras
+                  ? 'Máximo $_maximoPalabras palabras'
+                  : null,
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  /// WhatsApp con el indicativo en su propio selector, obligatorio.
+  Widget _buildWhatsappField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'WhatsApp',
+          style: GoogleFonts.questrial(
+            color: const Color(0xFF9FB2C2),
+            fontSize: 13,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 128,
+              child: DropdownButtonFormField<Indicativo>(
+                key: const Key('asesoria-indicativo'),
+                // Que el aviso se borre al elegir, sin esperar a reenviar.
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                initialValue: _indicativo,
+                isExpanded: true,
+                dropdownColor: AppTheme.legacySurface,
+                iconEnabledColor: const Color(0xFF9FB2C2),
+                style: GoogleFonts.questrial(color: Colors.white, fontSize: 15),
+                decoration: _decoracionCampo('Indicativo'),
+                hint: Text(
+                  'Indicativo',
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.questrial(
+                    color: const Color(0xFF9FB2C2).withValues(alpha: 0.35),
+                    fontSize: 15,
+                  ),
+                ),
+                // Cerrado se ve corto («🇨🇴 +57»); abierto, con el país.
+                selectedItemBuilder: (context) => indicativos
+                    .map((i) => Text(i.corta, overflow: TextOverflow.ellipsis))
+                    .toList(),
+                items: indicativos
+                    .map((i) => DropdownMenuItem(value: i, child: Text(i.etiqueta)))
+                    .toList(),
+                onChanged: (i) => setState(() => _indicativo = i),
+                validator: (i) => i == null ? 'Elija el indicativo' : null,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextFormField(
+                key: const Key('asesoria-whatsapp'),
+                controller: _whatsappController,
+                keyboardType: TextInputType.phone,
+                inputFormatters: formateadoresDeNumeroLocal,
+                style: GoogleFonts.questrial(color: Colors.white, fontSize: 15),
+                decoration: _decoracionCampo('300 123 4567'),
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Ingrese su número';
+                  }
+                  if (!numeroLocalValido(val)) {
+                    return 'Número incompleto';
+                  }
+                  return null;
+                },
+              ),
+            ),
+          ],
         ),
       ],
     );

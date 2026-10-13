@@ -17,3 +17,10 @@ import 'package:flutter/services.dart';
 final List<TextInputFormatter> formateadoresDeTelefono = [
   FilteringTextInputFormatter.allow(RegExp(r'[0-9+\-() ]')),
 ];
+
+/// Para el número cuando el indicativo va aparte, en su propio selector (el
+/// formulario de asesoría): lo mismo que arriba pero sin el `+`, que ya pone
+/// el selector.
+final List<TextInputFormatter> formateadoresDeNumeroLocal = [
+  FilteringTextInputFormatter.allow(RegExp(r'[0-9\-() ]')),
+];
