@@ -2,6 +2,18 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-13]: Perfil: menú más corto
+- **Alcance:** `lib/presentation/screens/profile/profile_screen.dart`. A pedido del cliente se retiran
+  cinco opciones: «Active Legacy+», «Mi Legacy Test» (no hacía nada), «Red de Gobierno», «Cambiar tipo
+  de cuenta» y «Foros Anónimos». Las pantallas siguen existiendo: Legacy+ en la pestaña inferior y
+  los foros en «Chats de sinergia» del Inicio (solo clientes). Queda sin uso `ocultarVentaLegacyPlus`
+  (`domain/utils/plataforma.dart`), que solo servía para ocultar «Active Legacy+» en iOS.
+- **Criterios de QA:**
+  1. Perfil: Mis favoritos, Mi formación LSO, Mis eventos, Mi credencial, Editar información
+     personal, Cerrar sesión, Preguntas frecuentes, Contáctenos, Cuentas bloqueadas y Eliminar mi
+     cuenta.
+  2. Ninguna de las cinco retiradas aparece, ni en Android ni en iOS.
+
 ### [2026-10-13]: Inicio: tarjeta «DIAGNÓSTICOS» en lugar de Legacy Board
 - **Alcance:** `lib/presentation/screens/diagnosticos/diagnosticos_screen.dart` (nueva), ruta
   `/diagnosticos` en `lib/main.dart`, `home_content_screen.dart` y pruebas

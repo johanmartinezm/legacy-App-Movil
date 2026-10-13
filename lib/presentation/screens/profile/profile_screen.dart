@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/perfil/eliminar_cuenta_dialog.dart';
 import '../../../domain/providers/auth_provider.dart';
-import '../../../domain/utils/plataforma.dart';
 import '../../widgets/boton_volver.dart';
 import 'package:legacy_app/presentation/widgets/common/legacy_logo.dart';
 
@@ -87,31 +86,10 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              // Fuera en iOS: es una invitación a comprar sin compra dentro de
-              // la app (ver ocultarVentaLegacyPlus). La pantalla sigue
-              // accesible desde el Inicio, solo como información.
-              if (!ocultarVentaLegacyPlus) ...[
-                _buildMenuItem(
-                  context,
-                  title: 'Active Legacy+',
-                  subtitle: 'Comunidad, Red de Gobierno y más',
-                  icon: Icons.shield_outlined,
-                  onTap: () => context.push('/legacy-plus'),
-                  isPremium: true,
-                ),
-                const SizedBox(height: 12),
-              ],
-              
-              _buildMenuItem(
-                context,
-                title: 'Mi Legacy Test',
-                subtitle: 'Próximamente',
-                onTap: () {},
-                icon: Icons.quiz_outlined,
-                isDisabled: true,
-              ),
-              const SizedBox(height: 12),
-
+              // Retiradas el 2026-10-13 a pedido del cliente: «Active Legacy+»,
+              // «Mi Legacy Test» (no hacía nada), «Red de Gobierno», «Cambiar
+              // tipo de cuenta» y «Foros Anónimos». Las pantallas siguen: los
+              // foros se abren desde «Chats de sinergia» del Inicio.
               _buildMenuItem(
                 context,
                 title: 'Mi formación LSO',
@@ -132,24 +110,6 @@ class ProfileScreen extends StatelessWidget {
 
               _buildMenuItem(
                 context,
-                title: 'Red de Gobierno',
-                subtitle: 'Encuentre consejeros',
-                onTap: () => context.push('/comunidad-miembros'),
-                icon: Icons.groups_outlined,
-              ),
-              const SizedBox(height: 12),
-
-              _buildMenuItem(
-                context,
-                title: 'Cambiar tipo de cuenta',
-                subtitle: 'Actual: $roleName',
-                onTap: () => context.push('/profile-selection'),
-                icon: Icons.swap_horiz_outlined,
-              ),
-              const SizedBox(height: 12),
-
-              _buildMenuItem(
-                context,
                 title: 'Mi credencial',
                 subtitle: 'QR de acceso a eventos',
                 onTap: () => context.push('/mi-credencial'),
@@ -163,15 +123,6 @@ class ProfileScreen extends StatelessWidget {
                 subtitle: 'Actualizar foto, bio y detalles',
                 onTap: () => context.push('/profile-edit'),
                 icon: Icons.edit_outlined,
-              ),
-              const SizedBox(height: 12),
-              
-              _buildMenuItem(
-                context,
-                title: 'Foros Anónimos',
-                subtitle: 'Participa en debates confidenciales',
-                onTap: () => context.push('/forums'),
-                icon: Icons.forum_outlined,
               ),
               const SizedBox(height: 12),
               
