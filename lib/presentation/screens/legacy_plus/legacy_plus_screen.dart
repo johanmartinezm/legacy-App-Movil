@@ -137,8 +137,11 @@ class LegacyPlusScreen extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 12),
+                            // Texto del cliente, 2026-10-13. Antes: «Es el acceso
+                            // completo a la comunidad privada, la Red de
+                            // Gobierno, los programas LSO con precio especial…».
                             Text(
-                              'Es el acceso completo a la comunidad privada, la Red de Gobierno, los programas LSO con precio especial y el contenido reservado de Legacy Network.',
+                              'Cómo accedo: debes ser cliente de alguna unidad de negocio o ser alumni de LSO. Tiene acceso a:',
                               textAlign: TextAlign.center,
                               style: GoogleFonts.questrial(
                                 color: const Color(0xFFE8EEF5).withValues(alpha: 0.9),

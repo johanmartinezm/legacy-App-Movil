@@ -760,107 +760,145 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
             ),
           ),
         ),
-        GestureDetector(
-          onTap: () {
-            if (isCliente) {
-              context.push('/miembros-info');
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Esta sección es exclusiva para clientes Legacy.',
-                  ),
-                ),
-              );
-            }
-          },
-          child: _tarjeta(
-            slug: 'miembros',
-            oscuroHacia: Alignment.centerLeft,
-            padding: const EdgeInsets.all(14),
-            decoracion: BoxDecoration(
-              gradient: LinearGradient(
-                colors: isCliente
-                    ? [
-                        const Color(0xFF54C6A8).withValues(alpha: 0.06),
-                        const Color(0xFF54C6A8).withValues(alpha: 0.02),
-                      ]
-                    : [
-                        Colors.white.withValues(alpha: 0.02),
-                        Colors.white.withValues(alpha: 0.01),
-                      ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(15),
-              border: Border.all(
-                color: isCliente
-                    ? const Color(0xFF54C6A8).withValues(alpha: 0.3)
-                    : Colors.white.withValues(alpha: 0.05),
-              ),
-            ),
-            child: Row(
-              children: [
-                if (!_conImagen('miembros')) ...[
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: isCliente
-                          ? const Color(0xFF54C6A8).withValues(alpha: 0.13)
-                          : Colors.white.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(11),
-                    ),
-                    child: Icon(
-                      Icons.people_alt_outlined,
-                      color: isCliente
-                          ? const Color(0xFF54C6A8)
-                          : Colors.white.withValues(alpha: 0.3),
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                ],
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _titulo('miembros', 'Miembros'),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.barlowCondensed(
-                          color: isCliente
-                              ? Colors.white
-                              : Colors.white.withValues(alpha: 0.5),
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        _texto('miembros', 'Comunidad del ecosistema Legacy'),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.questrial(
-                          color: isCliente
-                              ? const Color(0xFF9FB2C2)
-                              : const Color(0xFF9FB2C2).withValues(alpha: 0.5),
-                          fontSize: 11,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (!isCliente)
-                  Icon(
-                    Icons.lock_outline,
-                    color: Colors.white.withValues(alpha: 0.2),
-                    size: 20,
-                  ),
-              ],
-            ),
-          ),
+        _filaExclusiva(
+          context,
+          isCliente: isCliente,
+          slug: 'miembros',
+          titulo: 'Miembros',
+          texto: 'Comunidad del ecosistema Legacy',
+          icono: Icons.people_alt_outlined,
+          ruta: '/miembros-info',
+        ),
+        // «Chats de sinergia», desde el 2026-10-13: abre los foros anónimos que
+        // ya existían (se llegaba solo desde Perfil), con el mismo candado que
+        // Miembros. Ese mismo día se llamó «Foro» unas horas.
+        _filaExclusiva(
+          context,
+          isCliente: isCliente,
+          slug: 'chats-sinergia',
+          titulo: 'Chats de sinergia',
+          texto: 'Debates anónimos y confidenciales entre miembros',
+          icono: Icons.forum_outlined,
+          ruta: '/forums',
+          margin: const EdgeInsets.only(top: 8),
         ),
       ],
+    );
+  }
+
+  /// Fila de la sección Legacy+ reservada a clientes («Ya soy cliente»): con
+  /// candado y apagada para el resto, que al tocarla recibe el aviso. La usan
+  /// Miembros y Chats de sinergia.
+  Widget _filaExclusiva(
+    BuildContext context, {
+    required bool isCliente,
+    required String slug,
+    required String titulo,
+    required String texto,
+    required IconData icono,
+    required String ruta,
+    EdgeInsetsGeometry? margin,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        if (isCliente) {
+          context.push(ruta);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Esta sección es exclusiva para clientes Legacy.',
+              ),
+            ),
+          );
+        }
+      },
+      child: _tarjeta(
+        slug: slug,
+        oscuroHacia: Alignment.centerLeft,
+        margin: margin,
+        padding: const EdgeInsets.all(14),
+        decoracion: BoxDecoration(
+          gradient: LinearGradient(
+            colors: isCliente
+                ? [
+                    const Color(0xFF54C6A8).withValues(alpha: 0.06),
+                    const Color(0xFF54C6A8).withValues(alpha: 0.02),
+                  ]
+                : [
+                    Colors.white.withValues(alpha: 0.02),
+                    Colors.white.withValues(alpha: 0.01),
+                  ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            color: isCliente
+                ? const Color(0xFF54C6A8).withValues(alpha: 0.3)
+                : Colors.white.withValues(alpha: 0.05),
+          ),
+        ),
+        child: Row(
+          children: [
+            if (!_conImagen(slug)) ...[
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: isCliente
+                      ? const Color(0xFF54C6A8).withValues(alpha: 0.13)
+                      : Colors.white.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(11),
+                ),
+                child: Icon(
+                  icono,
+                  color: isCliente
+                      ? const Color(0xFF54C6A8)
+                      : Colors.white.withValues(alpha: 0.3),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+            ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _titulo(slug, titulo),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.barlowCondensed(
+                      color: isCliente
+                          ? Colors.white
+                          : Colors.white.withValues(alpha: 0.5),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    _texto(slug, texto),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.questrial(
+                      color: isCliente
+                          ? const Color(0xFF9FB2C2)
+                          : const Color(0xFF9FB2C2).withValues(alpha: 0.5),
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (!isCliente)
+              Icon(
+                Icons.lock_outline,
+                color: Colors.white.withValues(alpha: 0.2),
+                size: 20,
+              ),
+          ],
+        ),
+      ),
     );
   }
 

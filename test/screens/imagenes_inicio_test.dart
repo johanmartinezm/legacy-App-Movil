@@ -175,6 +175,16 @@ void main() {
     expect(find.byKey(const Key('tarjeta-eventos')), findsOneWidget);
   });
 
+  testWidgets('Chats de sinergia está en la sección Legacy+, con candado si no es cliente', (tester) async {
+    await montar(tester, servicio(() => http.Response('boom', 500)));
+
+    expect(find.text('Chats de sinergia'), findsOneWidget);
+    expect(find.byKey(const Key('tarjeta-chats-sinergia')), findsOneWidget);
+    await tester.tap(find.text('Chats de sinergia'));
+    await tester.pump();
+    expect(find.text('Esta sección es exclusiva para clientes Legacy.'), findsOneWidget);
+  });
+
   testWidgets('Sin backend, el Inicio se ve como siempre', (tester) async {
     await montar(tester, servicio(() => http.Response('boom', 500)));
 

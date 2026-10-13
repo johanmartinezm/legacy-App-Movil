@@ -2,6 +2,26 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-13]: Inicio: ítem «Chats de sinergia» en la sección Legacy+
+- **Alcance:** `lib/presentation/screens/home/home_content_screen.dart` y
+  `test/screens/imagenes_inicio_test.dart`. Debajo de Miembros, «Chats de sinergia · Debates
+  anónimos y confidenciales entre miembros». Igual que Miembros: con «Ya soy cliente» abre los foros
+  anónimos (`/forums`, que hasta ahora solo se alcanzaban desde Perfil); al resto se le ve apagado,
+  con candado, y al tocarlo avisa «Esta sección es exclusiva para clientes Legacy.». Miembros y este
+  ítem comparten `_filaExclusiva`. Imagen y textos editables en Tarjetas del Inicio (slug
+  `chats-sinergia`). El mismo día se llamó primero «Foro», con el mismo destino.
+- **Criterios de QA:**
+  1. Usuario «Quiero ser cliente»: Chats de sinergia aparece con candado y muestra el aviso.
+  2. Usuario «Ya soy cliente»: abre la lista de foros.
+  3. Miembros se comporta igual que antes.
+
+### [2026-10-13]: Legacy+: nuevo texto del banner
+- **Alcance:** `lib/presentation/screens/legacy_plus/legacy_plus_screen.dart`. Bajo «¿Qué es
+  Legacy+?», el párrafo pasa a «Cómo accedo: debes ser cliente de alguna unidad de negocio o ser
+  alumni de LSO. Tiene acceso a:», texto del cliente.
+- **Criterios de QA:**
+  1. Legacy+ (pestaña inferior): el banner muestra el texto nuevo, centrado y sin cortarse.
+
 ### [2026-10-13]: Inicio: la sección «Servicios Legacy» pasa a llamarse «Legacy+»
 - **Alcance:** `lib/presentation/screens/home/home_content_screen.dart`. A pedido del cliente cambia
   el encabezado de la sección y lleva debajo el subtítulo «Servicios y beneficios plus para los clientes de
