@@ -2,6 +2,15 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-12]: Ficha del Summit: se quita la fila «Alumni Summit · Acceso a Legacy+»
+- **Alcance:** `lib/presentation/screens/eventos/event_purchase_detail_screen.dart` y
+  `test/screens/ficha_evento_test.dart`. A pedido del cliente se retira la fila; la nota verde
+  «Asistir al Summit lo convierte en alumni…» se mantiene. `_buildInfoRow` pierde el parámetro
+  `valueColor`, que solo usaba esa fila.
+- **Criterios de QA:**
+  1. Legacy Summit 2026 (Pasados): la ficha muestra Speakers, Modelo e Incluye, sin «Alumni Summit».
+  2. Debajo de la ficha sigue la nota verde de alumni.
+
 ### [2026-10-12]: Ficha del evento: Modelo desde el evento e Incluye como lista
 - **Alcance:** `lib/domain/models/event_model.dart` (campo `model`),
   `lib/presentation/screens/eventos/event_purchase_detail_screen.dart` y

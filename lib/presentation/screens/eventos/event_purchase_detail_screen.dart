@@ -28,12 +28,6 @@ class EventPurchaseDetailScreen extends StatelessWidget {
       // guiones que ya trae el texto. Van como lista a lo ancho.
       if (incluye.length == 1) _buildInfoRow('Incluye', incluye.first),
       if (incluye.length > 1) _buildListaIncluye(incluye),
-      if (esSummit)
-        _buildInfoRow(
-          'Alumni Summit',
-          'Acceso a Legacy+',
-          valueColor: const Color(0xFFD9A74A),
-        ),
     ];
 
     return Scaffold(
@@ -187,6 +181,8 @@ class EventPurchaseDetailScreen extends StatelessWidget {
                       // suscripción a El Espectador como si fueran suyos. Ahora
                       // cada fila sale solo si el evento tiene el dato, y lo
                       // propio del Summit solo en los eventos de esa categoría.
+                      // La fila «Alumni Summit · Acceso a Legacy+» se retiró el
+                      // mismo día a pedido del cliente; la nota verde se queda.
                       if (filasFicha.isNotEmpty) ...[
                         Container(
                           padding: const EdgeInsets.all(16),
@@ -371,7 +367,7 @@ class EventPurchaseDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(String label, String value, {Color? valueColor}) {
+  Widget _buildInfoRow(String label, String value) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -390,9 +386,8 @@ class EventPurchaseDetailScreen extends StatelessWidget {
           child: Text(
             value,
             style: GoogleFonts.questrial(
-              color: valueColor ?? Colors.white,
+              color: Colors.white,
               fontSize: 14,
-              fontWeight: valueColor != null ? FontWeight.bold : FontWeight.normal,
             ),
             textAlign: TextAlign.end,
           ),

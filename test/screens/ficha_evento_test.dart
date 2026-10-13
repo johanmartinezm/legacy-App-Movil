@@ -103,7 +103,9 @@ void main() {
     expect(find.textContaining('lo convierte en alumni'), findsNothing);
   });
 
-  testWidgets('Summit: conserva modelo, alumni y la nota', (tester) async {
+  testWidgets('Summit: conserva modelo y la nota, sin la fila Alumni', (
+    tester,
+  ) async {
     await montar(
       tester,
       evento(
@@ -114,7 +116,8 @@ void main() {
     );
 
     expect(find.text('7 dimensiones DINASTÍA'), findsOneWidget);
-    expect(find.text('Acceso a Legacy+'), findsOneWidget);
+    expect(find.text('Alumni Summit'), findsNothing);
+    expect(find.text('Acceso a Legacy+'), findsNothing);
     expect(find.textContaining('lo convierte en alumni'), findsOneWidget);
     expect(find.text('Incluye'), findsNothing);
   });
