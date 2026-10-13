@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'dart:async';
 import '../../../domain/models/graphql_post_model.dart';
 import '../../../domain/models/content_model.dart';
+import '../../../domain/models/book_model.dart';
+import '../../../data/config/image_helper.dart';
 import '../../../domain/models/custom_content_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../config/theme/app_theme.dart';
@@ -12,6 +14,7 @@ import '../../../data/services/custom_content_service.dart';
 import '../../../data/services/video_canal_service.dart';
 import '../../../domain/models/video_canal_model.dart';
 import '../../../domain/utils/busqueda_global.dart';
+import '../../../domain/utils/ultimo_estreno.dart';
 import '../../widgets/boton_volver.dart';
 
 class InformandoteScreen extends StatefulWidget {
@@ -28,6 +31,10 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
   final ScrollController _scrollController = ScrollController();
 
   List<ContentItem> _posts = [];
+
+  /// Los libros de la tienda de LSO, por id, para abrir su ficha al tocar la
+  /// fila: la ficha necesita el libro entero, no la versión reducida.
+  Map<String, GraphqlBook> _libros = const {};
   bool _isLoading = true;
   bool _isLoadingMore = false;
   bool _hasMore = true;
@@ -35,7 +42,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
   // Flag para prevenir setState() después de dispose()
   bool _disposed = false;
   
-  // Selected filter matching: Todo, Artículos, Podcast, Videos, Libros
+  // Selected filter matching: Todo, Artículos, Libros, Videos, Podcast
   String _selectedFilter = 'Todo';
 
   // Texto del buscador de la seccion. Filtra en local sobre lo ya descargado:
@@ -66,6 +73,11 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
         // Network y LSO. Antes la sección solo tenía los videos que alguien
         // hubiera cargado a mano, y había exactamente uno.
         _videoCanalService.getVideos(),
+        // Cuarta fuente desde el 2026-10-13: los libros de la Biblioteca (la
+        // tienda de LSO), que hasta entonces solo se veían en Programas y
+        // dejaban vacío el filtro «Libros». Si la tienda falla, la sección
+        // carga igual sin libros.
+        _graphqlService.getBooks().catchError((_) => <GraphqlBook>[]),
       ]);
 
       // Verificar que el widget siga montado antes de continuar con setState
@@ -74,17 +86,20 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
       final wpResponse = results[0] as GraphqlPostsResponse;
       final localResponse = results[1] as List<CustomContent>;
       final videosDeCanal = results[2] as List<VideoDeCanal>;
+      final libros = results[3] as List<GraphqlBook>;
 
       // Unify results converting all to ContentItem
       final List<ContentItem> unified = [
         ...localResponse.map((c) => c.toContentItem()),
         ...videosDeCanal.map((v) => v.toContentItem()),
         ...wpResponse.posts.map((p) => p.toContentItem()),
+        ...libros.map(_libroComoContenido),
       ];
 
 
       setState(() {
         _posts = unified;
+        _libros = {for (final l in libros) l.id: l};
         _isLoading = false;
         _hasMore = wpResponse.hasNextPage;
         _endCursor = wpResponse.endCursor;
@@ -306,9 +321,9 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
                     children: [
                       _buildPillFilter('Todo'),
                       _buildPillFilter('Artículos'),
-                      _buildPillFilter('Podcast'),
-                      _buildPillFilter('Videos'),
                       _buildPillFilter('Libros'),
+                      _buildPillFilter('Videos'),
+                      _buildPillFilter('Podcast'),
                     ],
                   ),
                 ),
@@ -448,56 +463,131 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
     );
   }
 
+  /// Abre el detalle que corresponde al tipo: lo comparten las filas y el
+  /// banner del estreno.
+  void _abrirContenido(ContentItem post) {
+    final libro = _libros[post.id];
+    if (post.type == 'book' && libro != null) {
+      context.push('/book-detail', extra: libro);
+    } else if (post.type == 'video') {
+      context.push('/video-detail', extra: post);
+    } else {
+      context.push('/article-detail', extra: post);
+    }
+  }
+
+  /// Banner «Estreno semanal»: el contenido más reciente, que se abre al
+  /// tocarlo. Mientras carga, o si nada trae fecha, queda el aviso de siempre.
   Widget _buildWeeklyBanner() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1B3156).withValues(alpha: 0.65),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFF306C9E).withValues(alpha: 0.35),
-          width: 1.2,
-        ),
+    final estreno = ultimoEstreno(_posts);
+
+    final decoracion = BoxDecoration(
+      color: const Color(0xFF1B3156).withValues(alpha: 0.65),
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(
+        color: const Color(0xFF306C9E).withValues(alpha: 0.35),
+        width: 1.2,
       ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1B3156),
-              borderRadius: BorderRadius.circular(8),
+    );
+
+    final etiqueta = Text(
+      'ESTRENO SEMANAL',
+      style: GoogleFonts.barlow(
+        color: AppTheme.legacyActive,
+        fontWeight: FontWeight.bold,
+        fontSize: 11,
+        letterSpacing: 1.2,
+      ),
+    );
+
+    if (estreno == null) {
+      return Container(
+        key: const Key('estreno-semanal-fijo'),
+        padding: const EdgeInsets.all(16),
+        decoration: decoracion,
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1B3156),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.calendar_today_outlined,
+                color: AppTheme.legacyActive,
+                size: 24,
+              ),
             ),
-            child: const Icon(
-              Icons.calendar_today_outlined,
-              color: AppTheme.legacyActive,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Estreno semanal',
-                  style: GoogleFonts.barlow(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  etiqueta,
+                  const SizedBox(height: 4),
+                  Text(
+                    'Cada lunes publicamos contenido nuevo.',
+                    style: GoogleFonts.questrial(
+                      color: const Color(0xFF9FB2C2),
+                      fontSize: 13,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Cada lunes publicamos contenido nuevo. Active notificaciones.',
-                  style: GoogleFonts.questrial(
-                    color: const Color(0xFF9FB2C2),
-                    fontSize: 13,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
+          ],
+        ),
+      );
+    }
+
+    final fecha = fechaCortaEstreno(estreno.date);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        key: const Key('estreno-semanal'),
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _abrirContenido(estreno),
+        child: Ink(
+          padding: const EdgeInsets.all(12),
+          decoration: decoracion,
+          child: Row(
+            children: [
+              _buildMiniatura(estreno),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    etiqueta,
+                    const SizedBox(height: 4),
+                    Text(
+                      estreno.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.barlow(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      [tipoEstreno(estreno), if (fecha.isNotEmpty) fecha].join(' · '),
+                      style: GoogleFonts.questrial(
+                        color: const Color(0xFF9FB2C2),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Icon(Icons.chevron_right, color: AppTheme.legacyActive, size: 22),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -527,13 +617,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
         ),
       ),
       child: InkWell(
-        onTap: () {
-          if (post.type == 'video') {
-            context.push('/video-detail', extra: post);
-          } else {
-            context.push('/article-detail', extra: post);
-          }
-        },
+        onTap: () => _abrirContenido(post),
         child: Row(
           children: [
             _buildMiniatura(post),
@@ -574,6 +658,21 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
     );
   }
 
+  /// Un libro de la tienda de LSO como fila de Legacy Knowledge, en la
+  /// categoría «Libros». Sin precio, igual que en la cuadrícula de la Biblioteca.
+  ContentItem _libroComoContenido(GraphqlBook libro) => ContentItem(
+        id: libro.id,
+        title: libro.name,
+        type: 'book',
+        category: 'Libros',
+        isFree: false,
+        imageUrl: ImageHelper.getProxiedImageUrl(libro.imageUrl ?? ''),
+        description: libro.stockStatus == 'OUT_OF_STOCK'
+            ? 'Libro · Agotado'
+            : 'Libro · Tienda LSO',
+        externalUrl: libro.url,
+      );
+
   // Videos y articulos llevan su imagen (miniatura del video, imagen
   // destacada del articulo); sin imagen, o si no carga, el icono del tipo.
   Widget _buildMiniatura(ContentItem post) {
@@ -595,14 +694,16 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
     );
 
     final tipo = post.type.toLowerCase();
-    final conImagen = tipo == 'video' || tipo == 'article';
+    final esLibro = tipo == 'book' || tipo == 'libros';
+    final conImagen = tipo == 'video' || tipo == 'article' || esLibro;
     if (!conImagen || post.imageUrl.trim().isEmpty) return icono;
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
       child: SizedBox(
-        width: 80,
-        height: 56,
+        // Los libros, en vertical como su portada.
+        width: esLibro ? 44 : 80,
+        height: esLibro ? 62 : 56,
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -655,6 +756,11 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
   }
 
   Widget _buildRightBadge(ContentItem post) {
+    // Los libros de la tienda de LSO no llevan insignia ni precio: se venden
+    // allí, y la ficha que abre la fila lo explica.
+    if (_libros.containsKey(post.id)) {
+      return const Icon(Icons.chevron_right, color: AppTheme.legacyActive, size: 22);
+    }
     if ((post.type.toLowerCase() == 'book' || post.type.toLowerCase() == 'libros') && post.isFree) {
       if (post.title.toLowerCase().contains('gonzalo')) {
         return Container(
