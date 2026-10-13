@@ -14,7 +14,11 @@ import '../../widgets/boton_volver.dart';
 /// de soporte y no obliga a salir de la app, y los canales directos sirven
 /// cuando el envio falla o la persona prefiere su propio correo.
 class ContactoScreen extends StatefulWidget {
-  const ContactoScreen({super.key});
+  /// Asunto ya escrito al abrir, cuando se llega desde otra pantalla que sabe
+  /// de qué va el mensaje (los botones de Legacy Board). Se puede cambiar.
+  final String? asuntoInicial;
+
+  const ContactoScreen({super.key, this.asuntoInicial});
 
   @override
   State<ContactoScreen> createState() => _ContactoScreenState();
@@ -36,6 +40,17 @@ class _ContactoScreenState extends State<ContactoScreen> {
 
   static const _correoSoporte = 'soporte@legacynetworkco.com';
   static const _sitioWeb = 'https://legacynetworkco.com';
+
+  @override
+  void initState() {
+    super.initState();
+    final asunto = widget.asuntoInicial?.trim() ?? '';
+    if (asunto.isNotEmpty) {
+      _asuntoController.text = asunto.length > _maximoAsunto
+          ? asunto.substring(0, _maximoAsunto)
+          : asunto;
+    }
+  }
 
   @override
   void dispose() {

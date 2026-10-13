@@ -28,6 +28,7 @@ import 'presentation/screens/informandote/informandote_screen.dart';
 import 'presentation/screens/legal_notice_screen.dart';
 import 'presentation/screens/contacto/contacto_screen.dart';
 import 'presentation/screens/paginas/pagina_informativa_screen.dart';
+import 'presentation/widgets/botones_legacy_board.dart';
 import 'presentation/screens/profile/cambiar_contrasena_screen.dart';
 import 'presentation/screens/faq/faq_screen.dart';
 import 'presentation/screens/profile_selection_screen.dart';
@@ -406,7 +407,9 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
             // el backend con el perfil autenticado: sin sesion no hay remitente.
             GoRoute(
               path: '/contacto',
-              builder: (context, state) => const ContactoScreen(),
+              builder: (context, state) => ContactoScreen(
+                asuntoInicial: state.uri.queryParameters['asunto'],
+              ),
             ),
             // Legacy Board. El texto no viaja en la app: lo edita el panel y
             // la pantalla lo pide por su slug, asi que cambiarlo no exige
@@ -416,6 +419,7 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
               builder: (context, state) => const PaginaInformativaScreen(
                 slug: 'legacy-board',
                 tituloProvisional: 'Legacy Board',
+                acciones: BotonesLegacyBoard(),
               ),
             ),
             GoRoute(

@@ -21,11 +21,16 @@ class PaginaInformativaScreen extends StatefulWidget {
   /// servicios: en la app va siempre el de verdad.
   final PaginasService? servicio;
 
+  /// Botones al pie del contenido, propios de cada página (los de Legacy
+  /// Board, por ejemplo). Solo se muestran si la página cargó.
+  final Widget? acciones;
+
   const PaginaInformativaScreen({
     super.key,
     required this.slug,
     required this.tituloProvisional,
     this.servicio,
+    this.acciones,
   });
 
   @override
@@ -167,6 +172,10 @@ class _PaginaInformativaScreenState extends State<PaginaInformativaScreen> {
                       ),
                     ),
                   ),
+                if (widget.acciones != null) ...[
+                  const SizedBox(height: 16),
+                  widget.acciones!,
+                ],
               ],
             ),
           ),
