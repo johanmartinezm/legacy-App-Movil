@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../domain/utils/plataforma.dart';
 import '../../widgets/boton_volver.dart';
 import 'package:legacy_app/config/theme/app_theme.dart';
 
@@ -127,8 +126,11 @@ class LegacyPlusScreen extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 20),
+                            // Título y texto del cliente, 2026-10-13. Antes:
+                            // «¿Qué es Legacy+?» y, ese mismo día, «Cómo accedo:
+                            // debes ser cliente de alguna unidad…».
                             Text(
-                              '¿Qué es Legacy+?',
+                              'LEGACY+',
                               style: GoogleFonts.barlowCondensed(
                                 color: Colors.white,
                                 fontSize: 26,
@@ -137,11 +139,8 @@ class LegacyPlusScreen extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 12),
-                            // Texto del cliente, 2026-10-13. Antes: «Es el acceso
-                            // completo a la comunidad privada, la Red de
-                            // Gobierno, los programas LSO con precio especial…».
                             Text(
-                              'Cómo accedo: debes ser cliente de alguna unidad de negocio o ser alumni de LSO. Tiene acceso a:',
+                              'Servicios y beneficios plus para los clientes de Legacy Network o Alumni LSO',
                               textAlign: TextAlign.center,
                               style: GoogleFonts.questrial(
                                 color: const Color(0xFFE8EEF5).withValues(alpha: 0.9),
@@ -152,11 +151,41 @@ class LegacyPlusScreen extends StatelessWidget {
                           ],
                         ),
                       ),
+                      const SizedBox(height: 20),
+
+                      // Texto del cliente bajo el banner, 2026-10-13.
+                      Text(
+                        'Cómo accedo: debes ser cliente de alguna unidad de negocio o ser alumni de LSO. Tiene acceso a:',
+                        key: const Key('legacy-plus-como-accedo'),
+                        style: GoogleFonts.questrial(
+                          color: const Color(0xFFE8EEF5).withValues(alpha: 0.9),
+                          fontSize: 14,
+                          height: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Lo que incluye y los beneficios: textos del cliente,
+                      // 2026-10-13. Los tres primeros son las filas de la
+                      // sección Legacy+ del Inicio.
+                      _buildCheckItem(
+                        'Chats de sinergia',
+                        'Chats de sinergia entre pares: hay 4 chats para hablar de temas de Empresa, Patrimonio, Familia y otros entre miembros de otras familias empresarias.',
+                      ),
+                      const SizedBox(height: 16),
+                      _buildCheckItem(
+                        'Legacy Board',
+                        'Red de gobierno corporativo que conecta a familias empresarias y empresas que necesitan crear o fortalecer sus órganos de gobierno (juntas directivas, consejos de familia, directorios, advisory boards y comités) con profesionales que quieren servir en ellos.',
+                      ),
+                      const SizedBox(height: 16),
+                      _buildCheckItem(
+                        'Beneficios',
+                        'Son descuentos y servicios especiales de aliados o de Legacy Network.',
+                      ),
                       const SizedBox(height: 28),
 
-                      // SECTION 1: YA TIENE LEGACY+ SI ES...
                       Text(
-                        'YA TIENE LEGACY+ SI ES...',
+                        'BENEFICIOS',
                         style: GoogleFonts.barlow(
                           color: AppTheme.legacyActive,
                           fontSize: 12,
@@ -166,110 +195,18 @@ class LegacyPlusScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       _buildCheckItem(
-                        'Cliente de una unidad',
-                        'L&M, Aurum Legacy Advisors, Legacy Legal o Network en Gobierno Corporativo.',
+                        'Legacy Network',
+                        'Legacy Test con descuento. Legacy Test: trampas familiares bonificado. Descuento LSO 15% para cualquier programa, 10% de descuento en los libros en nuestra página con el código xxxx. 20% de descuento en el Legacy Summit.',
                       ),
                       const SizedBox(height: 16),
                       _buildCheckItem(
-                        'Alumni del Legacy Summit',
-                        'Quienes han asistido al Summit acceden a la comunidad y descuentos.',
+                        'Beneficios de aliados',
+                        'Vitalea, Olfabrand, Boconcept, Espectador, EUDE, JW Marriott.',
                       ),
-                      const SizedBox(height: 16),
-                      _buildCheckItem(
-                        'Alumni de LSO',
-                        'Egresados de cualquier programa de la escuela.',
-                      ),
-                      const SizedBox(height: 32),
-
-                      // SECTION 2: SI AÚN NO ES CLIENTE NI ALUMNI
-                      // En iOS no hay precio que anunciar (ver
-                      // ocultarVentaLegacyPlus), así que la sección pasa a
-                      // describir lo que incluye.
-                      Text(
-                        ocultarVentaLegacyPlus
-                            ? 'QUÉ INCLUYE'
-                            : 'SI AÚN NO ES CLIENTE NI ALUMNI',
-                        style: GoogleFonts.barlow(
-                          color: AppTheme.legacyActive,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Price box
-                      if (!ocultarVentaLegacyPlus) ...[
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1B3156).withValues(alpha: 0.85),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: AppTheme.legacyActive.withValues(alpha: 0.4),
-                              width: 1,
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              RichText(
-                                text: TextSpan(
-                                  style: GoogleFonts.barlow(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  children: [
-                                    const TextSpan(
-                                      text: 'COP 1.790.000 ',
-                                      style: TextStyle(color: AppTheme.legacyActive),
-                                    ),
-                                    TextSpan(
-                                      text: '/ año',
-                                      style: GoogleFonts.questrial(
-                                        color: const Color(0xFF9FB2C2),
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'O su equivalente en USD según la TRM del día. Acceso a comunidad, Red de Gobierno (4 búsquedas incluidas) y contenido Legacy+.',
-                                style: GoogleFonts.questrial(
-                                  color: const Color(0xFFE8EEF5).withValues(alpha: 0.85),
-                                  fontSize: 13,
-                                  height: 1.4,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                      ],
-
-                      // Benefits check items
-                      _buildCheckItem(
-                        'Comunidad privada',
-                        'Networking de confianza con pares y expertos.',
-                      ),
-                      const SizedBox(height: 16),
-                      _buildCheckItem(
-                        'Red de Gobierno · 4 búsquedas',
-                        'Matching de consejeros incluido; resto a precio especial.',
-                      ),
-                      const SizedBox(height: 16),
-                      _buildCheckItem(
-                        'Legacy Knowledge completo',
-                        'Contenido reservado y biblioteca ejecutiva.',
-                      ),
-                      const SizedBox(height: 16),
-                      _buildCheckItem(
-                        'Programas LSO con precio especial',
-                        'Descuento en toda la escuela.',
-                      ),
+                      // Hasta aquí llega la pantalla desde el 2026-10-13: el
+                      // cliente retiró «YA TIENE LEGACY+ SI ES…», el precio
+                      // (COP 1.790.000 / año) y la lista anterior de lo que
+                      // incluía.
                       const SizedBox(height: 20),
                     ],
                   ),

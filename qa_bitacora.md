@@ -2,6 +2,14 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-13]: Inicio: se retira el banner final de Legacy Test
+- **Alcance:** `lib/presentation/screens/home/home_content_screen.dart` (fuera `_buildLegacyTestHero`
+  y `_showComingSoon`, que ya solo usaba ese banner) y `test/screens/imagenes_inicio_test.dart`. A
+  pedido del cliente se quita el último bloque del Inicio, «Descubra las trampas de su familia
+  empresaria · PRÓXIMAMENTE». El botón de Legacy Test de Comunidad sigue donde estaba.
+- **Criterios de QA:**
+  1. El Inicio termina en la sección Legacy+ (Beneficios), sin el banner de Legacy Test.
+
 ### [2026-10-13]: Inicio, sección Legacy+: nuevo orden y textos
 - **Alcance:** `lib/presentation/screens/home/home_content_screen.dart` y
   `test/screens/imagenes_inicio_test.dart`. Textos del cliente. Orden: 1) «Chats de sinergia» (foros)
@@ -33,12 +41,24 @@ Entrada de trabajo para validación de App Móvil.
   2. Usuario «Ya soy cliente»: abre la lista de foros.
   3. Miembros se comporta igual que antes.
 
-### [2026-10-13]: Legacy+: nuevo texto del banner
-- **Alcance:** `lib/presentation/screens/legacy_plus/legacy_plus_screen.dart`. Bajo «¿Qué es
-  Legacy+?», el párrafo pasa a «Cómo accedo: debes ser cliente de alguna unidad de negocio o ser
-  alumni de LSO. Tiene acceso a:», texto del cliente.
+### [2026-10-13]: Legacy+: nuevo título y texto del banner
+- **Alcance:** `lib/presentation/screens/legacy_plus/legacy_plus_screen.dart`. Textos del cliente:
+  el título «¿Qué es Legacy+?» pasa a «LEGACY+» y el párrafo a «Servicios y beneficios plus para los
+  clientes de Legacy Network o Alumni LSO» (el mismo día tuvo antes «Cómo accedo: debes ser cliente
+  de alguna unidad de negocio o ser alumni de LSO. Tiene acceso a:»). Ese texto pasa a ir fuera,
+  justo debajo del banner y antes de «YA TIENE LEGACY+ SI ES…».
 - **Criterios de QA:**
-  1. Legacy+ (pestaña inferior): el banner muestra el texto nuevo, centrado y sin cortarse.
+  1. Legacy+ (pestaña inferior): el banner dice «LEGACY+» y debajo el texto nuevo, centrado.
+  Tras «Tiene acceso a:», tres puntos con check (Chats de sinergia, Legacy Board, Beneficios, con
+  los mismos textos que sus filas del Inicio) y un subtítulo «BENEFICIOS» con otros dos: «Legacy
+  Network» (Legacy Test con descuento, LSO 15 %, libros 10 % con el código xxxx, Summit 20 %) y
+  «Beneficios de aliados» (Vitalea, Olfabrand, Boconcept, Espectador, EUDE, JW Marriott). El código
+  de los libros es «xxxx» tal como lo dio el cliente: falta el real.
+  Y se retira el resto de la pantalla, a pedido del cliente: «YA TIENE LEGACY+ SI ES…», el bloque
+  de precio (COP 1.790.000 / año; en iOS ya estaba oculto) y la lista anterior «Comunidad privada»,
+  «Red de Gobierno · 4 búsquedas», etc.
+  2. Bajo el banner, «Cómo accedo: debes ser cliente…», los tres puntos con check y «BENEFICIOS» con
+     sus dos puntos. La pantalla termina ahí: sin precio ni «YA TIENE LEGACY+ SI ES…».
 
 ### [2026-10-13]: Inicio: la sección «Servicios Legacy» pasa a llamarse «Legacy+»
 - **Alcance:** `lib/presentation/screens/home/home_content_screen.dart`. A pedido del cliente cambia
