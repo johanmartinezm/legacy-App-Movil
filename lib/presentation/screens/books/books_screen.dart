@@ -49,7 +49,7 @@ class _BooksScreenState extends State<BooksScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.legacyBlue1,
       body: SafeArea(
         child: Column(
           children: [
@@ -75,11 +75,11 @@ class _BooksScreenState extends State<BooksScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.library_books_outlined, size: 64, color: Colors.grey[300]),
+          const Icon(Icons.library_books_outlined, size: 64, color: Color(0xFF9FB2C2)),
           const SizedBox(height: 16),
           Text(
             'No se encontraron libros',
-            style: GoogleFonts.questrial(fontSize: 18, color: Colors.grey[500]),
+            style: GoogleFonts.questrial(fontSize: 18, color: const Color(0xFF9FB2C2)),
           ),
           const SizedBox(height: 8),
           TextButton(onPressed: _loadBooks, child: const Text('Reintentar')),
@@ -109,8 +109,16 @@ class _BooksScreenState extends State<BooksScreen> {
 
   Widget _buildBookCard(GraphqlBook book) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 0,
+      color: AppTheme.legacySurface.withValues(alpha: 0.65),
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: AppTheme.legacyBlue3.withValues(alpha: 0.35),
+          width: 1.2,
+        ),
+      ),
       child: InkWell(
         onTap: () => context.push('/book-detail', extra: book),
         borderRadius: BorderRadius.circular(12),
@@ -132,21 +140,21 @@ class _BooksScreenState extends State<BooksScreen> {
                         ImageHelper.getProxiedImageUrl(book.imageUrl!),
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) => Container(
-                          color: Colors.grey[200],
+                          color: AppTheme.legacySurface,
                           child: const Icon(
                             Icons.book,
                             size: 40,
-                            color: Colors.grey,
+                            color: Color(0xFF9FB2C2),
                           ),
                         ),
                       )
                     else
                       Container(
-                        color: Colors.grey[200],
+                        color: AppTheme.legacySurface,
                         child: const Icon(
                           Icons.book,
                           size: 40,
-                          color: Colors.grey,
+                          color: Color(0xFF9FB2C2),
                         ),
                       ),
                     if (book.stockStatus == 'OUT_OF_STOCK')
@@ -199,36 +207,24 @@ class _BooksScreenState extends State<BooksScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (book.price != null)
-                              Text(
-                                book.price!,
-                                style: const TextStyle(
-                                  color: AppTheme.legacyBlue1,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            if (book.regularPrice != null &&
-                                book.regularPrice != book.price)
-                              Text(
-                                book.regularPrice!,
-                                style: const TextStyle(
-                                  decoration: TextDecoration.lineThrough,
-                                  color: Colors.grey,
-                                  fontSize: 10,
-                                ),
-                              ),
-                          ],
+                        // Sin precio en la tarjeta: el texto invita a
+                        // tocarla, y la tarjeta abre el detalle del libro.
+                        Expanded(
+                          child: Text(
+                            'Haz clic aquí',
+                            style: GoogleFonts.questrial(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
                         ),
                         IconButton(
                           // El icono dice que se sale de la app; el del
                           // carrito prometia una compra que ocurre en LSO.
                           icon: const Icon(Icons.open_in_new, size: 20),
                           tooltip: 'Comprar en LSO',
-                          color: AppTheme.legacyOrange,
+                          color: AppTheme.legacyActive,
                           onPressed: book.stockStatus == 'OUT_OF_STOCK'
                               ? null
                               : () async {

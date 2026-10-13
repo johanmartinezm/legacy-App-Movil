@@ -150,14 +150,14 @@ class _SynergyListScreenState extends State<SynergyListScreen> {
                     _fetchSynergies();
                   },
                   backgroundColor: Colors.white,
-                  selectedColor: AppTheme.legacyBlue1,
+                  selectedColor: AppTheme.legacyActive,
                   labelStyle: TextStyle(
                     color: isSelected ? Colors.white : Colors.grey[700],
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                     fontSize: 13,
                   ),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  side: BorderSide(color: isSelected ? AppTheme.legacyBlue1 : Colors.grey[200]!),
+                  side: BorderSide(color: isSelected ? AppTheme.legacyActive : Colors.grey[200]!),
                 ),
               );
             },

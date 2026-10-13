@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
@@ -5,6 +6,7 @@ import '../../../domain/models/graphql_post_model.dart';
 import '../../../domain/models/content_model.dart';
 import '../../../domain/models/custom_content_model.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../config/theme/app_theme.dart';
 import '../../../data/services/graphql_service.dart';
 import '../../../data/services/custom_content_service.dart';
 import '../../../data/services/video_canal_service.dart';
@@ -172,13 +174,13 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
         backgroundColor: const Color(0xFF1B3156),
         shape: CircleBorder(
           side: BorderSide(
-            color: const Color(0xFFD9A74A),
+            color: AppTheme.legacyActive,
             width: 1.5,
           ),
         ),
         child: const Icon(
           Icons.psychology_outlined,
-          color: Color(0xFFD9A74A),
+          color: AppTheme.legacyActive,
           size: 24,
         ),
       ),
@@ -288,7 +290,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Color(0xFFD9A74A)),
+                      borderSide: const BorderSide(color: AppTheme.legacyActive),
                     ),
                   ),
                 ),
@@ -318,7 +320,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
                     ? const Center(child: CircularProgressIndicator())
                     : RefreshIndicator(
                         onRefresh: _fetchInitialPosts,
-                        color: const Color(0xFFD9A74A),
+                        color: AppTheme.legacyActive,
                         backgroundColor: const Color(0xFF1B3156),
                         child: SingleChildScrollView(
                           controller: _scrollController,
@@ -397,7 +399,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
                                   padding: EdgeInsets.symmetric(vertical: 16.0),
                                   child: Center(
                                     child: CircularProgressIndicator(
-                                      color: Color(0xFFD9A74A),
+                                      color: AppTheme.legacyActive,
                                     ),
                                   ),
                                 ),
@@ -427,9 +429,9 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: isSelected ? const Color(0xFFD9A74A) : const Color(0xFF1B3156).withValues(alpha: 0.4),
+            color: isSelected ? AppTheme.legacyActive : const Color(0xFF1B3156).withValues(alpha: 0.4),
             border: Border.all(
-              color: isSelected ? const Color(0xFFD9A74A) : Colors.white10,
+              color: isSelected ? AppTheme.legacyActive : Colors.white10,
               width: 1,
             ),
           ),
@@ -467,7 +469,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
             ),
             child: const Icon(
               Icons.calendar_today_outlined,
-              color: Color(0xFFD9A74A),
+              color: AppTheme.legacyActive,
               size: 24,
             ),
           ),
@@ -504,7 +506,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
     return Text(
       title,
       style: GoogleFonts.barlow(
-        color: const Color(0xFFD9A74A),
+        color: AppTheme.legacyActive,
         fontSize: 12,
         fontWeight: FontWeight.bold,
         letterSpacing: 1.2,
@@ -534,23 +536,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
         },
         child: Row(
           children: [
-            // Left icon container
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: const Color(0xFF1B3156),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: const Color(0xFF183D6B).withValues(alpha: 0.4),
-                ),
-              ),
-              child: Icon(
-                _getIconForType(post.type),
-                color: const Color(0xFFD9A74A),
-                size: 20,
-              ),
-            ),
+            _buildMiniatura(post),
             const SizedBox(width: 16),
             // Center info
             Expanded(
@@ -582,6 +568,58 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
             const SizedBox(width: 12),
             // Right badge
             _buildRightBadge(post),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Videos y articulos llevan su imagen (miniatura del video, imagen
+  // destacada del articulo); sin imagen, o si no carga, el icono del tipo.
+  Widget _buildMiniatura(ContentItem post) {
+    final icono = Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: const Color(0xFF1B3156),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: const Color(0xFF183D6B).withValues(alpha: 0.4),
+        ),
+      ),
+      child: Icon(
+        _getIconForType(post.type),
+        color: AppTheme.legacyActive,
+        size: 20,
+      ),
+    );
+
+    final tipo = post.type.toLowerCase();
+    final conImagen = tipo == 'video' || tipo == 'article';
+    if (!conImagen || post.imageUrl.trim().isEmpty) return icono;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: SizedBox(
+        width: 80,
+        height: 56,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            CachedNetworkImage(
+              imageUrl: post.imageUrl,
+              fit: BoxFit.cover,
+              placeholder: (_, __) => Container(color: const Color(0xFF1B3156)),
+              errorWidget: (_, __, ___) => Center(child: icono),
+            ),
+            if (tipo == 'video')
+              const Center(
+                child: CircleAvatar(
+                  radius: 13,
+                  backgroundColor: Colors.black54,
+                  child: Icon(Icons.play_arrow, color: Colors.white, size: 18),
+                ),
+              ),
           ],
         ),
       ),
@@ -645,7 +683,7 @@ class _InformandoteScreenState extends State<InformandoteScreen> {
         width: 22,
         height: 22,
         decoration: BoxDecoration(
-          color: const Color(0xFFD9A74A),
+          color: AppTheme.legacyActive,
           borderRadius: BorderRadius.circular(4),
         ),
         child: Center(

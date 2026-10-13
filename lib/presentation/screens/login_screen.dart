@@ -339,7 +339,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         color: Colors.white70,
                                         width: 1.5,
                                       ),
-                                      activeColor: const Color(0xFFD9A74A),
+                                      activeColor: AppTheme.legacyActive,
                                       checkColor: const Color(0xFF162540),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(4),

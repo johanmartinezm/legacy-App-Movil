@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../domain/models/program_model.dart';
 import '../../../data/services/graphql_service.dart';
 import '../../widgets/boton_volver.dart';
+import 'package:legacy_app/config/theme/app_theme.dart';
 
 /// Programas de LSO agrupados en 3 secciones fijas, en vez de la lista plana
 /// de hasta 32 cursos que había hasta el 2026-08-22.
@@ -140,7 +141,7 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
                         const Center(
                           child: Padding(
                             padding: EdgeInsets.all(32.0),
-                            child: CircularProgressIndicator(color: Color(0xFFD9A74A)),
+                            child: CircularProgressIndicator(color: AppTheme.legacyActive),
                           ),
                         )
                       else ...[
@@ -181,7 +182,7 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
         Text(
           titulo,
           style: GoogleFonts.barlow(
-            color: const Color(0xFFD9A74A),
+            color: AppTheme.legacyActive,
             fontSize: 11,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.4,
@@ -217,7 +218,7 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.design_services_outlined, color: Color(0xFFD9A74A), size: 26),
+            const Icon(Icons.design_services_outlined, color: AppTheme.legacyActive, size: 26),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -264,7 +265,7 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.menu_book_outlined, color: Color(0xFFD9A74A), size: 22),
+            const Icon(Icons.menu_book_outlined, color: AppTheme.legacyActive, size: 22),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -452,7 +453,7 @@ class _ProgramRow extends StatelessWidget {
                     style: GoogleFonts.barlow(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFFD9A74A),
+                      color: AppTheme.legacyActive,
                     ),
                   ),
                 ],

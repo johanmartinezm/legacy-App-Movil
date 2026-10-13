@@ -236,10 +236,10 @@ class _ParticipandoScreenState extends State<ParticipandoScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: seleccionado ? AppTheme.legacyBlue3 : Colors.white,
+          color: seleccionado ? AppTheme.legacyActive : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: seleccionado ? AppTheme.legacyBlue3 : Colors.grey,
+            color: seleccionado ? AppTheme.legacyActive : Colors.grey,
           ),
         ),
         child: Text(

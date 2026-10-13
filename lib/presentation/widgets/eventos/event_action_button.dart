@@ -8,6 +8,7 @@ import '../../../domain/models/registration_model.dart';
 import '../../../domain/providers/auth_provider.dart';
 import '../../../domain/providers/events_provider.dart';
 import '../../screens/eventos/event_payment_screen.dart';
+import 'package:legacy_app/config/theme/app_theme.dart';
 
 /// Botón de acción del detalle de un evento: reservar, o el estado de la
 /// inscripción si el usuario ya la tiene.
@@ -127,7 +128,7 @@ class _EventActionButtonState extends State<EventActionButton> {
               ),
             ),
             style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFFD9A74A),
+              foregroundColor: AppTheme.legacyActive,
             ),
           ),
         ),
@@ -154,7 +155,7 @@ class _EventActionButtonState extends State<EventActionButton> {
                 style: GoogleFonts.barlow(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFFD9A74A),
+                  color: AppTheme.legacyActive,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -232,7 +233,7 @@ class _EventActionButtonState extends State<EventActionButton> {
 
   ButtonStyle _estiloDorado() {
     return ElevatedButton.styleFrom(
-      backgroundColor: const Color(0xFFD9A74A),
+      backgroundColor: AppTheme.legacyActive,
       foregroundColor: const Color(0xFF162540),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 0,

@@ -5,6 +5,7 @@ import '../../../data/config/image_helper.dart';
 import '../../widgets/eventos/event_action_button.dart';
 import '../../widgets/eventos/event_survey_button.dart';
 import '../../widgets/boton_volver.dart';
+import 'package:legacy_app/config/theme/app_theme.dart';
 
 class EventPurchaseDetailScreen extends StatelessWidget {
   final EventModel event;
@@ -146,7 +147,7 @@ class EventPurchaseDetailScreen extends StatelessWidget {
                       Text(
                         'DESCRIPCIÓN',
                         style: GoogleFonts.barlow(
-                          color: const Color(0xFFD9A74A),
+                          color: AppTheme.legacyActive,
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.4,
@@ -270,7 +271,7 @@ class EventPurchaseDetailScreen extends StatelessWidget {
           child: Icon(
             Icons.calendar_today_outlined,
             size: 64,
-            color: Color(0xFFD9A74A),
+            color: AppTheme.legacyActive,
           ),
         ),
       );
@@ -301,7 +302,7 @@ class EventPurchaseDetailScreen extends StatelessWidget {
                   child: Icon(
                     Icons.calendar_today_outlined,
                     size: 64,
-                    color: Color(0xFFD9A74A),
+                    color: AppTheme.legacyActive,
                   ),
                 ),
               ),
@@ -348,7 +349,7 @@ class EventPurchaseDetailScreen extends StatelessWidget {
               children: [
                 const Padding(
                   padding: EdgeInsets.only(top: 6, right: 10),
-                  child: Icon(Icons.circle, size: 6, color: Color(0xFFD9A74A)),
+                  child: Icon(Icons.circle, size: 6, color: AppTheme.legacyActive),
                 ),
                 Expanded(
                   child: Text(

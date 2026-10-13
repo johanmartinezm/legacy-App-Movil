@@ -93,9 +93,9 @@ class _SynergyCreateScreenState extends State<SynergyCreateScreen> {
                           label: Text(c),
                           selected: _category == c,
                           onSelected: (val) => setState(() => _category = c),
-                          selectedColor: AppTheme.legacyBlue1.withValues(alpha: 0.1),
+                          selectedColor: AppTheme.legacyActive.withValues(alpha: 0.15),
                           labelStyle: TextStyle(
-                            color: _category == c ? AppTheme.legacyBlue1 : Colors.grey,
+                            color: _category == c ? AppTheme.legacyActive : Colors.grey,
                             fontWeight: _category == c ? FontWeight.bold : FontWeight.normal,
                           ),
                         )).toList(),

@@ -12,6 +12,7 @@ import '../../../config/utils/currency_formatter.dart';
 import '../../../data/services/payment_service.dart';
 import '../../../data/services/auth_service.dart';
 import '../../widgets/boton_volver.dart';
+import 'package:legacy_app/config/theme/app_theme.dart';
 
 class EventPaymentScreen extends StatefulWidget {
   final EventModel event;
@@ -189,7 +190,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
           const Icon(
             Icons.lock_clock_rounded,
             size: 56,
-            color: Color(0xFFD9A74A),
+            color: AppTheme.legacyActive,
           ),
           const SizedBox(height: 24),
           Text(
@@ -220,7 +221,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
               key: const Key('pago-ver-credencial'),
               onPressed: () => context.push('/mi-credencial'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD9A74A),
+                backgroundColor: AppTheme.legacyActive,
                 foregroundColor: const Color(0xFF162540),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -351,9 +352,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
                                           style: GoogleFonts.barlow(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 20,
-                                            color: const Color(
-                                              0xFFD9A74A,
-                                            ), // Gold premium price
+                                            color: AppTheme.legacyActive, // Gold premium price
                                           ),
                                         ),
                                       ],
@@ -475,9 +474,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
                                         widget.event.price,
                                       ),
                                       style: GoogleFonts.barlow(
-                                        color: const Color(
-                                          0xFFD9A74A,
-                                        ), // Gold premium price
+                                        color: AppTheme.legacyActive, // Gold premium price
                                         fontWeight: FontWeight.bold,
                                         fontSize: 22,
                                       ),
@@ -503,9 +500,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _processPayment,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(
-                              0xFFD9A74A,
-                            ), // Premium gold
+                            backgroundColor: AppTheme.legacyActive, // Premium gold
                             foregroundColor: const Color(
                               0xFF162540,
                             ), // Dark contrast text

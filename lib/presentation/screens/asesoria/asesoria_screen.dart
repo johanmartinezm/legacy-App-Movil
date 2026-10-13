@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../config/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:legacy_app/domain/utils/formato_telefono.dart';
 import '../../../data/services/asesoria_service.dart';
@@ -240,7 +241,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
             'Solicitud registrada. (Notificación de correo pendiente por enviar)',
             style: GoogleFonts.questrial(color: Colors.white),
           ),
-          backgroundColor: const Color(0xFFD9A74A),
+          backgroundColor: AppTheme.legacyActive,
           duration: const Duration(seconds: 4),
         ),
       );
@@ -332,7 +333,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
                 Text(
                   'NUESTRAS UNIDADES',
                   style: GoogleFonts.barlow(
-                    color: const Color(0xFFD9A74A),
+                    color: AppTheme.legacyActive,
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.5,
@@ -436,7 +437,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isSelected
-              ? const Color(0xFFD9A74A)
+              ? AppTheme.legacyActive
               : const Color(0xFF306C9E).withValues(alpha: 0.35),
           width: isSelected ? 1.5 : 1.2,
         ),
@@ -461,7 +462,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
                 child: Center(
                   child: Icon(
                     option['icon'] as IconData,
-                    color: const Color(0xFFD9A74A),
+                    color: AppTheme.legacyActive,
                     size: 22,
                   ),
                 ),
@@ -534,7 +535,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
         child: ElevatedButton(
           onPressed: () => _navigateToForm(_selectedIndex),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFD9A74A),
+            backgroundColor: AppTheme.legacyActive,
             foregroundColor: const Color(0xFF162540),
             minimumSize: const Size(double.infinity, 52),
             shape: RoundedRectangleBorder(
@@ -572,7 +573,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
                   Text(
                     'CUÉNTENOS SU CASO',
                     style: GoogleFonts.barlow(
-                      color: const Color(0xFFD9A74A),
+                      color: AppTheme.legacyActive,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.5,
@@ -643,7 +644,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
                   ElevatedButton(
                     onPressed: _isSubmitting ? null : _submitForm,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD9A74A),
+                      backgroundColor: AppTheme.legacyActive,
                       foregroundColor: const Color(0xFF162540),
                       minimumSize: const Size(double.infinity, 54),
                       shape: RoundedRectangleBorder(
@@ -743,7 +744,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
                 Text(
                   'OCTUBRE 2026',
                   style: GoogleFonts.barlow(
-                    color: const Color(0xFFD9A74A),
+                    color: AppTheme.legacyActive,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.5,
@@ -755,7 +756,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
                 Text(
                   'HORARIOS · $_selectedDay OCT',
                   style: GoogleFonts.barlow(
-                    color: const Color(0xFFD9A74A),
+                    color: AppTheme.legacyActive,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.5,
@@ -888,7 +889,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? const Color(0xFFD9A74A)
+                      ? AppTheme.legacyActive
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -938,12 +939,12 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
           child: Container(
             decoration: BoxDecoration(
               color: isSelected
-                  ? const Color(0xFFD9A74A).withValues(alpha: 0.08)
+                  ? AppTheme.legacyActive.withValues(alpha: 0.08)
                   : const Color(0xFF1B3156).withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: isSelected
-                    ? const Color(0xFFD9A74A)
+                    ? AppTheme.legacyActive
                     : const Color(0xFF306C9E).withValues(alpha: 0.3),
                 width: 1.2,
               ),
@@ -953,7 +954,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
                 time,
                 style: GoogleFonts.questrial(
                   color: isSelected
-                      ? const Color(0xFFD9A74A)
+                      ? AppTheme.legacyActive
                       : const Color(0xFF9FB2C2),
                   fontSize: 14,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -1056,7 +1057,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
               Text(
                 'En revisión',
                 style: GoogleFonts.questrial(
-                  color: const Color(0xFFD9A74A),
+                  color: AppTheme.legacyActive,
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
@@ -1159,7 +1160,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(
-                color: Color(0xFFD9A74A),
+                color: AppTheme.legacyActive,
                 width: 1.2,
               ),
             ),
@@ -1190,12 +1191,12 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFFD9A74A).withValues(alpha: 0.12)
+              ? AppTheme.legacyActive.withValues(alpha: 0.12)
               : const Color(0xFF1B3156).withValues(alpha: 0.25),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFFD9A74A)
+                ? AppTheme.legacyActive
                 : const Color(0xFF306C9E).withValues(alpha: 0.35),
             width: 1.2,
           ),
@@ -1204,7 +1205,7 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
           need,
           style: GoogleFonts.questrial(
             color: isSelected
-                ? const Color(0xFFD9A74A)
+                ? AppTheme.legacyActive
                 : const Color(0xFF9FB2C2),
             fontSize: 13,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

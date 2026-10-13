@@ -29,7 +29,7 @@ class BookDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.legacyBlue1,
       body: CustomScrollView(
         slivers: [
           _buildAppBar(context),
@@ -67,7 +67,17 @@ class BookDetailScreen extends StatelessWidget {
         background: Stack(
           fit: StackFit.expand,
           children: [
-            Container(color: Colors.grey[100]),
+            // Mismo degradado de panel que el resto de la app, en lugar del
+            // gris claro que tenia esta pantalla.
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [AppTheme.legacySurface, AppTheme.legacyBlue1],
+                ),
+              ),
+            ),
             if (book.imageUrl != null)
               Center(
                 child: Hero(
@@ -76,7 +86,7 @@ class BookDetailScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
+                          color: Colors.black.withValues(alpha: 0.4),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
@@ -102,7 +112,7 @@ class BookDetailScreen extends StatelessWidget {
 
   Widget _buildPlaceholder() {
     return const Center(
-      child: Icon(Icons.book, size: 100, color: Colors.grey),
+      child: Icon(Icons.book, size: 100, color: Color(0xFF9FB2C2)),
     );
   }
 
@@ -112,9 +122,9 @@ class BookDetailScreen extends StatelessWidget {
       children: [
         Text(
           'BIBLIOTECA LEGACY',
-          style: GoogleFonts.questrial(
-            fontSize: 14,
-            color: AppTheme.legacyOrange,
+          style: GoogleFonts.barlow(
+            fontSize: 12,
+            color: AppTheme.legacyActive,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.2,
           ),
@@ -125,7 +135,7 @@ class BookDetailScreen extends StatelessWidget {
           style: GoogleFonts.barlow(
             fontSize: 28,
             fontWeight: FontWeight.bold,
-            color: AppTheme.legacyBlue1,
+            color: Colors.white,
             height: 1.2,
           ),
         ),
@@ -138,10 +148,12 @@ class BookDetailScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: isOutOfStock ? Colors.red[50] : Colors.green[50],
+        color: (isOutOfStock ? Colors.redAccent : AppTheme.legacyGreenDark)
+            .withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isOutOfStock ? Colors.red[200]! : Colors.green[200]!,
+          color: (isOutOfStock ? Colors.redAccent : AppTheme.legacyGreenDark)
+              .withValues(alpha: 0.5),
         ),
       ),
       child: Row(
@@ -150,7 +162,7 @@ class BookDetailScreen extends StatelessWidget {
           Icon(
             isOutOfStock ? Icons.error_outline : Icons.check_circle_outline,
             size: 16,
-            color: isOutOfStock ? Colors.red[700] : Colors.green[700],
+            color: isOutOfStock ? Colors.redAccent : AppTheme.legacyGreenDark,
           ),
           const SizedBox(width: 8),
           Text(
@@ -158,7 +170,7 @@ class BookDetailScreen extends StatelessWidget {
             style: GoogleFonts.questrial(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: isOutOfStock ? Colors.red[700] : Colors.green[700],
+              color: isOutOfStock ? Colors.redAccent : AppTheme.legacyGreenDark,
             ),
           ),
         ],
@@ -175,7 +187,7 @@ class BookDetailScreen extends StatelessWidget {
           style: GoogleFonts.barlow(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: AppTheme.legacyBlue1,
+            color: Colors.white,
           ),
         ),
         const SizedBox(height: 16),
@@ -188,7 +200,7 @@ class BookDetailScreen extends StatelessWidget {
           ),
           textStyle: GoogleFonts.questrial(
             fontSize: 16,
-            color: Colors.black87,
+            color: const Color(0xFF9FB2C2),
             height: 1.6,
           ),
         ),
@@ -200,9 +212,12 @@ class BookDetailScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey[200]!),
+        color: AppTheme.legacySurface.withValues(alpha: 0.65),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppTheme.legacyBlue3.withValues(alpha: 0.35),
+          width: 1.2,
+        ),
       ),
       child: Column(
         children: [
@@ -212,7 +227,7 @@ class BookDetailScreen extends StatelessWidget {
               Text(
                 'Inversión:',
                 style: GoogleFonts.questrial(
-                  color: Colors.grey[600],
+                  color: const Color(0xFF9FB2C2),
                   fontSize: 16,
                 ),
               ),
@@ -224,14 +239,14 @@ class BookDetailScreen extends StatelessWidget {
                       book.regularPrice!,
                       style: const TextStyle(
                         decoration: TextDecoration.lineThrough,
-                        color: Colors.grey,
+                        color: Color(0xFF9FB2C2),
                         fontSize: 14,
                       ),
                     ),
                   Text(
                     book.price ?? 'Consultar',
                     style: GoogleFonts.barlow(
-                      color: AppTheme.legacyBlue1,
+                      color: Colors.white,
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
                     ),
@@ -250,27 +265,24 @@ class BookDetailScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
-          ),
-        ],
+        color: AppTheme.legacyBlue1,
+        border: Border(
+          top: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+        ),
       ),
       child: SafeArea(
         child: ElevatedButton(
           onPressed: isOutOfStock ? null : () => _comprarEnLso(context),
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.legacyOrange,
-            foregroundColor: Colors.white,
+            backgroundColor: AppTheme.legacyActive,
+            foregroundColor: AppTheme.legacyBlue1,
             padding: const EdgeInsets.symmetric(vertical: 18),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(12),
             ),
             elevation: 0,
-            disabledBackgroundColor: Colors.grey[300],
+            disabledBackgroundColor: AppTheme.legacySurface,
+            disabledForegroundColor: const Color(0xFF9FB2C2),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

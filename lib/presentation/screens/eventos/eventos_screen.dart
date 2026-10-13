@@ -112,9 +112,9 @@ class _EventosScreenState extends State<EventosScreen> {
         backgroundColor: const Color(0xFF1B3156),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(28),
-          side: const BorderSide(color: Color(0xFFC9A24B), width: 1.5),
+          side: const BorderSide(color: AppTheme.legacyActive, width: 1.5),
         ),
-        child: const Icon(Icons.calendar_month, color: Color(0xFFC9A24B)),
+        child: const Icon(Icons.calendar_month, color: AppTheme.legacyActive),
       ),
       body: SafeArea(
         child: Column(
@@ -215,7 +215,7 @@ class _EventosScreenState extends State<EventosScreen> {
         onChanged: (value) => setState(() => _searchQuery = value),
         textInputAction: TextInputAction.search,
         style: GoogleFonts.questrial(fontSize: 14, color: Colors.white),
-        cursorColor: const Color(0xFFE3C272),
+        cursorColor: AppTheme.legacyActive,
         decoration: InputDecoration(
           isDense: true,
           filled: true,
@@ -258,7 +258,7 @@ class _EventosScreenState extends State<EventosScreen> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(color: Color(0xFFE3C272), width: 1.2),
+            borderSide: const BorderSide(color: AppTheme.legacyActive, width: 1.2),
           ),
         ),
       ),
@@ -289,12 +289,12 @@ class _EventosScreenState extends State<EventosScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? const Color(0xFFE3C272).withValues(alpha: 0.18)
+                    ? AppTheme.legacyActive.withValues(alpha: 0.18)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
                   color: isSelected
-                      ? const Color(0xFFE3C272)
+                      ? AppTheme.legacyActive
                       : Colors.white.withValues(alpha: 0.08),
                   width: 1,
                 ),
@@ -305,7 +305,7 @@ class _EventosScreenState extends State<EventosScreen> {
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   color: isSelected
-                      ? const Color(0xFFE3C272)
+                      ? AppTheme.legacyActive
                       : const Color(0xFF9FB2C2),
                 ),
               ),
@@ -351,10 +351,10 @@ class _EventosScreenState extends State<EventosScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFE3C272) : Colors.transparent,
+          color: isSelected ? AppTheme.legacyActive : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? const Color(0xFFE3C272) : Colors.white.withValues(alpha: 0.08),
+            color: isSelected ? AppTheme.legacyActive : Colors.white.withValues(alpha: 0.08),
             width: 1,
           ),
         ),
@@ -405,7 +405,7 @@ class _EventosScreenState extends State<EventosScreen> {
                   style: GoogleFonts.barlow(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFFE3C272),
+                    color: AppTheme.legacyActive,
                   ),
                 ),
               ),
@@ -531,7 +531,7 @@ class _EventosScreenState extends State<EventosScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE3C272),
+                          color: AppTheme.legacyActive,
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(

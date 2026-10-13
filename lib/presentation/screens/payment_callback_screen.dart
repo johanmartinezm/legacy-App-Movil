@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../data/config/config_service.dart';
 import '../../domain/providers/auth_provider.dart';
 import '../../domain/providers/events_provider.dart';
+import 'package:legacy_app/config/theme/app_theme.dart';
 
 class PaymentCallbackScreen extends StatefulWidget {
   final String orderId;
@@ -127,7 +128,7 @@ class _PaymentCallbackScreenState extends State<PaymentCallbackScreen> {
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const CircularProgressIndicator(color: Color(0xFFD9A74A)),
+                    const CircularProgressIndicator(color: AppTheme.legacyActive),
                     const SizedBox(height: 24),
                     Text(
                       'Verificando tu pago con el banco...',
@@ -177,7 +178,7 @@ class _PaymentCallbackScreenState extends State<PaymentCallbackScreen> {
                       key: const Key('callback-ver-credencial'),
                       onPressed: () => context.go('/mi-credencial'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFD9A74A),
+                        backgroundColor: AppTheme.legacyActive,
                         foregroundColor: const Color(0xFF162540),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 32,

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../../domain/providers/notification_provider.dart';
 import '../../widgets/boton_volver.dart';
+import 'package:legacy_app/config/theme/app_theme.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
@@ -65,7 +66,7 @@ class NotificationsScreen extends StatelessWidget {
                           notificationProvider.clearAll();
                           Navigator.pop(context);
                         },
-                        child: Text('Limpiar', style: GoogleFonts.questrial(color: const Color(0xFFE3C272), fontWeight: FontWeight.bold)),
+                        child: Text('Limpiar', style: GoogleFonts.questrial(color: AppTheme.legacyActive, fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
@@ -113,12 +114,12 @@ class NotificationsScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color(0xFFE3C272).withValues(alpha: 0.08),
+              color: AppTheme.legacyActive.withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.notifications_off_outlined,
-              color: Color(0xFFE3C272),
+              color: AppTheme.legacyActive,
               size: 48,
             ),
           ),
@@ -165,12 +166,12 @@ class NotificationsScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFFE3C272).withValues(alpha: 0.12),
+              color: AppTheme.legacyActive.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(
               Icons.notifications_active_outlined,
-              color: Color(0xFFE3C272),
+              color: AppTheme.legacyActive,
               size: 20,
             ),
           ),
@@ -206,7 +207,7 @@ class NotificationsScreen extends StatelessWidget {
                 Text(
                   item.body,
                   style: GoogleFonts.questrial(
-                    color: const Color(0xFFFFF1CF).withValues(alpha: 0.9),
+                    color: AppTheme.legacyWhite.withValues(alpha: 0.9),
                     fontSize: 12,
                     height: 1.3,
                   ),

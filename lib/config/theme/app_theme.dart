@@ -19,6 +19,22 @@ class AppTheme {
   static const Color legacyWhite = Color(0xFFE8EEF5); // Light text color (replacing pure white)
   static const Color legacyBlack = Color(0xFF000000);
 
+  // Color de los estados hover y activo (pestaña seleccionada, pulsacion).
+  static const Color legacyActive = Color(0xFF5A93C4);
+
+  // Capa que pinta Material sobre un boton al pasar el puntero o pulsarlo.
+  static final WidgetStateProperty<Color?> _overlayActivo =
+      WidgetStateProperty.resolveWith((states) {
+    if (states.contains(WidgetState.pressed)) {
+      return legacyActive.withValues(alpha: 0.35);
+    }
+    if (states.contains(WidgetState.hovered) ||
+        states.contains(WidgetState.focused)) {
+      return legacyActive.withValues(alpha: 0.2);
+    }
+    return null;
+  });
+
   static const Color legacyGrey = Color(0xFF183D6B); // Adjusted for consistent dark base
 
   // Secondary Palette (accents)
@@ -58,6 +74,10 @@ class AppTheme {
         error: Colors.redAccent,
       ),
       scaffoldBackgroundColor: legacyBlue1,
+      hoverColor: legacyActive.withValues(alpha: 0.2),
+      highlightColor: legacyActive.withValues(alpha: 0.25),
+      splashColor: legacyActive.withValues(alpha: 0.3),
+      focusColor: legacyActive.withValues(alpha: 0.2),
       
       // Typography
       textTheme: TextTheme(
@@ -130,7 +150,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-        ),
+        ).copyWith(overlayColor: _overlayActivo),
       ),
       
       // TextButton Theme
@@ -140,9 +160,21 @@ class AppTheme {
           textStyle: GoogleFonts.questrial(
             fontWeight: FontWeight.bold,
           ),
-        ),
+        ).copyWith(overlayColor: _overlayActivo),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: ButtonStyle(overlayColor: _overlayActivo),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: ButtonStyle(overlayColor: _overlayActivo),
       ),
       
+      // Chips seleccionables (FilterChip, ChoiceChip)
+      chipTheme: ChipThemeData(
+        selectedColor: legacyActive,
+        checkmarkColor: legacyWhite,
+      ),
+
       // Checkbox Theme
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {

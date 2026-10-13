@@ -2,6 +2,88 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-13]: Inicio: título y texto de las tarjetas desde el panel
+- **Alcance:** `lib/data/services/secciones_inicio_service.dart` (`secciones()` devuelve imagen,
+  título y texto por slug, en lugar de solo la imagen), `home_content_screen.dart` (`_titulo` y
+  `_texto` con el de siempre como respaldo, en las once tarjetas; títulos a una línea y textos a dos,
+  con puntos suspensivos) y `test/screens/imagenes_inicio_test.dart`. Lo que el panel deje vacío, o
+  todo si el backend no responde o es anterior a este cambio, se ve como antes.
+- **Criterios de QA:**
+  1. Sin cambios en el panel, el Inicio se ve igual que antes.
+  2. Cambiar en el panel título y texto de «Eventos» y volver a entrar al Inicio: la tarjeta los
+     muestra; las demás siguen con los suyos.
+  3. Un título largo se corta con «…» sin desbordar la tarjeta.
+  4. Vaciar los campos en el panel: vuelven los textos de siempre.
+
+### [2026-10-13]: Biblioteca y detalle del libro con el estilo oscuro de la app
+- **Alcance:** `lib/presentation/screens/books/books_screen.dart` y `book_detail_screen.dart`. Las
+  dos pantallas seguían en el diseño claro original: fondo blanco, títulos azul marino, tarjetas
+  grises y el botón en azul pastel. Pasan al fondo `legacyBlue1`, paneles `legacySurface` con borde
+  `legacyBlue3`, títulos en blanco, texto en `#9FB2C2`, acentos y botón «Comprar en LSO» en
+  `#5A93C4`, y la etiqueta Disponible/Agotado en verde o rojo sobre fondo oscuro. El detalle
+  conserva el precio.
+- **Criterios de QA:**
+  1. Programas → Biblioteca: fondo oscuro, tarjetas oscuras con borde azul, título y «Haz clic aquí»
+     legibles.
+  2. Abrir un libro: portada sobre degradado azul, título blanco, descripción legible, panel de
+     inversión oscuro y botón azul abajo; nada en blanco.
+  3. Un libro agotado: etiqueta roja y botón desactivado, legible.
+
+### [2026-10-13]: Biblioteca: sin precio en las tarjetas de libros
+- **Alcance:** `lib/presentation/screens/books/books_screen.dart`. En la cuadrícula de la
+  Biblioteca se quitan el precio y el precio tachado; en su lugar va «Haz clic aquí» en blanco. El
+  botón de abrir en LSO se mantiene, y tocar la tarjeta sigue abriendo el detalle, que conserva su
+  precio.
+- **Criterios de QA:**
+  1. Programas → Biblioteca: ninguna tarjeta muestra precio; todas dicen «Haz clic aquí» en blanco.
+  2. Tocar una tarjeta abre el detalle del libro.
+  3. El icono de abrir en LSO sigue funcionando y queda desactivado en los agotados.
+
+### [2026-10-13]: Fuera el dorado de toda la app: acentos en #5A93C4
+- **Alcance:** 18 archivos de `lib/presentation/`. Los cinco dorados que quedaban (`#D9A74A`,
+  `#E3C272`, `#C9A24B`, `#CAA24F`, `#D9B87F`) y el beige `#E8DCCA` pasan a `AppTheme.legacyActive`
+  (`#5A93C4`): textos, iconos, bordes, botones y cargadores de Legacy Knowledge, detalle de video y
+  de artículo, Legacy+, ficha y pago del evento, botones de inscripción y encuesta, Asesoría,
+  Programas, Mi credencial, Notificaciones, Inicio (icono de Legacy Board), búsqueda, login y retorno
+  del pago. El cuadro «L» de Legacy+ pasa de degradado dorado a uno azul (`legacyBlue5` →
+  `#5A93C4` → `legacyBlue3`), y el cuerpo crema de las notificaciones a `legacyWhite`. Se dejan a
+  propósito el naranja de estado (pendiente, foro bloqueado, reportar) y el ámbar de las estrellas
+  de calificación.
+- **Criterios de QA:**
+  1. Recorrer Legacy Knowledge, un video, un artículo, Legacy+, la ficha de un evento, su pago,
+     Asesoría, Programas, Mi credencial y Notificaciones: no queda ningún texto, icono ni borde
+     dorado.
+  2. El botón flotante de Legacy Knowledge (icono y borde) en azul.
+  3. Los botones azules con texto oscuro se leen bien.
+  4. Las estrellas de calificar un evento siguen en ámbar.
+
+### [2026-10-13]: Hover, activo, filtros y chips en #5A93C4; menú inferior en blanco y Barlow Regular
+- **Alcance:** `lib/config/theme/app_theme.dart` (nuevo `AppTheme.legacyActive`, la capa de
+  hover/pulsación de botones e `InkWell`, y `chipTheme`). Filtros y chips seleccionados pasan a
+  `#5A93C4`: categorías y pestañas de `eventos_screen.dart`, filtros de `informandote_screen.dart`,
+  necesidades de `asesoria_screen.dart`, filtros de `participando_screen.dart` y categorías de
+  `synergy_list_screen.dart` y `synergy_create_screen.dart`. En `main_layout.dart` la pestaña activa
+  de la barra inferior pasa del dorado al blanco y las etiquetas, activas o no, a Barlow Regular
+  (antes Barlow Bold la activa y Questrial las demás).
+- **Criterios de QA:**
+  1. Barra inferior: la pestaña activa (icono, texto y símbolo de LEGACY+) en blanco y las demás en
+     gris; todas las etiquetas en Barlow sin negrita, «KNOWLEDGE» sin cortarse.
+  2. Eventos: la categoría y la pestaña seleccionadas (Próximos / Pasados / Mis registros) en azul
+     `#5A93C4`.
+  3. Legacy Knowledge, Asesoría, Mis eventos y Sinergias: el filtro o chip elegido en azul.
+  4. Al pulsar un botón o una tarjeta, el destello es azul; en web, también al pasar el ratón.
+
+### [2026-10-13]: Legacy Knowledge: imagen en videos y artículos
+- **Alcance:** `lib/presentation/screens/informandote/informandote_screen.dart` (`_buildMiniatura`).
+  En la lista, videos y artículos muestran su imagen (miniatura del video, imagen destacada de
+  WordPress o la del contenido propio) en lugar del icono; los videos llevan encima un botón de play.
+  Sin imagen, o si no carga, se sigue viendo el icono. Podcast y libros no cambian.
+- **Criterios de QA:**
+  1. Legacy Knowledge → Todos: cada video muestra su miniatura con el play encima.
+  2. Cada artículo de WordPress muestra su imagen destacada.
+  3. Un contenido sin imagen, o en modo avión, sigue con su icono y sin error.
+  4. Tocar la fila abre el mismo detalle que antes.
+
 ### [2026-10-12]: Inicio: capa más oscura en las tarjetas horizontales con imagen
 - **Alcance:** `lib/presentation/screens/home/widgets/fondo_con_imagen.dart` (parámetro
   `opacidadLadoClaro`) y `home_content_screen.dart`. En Nuevo cada semana, Beneficios y Miembros

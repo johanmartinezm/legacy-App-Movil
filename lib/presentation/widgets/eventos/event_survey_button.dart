@@ -6,6 +6,7 @@ import '../../../domain/models/event_survey_model.dart';
 import '../../../domain/providers/auth_provider.dart';
 import '../../../domain/providers/events_provider.dart';
 import 'event_survey_dialog.dart';
+import 'package:legacy_app/config/theme/app_theme.dart';
 
 /// Acceso a la encuesta general desde el detalle de un evento ya terminado.
 ///
@@ -76,7 +77,7 @@ class _EventSurveyButtonState extends State<EventSurveyButton> {
         style: ElevatedButton.styleFrom(
           backgroundColor: yaRespondio
               ? const Color(0xFF1B3156)
-              : const Color(0xFFD9A74A),
+              : AppTheme.legacyActive,
           foregroundColor: yaRespondio
               ? const Color(0xFF9FB2C2)
               : const Color(0xFF162540),

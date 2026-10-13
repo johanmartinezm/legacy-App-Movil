@@ -9,6 +9,7 @@ import '../../domain/models/resultado_busqueda.dart';
 import '../../domain/models/synergy_model.dart';
 import '../../domain/utils/busqueda_global.dart';
 import '../widgets/boton_volver.dart';
+import 'package:legacy_app/config/theme/app_theme.dart';
 
 /// La busqueda de la lupa. Sustituye a `ContentSearchDelegate`, que solo miraba
 /// el contenido: el documento de alcance la llama "Busqueda Global" y ahora
@@ -22,7 +23,7 @@ class GlobalSearchDelegate extends SearchDelegate<ResultadoBusqueda?> {
   static const _tarjeta = Color(0xFF1B3156);
   static const _borde = Color(0xFF306C9E);
   static const _apagado = Color(0xFF9FB2C2);
-  static const _dorado = Color(0xFFD9A74A);
+  static const _dorado = AppTheme.legacyActive;
 
   @override
   ThemeData appBarTheme(BuildContext context) {

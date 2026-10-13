@@ -9,6 +9,7 @@ import '../../../domain/models/registration_model.dart';
 import '../../../domain/providers/auth_provider.dart';
 import '../../../domain/providers/events_provider.dart';
 import '../../widgets/boton_volver.dart';
+import 'package:legacy_app/config/theme/app_theme.dart';
 
 /// Mi credencial: el QR de acceso de **todos** los eventos en los que el usuario
 /// está inscrito.
@@ -275,7 +276,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
         children: [
           const Icon(
             Icons.videocam_rounded,
-            color: Color(0xFFD9A74A),
+            color: AppTheme.legacyActive,
             size: 28,
           ),
           const SizedBox(height: 10),
@@ -284,7 +285,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
             style: GoogleFonts.barlow(
               fontSize: 15,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFFD9A74A),
+              color: AppTheme.legacyActive,
             ),
           ),
           const SizedBox(height: 6),
@@ -304,7 +305,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
               icon: const Icon(Icons.open_in_new, size: 18),
               label: const Text('Entrar a la sesión'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD9A74A),
+                backgroundColor: AppTheme.legacyActive,
                 foregroundColor: const Color(0xFF1B3156),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -352,7 +353,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
         children: [
           Icon(
             pendiente ? Icons.schedule_rounded : Icons.qr_code_2_rounded,
-            color: const Color(0xFFD9A74A),
+            color: AppTheme.legacyActive,
             size: 28,
           ),
           const SizedBox(height: 10),
@@ -361,7 +362,7 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
             style: GoogleFonts.barlow(
               fontSize: 15,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFFD9A74A),
+              color: AppTheme.legacyActive,
             ),
           ),
           const SizedBox(height: 6),

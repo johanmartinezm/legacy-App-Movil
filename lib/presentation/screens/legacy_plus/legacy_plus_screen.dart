@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../domain/utils/plataforma.dart';
 import '../../widgets/boton_volver.dart';
+import 'package:legacy_app/config/theme/app_theme.dart';
 
 class LegacyPlusScreen extends StatelessWidget {
   const LegacyPlusScreen({super.key});
@@ -85,7 +86,7 @@ class LegacyPlusScreen extends StatelessWidget {
                           ),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: const Color(0xFFD9A74A).withValues(alpha: 0.25),
+                            color: AppTheme.legacyActive.withValues(alpha: 0.25),
                             width: 1.2,
                           ),
                         ),
@@ -100,9 +101,9 @@ class LegacyPlusScreen extends StatelessWidget {
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    Color(0xFFE8DCCA),
-                                    Color(0xFFCAA24F),
-                                    Color(0xFF9A7B30),
+                                    AppTheme.legacyBlue5,
+                                    AppTheme.legacyActive,
+                                    AppTheme.legacyBlue3,
                                   ],
                                 ),
                                 borderRadius: BorderRadius.circular(12),
@@ -154,7 +155,7 @@ class LegacyPlusScreen extends StatelessWidget {
                       Text(
                         'YA TIENE LEGACY+ SI ES...',
                         style: GoogleFonts.barlow(
-                          color: const Color(0xFFD9A74A),
+                          color: AppTheme.legacyActive,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.2,
@@ -186,7 +187,7 @@ class LegacyPlusScreen extends StatelessWidget {
                             ? 'QUÉ INCLUYE'
                             : 'SI AÚN NO ES CLIENTE NI ALUMNI',
                         style: GoogleFonts.barlow(
-                          color: const Color(0xFFD9A74A),
+                          color: AppTheme.legacyActive,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.2,
@@ -203,7 +204,7 @@ class LegacyPlusScreen extends StatelessWidget {
                             color: const Color(0xFF1B3156).withValues(alpha: 0.85),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: const Color(0xFFD9A74A).withValues(alpha: 0.4),
+                              color: AppTheme.legacyActive.withValues(alpha: 0.4),
                               width: 1,
                             ),
                           ),
@@ -219,7 +220,7 @@ class LegacyPlusScreen extends StatelessWidget {
                                   children: [
                                     const TextSpan(
                                       text: 'COP 1.790.000 ',
-                                      style: TextStyle(color: Color(0xFFD9A74A)),
+                                      style: TextStyle(color: AppTheme.legacyActive),
                                     ),
                                     TextSpan(
                                       text: '/ año',

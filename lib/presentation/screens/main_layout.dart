@@ -154,7 +154,7 @@ class MainLayout extends StatelessWidget {
                   child: const LegacyLogo.simbolo(
                     height: 18,
                     width: 18,
-                    color: Color(0xFFD9A74A),
+                    color: Colors.white,
                   ),
                 ),
                 label: 'LEGACY+',
@@ -166,9 +166,7 @@ class MainLayout extends StatelessWidget {
               ),
             ],
             currentIndex: selectedIndex,
-            selectedItemColor: const Color(
-              0xFFD9A74A,
-            ), // Selected tab is Premium Gold
+            selectedItemColor: Colors.white,
             unselectedItemColor: const Color(
               0xFF9FB2C2,
             ), // Unselected is steel blue/gray
@@ -179,12 +177,14 @@ class MainLayout extends StatelessWidget {
             // las demas— y a 11 con 0.5 se cortaba en «KNOWLED...». Se baja para
             // las cinco y no solo para esa: BottomNavigationBar aplica un unico
             // estilo, y desigualarlas a mano se veria peor que el recorte.
+            // Barlow Regular en las dos: la activa se distingue por el color.
             selectedLabelStyle: GoogleFonts.barlow(
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w400,
               fontSize: 10,
               letterSpacing: 0.1,
             ),
-            unselectedLabelStyle: GoogleFonts.questrial(
+            unselectedLabelStyle: GoogleFonts.barlow(
+              fontWeight: FontWeight.w400,
               fontSize: 10,
               letterSpacing: 0.1,
             ),

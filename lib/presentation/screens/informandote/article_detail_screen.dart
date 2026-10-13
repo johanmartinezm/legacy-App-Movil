@@ -284,7 +284,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                         '${_article.likes ?? 0}',
                         _article.isLikedByMe
                             ? const Color(0xFF70ABE0)
-                            : const Color(0xFFE3C272),
+                            : AppTheme.legacyActive,
                         onTap: _toggleLike,
                       ),
                       _buildStat(
@@ -373,7 +373,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                   Text(
                     'PROFUNDICE',
                     style: GoogleFonts.barlow(
-                      color: const Color(0xFFE3C272),
+                      color: AppTheme.legacyActive,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.5,
@@ -430,13 +430,13 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE8DCCA).withValues(alpha: 0.2),
+                              color: AppTheme.legacyActive.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
                               'L',
                               style: GoogleFonts.barlow(
-                                color: const Color(0xFFE3C272),
+                                color: AppTheme.legacyActive,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 11,
                               ),
@@ -507,9 +507,9 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: isFav ? const Color(0xFFE3C272).withValues(alpha: 0.15) : const Color(0xFF1B3156).withValues(alpha: 0.4),
+            color: isFav ? AppTheme.legacyActive.withValues(alpha: 0.15) : const Color(0xFF1B3156).withValues(alpha: 0.4),
             border: Border.all(
-              color: isFav ? const Color(0xFFE3C272) : Colors.white.withValues(alpha: 0.08),
+              color: isFav ? AppTheme.legacyActive : Colors.white.withValues(alpha: 0.08),
             ),
             borderRadius: BorderRadius.circular(8),
           ),
@@ -518,14 +518,14 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
               Icon(
                 isFav ? Icons.bookmark : Icons.bookmark_border,
                 size: 18,
-                color: isFav ? const Color(0xFFE3C272) : const Color(0xFF9FB2C2),
+                color: isFav ? AppTheme.legacyActive : const Color(0xFF9FB2C2),
               ),
               if (label != null) ...[
                 const SizedBox(width: 4),
                 Text(
                   isFav ? 'Guardado' : label,
                   style: GoogleFonts.questrial(
-                    color: isFav ? const Color(0xFFE3C272) : const Color(0xFF9FB2C2),
+                    color: isFav ? AppTheme.legacyActive : const Color(0xFF9FB2C2),
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),

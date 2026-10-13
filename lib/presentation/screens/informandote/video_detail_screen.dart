@@ -234,7 +234,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                                 ? Icons.thumb_up_alt
                                 : Icons.thumb_up_alt_outlined,
                             '${_video.likes ?? 0}',
-                            const Color(0xFFE3C272),
+                            AppTheme.legacyActive,
                           ),
                         ),
                         _buildStat(
@@ -479,9 +479,9 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: isFav ? const Color(0xFFE3C272).withValues(alpha: 0.15) : const Color(0xFF1B3156).withValues(alpha: 0.4),
+            color: isFav ? AppTheme.legacyActive.withValues(alpha: 0.15) : const Color(0xFF1B3156).withValues(alpha: 0.4),
             border: Border.all(
-              color: isFav ? const Color(0xFFE3C272) : Colors.white.withValues(alpha: 0.08),
+              color: isFav ? AppTheme.legacyActive : Colors.white.withValues(alpha: 0.08),
             ),
             borderRadius: BorderRadius.circular(8),
           ),
@@ -490,14 +490,14 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
               Icon(
                 isFav ? Icons.bookmark : Icons.bookmark_border,
                 size: 18,
-                color: isFav ? const Color(0xFFE3C272) : const Color(0xFF9FB2C2),
+                color: isFav ? AppTheme.legacyActive : const Color(0xFF9FB2C2),
               ),
               if (label != null) ...[
                 const SizedBox(width: 4),
                 Text(
                   isFav ? 'Guardado' : label,
                   style: GoogleFonts.questrial(
-                    color: isFav ? const Color(0xFFE3C272) : const Color(0xFF9FB2C2),
+                    color: isFav ? AppTheme.legacyActive : const Color(0xFF9FB2C2),
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),

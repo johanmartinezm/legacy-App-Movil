@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../domain/models/program_model.dart';
 import '../../widgets/boton_volver.dart';
+import 'package:legacy_app/config/theme/app_theme.dart';
 
 class ProgramDetailScreen extends StatelessWidget {
   final GraphqlProgram program;
@@ -210,7 +211,7 @@ class ProgramDetailScreen extends StatelessWidget {
                       ElevatedButton(
                         onPressed: () => _abrirEnLso(context),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFD9A74A),
+                          backgroundColor: AppTheme.legacyActive,
                           foregroundColor: const Color(0xFF162540),
                           minimumSize: const Size(double.infinity, 54),
                           shape: RoundedRectangleBorder(
