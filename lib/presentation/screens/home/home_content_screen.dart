@@ -494,18 +494,6 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
       mainAxisSpacing: 12,
       childAspectRatio: 0.95,
       children: [
-        // Primero del grid por decisión del 2026-09-02. El contenido de esta
-        // pantalla lo edita el panel, no viaja en la app: por eso es una ruta
-        // propia y no el diálogo que sigue viviendo en Comunidad.
-        _buildModuleCard(
-          context: context,
-          slug: 'legacy-board',
-          title: 'Legacy Board',
-          subtitle: 'Gobierno corporativo para familias empresarias',
-          icon: Icons.dashboard,
-          iconColor: AppTheme.legacyActive,
-          onTap: () => context.push('/legacy-board'),
-        ),
         _buildModuleCard(
           context: context,
           // "Legacy Knowledge" es el nombre oficial de la sección desde el
@@ -573,6 +561,19 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           icon: Icons.support_agent,
           iconColor: const Color(0xFF54C6A8),
           onTap: () => context.push('/contacto'),
+        ),
+        // Último del grid desde el 2026-10-13, a pedido del cliente (antes fue
+        // el primero, por decisión del 2026-09-02). El contenido de esta
+        // pantalla lo edita el panel, no viaja en la app: por eso es una ruta
+        // propia y no el diálogo que sigue viviendo en Comunidad.
+        _buildModuleCard(
+          context: context,
+          slug: 'legacy-board',
+          title: 'Legacy Board',
+          subtitle: 'Gobierno corporativo para familias empresarias',
+          icon: Icons.dashboard,
+          iconColor: AppTheme.legacyActive,
+          onTap: () => context.push('/legacy-board'),
         ),
       ],
     );
