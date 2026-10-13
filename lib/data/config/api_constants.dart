@@ -22,7 +22,7 @@ class ApiConstants {
   static const String seccionesInicioEndpoint = '/api/inicio/secciones';
   static const String asesoriaUnidadesEndpoint = '/api/asesoria/unidades';
   static const String legacyPlusItemsEndpoint = '/api/legacy-plus/items';
-  static const String legacyPlusBeneficiosEndpoint = '/api/legacy-plus/beneficios';
+  static const String beneficiosEndpoint = '/api/beneficios';
 
   static const String meEndpoint = '/api/me';
   static const String changePasswordEndpoint = '/api/me/change-password';

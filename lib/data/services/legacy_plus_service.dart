@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 
 import '../config/api_constants.dart';
 import '../config/config_service.dart';
-import 'solo_plus.dart';
 
 /// Un punto con check de la pantalla Legacy+, administrable desde el panel
 /// («Puntos de Legacy+») desde el 2026-10-13.
@@ -60,26 +59,6 @@ class LegacyPlusService {
   final http.Client _client;
 
   LegacyPlusService({http.Client? client}) : _client = client ?? http.Client();
-
-  /// Los beneficios con su texto, para la sección Beneficios. Solo usuarios
-  /// Legacy+: lanza [SoloPlusException] ante el 403, y cualquier otro fallo
-  /// como excepción normal (la pantalla distingue los dos).
-  Future<List<PuntoLegacyPlus>> beneficios(String? token) async {
-    final url = Uri.parse('$_baseUrl${ApiConstants.legacyPlusBeneficiosEndpoint}');
-    final response = await _client.get(url, headers: {
-      if (token != null) 'Authorization': 'Bearer $token',
-    }).timeout(const Duration(seconds: 10));
-    comprobarSoloPlus(response);
-    if (response.statusCode != 200) {
-      throw Exception('beneficios: ${response.statusCode}');
-    }
-    final data = json.decode(utf8.decode(response.bodyBytes));
-    if (data is! List) return [];
-    return [
-      for (final p in data)
-        if (p is Map<String, dynamic>) PuntoLegacyPlus.fromJson(p),
-    ].where((p) => p.titulo.isNotEmpty).toList();
-  }
 
   Future<List<PuntoLegacyPlus>?> puntos() async {
     try {

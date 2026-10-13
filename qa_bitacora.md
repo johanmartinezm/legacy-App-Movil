@@ -2,6 +2,20 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-13]: Sección Beneficios: sliders de beneficios y alianzas
+- **Alcance:** `lib/data/services/beneficios_service.dart` (nuevo, `GET /api/beneficios`),
+  `screens/beneficios/beneficios_screen.dart` (reescrita) y `test/screens/beneficios_screen_test.dart`;
+  se retira `LegacyPlusService.beneficios`. La sección deja de mostrar los puntos de la pantalla
+  Legacy+ y pasa a dos sliders con su propio contenido del panel: «BENEFICIOS» y «ALIANZAS», cada
+  tarjeta con imagen, título, texto y, si tiene enlace, «Ver más» (abre en el navegador). Un slider
+  vacío no se muestra; sin nada, «Pronto publicaremos los beneficios.». Sigue siendo solo para
+  usuarios Legacy+ (403 explicado). La pantalla Legacy+ vuelve a mostrar el texto de sus
+  beneficios informativos (cambio del backend, mismo día).
+- **Criterios de QA:**
+  1. Con usuario Legacy+ y contenido en el panel: dos sliders que se deslizan, con puntos de página.
+  2. «Ver más» abre el enlace; una tarjeta sin enlace no lleva botón.
+  3. Sin usuario Legacy+: candado y «Esta sección es para usuarios Legacy+.».
+
 ### [2026-10-13]: Usuario Legacy+: filas del Inicio, sección Beneficios y foros
 - **Alcance:** fase 3 de `reports/20261013_plan_usuario_plus.md` (repositorio raíz).
   `domain/providers/auth_provider.dart` (`esPlus` de `/api/me`, sin guardarlo en el dispositivo),
