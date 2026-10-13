@@ -9,15 +9,82 @@ import '../../../domain/models/resultado_busqueda.dart';
 import '../../../domain/providers/chat_provider.dart';
 import '../../delegates/global_search_delegate.dart';
 import 'package:legacy_app/presentation/widgets/common/legacy_logo.dart';
+import '../../../data/services/secciones_inicio_service.dart';
+import 'widgets/fondo_con_imagen.dart';
 
 class HomeContentScreen extends StatefulWidget {
-  const HomeContentScreen({super.key});
+  /// Se inyecta en las pruebas; en la app se crea el de verdad.
+  final SeccionesInicioService? seccionesService;
+
+  const HomeContentScreen({super.key, this.seccionesService});
 
   @override
   State<HomeContentScreen> createState() => _HomeContentScreenState();
 }
 
 class _HomeContentScreenState extends State<HomeContentScreen> {
+  /// `slug → URL` de las tarjetas que tienen imagen, cargadas desde el panel
+  /// (Imágenes del Inicio). Vacío hasta que responde el backend, y también si
+  /// falla: entonces cada tarjeta se pinta como siempre, con su icono.
+  Map<String, String> _imagenes = const {};
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarImagenes();
+  }
+
+  Future<void> _cargarImagenes() async {
+    final imagenes =
+        await (widget.seccionesService ?? SeccionesInicioService()).imagenes();
+    if (mounted && imagenes.isNotEmpty) setState(() => _imagenes = imagenes);
+  }
+
+  /// Envuelve el contenido de una tarjeta. Con imagen, la foto de fondo con su
+  /// capa oscura; sin ella, la decoración de siempre. El borde se conserva en
+  /// los dos casos para que la tarjeta no cambie de silueta.
+  Widget _tarjeta({
+    required String slug,
+    required BoxDecoration decoracion,
+    required EdgeInsetsGeometry padding,
+    required Widget child,
+    Alignment oscuroHacia = Alignment.bottomCenter,
+    EdgeInsetsGeometry? margin,
+    double? width,
+  }) {
+    final url = _imagenes[slug];
+    final radio =
+        (decoracion.borderRadius as BorderRadius?) ?? BorderRadius.zero;
+    if (url == null) {
+      return Container(
+        key: Key('tarjeta-$slug'),
+        width: width,
+        margin: margin,
+        padding: padding,
+        decoration: decoracion,
+        child: child,
+      );
+    }
+    return Container(
+      key: Key('tarjeta-$slug-con-imagen'),
+      width: width,
+      margin: margin,
+      foregroundDecoration: BoxDecoration(
+        borderRadius: radio,
+        border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
+      ),
+      child: FondoConImagen(
+        imagenUrl: url,
+        borderRadius: radio,
+        padding: padding,
+        oscuroHacia: oscuroHacia,
+        child: child,
+      ),
+    );
+  }
+
+  bool _conImagen(String slug) => _imagenes.containsKey(slug);
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
@@ -301,11 +368,15 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           'Esta semana: video de conversaciones difíciles, evento familiar...';
     }
 
+    const slug = 'nuevo-cada-semana';
+    final conImagen = _conImagen(slug);
     return GestureDetector(
       onTap: () => context.go('/informandote'),
-      child: Container(
+      child: _tarjeta(
+        slug: slug,
+        oscuroHacia: Alignment.centerLeft,
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
+        decoracion: BoxDecoration(
           gradient: LinearGradient(
             colors: [
               const Color(0xFF70ABE0).withValues(alpha: 0.08),
@@ -322,19 +393,21 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFF70ABE0).withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
+            if (!conImagen) ...[
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF70ABE0).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.calendar_month_outlined,
+                  color: Color(0xFF8AC6FB),
+                  size: 20,
+                ),
               ),
-              child: const Icon(
-                Icons.calendar_month_outlined,
-                color: Color(0xFF8AC6FB),
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 14),
+              const SizedBox(width: 14),
+            ],
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -353,7 +426,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.questrial(
-                      color: const Color(0xFF9FB2C2),
+                      color: conImagen
+                          ? const Color(0xFFCFE0F0)
+                          : const Color(0xFF9FB2C2),
                       fontSize: 12,
                     ),
                   ),
@@ -409,6 +484,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         // propia y no el diálogo que sigue viviendo en Comunidad.
         _buildModuleCard(
           context: context,
+          slug: 'legacy-board',
           title: 'Legacy Board',
           subtitle: 'Gobierno corporativo para familias empresarias',
           icon: Icons.dashboard,
@@ -420,6 +496,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           // "Legacy Knowledge" es el nombre oficial de la sección desde el
           // 2026-08-18. Antes el home decía "Contenido de valor" y la sección
           // se presentaba como Legacy Knowledge, y el cliente lo reportó.
+          slug: 'legacy-knowledge',
           title: 'Legacy Knowledge',
           subtitle: 'Artículos, podcast, videos y libros',
           icon: Icons.menu_book,
@@ -428,6 +505,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         ),
         _buildModuleCard(
           context: context,
+          slug: 'eventos',
           title: 'Eventos',
           subtitle: 'Masterclass virtual en vivo y Legacy Summit presencial',
           icon: Icons.calendar_month,
@@ -436,6 +514,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         ),
         _buildModuleCard(
           context: context,
+          slug: 'lso-escuela',
           title: 'LSO · Escuela',
           subtitle: 'Programas de formación',
           icon: Icons.school,
@@ -444,6 +523,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         ),
         _buildModuleCard(
           context: context,
+          slug: 'asesorias',
           title: 'Asesorías',
           subtitle: 'L&M · Aurum · Legacy Legal',
           icon: Icons.show_chart,
@@ -452,6 +532,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         ),
         _buildModuleCard(
           context: context,
+          slug: 'beneficios',
           title: 'Beneficios',
           subtitle: 'Próximamente',
           icon: Icons.shield_outlined,
@@ -460,6 +541,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         ),
         _buildModuleCard(
           context: context,
+          slug: 'legacy-plus',
           title: 'Legacy+',
           subtitle: 'Cómo accedo',
           icon: Icons.my_location,
@@ -470,6 +552,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         // pantalla se apila en vez de sustituir a la sección actual.
         _buildModuleCard(
           context: context,
+          slug: 'contactenos',
           title: 'Contáctenos',
           subtitle: 'Escríbenos si necesitas ayuda',
           icon: Icons.support_agent,
@@ -482,17 +565,20 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
 
   Widget _buildModuleCard({
     required BuildContext context,
+    required String slug,
     required String title,
     required String subtitle,
     required IconData icon,
     required Color iconColor,
     required VoidCallback onTap,
   }) {
+    final conImagen = _conImagen(slug);
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: _tarjeta(
+        slug: slug,
         padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
+        decoracion: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.025),
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
@@ -503,14 +589,16 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
+            // Con foto, el icono sobra: la imagen ya identifica la tarjeta.
+            if (!conImagen)
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: iconColor, size: 20),
               ),
-              child: Icon(icon, color: iconColor, size: 20),
-            ),
             const Spacer(),
             Text(
               title,
@@ -526,7 +614,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.questrial(
-                color: const Color(0xFF9FB2C2),
+                color: conImagen
+                    ? const Color(0xFFCFE0F0)
+                    : const Color(0xFF9FB2C2),
                 fontSize: 11,
                 height: 1.3,
               ),
@@ -581,29 +671,35 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
       children: [
         GestureDetector(
           onTap: () => _showComingSoon(context),
-          child: Container(
+          // Comparte imagen con la tarjeta «Beneficios» de la cuadrícula, por
+          // decisión del cliente: una sola fila en el panel.
+          child: _tarjeta(
+            slug: 'beneficios',
+            oscuroHacia: Alignment.centerLeft,
             margin: const EdgeInsets.only(bottom: 8),
             padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
+            decoracion: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.02),
               borderRadius: BorderRadius.circular(15),
               border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
             ),
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(11),
+                if (!_conImagen('beneficios')) ...[
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(11),
+                    ),
+                    child: Icon(
+                      Icons.shield_outlined,
+                      color: Colors.white.withValues(alpha: 0.3),
+                      size: 20,
+                    ),
                   ),
-                  child: Icon(
-                    Icons.shield_outlined,
-                    color: Colors.white.withValues(alpha: 0.3),
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
+                  const SizedBox(width: 12),
+                ],
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -649,9 +745,11 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
               );
             }
           },
-          child: Container(
+          child: _tarjeta(
+            slug: 'miembros',
+            oscuroHacia: Alignment.centerLeft,
             padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
+            decoracion: BoxDecoration(
               gradient: LinearGradient(
                 colors: isCliente
                     ? [
@@ -674,23 +772,25 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
             ),
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: isCliente
-                        ? const Color(0xFF54C6A8).withValues(alpha: 0.13)
-                        : Colors.white.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(11),
+                if (!_conImagen('miembros')) ...[
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: isCliente
+                          ? const Color(0xFF54C6A8).withValues(alpha: 0.13)
+                          : Colors.white.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(11),
+                    ),
+                    child: Icon(
+                      Icons.people_alt_outlined,
+                      color: isCliente
+                          ? const Color(0xFF54C6A8)
+                          : Colors.white.withValues(alpha: 0.3),
+                      size: 20,
+                    ),
                   ),
-                  child: Icon(
-                    Icons.people_alt_outlined,
-                    color: isCliente
-                        ? const Color(0xFF54C6A8)
-                        : Colors.white.withValues(alpha: 0.3),
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
+                  const SizedBox(width: 12),
+                ],
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -734,10 +834,11 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
   Widget _buildLegacyTestHero(BuildContext context) {
     return GestureDetector(
       onTap: () => _showComingSoon(context),
-      child: Container(
+      child: _tarjeta(
+        slug: 'legacy-test',
         width: double.infinity,
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
+        decoracion: BoxDecoration(
           borderRadius: BorderRadius.circular(18),
           gradient: const LinearGradient(
             begin: Alignment.topLeft,

@@ -18,6 +18,8 @@ class ApiConstants {
   // Paginas de informacion que edita el panel (hoy, Legacy Board). Publicas:
   // no exigen sesion, igual que los banners.
   static String paginaEndpoint(String slug) => '/api/paginas/$slug';
+  // Imagen de cada tarjeta del Inicio, que el panel cambia. Pública.
+  static const String seccionesInicioEndpoint = '/api/inicio/secciones';
 
   static const String meEndpoint = '/api/me';
   static const String changePasswordEndpoint = '/api/me/change-password';
