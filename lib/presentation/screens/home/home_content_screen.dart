@@ -541,18 +541,18 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         // Legacy, que usa la misma imagen y textos del panel.
         // «Legacy+» también se retiró de la cuadrícula el 2026-10-13: se llega
         // desde la barra inferior y desde «Cómo accedo» de la sección Legacy+.
-        // Penúltimo del grid desde el 2026-10-13, a pedido del cliente, justo
-        // antes de Contáctenos (antes fue el primero, decisión del 2026-09-02). El contenido de esta
-        // pantalla lo edita el panel, no viaja en la app: por eso es una ruta
-        // propia y no el diálogo que sigue viviendo en Comunidad.
+        // «DIAGNÓSTICOS» ocupa desde el 2026-10-13 el sitio de Legacy Board
+        // (penúltimo, antes de Contáctenos) y abre su propia pantalla con los
+        // dos diagnósticos. La página /legacy-board sigue existiendo.
         _buildModuleCard(
           context: context,
-          slug: 'legacy-board',
-          title: 'Legacy Board',
-          subtitle: 'Gobierno corporativo para familias empresarias',
-          icon: Icons.dashboard,
+          slug: 'diagnosticos',
+          title: 'DIAGNÓSTICOS',
+          subtitle:
+              'Identifica riesgos críticos, que podrían comprometer la continuidad del negocio y del legado.',
+          icon: Icons.fact_check_outlined,
           iconColor: AppTheme.legacyActive,
-          onTap: () => context.push('/legacy-board'),
+          onTap: () => context.push('/diagnosticos'),
         ),
         // Contáctenos cierra la cuadrícula desde el 2026-10-13.
         // push y no go: desde aquí se entra a escribir y se vuelve, así que la

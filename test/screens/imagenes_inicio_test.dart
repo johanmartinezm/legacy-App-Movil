@@ -144,9 +144,11 @@ void main() {
     // cuadrícula se retiró el 2026-10-13).
     expect(find.byKey(const Key('tarjeta-beneficios-con-imagen')), findsOneWidget);
 
-    expect(find.byKey(const Key('tarjeta-legacy-board')), findsOneWidget);
+    // Legacy Board dejó la cuadrícula el 2026-10-13; su sitio es Diagnósticos.
+    expect(find.byKey(const Key('tarjeta-legacy-board')), findsNothing);
+    expect(find.byKey(const Key('tarjeta-diagnosticos')), findsOneWidget);
     expect(find.byKey(const Key('tarjeta-nuevo-cada-semana')), findsOneWidget);
-    expect(find.byIcon(Icons.dashboard), findsOneWidget);
+    expect(find.byIcon(Icons.fact_check_outlined), findsOneWidget);
     // Con imagen, el icono de la tarjeta se retira.
     expect(find.byIcon(Icons.calendar_month), findsNothing);
     // El texto sigue en su sitio.
@@ -169,9 +171,10 @@ void main() {
     expect(find.text('Todo el calendario'), findsOneWidget);
     expect(find.text('Red de socios'), findsOneWidget);
     // Lo que el panel no cambió sigue con el de siempre.
-    // «Legacy Board» sale dos veces: la tarjeta de la cuadrícula y la fila
-    // de la sección Legacy+ (slug `miembros`, retitulada el 2026-10-13).
-    expect(find.text('Legacy Board'), findsNWidgets(2));
+    // «Legacy Board» ya solo es la fila de la sección Legacy+ (slug
+    // `miembros`); en la cuadrícula está DIAGNÓSTICOS.
+    expect(find.text('Legacy Board'), findsOneWidget);
+    expect(find.text('DIAGNÓSTICOS'), findsOneWidget);
     expect(find.text('Chats de sinergia'), findsOneWidget);
     // Lo sustituido ya no aparece.
     expect(find.text('Masterclass virtual en vivo y Legacy Summit presencial'), findsNothing);

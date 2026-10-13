@@ -1,10 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../data/services/legacy_plus_service.dart';
+import '../../../data/services/secciones_inicio_service.dart';
 import '../../widgets/boton_volver.dart';
 import 'package:legacy_app/config/theme/app_theme.dart';
 
-class LegacyPlusScreen extends StatelessWidget {
-  const LegacyPlusScreen({super.key});
+/// Pantalla Legacy+ (pestaña inferior). Desde el 2026-10-13 su contenido se
+/// administra en el panel: los textos fijos en «Textos de Legacy+» (filas de
+/// secciones_inicio con pantalla «legacy-plus») y los puntos con check en
+/// «Puntos de Legacy+». Lo que no llegue —sin backend, o vacío— se ve como
+/// estaba escrito aquí.
+class LegacyPlusScreen extends StatefulWidget {
+  /// Se inyectan en las pruebas; por defecto, los reales.
+  final SeccionesInicioService? textosService;
+  final LegacyPlusService? puntosService;
+
+  const LegacyPlusScreen({super.key, this.textosService, this.puntosService});
+
+  @override
+  State<LegacyPlusScreen> createState() => _LegacyPlusScreenState();
+}
+
+class _LegacyPlusScreenState extends State<LegacyPlusScreen> {
+  Map<String, SeccionInicio> _textos = const {};
+  List<PuntoLegacyPlus> _puntos = PuntoLegacyPlus.porDefecto;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargar();
+  }
+
+  Future<void> _cargar() async {
+    final resultados = await Future.wait([
+      (widget.textosService ?? SeccionesInicioService()).secciones(),
+      (widget.puntosService ?? LegacyPlusService()).puntos(),
+    ]);
+    if (!mounted) return;
+    final textos = resultados[0] as Map<String, SeccionInicio>;
+    final puntos = resultados[1] as List<PuntoLegacyPlus>?;
+    setState(() {
+      _textos = textos;
+      if (puntos != null) _puntos = puntos;
+    });
+  }
+
+  String _titulo(String slug, String porDefecto) =>
+      _textos[slug]?.titulo ?? porDefecto;
+
+  String _texto(String slug, String porDefecto) =>
+      _textos[slug]?.texto ?? porDefecto;
+
+  /// Los puntos de un grupo; si el panel no tiene ninguno activo, los de
+  /// siempre, para que la pantalla no quede con un título sin nada debajo.
+  List<PuntoLegacyPlus> _grupo(String grupo) {
+    final propios = _puntos.where((p) => p.grupo == grupo).toList();
+    if (propios.isNotEmpty) return propios;
+    return PuntoLegacyPlus.porDefecto.where((p) => p.grupo == grupo).toList();
+  }
+
+  /// Los puntos de un grupo con su separación.
+  List<Widget> _checks(String grupo) => [
+        for (final (i, p) in _grupo(grupo).indexed) ...[
+          if (i > 0) const SizedBox(height: 16),
+          _buildCheckItem(p.titulo, p.texto),
+        ],
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +191,7 @@ class LegacyPlusScreen extends StatelessWidget {
                             // «¿Qué es Legacy+?» y, ese mismo día, «Cómo accedo:
                             // debes ser cliente de alguna unidad…».
                             Text(
-                              'LEGACY+',
+                              _titulo('lp-banner', 'LEGACY+'),
                               style: GoogleFonts.barlowCondensed(
                                 color: Colors.white,
                                 fontSize: 26,
@@ -140,7 +201,10 @@ class LegacyPlusScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              'Servicios y beneficios plus para los clientes de Legacy Network o Alumni LSO',
+                              _texto(
+                                'lp-banner',
+                                'Servicios y beneficios plus para los clientes de Legacy Network o Alumni LSO',
+                              ),
                               textAlign: TextAlign.center,
                               style: GoogleFonts.questrial(
                                 color: const Color(0xFFE8EEF5).withValues(alpha: 0.9),
@@ -155,7 +219,10 @@ class LegacyPlusScreen extends StatelessWidget {
 
                       // Texto del cliente bajo el banner, 2026-10-13.
                       Text(
-                        'Cómo accedo: debes ser cliente de alguna unidad de negocio o ser alumni de LSO. Tiene acceso a:',
+                        _texto(
+                          'lp-como-accedo',
+                          'Cómo accedo: debes ser cliente de alguna unidad de negocio o ser alumni de LSO. Tiene acceso a:',
+                        ),
                         key: const Key('legacy-plus-como-accedo'),
                         style: GoogleFonts.questrial(
                           color: const Color(0xFFE8EEF5).withValues(alpha: 0.9),
@@ -165,27 +232,13 @@ class LegacyPlusScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
 
-                      // Lo que incluye y los beneficios: textos del cliente,
-                      // 2026-10-13. Los tres primeros son las filas de la
-                      // sección Legacy+ del Inicio.
-                      _buildCheckItem(
-                        'Chats de sinergia',
-                        'Chats de sinergia entre pares: hay 4 chats para hablar de temas de Empresa, Patrimonio, Familia y otros entre miembros de otras familias empresarias.',
-                      ),
-                      const SizedBox(height: 16),
-                      _buildCheckItem(
-                        'Legacy Board',
-                        'Red de gobierno corporativo que conecta a familias empresarias y empresas que necesitan crear o fortalecer sus órganos de gobierno (juntas directivas, consejos de familia, directorios, advisory boards y comités) con profesionales que quieren servir en ellos.',
-                      ),
-                      const SizedBox(height: 16),
-                      _buildCheckItem(
-                        'Beneficios',
-                        'Son descuentos y servicios especiales de aliados o de Legacy Network.',
-                      ),
+                      // Puntos «Tiene acceso a» y «Beneficios»: los administra
+                      // el panel («Puntos de Legacy+»).
+                      ..._checks('incluye'),
                       const SizedBox(height: 28),
 
                       Text(
-                        'BENEFICIOS',
+                        _titulo('lp-beneficios', 'BENEFICIOS'),
                         style: GoogleFonts.barlow(
                           color: AppTheme.legacyActive,
                           fontSize: 12,
@@ -194,15 +247,7 @@ class LegacyPlusScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _buildCheckItem(
-                        'Legacy Network',
-                        'Legacy Test con descuento. Legacy Test: trampas familiares bonificado. Descuento LSO 15% para cualquier programa, 10% de descuento en los libros en nuestra página con el código xxxx. 20% de descuento en el Legacy Summit.',
-                      ),
-                      const SizedBox(height: 16),
-                      _buildCheckItem(
-                        'Beneficios de aliados',
-                        'Vitalea, Olfabrand, Boconcept, Espectador, EUDE, JW Marriott.',
-                      ),
+                      ..._checks('beneficios'),
                       // Hasta aquí llega la pantalla desde el 2026-10-13: el
                       // cliente retiró «YA TIENE LEGACY+ SI ES…», el precio
                       // (COP 1.790.000 / año) y la lista anterior de lo que

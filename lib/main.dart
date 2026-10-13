@@ -29,6 +29,7 @@ import 'presentation/screens/legal_notice_screen.dart';
 import 'presentation/screens/contacto/contacto_screen.dart';
 import 'presentation/screens/paginas/pagina_informativa_screen.dart';
 import 'presentation/widgets/botones_legacy_board.dart';
+import 'presentation/screens/diagnosticos/diagnosticos_screen.dart';
 import 'presentation/screens/profile/cambiar_contrasena_screen.dart';
 import 'presentation/screens/faq/faq_screen.dart';
 import 'presentation/screens/profile_selection_screen.dart';
@@ -421,6 +422,11 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
                 tituloProvisional: 'Legacy Board',
                 acciones: BotonesLegacyBoard(),
               ),
+            ),
+            // Diagnósticos (tarjeta del Inicio, 2026-10-13): dos enlaces externos.
+            GoRoute(
+              path: '/diagnosticos',
+              builder: (context, state) => const DiagnosticosScreen(),
             ),
             GoRoute(
               path: '/faq',

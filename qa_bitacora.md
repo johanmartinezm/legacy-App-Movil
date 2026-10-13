@@ -2,6 +2,31 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-13]: Inicio: tarjeta «DIAGNÓSTICOS» en lugar de Legacy Board
+- **Alcance:** `lib/presentation/screens/diagnosticos/diagnosticos_screen.dart` (nueva), ruta
+  `/diagnosticos` en `lib/main.dart`, `home_content_screen.dart` y pruebas
+  (`test/screens/diagnosticos_screen_test.dart`, `imagenes_inicio_test.dart`). La tarjeta de la
+  cuadrícula pasa a «DIAGNÓSTICOS · Identifica riesgos críticos, que podrían comprometer la
+  continuidad del negocio y del legado.» y abre una pantalla con dos botones que abren en el
+  navegador: «Diagnóstico para familias empresarias» (legacynetworkco.com/legacy-test) y
+  «Diagnóstico para empresas y organizaciones» (certificaciongc.legacynetworkco.com). La página
+  `/legacy-board` sigue existiendo, ya sin tarjeta en el Inicio.
+- **Criterios de QA:**
+  1. Inicio: la penúltima tarjeta es DIAGNÓSTICOS con su subtítulo.
+  2. Tocarla abre «Diagnósticos» con los dos botones.
+  3. Cada botón abre su página en el navegador.
+
+### [2026-10-13]: Legacy+: contenido administrable desde el panel
+- **Alcance:** `lib/data/services/legacy_plus_service.dart` (nuevo), `api_constants.dart`
+  (`legacyPlusItemsEndpoint`), `screens/legacy_plus/legacy_plus_screen.dart` (pasa a Stateful) y
+  `test/screens/legacy_plus_screen_test.dart`. El título y el texto del recuadro, «Cómo accedo» y el
+  subtítulo de beneficios salen de «Textos de Legacy+»; los puntos con check, de «Puntos de
+  Legacy+», por grupo y orden. Sin backend, o con un grupo sin puntos activos, se ve lo de siempre.
+- **Criterios de QA:**
+  1. Sin cambios en el panel, la pantalla se ve igual.
+  2. Editar el texto del recuadro o un punto en el panel y volver a entrar: se ve el cambio.
+  3. Ocultar un punto: desaparece de la app.
+
 ### [2026-10-13]: Inicio: se retira el banner final de Legacy Test
 - **Alcance:** `lib/presentation/screens/home/home_content_screen.dart` (fuera `_buildLegacyTestHero`
   y `_showComingSoon`, que ya solo usaba ese banner) y `test/screens/imagenes_inicio_test.dart`. A
