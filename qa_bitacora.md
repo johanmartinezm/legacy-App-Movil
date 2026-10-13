@@ -2,6 +2,24 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-13]: Inicio, sección Legacy+: nuevo orden y textos
+- **Alcance:** `lib/presentation/screens/home/home_content_screen.dart` y
+  `test/screens/imagenes_inicio_test.dart`. Textos del cliente. Orden: 1) «Chats de sinergia» (foros)
+  con «Chats de sinergia entre pares: hay 4 chats para hablar de temas de Empresa, Patrimonio,
+  Familia y otros…»; 2) la fila que era «Miembros» pasa a «Legacy Board», con «Red de gobierno
+  corporativo que conecta a familias empresarias…» y sigue abriendo `/miembros-info`; 3)
+  «Beneficios», con «Son descuentos y servicios especiales de aliados o de Legacy Network.». Las
+  filas admiten hasta 6 líneas de texto (Beneficios, 3) para que no se corten.
+  Después, el mismo día: «Legacy Board» queda bloqueada para todos «por el momento» (`bloqueada`
+  en `_filaExclusiva`; conserva su destino para cuando se abra), y ninguna fila cerrada muestra
+  aviso al tocarla —ni «exclusiva para clientes» ni «próximamente»—: simplemente no hace nada.
+- **Criterios de QA:**
+  1. Sección Legacy+: Chats de sinergia, Legacy Board y Beneficios, en ese orden, con los textos
+     completos.
+  2. Usuario no cliente: las tres con candado; tocarlas no hace nada ni muestra mensaje.
+  3. Usuario cliente: Chats de sinergia abre los foros; Legacy Board y Beneficios siguen con
+     candado y sin mensaje.
+
 ### [2026-10-13]: Inicio: ítem «Chats de sinergia» en la sección Legacy+
 - **Alcance:** `lib/presentation/screens/home/home_content_screen.dart` y
   `test/screens/imagenes_inicio_test.dart`. Debajo de Miembros, «Chats de sinergia · Debates

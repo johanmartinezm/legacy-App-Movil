@@ -167,22 +167,33 @@ void main() {
     expect(find.text('Haga el test'), findsOneWidget);
     expect(find.text('Red de socios'), findsOneWidget);
     // Lo que el panel no cambió sigue con el de siempre.
-    expect(find.text('Miembros'), findsOneWidget);
-    expect(find.text('Legacy Board'), findsOneWidget);
+    // «Legacy Board» sale dos veces: la tarjeta de la cuadrícula y la fila
+    // de la sección Legacy+ (slug `miembros`, retitulada el 2026-10-13).
+    expect(find.text('Legacy Board'), findsNWidgets(2));
+    expect(find.text('Chats de sinergia'), findsOneWidget);
     // Lo sustituido ya no aparece.
     expect(find.text('Masterclass virtual en vivo y Legacy Summit presencial'), findsNothing);
     // Sin imagen, conserva el icono.
     expect(find.byKey(const Key('tarjeta-eventos')), findsOneWidget);
   });
 
-  testWidgets('Chats de sinergia está en la sección Legacy+, con candado si no es cliente', (tester) async {
+  testWidgets('Sección Legacy+: tres filas con candado que no muestran nada al tocarlas', (tester) async {
     await montar(tester, servicio(() => http.Response('boom', 500)));
 
     expect(find.text('Chats de sinergia'), findsOneWidget);
     expect(find.byKey(const Key('tarjeta-chats-sinergia')), findsOneWidget);
-    await tester.tap(find.text('Chats de sinergia'));
+    // Sin ser cliente, las tres filas llevan candado (Legacy Board, siempre).
+    expect(find.byIcon(Icons.lock_outline), findsNWidgets(3));
+
+    for (final fila in ['Chats de sinergia', 'Beneficios']) {
+      await tester.tap(find.text(fila));
+      await tester.pump();
+    }
+    await tester.tap(find.text('Legacy Board').last);
     await tester.pump();
-    expect(find.text('Esta sección es exclusiva para clientes Legacy.'), findsOneWidget);
+    // Ni aviso ni navegación.
+    expect(find.byType(SnackBar), findsNothing);
+    expect(find.text('Chats de sinergia'), findsOneWidget);
   });
 
   testWidgets('Sin backend, el Inicio se ve como siempre', (tester) async {

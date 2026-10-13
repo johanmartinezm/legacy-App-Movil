@@ -692,16 +692,45 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
     final isCliente = authProvider.customerStatus == 'Ya soy cliente';
 
+    // Orden y textos del cliente, 2026-10-13: Chats de sinergia, Legacy Board
+    // (la fila que era «Miembros», con el mismo destino) y Beneficios.
     return Column(
       children: [
+        // «Chats de sinergia»: abre los foros anónimos que ya existían (se
+        // llegaba solo desde Perfil), con el mismo candado que Miembros. Ese
+        // mismo día se llamó «Foro» unas horas.
+        _filaExclusiva(
+          context,
+          isCliente: isCliente,
+          slug: 'chats-sinergia',
+          titulo: 'Chats de sinergia',
+          texto: 'Chats de sinergia entre pares: hay 4 chats para hablar de temas de Empresa, Patrimonio, Familia y otros entre miembros de otras familias empresarias.',
+          icono: Icons.forum_outlined,
+          ruta: '/forums',
+        ),
+        // Era «Miembros · Comunidad del ecosistema Legacy»; el cliente le cambió
+        // el título y el texto. Bloqueada para todos «por el momento»
+        // (2026-10-13): el destino, /miembros-info, se conserva para cuando se
+        // abra. El slug del panel sigue siendo `miembros`.
+        _filaExclusiva(
+          context,
+          isCliente: isCliente,
+          bloqueada: true,
+          slug: 'miembros',
+          titulo: 'Legacy Board',
+          texto: 'Red de gobierno corporativo que conecta a familias empresarias y empresas que necesitan crear o fortalecer sus órganos de gobierno (juntas directivas, consejos de familia, directorios, advisory boards y comités) con profesionales que quieren servir en ellos.',
+          icono: Icons.dashboard_outlined,
+          ruta: '/miembros-info',
+          margin: const EdgeInsets.only(top: 8),
+        ),
+        // Bloqueada: tocarla no hace nada ni muestra aviso (2026-10-13).
         GestureDetector(
-          onTap: () => _showComingSoon(context),
-          // Comparte imagen con la tarjeta «Beneficios» de la cuadrícula, por
-          // decisión del cliente: una sola fila en el panel.
+          // Última de la sección desde el 2026-10-13. La tarjeta Beneficios de
+          // la cuadrícula se retiró ese día; esta fila es la que queda.
           child: _tarjeta(
             slug: 'beneficios',
             oscuroHacia: Alignment.centerLeft,
-            margin: const EdgeInsets.only(bottom: 8),
+            margin: const EdgeInsets.only(top: 8),
             padding: const EdgeInsets.all(14),
             decoracion: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.02),
@@ -740,8 +769,11 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                         ),
                       ),
                       Text(
-                        _texto('beneficios', 'Próximamente'),
-                        maxLines: 2,
+                        _texto(
+                          'beneficios',
+                          'Son descuentos y servicios especiales de aliados o de Legacy Network.',
+                        ),
+                        maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.questrial(
                           color: const Color(0xFF9FB2C2).withValues(alpha: 0.5),
@@ -760,35 +792,14 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
             ),
           ),
         ),
-        _filaExclusiva(
-          context,
-          isCliente: isCliente,
-          slug: 'miembros',
-          titulo: 'Miembros',
-          texto: 'Comunidad del ecosistema Legacy',
-          icono: Icons.people_alt_outlined,
-          ruta: '/miembros-info',
-        ),
-        // «Chats de sinergia», desde el 2026-10-13: abre los foros anónimos que
-        // ya existían (se llegaba solo desde Perfil), con el mismo candado que
-        // Miembros. Ese mismo día se llamó «Foro» unas horas.
-        _filaExclusiva(
-          context,
-          isCliente: isCliente,
-          slug: 'chats-sinergia',
-          titulo: 'Chats de sinergia',
-          texto: 'Debates anónimos y confidenciales entre miembros',
-          icono: Icons.forum_outlined,
-          ruta: '/forums',
-          margin: const EdgeInsets.only(top: 8),
-        ),
       ],
     );
   }
 
   /// Fila de la sección Legacy+ reservada a clientes («Ya soy cliente»): con
-  /// candado y apagada para el resto, que al tocarla recibe el aviso. La usan
-  /// Miembros y Chats de sinergia.
+  /// candado y apagada para el resto. `bloqueada` la cierra también a los
+  /// clientes. Una fila cerrada no hace nada al tocarla, sin aviso: así lo pidió
+  /// el cliente el 2026-10-13. La usan Chats de sinergia y Legacy Board.
   Widget _filaExclusiva(
     BuildContext context, {
     required bool isCliente,
@@ -797,22 +808,13 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     required String texto,
     required IconData icono,
     required String ruta,
+    bool bloqueada = false,
     EdgeInsetsGeometry? margin,
   }) {
+    // A partir de aquí «abierta» decide todo: el destino, el color y el candado.
+    final abierta = isCliente && !bloqueada;
     return GestureDetector(
-      onTap: () {
-        if (isCliente) {
-          context.push(ruta);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Esta sección es exclusiva para clientes Legacy.',
-              ),
-            ),
-          );
-        }
-      },
+      onTap: abierta ? () => context.push(ruta) : null,
       child: _tarjeta(
         slug: slug,
         oscuroHacia: Alignment.centerLeft,
@@ -820,7 +822,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         padding: const EdgeInsets.all(14),
         decoracion: BoxDecoration(
           gradient: LinearGradient(
-            colors: isCliente
+            colors: abierta
                 ? [
                     const Color(0xFF54C6A8).withValues(alpha: 0.06),
                     const Color(0xFF54C6A8).withValues(alpha: 0.02),
@@ -834,7 +836,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           ),
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: isCliente
+            color: abierta
                 ? const Color(0xFF54C6A8).withValues(alpha: 0.3)
                 : Colors.white.withValues(alpha: 0.05),
           ),
@@ -845,14 +847,14 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: isCliente
+                  color: abierta
                       ? const Color(0xFF54C6A8).withValues(alpha: 0.13)
                       : Colors.white.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(11),
                 ),
                 child: Icon(
                   icono,
-                  color: isCliente
+                  color: abierta
                       ? const Color(0xFF54C6A8)
                       : Colors.white.withValues(alpha: 0.3),
                   size: 20,
@@ -869,7 +871,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.barlowCondensed(
-                      color: isCliente
+                      color: abierta
                           ? Colors.white
                           : Colors.white.withValues(alpha: 0.5),
                       fontSize: 16,
@@ -878,10 +880,12 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                   ),
                   Text(
                     _texto(slug, texto),
-                    maxLines: 2,
+                    // Los textos de esta sección son de varias líneas (el de
+                    // Legacy Board, unas cinco en un teléfono).
+                    maxLines: 6,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.questrial(
-                      color: isCliente
+                      color: abierta
                           ? const Color(0xFF9FB2C2)
                           : const Color(0xFF9FB2C2).withValues(alpha: 0.5),
                       fontSize: 11,
@@ -890,7 +894,7 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                 ],
               ),
             ),
-            if (!isCliente)
+            if (!abierta)
               Icon(
                 Icons.lock_outline,
                 color: Colors.white.withValues(alpha: 0.2),
