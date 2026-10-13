@@ -5,11 +5,15 @@ import '../../../config/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:legacy_app/domain/utils/formato_telefono.dart';
 import '../../../data/services/asesoria_service.dart';
+import '../../../data/services/secciones_inicio_service.dart';
 import '../../../domain/providers/auth_provider.dart';
 import '../../widgets/boton_volver.dart';
 
 class AsesoriaScreen extends StatefulWidget {
-  const AsesoriaScreen({super.key});
+  /// Se inyecta en las pruebas; por defecto, el real.
+  final SeccionesInicioService? seccionesService;
+
+  const AsesoriaScreen({super.key, this.seccionesService});
 
   @override
   State<AsesoriaScreen> createState() => _AsesoriaScreenState();
@@ -99,9 +103,21 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
     'Certificación': 'FORMAR',
   };
 
+  /// Texto del primer recuadro, si el panel lo cambió («Texto de Asesoría»).
+  /// Null hasta que responde el backend, o si falla: entonces el de siempre.
+  String? _textoBienvenida;
+
+  Future<void> _cargarTexto() async {
+    final secciones =
+        await (widget.seccionesService ?? SeccionesInicioService()).secciones();
+    final texto = secciones['asesoria-banner']?.texto;
+    if (mounted && texto != null) setState(() => _textoBienvenida = texto);
+  }
+
   @override
   void initState() {
     super.initState();
+    _cargarTexto();
     // Precargar datos del usuario autenticado si existen
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -401,27 +417,17 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
           width: 1.2,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Asesoría abierta a todos',
-            style: GoogleFonts.barlow(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
+      // Sin título desde el 2026-10-13 («Asesoría abierta a todos» se retiró a
+      // pedido del cliente); el texto lo edita el panel.
+      child: Text(
+        _textoBienvenida ??
             'No necesita ser cliente para empezar. Solicite una propuesta y conozca cómo nuestras cinco unidades pueden acompañarle.',
-            style: GoogleFonts.questrial(
-              color: const Color(0xFF9FB2C2),
-              fontSize: 13,
-              height: 1.4,
-            ),
-          ),
-        ],
+        key: const Key('asesoria-bienvenida'),
+        style: GoogleFonts.questrial(
+          color: const Color(0xFF9FB2C2),
+          fontSize: 13,
+          height: 1.4,
+        ),
       ),
     );
   }

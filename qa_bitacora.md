@@ -2,6 +2,81 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-13]: Asesoría: sin el título «Asesoría abierta a todos», texto desde el panel
+- **Alcance:** `lib/presentation/screens/asesoria/asesoria_screen.dart` y
+  `test/screens/asesoria_texto_test.dart`. A pedido del cliente, el primer recuadro pierde el título
+  y queda solo el texto, que sale del panel («Texto de Asesoría»). Vacío, o sin backend, se ve el de
+  siempre: «No necesita ser cliente para empezar…».
+- **Criterios de QA:**
+  1. Inicio → Asesorías: el primer recuadro no tiene «Asesoría abierta a todos», solo el texto.
+  2. Cambiar el texto en el panel y volver a entrar: aparece el nuevo.
+  3. Vaciarlo en el panel: vuelve el de siempre.
+
+### [2026-10-13]: Legacy Board: botones «Quiero ser parte» y «Quiero buscar»
+- **Alcance:** `lib/presentation/widgets/botones_legacy_board.dart` (nuevo),
+  `screens/paginas/pagina_informativa_screen.dart` (parámetro `acciones`, botones al pie si la
+  página cargó), `screens/contacto/contacto_screen.dart` (`asuntoInicial`), `lib/main.dart` (la ruta
+  `/contacto` lee `?asunto=` y `/legacy-board` pasa los botones) y
+  `test/widgets/botones_legacy_board_test.dart`. Mientras no existan los formularios A y B del plan
+  de Legacy Board, cada botón abre Contáctenos con el asunto escrito: «Legacy Board: quiero ser
+  parte» o «Legacy Board: quiero buscar consejeros». El mensaje llega a Mensajes de contacto del
+  panel y al correo, como cualquier otro.
+- **Criterios de QA:**
+  1. Inicio → Legacy Board: debajo del texto, «¿Cómo quiere participar?» con los dos botones.
+  2. «Quiero ser parte» abre Contáctenos con el asunto «Legacy Board: quiero ser parte»; se puede
+     escribir el mensaje y enviar.
+  3. «Quiero buscar» abre Contáctenos con «Legacy Board: quiero buscar consejeros».
+  4. El mensaje enviado aparece en el panel → Mensajes de contacto con ese asunto.
+  5. Contáctenos abierto desde el Inicio sigue con el asunto vacío.
+
+### [2026-10-13]: LSO · Escuela: encabezado y banner desde el panel
+- **Alcance:** `lib/presentation/screens/programs/programs_screen.dart`. El título y el texto del
+  encabezado («LSO · Legacy School of Ownership» / «La escuela del propietario en LATAM») y del
+  banner principal («Formación que los MBA no dan» / …) salen del panel («Textos de LSO»), con el
+  mismo servicio que las tarjetas del Inicio. Vacíos, o sin backend, se ven los de siempre.
+- **Criterios de QA:**
+  1. Sin cambios en el panel, la pantalla se ve igual que antes.
+  2. Cambiar en el panel el título del banner y volver a entrar a LSO · Escuela: aparece el nuevo.
+  3. Vaciarlo en el panel: vuelve el de siempre.
+
+### [2026-10-13]: Legacy Knowledge: los libros de la Biblioteca, en la categoría «Libros»
+- **Alcance:** `lib/presentation/screens/informandote/informandote_screen.dart`. La sección carga
+  como cuarta fuente los libros de la tienda de LSO (`GraphqlService.getBooks`, los mismos de
+  Programas → Biblioteca), que hasta ahora dejaban vacío el filtro «Libros». Cada libro sale con su
+  portada en vertical, «Libro · Tienda LSO» (o «Libro · Agotado») y una flecha, sin precio; al
+  tocarlo abre la misma ficha del libro que la Biblioteca. También llenan el bloque «BIBLIOTECA
+  EJECUTIVA» de la vista «Todo». Si la tienda no responde, la sección carga igual, sin libros. La
+  Biblioteca de Programas sigue donde estaba. Los filtros cambian de orden a pedido del cliente:
+  Todo, Artículos, Libros, Videos y Podcast (antes Podcast iba tercero y Libros último).
+- **Criterios de QA:**
+  1. Legacy Knowledge → Libros (tercer filtro): aparecen los libros de la Biblioteca con su portada.
+  2. Tocar un libro abre su ficha con «Comprar en LSO».
+  3. Legacy Knowledge → Todo: «BIBLIOTECA EJECUTIVA» muestra dos libros.
+  4. El buscador de la sección encuentra un libro por su título.
+
+### [2026-10-13]: Inicio: Legacy Board pasa al último lugar
+- **Alcance:** `lib/presentation/screens/home/home_content_screen.dart`. A pedido del cliente, la
+  cuadrícula «Explore libremente» queda: Legacy Knowledge, Eventos, LSO · Escuela, Asesorías,
+  Beneficios, Legacy+, Contáctenos y Legacy Board. Antes Legacy Board iba primera (decisión del
+  2026-09-02); el mismo día se probó cuarta antes de dejarla al final. El panel replica el orden con la migración `20261013_orden_legacy_board.sql`.
+- **Criterios de QA:**
+  1. En el Inicio, Legacy Board es la última tarjeta (cuarta fila, a la derecha) y abre su pantalla.
+  2. Las demás tarjetas abren lo mismo que antes.
+
+### [2026-10-13]: Legacy Knowledge: «Estreno semanal» muestra el último estreno real
+- **Alcance:** `lib/domain/utils/ultimo_estreno.dart` (+ `test/domain/ultimo_estreno_test.dart`) e
+  `informandote_screen.dart`. El banner era un texto fijo («Cada lunes publicamos contenido nuevo.
+  Active notificaciones.») que no cambiaba ni hacía nada al tocarlo. Ahora enseña el contenido más
+  reciente de las tres fuentes (propio, YouTube y WordPress, por fecha; con empate gana el propio):
+  su miniatura, el título y «Video · 13 oct» o «Artículo · …», y al tocarlo abre su detalle.
+  Mientras carga, o si nada trae fecha, queda «Cada lunes publicamos contenido nuevo.», sin la
+  promesa de activar notificaciones que no tenía botón.
+- **Criterios de QA:**
+  1. Abrir Legacy Knowledge: el banner muestra el video o artículo publicado más recientemente,
+     con su imagen, tipo y fecha.
+  2. Tocar el banner abre ese video o artículo.
+  3. En modo avión, el banner muestra el texto fijo sin error.
+
 ### [2026-10-13]: Inicio: título y texto de las tarjetas desde el panel
 - **Alcance:** `lib/data/services/secciones_inicio_service.dart` (`secciones()` devuelve imagen,
   título y texto por slug, en lugar de solo la imagen), `home_content_screen.dart` (`_titulo` y
