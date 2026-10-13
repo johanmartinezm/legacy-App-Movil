@@ -2,6 +2,35 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-13]: Inicio: la sección «Servicios Legacy» pasa a llamarse «Legacy+»
+- **Alcance:** `lib/presentation/screens/home/home_content_screen.dart`. A pedido del cliente cambia
+  el encabezado de la sección y lleva debajo el subtítulo «Servicios y beneficios plus para los clientes de
+  Legacy Network o Alumni LSO». Beneficios, Miembros y el enlace «Cómo accedo» siguen igual.
+- **Criterios de QA:**
+  1. En el Inicio, el encabezado sobre Beneficios y Miembros dice «Legacy+», con el subtítulo debajo
+     y «Cómo accedo» a la derecha, sin cortarse.
+
+### [2026-10-13]: Inicio: fuera Legacy+ de la cuadrícula y Contáctenos al final
+- **Alcance:** `lib/presentation/screens/home/home_content_screen.dart`. A pedido del cliente se
+  retira la tarjeta «Legacy+» de «Explore libremente» (se sigue llegando por la barra inferior y por
+  «Cómo accedo» de Servicios Legacy) y Contáctenos pasa a ser la última. La cuadrícula queda en seis
+  tarjetas, tres filas completas.
+- **Criterios de QA:**
+  1. Explore libremente: Legacy Knowledge, Eventos, LSO · Escuela, Asesorías, Legacy Board y
+     Contáctenos, en ese orden.
+  2. La pestaña LEGACY+ de la barra inferior y «Cómo accedo» siguen llevando a Legacy+.
+
+### [2026-10-13]: Inicio: se retira la tarjeta «Beneficios» de la cuadrícula
+- **Alcance:** `lib/presentation/screens/home/home_content_screen.dart` y
+  `test/screens/imagenes_inicio_test.dart`. A pedido del cliente se quita la quinta tarjeta de
+  «Explore libremente» («Beneficios · Próximamente»). La fila «Beneficios» de Servicios Legacy se
+  queda, con la misma imagen y textos del panel. La cuadrícula pasa a siete tarjetas: Legacy Board
+  queda sola en la última fila.
+- **Criterios de QA:**
+  1. Explore libremente: Legacy Knowledge, Eventos, LSO · Escuela, Asesorías, Legacy+, Contáctenos y
+     Legacy Board; sin Beneficios.
+  2. Servicios Legacy sigue mostrando la fila «Beneficios».
+
 ### [2026-10-13]: Asesoría: las unidades salen del panel
 - **Alcance:** `lib/data/services/asesoria_unidades_service.dart` (nuevo: `UnidadAsesoria`, mapa de
   claves de icono y las cinco de siempre como respaldo), `api_constants.dart`

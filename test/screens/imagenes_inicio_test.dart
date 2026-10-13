@@ -137,8 +137,9 @@ void main() {
 
     expect(find.byKey(const Key('tarjeta-eventos-con-imagen')), findsOneWidget);
     expect(find.byKey(const Key('tarjeta-legacy-test-con-imagen')), findsOneWidget);
-    // Beneficios comparte imagen: la tarjeta de la cuadrícula y la fila.
-    expect(find.byKey(const Key('tarjeta-beneficios-con-imagen')), findsNWidgets(2));
+    // Beneficios ya solo es la fila de la sección Legacy+ (la tarjeta de la
+    // cuadrícula se retiró el 2026-10-13).
+    expect(find.byKey(const Key('tarjeta-beneficios-con-imagen')), findsOneWidget);
 
     expect(find.byKey(const Key('tarjeta-legacy-board')), findsOneWidget);
     expect(find.byKey(const Key('tarjeta-nuevo-cada-semana')), findsOneWidget);

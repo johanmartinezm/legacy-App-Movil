@@ -533,37 +533,13 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           iconColor: const Color(0xFFB3A6EE),
           onTap: () => context.push('/asesoria'),
         ),
-        _buildModuleCard(
-          context: context,
-          slug: 'beneficios',
-          title: 'Beneficios',
-          subtitle: 'Próximamente',
-          icon: Icons.shield_outlined,
-          iconColor: const Color(0xFF8AC6FB).withValues(alpha: 0.5),
-          onTap: () => _showComingSoon(context),
-        ),
-        _buildModuleCard(
-          context: context,
-          slug: 'legacy-plus',
-          title: 'Legacy+',
-          subtitle: 'Cómo accedo',
-          icon: Icons.my_location,
-          iconColor: const Color(0xFF70ABE0),
-          onTap: () => context.go('/legacy-plus'),
-        ),
-        // push y no go: desde aquí se entra a escribir y se vuelve, así que la
-        // pantalla se apila en vez de sustituir a la sección actual.
-        _buildModuleCard(
-          context: context,
-          slug: 'contactenos',
-          title: 'Contáctenos',
-          subtitle: 'Escríbenos si necesitas ayuda',
-          icon: Icons.support_agent,
-          iconColor: const Color(0xFF54C6A8),
-          onTap: () => context.push('/contacto'),
-        ),
-        // Último del grid desde el 2026-10-13, a pedido del cliente (antes fue
-        // el primero, por decisión del 2026-09-02). El contenido de esta
+        // La tarjeta «Beneficios» de la cuadrícula se retiró el 2026-10-13 a
+        // pedido del cliente; queda la fila del mismo nombre en Servicios
+        // Legacy, que usa la misma imagen y textos del panel.
+        // «Legacy+» también se retiró de la cuadrícula el 2026-10-13: se llega
+        // desde la barra inferior y desde «Cómo accedo» de la sección Legacy+.
+        // Penúltimo del grid desde el 2026-10-13, a pedido del cliente, justo
+        // antes de Contáctenos (antes fue el primero, decisión del 2026-09-02). El contenido de esta
         // pantalla lo edita el panel, no viaja en la app: por eso es una ruta
         // propia y no el diálogo que sigue viviendo en Comunidad.
         _buildModuleCard(
@@ -574,6 +550,18 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           icon: Icons.dashboard,
           iconColor: AppTheme.legacyActive,
           onTap: () => context.push('/legacy-board'),
+        ),
+        // Contáctenos cierra la cuadrícula desde el 2026-10-13.
+        // push y no go: desde aquí se entra a escribir y se vuelve, así que la
+        // pantalla se apila en vez de sustituir a la sección actual.
+        _buildModuleCard(
+          context: context,
+          slug: 'contactenos',
+          title: 'Contáctenos',
+          subtitle: 'Escríbenos si necesitas ayuda',
+          icon: Icons.support_agent,
+          iconColor: const Color(0xFF54C6A8),
+          onTap: () => context.push('/contacto'),
         ),
       ],
     );
@@ -658,14 +646,33 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          'Servicios Legacy',
-          style: GoogleFonts.barlowCondensed(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+        // «Legacy+» y no «Servicios Legacy» desde el 2026-10-13, a pedido del
+        // cliente: la tarjeta Legacy+ salió de la cuadrícula y la sección
+        // toma su nombre.
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Legacy+',
+                style: GoogleFonts.barlowCondensed(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'Servicios y beneficios plus para los clientes de Legacy Network o Alumni LSO',
+                style: GoogleFonts.questrial(
+                  color: const Color(0xFF9FB2C2),
+                  fontSize: 12,
+                ),
+              ),
+            ],
           ),
         ),
+        const SizedBox(width: 12),
         GestureDetector(
           onTap: () => context.go('/legacy-plus'),
           child: Text(
