@@ -2,6 +2,14 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-12]: Inicio: capa más oscura en las tarjetas horizontales con imagen
+- **Alcance:** `lib/presentation/screens/home/widgets/fondo_con_imagen.dart` (parámetro
+  `opacidadLadoClaro`) y `home_content_screen.dart`. En Nuevo cada semana, Beneficios y Miembros
+  el subtítulo cruza hasta el centro y la flecha va a la derecha, donde la capa quedaba al 15 % y la
+  foto se comía el texto. En esas filas la capa arranca ahora al 60 %; las tarjetas altas no cambian.
+- **Criterios de QA:**
+  1. Con imagen en Nuevo cada semana, el subtítulo completo y la flecha se leen sobre la foto.
+
 ### [2026-10-12]: Inicio: imagen de fondo en las tarjetas, cambiable desde el panel
 - **Alcance:** `lib/data/services/secciones_inicio_service.dart`, `lib/data/config/api_constants.dart`,
   `lib/presentation/screens/home/widgets/fondo_con_imagen.dart`,

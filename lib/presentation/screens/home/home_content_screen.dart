@@ -78,6 +78,9 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
         borderRadius: radio,
         padding: padding,
         oscuroHacia: oscuroHacia,
+        // Filas horizontales (Nuevo cada semana, Beneficios, Miembros): capa
+        // más oscura en todo el ancho para que se lea el subtítulo y la flecha.
+        opacidadLadoClaro: oscuroHacia.y == 0 ? 0.6 : 0.15,
         child: child,
       ),
     );

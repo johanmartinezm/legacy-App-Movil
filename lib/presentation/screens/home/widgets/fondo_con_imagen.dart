@@ -18,6 +18,11 @@ class FondoConImagen extends StatelessWidget {
   /// a la izquierda en las filas, donde va el título.
   final Alignment oscuroHacia;
 
+  /// Opacidad de la capa en el lado claro. En las filas horizontales el
+  /// subtítulo cruza hasta el centro y la flecha queda a la derecha, así que
+  /// ahí la capa no puede aclararse tanto como en las tarjetas altas.
+  final double opacidadLadoClaro;
+
   const FondoConImagen({
     super.key,
     required this.imagenUrl,
@@ -25,6 +30,7 @@ class FondoConImagen extends StatelessWidget {
     required this.borderRadius,
     this.padding = const EdgeInsets.all(14),
     this.oscuroHacia = Alignment.bottomCenter,
+    this.opacidadLadoClaro = 0.15,
   });
 
   @override
@@ -49,7 +55,7 @@ class FondoConImagen extends StatelessWidget {
                   begin: Alignment(-oscuroHacia.x, -oscuroHacia.y),
                   end: oscuroHacia,
                   colors: [
-                    const Color(0xFF162540).withValues(alpha: 0.15),
+                    const Color(0xFF162540).withValues(alpha: opacidadLadoClaro),
                     const Color(0xFF162540).withValues(alpha: 0.92),
                   ],
                 ),
