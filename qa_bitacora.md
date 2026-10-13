@@ -2,6 +2,18 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-13]: Legacy+: el usuario plus ve sus tres accesos
+- **Alcance:** `lib/presentation/screens/legacy_plus/legacy_plus_screen.dart` y
+  `test/screens/legacy_plus_screen_test.dart`. Con `esPlus`, bajo el recuadro aparece «TU ACCESO
+  LEGACY+» con las tres filas del Inicio —Chats de sinergia, Legacy Board y Beneficios, con los
+  títulos y textos de «Tarjetas del Inicio»—, que abren su sección, en lugar de «Cómo accedo…» y los
+  puntos informativos. Sin plus, la pantalla sigue igual. Al abrirse recarga el perfil, para que el
+  plus marcado en el panel se note sin cerrar sesión.
+- **Criterios de QA:**
+  1. Usuario sin Legacy+: «Cómo accedo…», los puntos y BENEFICIOS, como antes.
+  2. Marcarlo Legacy+ en el panel y volver a entrar a la pestaña LEGACY+: «TU ACCESO LEGACY+» con
+     las tres filas; cada una abre los foros, Legacy Board y Beneficios.
+
 ### [2026-10-13]: Sección Beneficios: sliders de beneficios y alianzas
 - **Alcance:** `lib/data/services/beneficios_service.dart` (nuevo, `GET /api/beneficios`),
   `screens/beneficios/beneficios_screen.dart` (reescrita) y `test/screens/beneficios_screen_test.dart`;

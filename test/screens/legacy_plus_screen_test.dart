@@ -8,7 +8,9 @@ import 'package:http/testing.dart';
 import 'package:legacy_app/data/config/config_service.dart';
 import 'package:legacy_app/data/services/legacy_plus_service.dart';
 import 'package:legacy_app/data/services/secciones_inicio_service.dart';
+import 'package:legacy_app/domain/providers/auth_provider.dart';
 import 'package:legacy_app/presentation/screens/legacy_plus/legacy_plus_screen.dart';
+import 'package:provider/provider.dart';
 
 /// La pantalla Legacy+ toma del panel sus textos fijos y sus puntos con check;
 /// sin backend, o con un grupo vacío, se ve lo de siempre.
@@ -24,14 +26,17 @@ void main() {
       (_) async => http.Response.bytes(utf8.encode(jsonEncode(cuerpo)), 200));
   http.Client falla() => MockClient((_) async => http.Response('boom', 500));
 
-  Future<void> montar(WidgetTester tester, {required http.Client textos, required http.Client puntos}) async {
+  Future<void> montar(WidgetTester tester, {required http.Client textos, required http.Client puntos, bool esPlus = false}) async {
     tester.view.physicalSize = const Size(1080, 5000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(MaterialApp(
-      home: LegacyPlusScreen(
-        textosService: SeccionesInicioService(client: textos),
-        puntosService: LegacyPlusService(client: puntos),
+    await tester.pumpWidget(ChangeNotifierProvider<AuthProvider>(
+      create: (_) => esPlus ? _AuthPlus() : AuthProvider(),
+      child: MaterialApp(
+        home: LegacyPlusScreen(
+          textosService: SeccionesInicioService(client: textos),
+          puntosService: LegacyPlusService(client: puntos),
+        ),
       ),
     ));
     await tester.pump();
@@ -85,4 +90,28 @@ void main() {
     expect(find.text('Foros'), findsOneWidget);
     expect(find.text('Legacy Network'), findsOneWidget);
   });
+
+  testWidgets('usuario Legacy+: sus tres accesos en lugar de lo informativo', (tester) async {
+    await montar(tester, textos: falla(), puntos: falla(), esPlus: true);
+    expect(find.text('TU ACCESO LEGACY+'), findsOneWidget);
+    expect(find.text('Chats de sinergia'), findsOneWidget);
+    expect(find.text('Legacy Board'), findsOneWidget);
+    expect(find.text('Beneficios'), findsOneWidget);
+    expect(find.byIcon(Icons.chevron_right), findsNWidgets(3));
+    // Lo informativo no.
+    expect(find.textContaining('Cómo accedo'), findsNothing);
+    expect(find.text('Beneficios de aliados'), findsNothing);
+  });
+
+  testWidgets('usuario sin Legacy+: lo informativo, sin accesos', (tester) async {
+    await montar(tester, textos: falla(), puntos: falla());
+    expect(find.text('TU ACCESO LEGACY+'), findsNothing);
+    expect(find.textContaining('Cómo accedo'), findsOneWidget);
+  });
+}
+
+/// Un usuario Legacy+ para las pruebas: el real lo lee de /api/me.
+class _AuthPlus extends AuthProvider {
+  @override
+  bool get esPlus => true;
 }
