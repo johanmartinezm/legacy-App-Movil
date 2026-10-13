@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../data/services/legacy_plus_service.dart';
 import '../../../data/services/secciones_inicio_service.dart';
 import '../../widgets/boton_volver.dart';
+import '../../widgets/punto_check.dart';
 import 'package:legacy_app/config/theme/app_theme.dart';
 
 /// Pantalla Legacy+ (pestaña inferior). Desde el 2026-10-13 su contenido se
@@ -264,53 +265,6 @@ class _LegacyPlusScreenState extends State<LegacyPlusScreen> {
     );
   }
 
-  Widget _buildCheckItem(String title, String description) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Green Check Icon
-        Container(
-          width: 24,
-          height: 24,
-          decoration: const BoxDecoration(
-            color: Color(0xFF0F2F20),
-            shape: BoxShape.circle,
-          ),
-          child: const Center(
-            child: Icon(
-              Icons.check,
-              color: Color(0xFF2ECC71),
-              size: 14,
-            ),
-          ),
-        ),
-        const SizedBox(width: 16),
-        // Title and description
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.barlow(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                description,
-                style: GoogleFonts.questrial(
-                  fontSize: 13,
-                  color: const Color(0xFF9FB2C2),
-                  height: 1.4,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+  Widget _buildCheckItem(String title, String description) =>
+      PuntoCheck(titulo: title, texto: description);
 }

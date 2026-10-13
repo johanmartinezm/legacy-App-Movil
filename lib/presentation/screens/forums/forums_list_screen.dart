@@ -69,6 +69,28 @@ class _ForumsListScreenState extends State<ForumsListScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
 
+                // Sin Legacy+: se explica, no se muestra como error.
+                if (provider.soloPlus) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.lock_outline, color: Colors.white54, size: 48),
+                          const SizedBox(height: 16),
+                          Text(
+                            provider.error ?? '',
+                            key: const Key('foros-solo-plus'),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.white70, fontSize: 15),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
                 if (provider.error != null) {
                   return Center(
                     child: Text(

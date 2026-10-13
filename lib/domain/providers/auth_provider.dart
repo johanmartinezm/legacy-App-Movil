@@ -86,6 +86,12 @@ class AuthProvider extends ChangeNotifier {
   /// token—. Ver reports/20260826_plan_carga_masiva.md §2.5.
   bool _debeCambiarContrasena = false;
 
+  /// Usuario Legacy+ (`es_plus` de `GET /api/me`, desde el 2026-10-13). Abre
+  /// Chats de sinergia, Legacy Board y Beneficios en el Inicio. Como
+  /// `debe_cambiar_contrasena`, no se guarda en el dispositivo: es estado del
+  /// servidor, que además lo valida en cada petición (403 si no lo es).
+  bool _esPlus = false;
+
   AuthProvider({AuthService? authService})
     : _authService = authService ?? AuthService() {
     checkLoginStatus();
@@ -103,6 +109,7 @@ class AuthProvider extends ChangeNotifier {
   String? get phone => _phone;
   String? get role => _role;
   bool get debeCambiarContrasena => _debeCambiarContrasena;
+  bool get esPlus => _esPlus;
 
   /// Nombre y apellido juntos, sin espacios sobrantes si falta alguno.
   /// `null` cuando no hay ninguno de los dos, para que quien lo use pueda
@@ -219,6 +226,7 @@ class AuthProvider extends ChangeNotifier {
       // servidor y quedarse con una copia vieja significaría o encerrar a quien
       // ya cambió la contraseña, o dejar pasar a quien no.
       _debeCambiarContrasena = profile['debe_cambiar_contrasena'] == true;
+      _esPlus = profile['es_plus'] == true;
       notifyListeners();
     } catch (e) {
       debugPrint('Error fetching profile: $e');
@@ -423,6 +431,7 @@ class AuthProvider extends ChangeNotifier {
       // la cuenta traia alias en /api/me y la app mostraba el dialogo igual.
       _alias = profile['alias'];
       _debeCambiarContrasena = profile['debe_cambiar_contrasena'] == true;
+      _esPlus = profile['es_plus'] == true;
 
       if (rememberMe) {
         await _storage.write(key: 'auth_token', value: _token);
@@ -512,6 +521,7 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> logout() async {
     _token = null;
+    _esPlus = false;
     _customerStatus = null;
     _userID = null;
     _firstName = null;

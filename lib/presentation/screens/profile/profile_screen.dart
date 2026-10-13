@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../config/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/perfil/eliminar_cuenta_dialog.dart';
 import '../../../domain/providers/auth_provider.dart';
@@ -69,6 +70,34 @@ class ProfileScreen extends StatelessWidget {
                   fontSize: 14,
                 ),
               ),
+              // Distintivo Legacy+ (es_plus, que marca el panel), 2026-10-13.
+              if (authProvider.esPlus) ...[
+                const SizedBox(height: 10),
+                Container(
+                  key: const Key('perfil-legacy-plus'),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: AppTheme.legacyActive.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppTheme.legacyActive),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.verified, color: AppTheme.legacyActive, size: 16),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Usuario Legacy+',
+                        style: GoogleFonts.barlow(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: 32),
 
               // Antes de esto, Favoritos solo se alcanzaba desde el menú «⋮»
@@ -149,6 +178,7 @@ class ProfileScreen extends StatelessWidget {
                 onTap: () => context.push('/faq'),
                 icon: Icons.help_outline,
               ),
+              const SizedBox(height: 12),
 
               _buildMenuItem(
                 context,
@@ -157,6 +187,7 @@ class ProfileScreen extends StatelessWidget {
                 onTap: () => context.push('/contacto'),
                 icon: Icons.support_agent_outlined,
               ),
+              const SizedBox(height: 12),
 
               // Poder deshacer un bloqueo es lo que hace usable la función:
               // quien bloquea por error no puede encontrar a esa persona por
@@ -168,6 +199,7 @@ class ProfileScreen extends StatelessWidget {
                 onTap: () => context.push('/cuentas-bloqueadas'),
                 icon: Icons.block_outlined,
               ),
+              const SizedBox(height: 12),
 
               // Eliminar la cuenta desde la propia app es requisito de App Store
               // y de Google Play para cualquier app que permita registrarse.

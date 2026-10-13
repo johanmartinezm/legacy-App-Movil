@@ -2,6 +2,29 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-13]: Usuario Legacy+: filas del Inicio, sección Beneficios y foros
+- **Alcance:** fase 3 de `reports/20261013_plan_usuario_plus.md` (repositorio raíz).
+  `domain/providers/auth_provider.dart` (`esPlus` de `/api/me`, sin guardarlo en el dispositivo),
+  `screens/home/home_content_screen.dart` (las tres filas de la sección Legacy+ se abren solo con
+  `esPlus`: Chats de sinergia → foros, Legacy Board → `/legacy-board`, Beneficios → `/beneficios`;
+  el perfil se recarga al entrar al Inicio para que el plus del panel se note sin cerrar sesión),
+  `screens/beneficios/beneficios_screen.dart` (nueva, ruta `/beneficios` en `main.dart`: los puntos
+  «beneficios» con su texto desde `GET /api/legacy-plus/beneficios`), `data/services/solo_plus.dart`
+  (`SoloPlusException` para el 403), `forum_service.dart`, `forum_provider.dart` y
+  `forums_list_screen.dart` (el 403 se explica con candado, no como «Error»),
+  `widgets/punto_check.dart` (el punto con check, compartido por Legacy+ y Beneficios; sin texto,
+  solo el título) y `screens/profile/profile_screen.dart` (distintivo «Usuario Legacy+»). Pruebas:
+  `imagenes_inicio_test.dart`, `beneficios_screen_test.dart`, `forum_provider_solo_plus_test.dart`.
+- **Criterios de QA:**
+  1. Usuario sin Legacy+: las tres filas con candado y sin aviso; Perfil sin distintivo.
+  2. Marcarlo Legacy+ en el panel y volver al Inicio: las tres filas abiertas y en Perfil
+     «Usuario Legacy+».
+  3. Chats de sinergia abre los foros; Legacy Board, su página con «Quiero ser parte» / «Quiero
+     buscar»; Beneficios, la lista de beneficios con su texto.
+  4. Quitarle el Legacy+ en el panel: los foros y Beneficios responden «Esta sección es para
+     usuarios Legacy+.» aunque la fila siga abierta hasta recargar.
+  5. Pantalla Legacy+: los beneficios salen solo con su título.
+
 ### [2026-10-13]: Perfil: menú más corto
 - **Alcance:** `lib/presentation/screens/profile/profile_screen.dart`. A pedido del cliente se retiran
   cinco opciones: «Active Legacy+», «Mi Legacy Test» (no hacía nada), «Red de Gobierno», «Cambiar tipo
@@ -13,6 +36,8 @@ Entrada de trabajo para validación de App Móvil.
      personal, Cerrar sesión, Preguntas frecuentes, Contáctenos, Cuentas bloqueadas y Eliminar mi
      cuenta.
   2. Ninguna de las cinco retiradas aparece, ni en Android ni en iOS.
+  3. Las cuatro últimas (Preguntas frecuentes, Contáctenos, Cuentas bloqueadas, Eliminar mi cuenta)
+     van separadas como las demás: les faltaba el espacio de 12 px y se veían pegadas.
 
 ### [2026-10-13]: Inicio: tarjeta «DIAGNÓSTICOS» en lugar de Legacy Board
 - **Alcance:** `lib/presentation/screens/diagnosticos/diagnosticos_screen.dart` (nueva), ruta

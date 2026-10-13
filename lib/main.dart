@@ -30,6 +30,7 @@ import 'presentation/screens/contacto/contacto_screen.dart';
 import 'presentation/screens/paginas/pagina_informativa_screen.dart';
 import 'presentation/widgets/botones_legacy_board.dart';
 import 'presentation/screens/diagnosticos/diagnosticos_screen.dart';
+import 'presentation/screens/beneficios/beneficios_screen.dart';
 import 'presentation/screens/profile/cambiar_contrasena_screen.dart';
 import 'presentation/screens/faq/faq_screen.dart';
 import 'presentation/screens/profile_selection_screen.dart';
@@ -424,6 +425,12 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
               ),
             ),
             // Diagnósticos (tarjeta del Inicio, 2026-10-13): dos enlaces externos.
+            // Beneficios (fila de la sección Legacy+ del Inicio): solo usuarios
+            // Legacy+, que es lo que valida el backend.
+            GoRoute(
+              path: '/beneficios',
+              builder: (context, state) => const BeneficiosScreen(),
+            ),
             GoRoute(
               path: '/diagnosticos',
               builder: (context, state) => const DiagnosticosScreen(),

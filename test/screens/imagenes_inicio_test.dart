@@ -97,7 +97,7 @@ void main() {
     });
   });
 
-  Future<void> montar(WidgetTester tester, SeccionesInicioService s) async {
+  Future<void> montar(WidgetTester tester, SeccionesInicioService s, {bool esPlus = false}) async {
     tester.view.physicalSize = const Size(1080, 4000);
     // Ancha a propósito: la fuente de pruebas es más ancha que la real y
     // a 392 px de ancho desborda textos que en el teléfono caben.
@@ -107,7 +107,9 @@ void main() {
     await tester.pumpWidget(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
+          ChangeNotifierProvider<AuthProvider>(
+            create: (_) => esPlus ? _AuthPlus() : AuthProvider(),
+          ),
           ChangeNotifierProvider<NotificationProvider>(
             create: (_) => NotificationProvider(),
           ),
@@ -201,6 +203,14 @@ void main() {
     expect(find.text('Chats de sinergia'), findsOneWidget);
   });
 
+  testWidgets('Usuario Legacy+: las tres filas de la sección se abren', (tester) async {
+    await montar(tester, servicio(() => http.Response('boom', 500)), esPlus: true);
+    expect(find.text('Chats de sinergia'), findsOneWidget);
+    expect(find.text('Beneficios'), findsOneWidget);
+    // Ningún candado: las tres abiertas.
+    expect(find.byIcon(Icons.lock_outline), findsNothing);
+  });
+
   testWidgets('Sin backend, el Inicio se ve como siempre', (tester) async {
     await montar(tester, servicio(() => http.Response('boom', 500)));
 
@@ -208,4 +218,10 @@ void main() {
     expect(find.byKey(const Key('tarjeta-eventos-con-imagen')), findsNothing);
     expect(find.byIcon(Icons.calendar_month), findsOneWidget);
   });
+}
+
+/// Un usuario Legacy+ para las pruebas: el real lo lee de /api/me.
+class _AuthPlus extends AuthProvider {
+  @override
+  bool get esPlus => true;
 }

@@ -34,6 +34,13 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
   void initState() {
     super.initState();
     _cargarImagenes();
+    // Que activar el Legacy+ en el panel se note al volver al Inicio, sin
+    // cerrar sesión. Sin esperar: el Inicio se pinta con lo que ya hay.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      if (auth.isAuthenticated) auth.fetchProfile();
+    });
   }
 
   Future<void> _cargarImagenes() async {
@@ -683,130 +690,66 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
   }
 
   Widget _buildPremiumRows(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final isCliente = authProvider.customerStatus == 'Ya soy cliente';
+    // Solo usuarios Legacy+ (es_plus, que marca el panel): decisión del
+    // 2026-10-13, reports/20261013_plan_usuario_plus.md. Hasta entonces Chats
+    // de sinergia miraba «Ya soy cliente», que elegía la propia persona, y las
+    // otras dos estaban cerradas para todos.
+    final esPlus = Provider.of<AuthProvider>(context).esPlus;
 
-    // Orden y textos del cliente, 2026-10-13: Chats de sinergia, Legacy Board
-    // (la fila que era «Miembros», con el mismo destino) y Beneficios.
     return Column(
       children: [
-        // «Chats de sinergia»: abre los foros anónimos que ya existían (se
-        // llegaba solo desde Perfil), con el mismo candado que Miembros. Ese
-        // mismo día se llamó «Foro» unas horas.
+        // Abre los foros, que el backend también reserva a Legacy+.
         _filaExclusiva(
           context,
-          isCliente: isCliente,
+          habilitada: esPlus,
           slug: 'chats-sinergia',
           titulo: 'Chats de sinergia',
           texto: 'Chats de sinergia entre pares: hay 4 chats para hablar de temas de Empresa, Patrimonio, Familia y otros entre miembros de otras familias empresarias.',
           icono: Icons.forum_outlined,
           ruta: '/forums',
         ),
-        // Era «Miembros · Comunidad del ecosistema Legacy»; el cliente le cambió
-        // el título y el texto. Bloqueada para todos «por el momento»
-        // (2026-10-13): el destino, /miembros-info, se conserva para cuando se
-        // abra. El slug del panel sigue siendo `miembros`.
+        // La fila que era «Miembros» (slug `miembros` en el panel); abre la
+        // página de Legacy Board que ya existía.
         _filaExclusiva(
           context,
-          isCliente: isCliente,
-          bloqueada: true,
+          habilitada: esPlus,
           slug: 'miembros',
           titulo: 'Legacy Board',
           texto: 'Red de gobierno corporativo que conecta a familias empresarias y empresas que necesitan crear o fortalecer sus órganos de gobierno (juntas directivas, consejos de familia, directorios, advisory boards y comités) con profesionales que quieren servir en ellos.',
           icono: Icons.dashboard_outlined,
-          ruta: '/miembros-info',
+          ruta: '/legacy-board',
           margin: const EdgeInsets.only(top: 8),
         ),
-        // Bloqueada: tocarla no hace nada ni muestra aviso (2026-10-13).
-        GestureDetector(
-          // Última de la sección desde el 2026-10-13. La tarjeta Beneficios de
-          // la cuadrícula se retiró ese día; esta fila es la que queda.
-          child: _tarjeta(
-            slug: 'beneficios',
-            oscuroHacia: Alignment.centerLeft,
-            margin: const EdgeInsets.only(top: 8),
-            padding: const EdgeInsets.all(14),
-            decoracion: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.02),
-              borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-            ),
-            child: Row(
-              children: [
-                if (!_conImagen('beneficios')) ...[
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(11),
-                    ),
-                    child: Icon(
-                      Icons.shield_outlined,
-                      color: Colors.white.withValues(alpha: 0.3),
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                ],
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _titulo('beneficios', 'Beneficios'),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.barlowCondensed(
-                          color: Colors.white.withValues(alpha: 0.5),
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        _texto(
-                          'beneficios',
-                          'Son descuentos y servicios especiales de aliados o de Legacy Network.',
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.questrial(
-                          color: const Color(0xFF9FB2C2).withValues(alpha: 0.5),
-                          fontSize: 11,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  Icons.lock_outline,
-                  color: Colors.white.withValues(alpha: 0.2),
-                  size: 20,
-                ),
-              ],
-            ),
-          ),
+        // Abre la sección Beneficios, que el backend también reserva a Legacy+.
+        _filaExclusiva(
+          context,
+          habilitada: esPlus,
+          slug: 'beneficios',
+          titulo: 'Beneficios',
+          texto: 'Son descuentos y servicios especiales de aliados o de Legacy Network.',
+          icono: Icons.card_giftcard_outlined,
+          ruta: '/beneficios',
+          margin: const EdgeInsets.only(top: 8),
         ),
       ],
     );
   }
 
-  /// Fila de la sección Legacy+ reservada a clientes («Ya soy cliente»): con
-  /// candado y apagada para el resto. `bloqueada` la cierra también a los
-  /// clientes. Una fila cerrada no hace nada al tocarla, sin aviso: así lo pidió
-  /// el cliente el 2026-10-13. La usan Chats de sinergia y Legacy Board.
+  /// Fila de la sección Legacy+: abierta si `habilitada` (usuario Legacy+); si
+  /// no, con candado y apagada. Una fila cerrada no hace nada al tocarla, sin
+  /// aviso: así lo pidió el cliente el 2026-10-13.
   Widget _filaExclusiva(
     BuildContext context, {
-    required bool isCliente,
+    required bool habilitada,
     required String slug,
     required String titulo,
     required String texto,
     required IconData icono,
     required String ruta,
-    bool bloqueada = false,
     EdgeInsetsGeometry? margin,
   }) {
     // A partir de aquí «abierta» decide todo: el destino, el color y el candado.
-    final abierta = isCliente && !bloqueada;
+    final abierta = habilitada;
     return GestureDetector(
       onTap: abierta ? () => context.push(ruta) : null,
       child: _tarjeta(

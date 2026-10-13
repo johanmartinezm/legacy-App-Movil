@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../data/services/forum_service.dart';
+import '../../data/services/solo_plus.dart';
 import '../models/forum_model.dart';
 import 'auth_provider.dart';
 
@@ -11,16 +12,21 @@ class ForumProvider with ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
+  /// El backend respondió que los foros son solo para usuarios Legacy+.
+  bool _soloPlus = false;
+
   ForumProvider(this._authProvider, {ForumService? forumService})
       : _forumService = forumService ?? ForumService();
 
   List<Forum> get forums => _forums;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  bool get soloPlus => _soloPlus;
 
   Future<void> loadForums() async {
     _isLoading = true;
     _error = null;
+    _soloPlus = false;
     notifyListeners();
 
     try {
@@ -28,6 +34,9 @@ class ForumProvider with ChangeNotifier {
       if (token == null) throw Exception('No token available');
       
       _forums = await _forumService.getPublicForums(token);
+    } on SoloPlusException catch (e) {
+      _soloPlus = true;
+      _error = e.mensaje;
     } catch (e) {
       _error = e.toString();
     } finally {

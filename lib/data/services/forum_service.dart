@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../domain/models/forum_model.dart';
 import '../config/api_constants.dart';
+import 'solo_plus.dart';
 
 class ForumService {
   final http.Client _client;
@@ -16,6 +17,8 @@ class ForumService {
         'Authorization': 'Bearer $token',
       },
     );
+
+    comprobarSoloPlus(response);
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -39,6 +42,8 @@ class ForumService {
       }),
     );
 
+    comprobarSoloPlus(response);
+
     if (response.statusCode == 201) {
       return Forum.fromJson(json.decode(response.body));
     } else if (response.statusCode == 422) {
@@ -56,6 +61,8 @@ class ForumService {
         'Authorization': 'Bearer $token',
       },
     );
+
+    comprobarSoloPlus(response);
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -84,6 +91,8 @@ class ForumService {
       body: json.encode(body),
     );
 
+    comprobarSoloPlus(response);
+
     if (response.statusCode == 201) {
       return ForumPost.fromJson(json.decode(response.body));
     } else if (response.statusCode == 422) {
@@ -102,6 +111,8 @@ class ForumService {
       },
       body: json.encode({'reason': reason}),
     );
+
+    comprobarSoloPlus(response);
 
     if (response.statusCode != 200) {
       throw Exception('Failed to report post');
