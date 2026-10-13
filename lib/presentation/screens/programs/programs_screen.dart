@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../domain/models/program_model.dart';
 import '../../../data/services/graphql_service.dart';
+import '../../../data/services/secciones_inicio_service.dart';
 import '../../widgets/boton_volver.dart';
 import 'package:legacy_app/config/theme/app_theme.dart';
 
@@ -33,7 +34,10 @@ const List<String> _titulosActualizacion = [
 ];
 
 class ProgramsScreen extends StatefulWidget {
-  const ProgramsScreen({super.key});
+  /// Se inyecta en las pruebas; por defecto, el real.
+  final SeccionesInicioService? seccionesService;
+
+  const ProgramsScreen({super.key, this.seccionesService});
 
   @override
   State<ProgramsScreen> createState() => _ProgramsScreenState();
@@ -44,11 +48,29 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
   List<GraphqlProgram> _actualizacion = [];
   bool _isLoading = true;
 
+  /// Título y texto del encabezado y del banner que el panel cambia («Textos
+  /// de LSO»). Vacío hasta que responde el backend, o si falla: entonces se
+  /// pintan los de siempre.
+  Map<String, SeccionInicio> _textos = const {};
+
   @override
   void initState() {
     super.initState();
     _fetchPrograms();
+    _cargarTextos();
   }
+
+  Future<void> _cargarTextos() async {
+    final textos =
+        await (widget.seccionesService ?? SeccionesInicioService()).secciones();
+    if (mounted && textos.isNotEmpty) setState(() => _textos = textos);
+  }
+
+  String _titulo(String slug, String porDefecto) =>
+      _textos[slug]?.titulo ?? porDefecto;
+
+  String _texto(String slug, String porDefecto) =>
+      _textos[slug]?.texto ?? porDefecto;
 
   Future<void> _fetchPrograms() async {
     try {
@@ -314,7 +336,9 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'LSO · Legacy School of Ownership',
+                  _titulo('lso-encabezado', 'LSO · Legacy School of Ownership'),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.barlow(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -324,7 +348,9 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  'La escuela del propietario en LATAM',
+                  _texto('lso-encabezado', 'La escuela del propietario en LATAM'),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.questrial(
                     fontSize: 12,
                     color: const Color(0xFF9FB2C2),
@@ -355,7 +381,7 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Formación que los MBA no dan',
+            _titulo('lso-banner', 'Formación que los MBA no dan'),
             style: GoogleFonts.barlow(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -365,9 +391,12 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
           ),
           const SizedBox(height: 10),
           Text(
-            'Programas para gobernar la empresa y proteger el patrimonio. '
-            'Doble certificación LSO + EUDE ⭐, con contenido académico de '
-            'Harvard Business Impact. Alumni LSO acceden a Legacy+ con precio especial.',
+            _texto(
+              'lso-banner',
+              'Programas para gobernar la empresa y proteger el patrimonio. '
+                  'Doble certificación LSO + EUDE ⭐, con contenido académico de '
+                  'Harvard Business Impact. Alumni LSO acceden a Legacy+ con precio especial.',
+            ),
             style: GoogleFonts.questrial(
               fontSize: 13,
               color: const Color(0xFF9FB2C2),
