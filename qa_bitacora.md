@@ -2,6 +2,15 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-15]: Icono o imagen de cada foro
+- **Alcance:** `screens/forums/forums_list_screen.dart`. La tarjeta pinta `cover_url` (44×44,
+  esquinas redondeadas) a la izquierda del título. La imagen la sube el panel; sin ella, la tarjeta
+  queda igual que antes.
+- **Criterios de QA:**
+  1. Un foro con imagen en el panel la muestra en Chats de sinergia.
+  2. Un foro sin imagen no deja hueco.
+  3. Si la imagen no carga, aparece un icono de foro en su lugar.
+
 ### [2026-10-15]: Listado de foros sin «Por:»
 - **Alcance:** `screens/forums/forums_list_screen.dart`. La tarjeta de cada foro ya no muestra
   «Por: Administración»: los foros los crea siempre el panel. Queda el contador de comentarios.
