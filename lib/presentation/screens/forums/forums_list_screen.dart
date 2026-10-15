@@ -125,13 +125,8 @@ class _ForumsListScreenState extends State<ForumsListScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppTheme.legacyBlue4,
-        child: const Icon(Icons.add),
-        onPressed: () {
-          context.push('/forum-propose');
-        },
-      ),
+      // Sin botón de crear: desde el 2026-10-14 los foros son cuatro fijos
+      // (Empresa, Patrimonio, Familia y Otros) y solo el panel los crea.
     );
   }
 }

@@ -45,18 +45,6 @@ class ForumProvider with ChangeNotifier {
     }
   }
 
-  Future<void> proposeForum(String title, String description) async {
-    try {
-      final token = _authProvider.token;
-      if (token == null) throw Exception('No token available');
-      
-      await _forumService.proposeForum(title, description, token);
-      await loadForums();
-    } catch (e) {
-      rethrow;
-    }
-  }
-
   Future<List<ForumPost>> loadPosts(String forumId, {int limit = 20, int offset = 0}) async {
     final token = _authProvider.token;
     if (token == null) throw Exception('No token available');

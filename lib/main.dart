@@ -66,7 +66,6 @@ import 'presentation/screens/legacy_plus/legacy_plus_screen.dart';
 import 'presentation/screens/notifications/notifications_screen.dart';
 import 'domain/providers/forum_provider.dart';
 import 'presentation/screens/forums/forums_list_screen.dart';
-import 'presentation/screens/forums/forum_proposal_screen.dart';
 import 'presentation/screens/forums/forum_thread_screen.dart';
 import 'domain/models/forum_model.dart';
 import 'domain/models/event_model.dart';
@@ -500,10 +499,6 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
             GoRoute(
               path: '/forums',
               builder: (context, state) => const ForumsListScreen(),
-            ),
-            GoRoute(
-              path: '/forum-propose',
-              builder: (context, state) => const ForumProposalScreen(),
             ),
             GoRoute(
               path: '/forum-thread',

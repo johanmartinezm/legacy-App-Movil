@@ -2,6 +2,19 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-14]: Los foros ya no se crean desde la app
+- **Alcance:** decisión del cliente: cuatro foros fijos (Empresa, Patrimonio, Familia y Otros) que
+  solo crea el panel. `forums_list_screen.dart` pierde el botón «+»; se borran
+  `forum_proposal_screen.dart` (con su ruta `/forum-propose` en `main.dart`) y `forums_screen.dart`,
+  una pantalla huérfana que también creaba foros; `proposeForum` sale de `ForumService` y
+  `ForumProvider`. Entrar, leer, comentar, adjuntar imagen y reportar no cambian. Va con la
+  migración `20261014_foros_fijos.sql` del backend.
+- **Criterios de QA:**
+  1. Usuario Legacy+ → Inicio → Chats de sinergia: aparecen los cuatro foros en ese orden y no hay
+     botón «+».
+  2. Entrar en Empresa, escribir un comentario (con y sin imagen): se publica.
+  3. Reportar un comentario: «Publicación reportada correctamente.».
+
 ### [2026-10-13]: Legacy+: el usuario plus ve sus tres accesos
 - **Alcance:** `lib/presentation/screens/legacy_plus/legacy_plus_screen.dart` y
   `test/screens/legacy_plus_screen_test.dart`. Con `esPlus`, bajo el recuadro aparece «TU ACCESO

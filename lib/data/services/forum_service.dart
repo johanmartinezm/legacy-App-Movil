@@ -29,30 +29,6 @@ class ForumService {
     }
   }
 
-  Future<Forum> proposeForum(String title, String description, String token) async {
-    final response = await _client.post(
-      Uri.parse('${ApiConstants.baseUrl}/api/forums'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: json.encode({
-        'title': title,
-        'description': description,
-      }),
-    );
-
-    comprobarSoloPlus(response);
-
-    if (response.statusCode == 201) {
-      return Forum.fromJson(json.decode(response.body));
-    } else if (response.statusCode == 422) {
-      throw Exception('alias_required');
-    } else {
-      throw Exception('Failed to propose forum');
-    }
-  }
-
   Future<List<ForumPost>> getForumPosts(String forumId, String token, {int limit = 20, int offset = 0}) async {
     final response = await _client.get(
       Uri.parse('${ApiConstants.baseUrl}/api/forums/$forumId/posts?limit=$limit&offset=$offset'),
