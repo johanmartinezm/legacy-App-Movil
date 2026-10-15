@@ -44,7 +44,8 @@ void main() {
       'location': 'Ciudad de México',
       'price': 0,
       'isFree': true,
-      'actionStatus': 'registered',
+      // action_status es del evento: producción solo manda register o buy.
+      'actionStatus': 'register',
       'buttonText': 'Registrado',
       'description': '',
     },
@@ -62,6 +63,20 @@ void main() {
     },
   ]);
 
+  final String respuestaInscripciones = jsonEncode([
+    {
+      'id': 'reg-2',
+      'eventId': '2',
+      'eventTitle': 'Coffee & Networking: CDMX 2026',
+      'eventStartDate': iso(hoy.subtract(const Duration(days: 115))),
+      'paymentStatus': 'free',
+      'registrationStatus': 'confirmed',
+      'qrData': 'REG-prueba',
+      'totalPaid': 0,
+      'attendanceConfirmed': false,
+    },
+  ]);
+
   setUpAll(() async {
     // Sin fuentes de red en test; usa las de sistema.
     GoogleFonts.config.allowRuntimeFetching = false;
@@ -72,6 +87,10 @@ void main() {
     final client = MockClient((request) async {
       if (request.url.path.endsWith('/events')) {
         return http.Response(respuestaEventos, 200);
+      }
+      // «Mis registros» sale de las inscripciones del usuario, no del evento.
+      if (request.url.path.endsWith('/me/registrations')) {
+        return http.Response(respuestaInscripciones, 200);
       }
       return http.Response('[]', 200);
     });
@@ -89,7 +108,7 @@ void main() {
     await tester.pumpWidget(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
+          ChangeNotifierProvider<AuthProvider>(create: (_) => _AuthFake()),
           ChangeNotifierProvider<EventsProvider>.value(value: eventsProvider),
         ],
         child: MaterialApp.router(routerConfig: router),
@@ -233,4 +252,9 @@ void main() {
     // La categoría 'coffee' no debe seguir aplicada y ocultar resultados.
     expect(find.text('Coffee & Networking: CDMX 2026'), findsOneWidget);
   });
+}
+
+class _AuthFake extends AuthProvider {
+  @override
+  String? get token => 'token-de-prueba';
 }

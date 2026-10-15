@@ -68,9 +68,14 @@ void main() {
       expect(r.map((e) => e.id), ['2', '3']);
     });
 
-    test('mis registros filtra por estado de la inscripción', () {
-      final r = eventsForTab(todos, EventTab.misRegistros);
-      expect(r.map((e) => e.id), ['2']);
+    test('mis registros muestra los eventos con inscripción del usuario', () {
+      final r = eventsForTab(todos, EventTab.misRegistros, inscritos: {'1', '3'});
+      expect(r.map((e) => e.id), ['1', '3']);
+    });
+
+    // El fallo del 2026-10-14: action_status es del evento, no del usuario.
+    test('mis registros no se fía de actionStatus', () {
+      expect(eventsForTab(todos, EventTab.misRegistros), isEmpty);
     });
 
     test('no altera la lista original', () {

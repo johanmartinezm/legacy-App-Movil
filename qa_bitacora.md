@@ -2,6 +2,22 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-14]: «Mis registros» mostraba vacío a todo el mundo
+- **Alcance:** `domain/utils/event_filters.dart`, `screens/eventos/eventos_screen.dart`,
+  `test/utils/event_filters_test.dart` y `test/screens/eventos_screen_test.dart`. La pestaña filtraba
+  por `actionStatus == 'registered'`, pero `action_status` es una columna del EVENTO, igual para
+  todos, y el backend solo la manda como `register` o `buy`: nadie veía sus inscripciones. Era el
+  mismo error ya corregido en `event_action_button.dart`. Ahora filtra por
+  `GET /api/me/registrations` (las mismas inscripciones que «Mi credencial»), que se recargan al
+  abrir la pestaña; mientras llegan se ve el indicador de carga, y si fallan, «No pudimos cargar tus
+  registros» en vez de «Aún no te has registrado». El test de la pantalla usaba un
+  `actionStatus: 'registered'` que producción nunca envía: por eso pasaba. Salió al preparar las
+  capturas de las tiendas.
+- **Criterios de QA:**
+  1. Con un usuario inscrito a un evento (gratuito o pagado): Eventos → «Mis registros» lo muestra.
+  2. Inscribirse a otro evento y volver a «Mis registros»: aparece sin reiniciar la app.
+  3. Un usuario sin inscripciones ve «Aún no te has registrado a ningún evento.».
+
 ### [2026-10-14]: «Foros Anónimos» pasa a llamarse «Chats de sinergia»
 - **Alcance:** título de `forums_list_screen.dart` y la etiqueta del alias en
   `profile_edit_screen.dart` («Alias (para Chats de sinergia)»), para que coincidan con la fila del

@@ -85,9 +85,15 @@ class _EventosScreenState extends State<EventosScreen> {
   Widget build(BuildContext context) {
     final eventsProvider = Provider.of<EventsProvider>(context);
     final events = eventsProvider.events;
-    final isLoading = eventsProvider.isLoading;
+    final enMisRegistros = _selectedTab == EventTab.misRegistros;
+    // En «Mis registros» la lista depende de las inscripciones, que llegan
+    // aparte: sin esperar a que carguen, la pestaña diría «aún no te has
+    // registrado» a quien sí lo está.
+    final isLoading = eventsProvider.isLoading ||
+        (enMisRegistros && !eventsProvider.registrationsLoaded && eventsProvider.loadingRegistrations);
+    final inscritos = {for (final r in eventsProvider.myRegistrations) r.eventId};
 
-    final List<EventModel> tabEvents = eventsForTab(events, _selectedTab);
+    final List<EventModel> tabEvents = eventsForTab(events, _selectedTab, inscritos: inscritos);
     final List<String> categories = categoriesOf(tabEvents);
     final List<EventModel> filteredEvents = applyEventFilters(
       tabEvents,
@@ -346,6 +352,12 @@ class _EventosScreenState extends State<EventosScreen> {
           // anterior dejaría el listado vacío sin motivo aparente.
           _selectedCategory = kTodasLasCategorias;
         });
+        // Se recargan al entrar: pueden haber cambiado desde otra pantalla
+        // (una inscripción nueva, un pago confirmado).
+        if (tabValue == EventTab.misRegistros) {
+          final token = context.read<AuthProvider>().token;
+          if (token != null) context.read<EventsProvider>().loadMyRegistrations(token);
+        }
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -380,7 +392,9 @@ class _EventosScreenState extends State<EventosScreen> {
     } else if (_selectedTab == EventTab.pasados) {
       msg = 'Todavía no hay eventos finalizados.';
     } else if (_selectedTab == EventTab.misRegistros) {
-      msg = 'Aún no te has registrado a ningún evento.';
+      msg = context.read<EventsProvider>().registrationsError != null
+          ? 'No pudimos cargar tus registros. Inténtalo de nuevo.'
+          : 'Aún no te has registrado a ningún evento.';
     }
     return Center(
       child: Padding(

@@ -21,7 +21,18 @@ class EventTab {
 const String kTodasLasCategorias = 'todas';
 
 /// Eventos que corresponden a una pestaña, ya ordenados.
-List<EventModel> eventsForTab(List<EventModel> events, String tab) {
+///
+/// [inscritos] son los ids de los eventos en los que el usuario tiene
+/// inscripción, de `GET /api/me/registrations`. «Mis registros» filtraba por
+/// `actionStatus == 'registered'`, pero `action_status` es una columna del
+/// EVENTO, igual para todos, y el backend solo la devuelve como `register` o
+/// `buy`: la pestaña salía vacía para todo el mundo (visto el 2026-10-14). Es el
+/// mismo error que ya se había corregido en `event_action_button.dart`.
+List<EventModel> eventsForTab(
+  List<EventModel> events,
+  String tab, {
+  Set<String> inscritos = const {},
+}) {
   switch (tab) {
     case EventTab.proximos:
       return events.where((e) => !e.isPast).toList();
@@ -36,12 +47,7 @@ List<EventModel> eventsForTab(List<EventModel> events, String tab) {
           return fb.compareTo(fa);
         });
     case EventTab.misRegistros:
-      return events
-          .where(
-            (e) =>
-                e.actionStatus == 'registered' || e.actionStatus == 'reminder',
-          )
-          .toList();
+      return events.where((e) => inscritos.contains(e.id)).toList();
     default:
       return const [];
   }
