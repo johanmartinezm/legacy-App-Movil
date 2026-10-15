@@ -58,7 +58,7 @@ class _ForumsListScreenState extends State<ForumsListScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             color: AppTheme.legacyBlue2,
             child: const Text(
-              'Espacios de discusión de la comunidad. Tu nombre nunca se muestra: participas con el alias que elegiste en tu perfil.',
+              'Espacios de discusión de la comunidad.',
               style: TextStyle(color: Colors.white70, fontSize: 13),
             ),
           ),
