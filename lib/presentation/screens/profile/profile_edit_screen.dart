@@ -482,7 +482,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         ),
                         const SizedBox(height: 16),
                         _buildTextField(
-                          'Alias (Para Foros Anónimos)',
+                          'Alias (para Chats de sinergia)',
                           _aliasController,
                           Icons.visibility_off_outlined,
                         ),

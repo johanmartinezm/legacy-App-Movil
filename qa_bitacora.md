@@ -2,6 +2,14 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-14]: «Foros Anónimos» pasa a llamarse «Chats de sinergia»
+- **Alcance:** título de `forums_list_screen.dart` y la etiqueta del alias en
+  `profile_edit_screen.dart` («Alias (para Chats de sinergia)»), para que coincidan con la fila del
+  Inicio que abre la sección. Las rutas internas (`/forums`) no cambian.
+- **Criterios de QA:**
+  1. Inicio → Chats de sinergia: la pantalla se titula «Chats de sinergia».
+  2. Perfil → Editar: el campo de alias dice «Alias (para Chats de sinergia)».
+
 ### [2026-10-14]: Los foros ya no se crean desde la app
 - **Alcance:** decisión del cliente: cuatro foros fijos (Empresa, Patrimonio, Familia y Otros) que
   solo crea el panel. `forums_list_screen.dart` pierde el botón «+»; se borran

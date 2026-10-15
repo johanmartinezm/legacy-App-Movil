@@ -44,7 +44,7 @@ class _ForumsListScreenState extends State<ForumsListScreen> {
     return Scaffold(
       backgroundColor: AppTheme.legacyBlue1,
       appBar: AppBar(
-        title: const Text('Foros Anónimos'),
+        title: const Text('Chats de sinergia'),
         backgroundColor: AppTheme.legacyBlue2,
       ),
       // Antes la pantalla arrancaba directo en la lista, sin decir qué es un
