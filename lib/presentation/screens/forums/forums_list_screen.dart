@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -154,25 +153,6 @@ class _ForumCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  // El icono o imagen lo sube el panel (cover_url); sin él, la
-                  // tarjeta queda como antes.
-                  if (forum.coverUrl.isNotEmpty) ...[
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: CachedNetworkImage(
-                        imageUrl: forum.coverUrl,
-                        width: 44,
-                        height: 44,
-                        fit: BoxFit.cover,
-                        placeholder: (_, __) => Container(color: AppTheme.legacyBlue2),
-                        errorWidget: (_, __, ___) => Container(
-                          color: AppTheme.legacyBlue2,
-                          child: const Icon(Icons.forum_outlined, color: AppTheme.legacyActive, size: 22),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                  ],
                   Expanded(
                     child: Text(
                       forum.title,

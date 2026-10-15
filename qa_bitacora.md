@@ -2,6 +2,12 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-15]: Listado de foros: se retira la imagen
+- **Alcance:** `screens/forums/forums_list_screen.dart`. Se deshace «Icono o imagen de cada foro»:
+  la imagen pedida era la de las Unidades de Asesoría.
+- **Criterios de QA:**
+  1. Chats de sinergia: las tarjetas muestran título, descripción y contador, sin imagen.
+
 ### [2026-10-15]: Unidades de Asesoría con icono o imagen propia
 - **Alcance:** `data/services/asesoria_unidades_service.dart` (`imagenUrl`, de `imagen_url`) y
   `screens/asesoria/asesoria_screen.dart`: si la unidad trae imagen, se pinta en el recuadro de
