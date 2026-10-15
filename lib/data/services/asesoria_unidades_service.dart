@@ -13,6 +13,10 @@ class UnidadAsesoria {
   final String subtitulo;
   final IconData icono;
 
+  /// Icono o imagen subido desde el panel; vacío si no hay. Si está, la
+  /// pantalla lo pinta en lugar de [icono], que queda para cuando no carga.
+  final String imagenUrl;
+
   /// Opción de «¿Qué necesita?» que el formulario marca al entrar por aquí.
   final String necesidad;
 
@@ -21,6 +25,7 @@ class UnidadAsesoria {
     required this.subtitulo,
     required this.icono,
     required this.necesidad,
+    this.imagenUrl = '',
   });
 
   /// Claves de icono que guarda el panel → icono de la app. La misma lista
@@ -44,6 +49,7 @@ class UnidadAsesoria {
         subtitulo: (json['subtitulo'] as String? ?? '').trim(),
         icono: iconos[json['icono']] ?? Icons.business_center_outlined,
         necesidad: (json['necesidad'] as String? ?? 'Otro').trim(),
+        imagenUrl: (json['imagen_url'] as String? ?? '').trim(),
       );
 
   /// Las cinco de siempre: se ven mientras carga y si el backend no responde,

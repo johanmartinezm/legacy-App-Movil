@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -399,6 +400,10 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
     );
   }
 
+  Widget _iconoUnidad(UnidadAsesoria unidad) => Center(
+        child: Icon(unidad.icono, color: AppTheme.legacyActive, size: 22),
+      );
+
   Widget _buildUnitCard(int index) {
     final unidad = _unidades[index];
     final isSelected = _selectedIndex == index;
@@ -432,13 +437,15 @@ class _AsesoriaScreenState extends State<AsesoriaScreen> {
                     color: const Color(0xFF183D6B).withValues(alpha: 0.4),
                   ),
                 ),
-                child: Center(
-                  child: Icon(
-                    unidad.icono,
-                    color: AppTheme.legacyActive,
-                    size: 22,
-                  ),
-                ),
+                clipBehavior: Clip.antiAlias,
+                child: unidad.imagenUrl.isEmpty
+                    ? _iconoUnidad(unidad)
+                    : CachedNetworkImage(
+                        imageUrl: unidad.imagenUrl,
+                        fit: BoxFit.cover,
+                        placeholder: (_, __) => const SizedBox.shrink(),
+                        errorWidget: (_, __, ___) => _iconoUnidad(unidad),
+                      ),
               ),
               const SizedBox(width: 14),
               Expanded(

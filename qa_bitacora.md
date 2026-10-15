@@ -2,6 +2,16 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-15]: Unidades de Asesoría con icono o imagen propia
+- **Alcance:** `data/services/asesoria_unidades_service.dart` (`imagenUrl`, de `imagen_url`) y
+  `screens/asesoria/asesoria_screen.dart`: si la unidad trae imagen, se pinta en el recuadro de
+  46×46 en lugar del icono; si no carga, vuelve el icono. Pruebas en
+  `test/screens/asesoria_screen_test.dart`.
+- **Criterios de QA:**
+  1. Una unidad con imagen en el panel la muestra en Asesoría → Nuestras unidades.
+  2. Las unidades sin imagen siguen con su icono.
+  3. Sin conexión, las cinco de siempre salen con sus iconos.
+
 ### [2026-10-15]: Icono o imagen de cada foro
 - **Alcance:** `screens/forums/forums_list_screen.dart`. La tarjeta pinta `cover_url` (44×44,
   esquinas redondeadas) a la izquierda del título. La imagen la sube el panel; sin ella, la tarjeta

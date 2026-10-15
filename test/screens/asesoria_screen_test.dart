@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -65,6 +66,31 @@ void main() {
     expect(find.text('L&M Consultoría'), findsNothing);
     // Un icono desconocido no rompe: se pinta el genérico.
     expect(find.byIcon(Icons.business_center_outlined), findsOneWidget);
+  });
+
+  test('la imagen del panel se lee; sin ella queda vacía', () {
+    final con = UnidadAsesoria.fromJson({
+      'titulo': 'Aurum', 'icono': 'crecimiento', 'necesidad': 'Patrimonio',
+      'imagen_url': ' https://example.com/aurum.png ',
+    });
+    expect(con.imagenUrl, 'https://example.com/aurum.png');
+    expect(con.icono, Icons.trending_up);
+    final sin = UnidadAsesoria.fromJson({'titulo': 'Aurum', 'icono': 'crecimiento'});
+    expect(sin.imagenUrl, isEmpty);
+  });
+
+  testWidgets('con imagen se pinta la imagen y no el icono', (tester) async {
+    await montar(
+      tester,
+      conUnidades([
+        {'titulo': 'Aurum', 'subtitulo': 'Finanzas', 'icono': 'crecimiento', 'necesidad': 'Patrimonio',
+         'imagen_url': 'https://example.com/aurum.png'},
+        {'titulo': 'Legal', 'subtitulo': 'Leyes', 'icono': 'balanza', 'necesidad': 'Otro'},
+      ]),
+    );
+    expect(find.byType(CachedNetworkImage), findsOneWidget);
+    expect(find.byIcon(Icons.trending_up), findsNothing);
+    expect(find.byIcon(Icons.balance), findsOneWidget);
   });
 
   testWidgets('entrar por una unidad marca su necesidad', (tester) async {
