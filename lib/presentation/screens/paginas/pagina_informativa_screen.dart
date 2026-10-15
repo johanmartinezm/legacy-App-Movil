@@ -22,8 +22,9 @@ class PaginaInformativaScreen extends StatefulWidget {
   final PaginasService? servicio;
 
   /// Botones al pie del contenido, propios de cada página (los de Legacy
-  /// Board, por ejemplo). Solo se muestran si la página cargó.
-  final Widget? acciones;
+  /// Board, por ejemplo). Solo se muestran si la página cargó, y reciben la
+  /// página para leer los textos que edita el panel.
+  final Widget Function(PaginaInformativa pagina)? acciones;
 
   const PaginaInformativaScreen({
     super.key,
@@ -174,7 +175,7 @@ class _PaginaInformativaScreenState extends State<PaginaInformativaScreen> {
                   ),
                 if (widget.acciones != null) ...[
                   const SizedBox(height: 16),
-                  widget.acciones!,
+                  widget.acciones!(pagina),
                 ],
               ],
             ),

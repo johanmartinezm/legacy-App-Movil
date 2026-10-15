@@ -26,7 +26,7 @@ void main() {
               slug: 'legacy-board',
               tituloProvisional: 'Legacy Board',
               servicio: PaginasService(client: client),
-              acciones: const BotonesLegacyBoard(),
+              acciones: BotonesLegacyBoard.desdePagina,
             ),
           ),
           // Contáctenos de mentira: solo enseña el asunto que le llega, que
@@ -39,14 +39,16 @@ void main() {
         ],
       );
 
-  MockClient pagina() => MockClient((request) async => http.Response.bytes(
-        utf8.encode(json.encode({
-          'slug': 'legacy-board',
-          'titulo': 'Legacy Board',
-          'cuerpo': 'Contenido.',
-        })),
-        200,
-      ));
+  MockClient pagina([Map<String, dynamic> extra = const {}]) =>
+      MockClient((request) async => http.Response.bytes(
+            utf8.encode(json.encode({
+              'slug': 'legacy-board',
+              'titulo': 'Legacy Board',
+              'cuerpo': 'Contenido.',
+              ...extra,
+            })),
+            200,
+          ));
 
   Future<void> montar(WidgetTester tester, MockClient client) async {
     tester.view.physicalSize = const Size(1080, 3000);
@@ -61,6 +63,32 @@ void main() {
     expect(find.text('Contenido.'), findsOneWidget);
     expect(find.text('Quiero ser parte'), findsOneWidget);
     expect(find.text('Quiero buscar'), findsOneWidget);
+  });
+
+  testWidgets('los textos salen del panel', (tester) async {
+    await montar(tester, pagina({
+      'pregunta_acciones': '¿Qué busca?',
+      'boton_principal': 'Postularme',
+      'boton_secundario': 'Encontrar consejeros',
+    }));
+    expect(find.text('¿Qué busca?'), findsOneWidget);
+    expect(find.text('Postularme'), findsOneWidget);
+    expect(find.text('Encontrar consejeros'), findsOneWidget);
+    expect(find.text('Quiero ser parte'), findsNothing);
+  });
+
+  testWidgets('un texto vacío del panel pinta el de siempre', (tester) async {
+    await montar(tester, pagina({'boton_principal': 'Postularme', 'boton_secundario': '  '}));
+    expect(find.text('¿Cómo quiere participar?'), findsOneWidget);
+    expect(find.text('Postularme'), findsOneWidget);
+    expect(find.text('Quiero buscar'), findsOneWidget);
+  });
+
+  testWidgets('con otro texto, el asunto no cambia', (tester) async {
+    await montar(tester, pagina({'boton_principal': 'Postularme'}));
+    await tester.tap(find.byKey(const Key('legacy-board-ser-parte')));
+    await tester.pumpAndSettle();
+    expect(find.text('asunto=${BotonesLegacyBoard.asuntoSerParte}'), findsOneWidget);
   });
 
   testWidgets('«Quiero ser parte» abre Contáctenos con su asunto', (tester) async {

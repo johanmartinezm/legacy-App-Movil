@@ -420,7 +420,7 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
               builder: (context, state) => const PaginaInformativaScreen(
                 slug: 'legacy-board',
                 tituloProvisional: 'Legacy Board',
-                acciones: BotonesLegacyBoard(),
+                acciones: BotonesLegacyBoard.desdePagina,
               ),
             ),
             // Diagnósticos (tarjeta del Inicio, 2026-10-13): dos enlaces externos.

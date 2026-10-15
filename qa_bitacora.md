@@ -2,6 +2,18 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-15]: Legacy Board: textos de los botones desde el panel
+- **Alcance:** `domain/models/pagina_informativa_model.dart` (tres campos),
+  `screens/paginas/pagina_informativa_screen.dart` (`acciones` recibe la página),
+  `widgets/botones_legacy_board.dart` (`desdePagina`; un texto vacío pinta el de siempre) y
+  `main.dart`. El asunto con que se abre Contáctenos no cambia. Pruebas en
+  `test/widgets/botones_legacy_board_test.dart`.
+- **Criterios de QA:**
+  1. Cambiar los textos en el panel: Legacy Board muestra los nuevos.
+  2. Con otro texto, «Quiero ser parte» sigue abriendo Contáctenos con «Legacy Board: quiero ser
+     parte».
+  3. Un texto vacío en el panel: sale el de siempre.
+
 ### [2026-10-15]: Listado de foros: se retira la imagen
 - **Alcance:** `screens/forums/forums_list_screen.dart`. Se deshace «Icono o imagen de cada foro»:
   la imagen pedida era la de las Unidades de Asesoría.

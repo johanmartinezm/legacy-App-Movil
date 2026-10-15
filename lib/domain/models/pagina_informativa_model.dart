@@ -15,6 +15,12 @@ class PaginaInformativa {
 
   final DateTime? actualizadaEn;
 
+  /// Pregunta y textos de los botones del pie, editables desde el panel desde
+  /// el 2026-10-15 (hoy solo Legacy Board). Vacío: la pantalla pone los suyos.
+  final String preguntaAcciones;
+  final String botonPrincipal;
+  final String botonSecundario;
+
   const PaginaInformativa({
     required this.slug,
     required this.titulo,
@@ -22,6 +28,9 @@ class PaginaInformativa {
     this.imagenUrl = '',
     this.cuerpo = '',
     this.actualizadaEn,
+    this.preguntaAcciones = '',
+    this.botonPrincipal = '',
+    this.botonSecundario = '',
   });
 
   factory PaginaInformativa.fromJson(Map<String, dynamic> json) {
@@ -32,6 +41,9 @@ class PaginaInformativa {
       imagenUrl: json['imagen_url']?.toString() ?? '',
       cuerpo: json['cuerpo']?.toString() ?? '',
       actualizadaEn: DateTime.tryParse(json['actualizada_en']?.toString() ?? ''),
+      preguntaAcciones: json['pregunta_acciones']?.toString().trim() ?? '',
+      botonPrincipal: json['boton_principal']?.toString().trim() ?? '',
+      botonSecundario: json['boton_secundario']?.toString().trim() ?? '',
     );
   }
 
