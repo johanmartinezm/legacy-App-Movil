@@ -2,6 +2,17 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-15]: Versión 1.0.1 (27) y sus notas
+- **Alcance:** `pubspec.yaml` (`1.0.0+26` → `1.0.1+27`) y
+  `android/fastlane/metadata/android/es-419/changelogs/27.txt` (458 de 500 caracteres; sin él el
+  workflow de Play falla). Las mismas notas, para App Store, en
+  `reports/capturas_20261014/textos_ficha.py` del repositorio raíz, y las del revisor de Apple en
+  `reports/20261015_notas_revisor_apple_1_0_1.txt`. Aprobación total del cliente el 2026-10-15. No
+  se ha compilado ni publicado nada.
+- **Criterios de QA:**
+  1. `flutter build apk` genera un APK con versionName 1.0.1 y versionCode 27.
+  2. El workflow de Play encuentra `changelogs/27.txt`.
+
 ### [2026-10-15]: Programas de LSO: imágenes recuperadas y precio de los variables
 - **Alcance:** `screens/programs/programs_screen.dart` (`armarProgramas`),
   `data/services/graphql_service.dart` y `test/screens/programas_lso_test.dart`. Con la lista nueva,
