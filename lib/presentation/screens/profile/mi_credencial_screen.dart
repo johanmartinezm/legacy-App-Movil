@@ -213,7 +213,14 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
           // Cada modalidad enseña lo suyo. Un QR en una masterclass virtual no
           // abre ninguna puerta, y un enlace en un presencial no lleva a
           // ningún sitio: el backend solo manda el que corresponde.
-          if (reg.tieneEnlace)
+          //
+          // Un evento terminado al que no se asistió ya no abre nada: se dice
+          // en vez de enseñar un QR que no sirve o un «pendiente de pago» que
+          // ya no se puede pagar (pedido del 2026-10-14). Si hubo asistencia,
+          // sigue el QR con «Asistencia registrada».
+          if (reg.eventoTerminado && !reg.attendanceConfirmed)
+            _buildEventoPasado()
+          else if (reg.tieneEnlace)
             _buildEnlace(reg)
           else if (reg.tieneQr)
             _buildQr(reg)
@@ -329,6 +336,41 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
         const SnackBar(content: Text('No se pudo abrir el enlace de la sesión')),
       );
     }
+  }
+
+  Widget _buildEventoPasado() {
+    return Container(
+      key: const Key('credencial-evento-pasado'),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF183D6B).withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          const Icon(Icons.event_busy_rounded, color: Color(0xFF9FB2C2), size: 28),
+          const SizedBox(height: 10),
+          Text(
+            'Este evento ya pasó',
+            style: GoogleFonts.barlow(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF9FB2C2),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'No hay registro de tu asistencia. El código de acceso ya no está disponible.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.questrial(
+              fontSize: 13,
+              color: const Color(0xFF9FB2C2),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildSinQr(RegistrationModel reg) {

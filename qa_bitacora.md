@@ -2,6 +2,18 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-14]: «Mi credencial»: un evento pasado sin asistencia dice que ya pasó
+- **Alcance:** `screens/profile/mi_credencial_screen.dart` y su test. Si el evento terminó y no hay
+  asistencia registrada, la tarjeta muestra «Este evento ya pasó» en lugar del QR, del enlace o de
+  «Pendiente de pago». Con asistencia, sigue el QR con «Asistencia registrada». Va con el cambio del
+  backend del mismo día, que deja de devolver los eventos desactivados que ya pasaron.
+- **Criterios de QA:**
+  1. Inscripción a un evento ya terminado, sin check-in: «Este evento ya pasó», sin QR.
+  2. Evento terminado con check-in: QR y «Asistencia registrada».
+  3. Inscripción pendiente de pago a un evento terminado: «Este evento ya pasó», no «Pendiente de
+     pago».
+  4. Un evento por venir sigue mostrando su QR.
+
 ### [2026-10-14]: «Mis registros» mostraba vacío a todo el mundo
 - **Alcance:** `domain/utils/event_filters.dart`, `screens/eventos/eventos_screen.dart`,
   `test/utils/event_filters_test.dart` y `test/screens/eventos_screen_test.dart`. La pestaña filtraba

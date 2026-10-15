@@ -179,4 +179,52 @@ void main() {
       reason: 'lo que sirve para entrar hoy va arriba',
     );
   });
+
+  // Pedido del 2026-10-14: un evento que ya pasó sin asistencia no enseña un QR
+  // que ya no abre nada, ni un «pendiente de pago» que ya no se puede pagar.
+  testWidgets('Un evento pasado sin asistencia dice que ya pasó', (tester) async {
+    await montar(tester, [
+      inscripcion(
+        eventId: 'e1',
+        titulo: 'Evento terminado',
+        estado: 'confirmed',
+        fecha: '2026-03-20T00:00:00Z',
+      ),
+    ]);
+
+    expect(find.text('Este evento ya pasó'), findsOneWidget);
+    expect(find.byType(QrImageView), findsNothing);
+  });
+
+  testWidgets('Un evento pasado con asistencia conserva el QR y la marca', (
+    tester,
+  ) async {
+    await montar(tester, [
+      inscripcion(
+        eventId: 'e1',
+        titulo: 'Evento al que fui',
+        estado: 'confirmed',
+        fecha: '2026-03-20T00:00:00Z',
+        asistio: true,
+      ),
+    ]);
+
+    expect(find.text('Este evento ya pasó'), findsNothing);
+    expect(find.byType(QrImageView), findsOneWidget);
+    expect(find.text('Asistencia registrada'), findsOneWidget);
+  });
+
+  testWidgets('Un evento pasado pendiente de pago dice que ya pasó', (tester) async {
+    await montar(tester, [
+      inscripcion(
+        eventId: 'e1',
+        titulo: 'Evento sin pagar y terminado',
+        estado: 'pending_payment',
+        fecha: '2026-03-20T00:00:00Z',
+      ),
+    ]);
+
+    expect(find.text('Este evento ya pasó'), findsOneWidget);
+    expect(find.text('Pendiente de pago'), findsNothing);
+  });
 }
