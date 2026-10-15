@@ -8,30 +8,105 @@ import '../../../data/services/secciones_inicio_service.dart';
 import '../../widgets/boton_volver.dart';
 import 'package:legacy_app/config/theme/app_theme.dart';
 
-/// Programas de LSO agrupados en 3 secciones fijas, en vez de la lista plana
-/// de hasta 32 cursos que había hasta el 2026-08-22.
+/// Un programa tal como lo pide el cliente: el título que se muestra y la
+/// página de LSO a la que lleva.
+class ProgramaLso {
+  final String titulo;
+  final String enlace;
+  const ProgramaLso(this.titulo, this.enlace);
+}
+
+/// Programas de LSO en dos secciones fijas, con los títulos y enlaces que
+/// entregó el cliente el 2026-10-15.
 ///
-/// Estructura propuesta por el cliente (revisión de Diana Uribe, LSO,
-/// 22-08-2026): certificación con doble sello EUDE, actualización, e
-/// in-company/in-family. De los 8 títulos que trajo la propuesta original,
-/// 4 no existen en la tienda con ese nombre — comprobado contra el GraphQL de
-/// `lso.school` el mismo día. Dos tenían un programa real bajo un título
-/// distinto (se usa el real, con su enlace); dos no tienen ningún programa
-/// parecido y se dejaron fuera en vez de mostrar una tarjeta sin destino.
-const List<String> _titulosCertificacionEude = [
-  'Programa de Formación para Familias Empresarias y Propietarios',
-  'Certificación Internacional en Gobierno Corporativo',
-  'Programa de Formación de Consultores en Empresa Familiar',
+/// Los títulos y enlaces mandan aquí, no la tienda: en `lso.school/graphql`
+/// varios tienen otro nombre («Certificación en Gobierno Corporativo»), uno no
+/// existe como producto (consultores) y los de actualización no tienen página
+/// propia, todos viven en /programas-de-actualizacion/. De la tienda solo se
+/// toman la imagen y el precio cuando el producto existe ([armarProgramas]).
+const List<ProgramaLso> programasPrincipales = [
+  ProgramaLso(
+    'Programa de Formación para Familias Empresarias y Propietarios',
+    'https://lso.school/programas/propietarios-y-familias-empresarias/',
+  ),
+  ProgramaLso(
+    'Certificación Internacional en Gobierno Corporativo',
+    'https://lso.school/programas/certificacion-en-gobierno-corporativo/',
+  ),
+  ProgramaLso(
+    'Programa de Formación de Consultores en Empresa Familiar',
+    'https://lso.school/programas/consultores-en-empresa-familiar/',
+  ),
+  ProgramaLso(
+    'Programa Ejecutivo de Gobierno Corporativo para Empresas de Seguros',
+    'https://lso.school/programas/ejecutivo-de-gobierno-corporativo-para-empresas-de-seguros/',
+  ),
 ];
 
-// "Curso Introducción al Manejo de Riesgo Cambiario en el Sector Real" y
-// "Gestión de conflictos en la empresa familiar" y "Board branding..." no
-// tienen programa real: solo estos tres existen en la tienda.
-const List<String> _titulosActualizacion = [
-  'Juntas, Consejos y Directorios que Crean Valor',
-  'Gestión del Riesgo Cambiario: Conceptos y Herramientas',
-  'Gestión Patrimonial para Empresarios',
+const String _paginaActualizacion = 'https://lso.school/programas-de-actualizacion/';
+
+const List<ProgramaLso> programasActualizacion = [
+  ProgramaLso('Juntas, consejos y directorios que crean valor', _paginaActualizacion),
+  ProgramaLso('Gestión del riesgo cambiario: conceptos y herramientas', _paginaActualizacion),
+  ProgramaLso('Gestión Patrimonial y Valoración de Empresas', _paginaActualizacion),
+  ProgramaLso('Gestión de Conflictos en la Empresa Familiar', _paginaActualizacion),
+  ProgramaLso(
+    'Board Branding: marca personal y posicionamiento para juntas directivas',
+    _paginaActualizacion,
+  ),
 ];
+
+String _normalizar(String texto) {
+  var t = texto.trim().toLowerCase();
+  while (t.endsWith('/')) {
+    t = t.substring(0, t.length - 1);
+  }
+  return t;
+}
+
+/// Una tarjeta por programa de [lista], en su orden, **siempre**: con o sin
+/// tienda. El producto de la tienda se busca por su enlace y, si no, por su
+/// título; si aparece, aporta imagen y precio. El enlace de la página general
+/// de actualización no identifica a ningún producto, así que esos se buscan
+/// solo por título.
+///
+/// Devuelve también si cada uno está en la tienda: sin producto no hay precio
+/// que mostrar, y «Cotización» diría algo que no se sabe.
+List<(GraphqlProgram, bool)> armarProgramas(
+  List<GraphqlProgram> tienda,
+  List<ProgramaLso> lista,
+) {
+  GraphqlProgram? buscar(ProgramaLso p) {
+    final enlace = _normalizar(p.enlace);
+    final titulo = _normalizar(p.titulo);
+    for (final t in tienda) {
+      if (enlace != _normalizar(_paginaActualizacion) && _normalizar(t.url ?? '') == enlace) {
+        return t;
+      }
+    }
+    for (final t in tienda) {
+      if (_normalizar(t.name) == titulo) return t;
+    }
+    return null;
+  }
+
+  return [
+    for (final p in lista)
+      () {
+        final producto = buscar(p);
+        return (
+          GraphqlProgram(
+            id: producto?.id ?? p.enlace,
+            name: p.titulo,
+            url: p.enlace,
+            imageUrl: producto?.imageUrl,
+            price: producto?.price,
+          ),
+          producto != null,
+        );
+      }(),
+  ];
+}
 
 class ProgramsScreen extends StatefulWidget {
   /// Se inyecta en las pruebas; por defecto, el real.
@@ -44,8 +119,9 @@ class ProgramsScreen extends StatefulWidget {
 }
 
 class _ProgramsScreenState extends State<ProgramsScreen> {
-  List<GraphqlProgram> _certificacionEude = [];
-  List<GraphqlProgram> _actualizacion = [];
+  /// Lo que devolvió la tienda de LSO; vacío hasta que responde o si falla.
+  /// Las tarjetas se pintan igual: solo pierden imagen y precio.
+  List<GraphqlProgram> _tienda = const [];
   bool _isLoading = true;
 
   /// Título y texto del encabezado y del banner que el panel cambia («Textos
@@ -79,8 +155,7 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
 
       if (mounted) {
         setState(() {
-          _certificacionEude = _porTitulos(todos, _titulosCertificacionEude);
-          _actualizacion = _porTitulos(todos, _titulosActualizacion);
+          _tienda = todos;
           _isLoading = false;
         });
       }
@@ -92,23 +167,6 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
         });
       }
     }
-  }
-
-  /// Busca cada título en orden y solo incluye los que existen de verdad en
-  /// la tienda — si LSO renombra o retira un programa, la sección lo pierde
-  /// en vez de mostrar una tarjeta sin enlace.
-  List<GraphqlProgram> _porTitulos(List<GraphqlProgram> todos, List<String> titulos) {
-    return titulos
-        .map((titulo) {
-          for (final p in todos) {
-            if (p.name.trim().toLowerCase() == titulo.trim().toLowerCase()) {
-              return p;
-            }
-          }
-          return null;
-        })
-        .whereType<GraphqlProgram>()
-        .toList();
   }
 
   @override
@@ -168,15 +226,15 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
                         )
                       else ...[
                         _buildSeccion(
-                          titulo: 'PROGRAMAS CON CERTIFICACIÓN EUDE',
-                          descripcion: 'Doble sello internacional con EUDE Business School.',
-                          programas: _certificacionEude,
+                          titulo: 'PROGRAMAS',
+                          descripcion: null,
+                          programas: armarProgramas(_tienda, programasPrincipales),
                         ),
                         const SizedBox(height: 28),
                         _buildSeccion(
                           titulo: 'PROGRAMAS DE ACTUALIZACIÓN',
                           descripcion: null,
-                          programas: _actualizacion,
+                          programas: armarProgramas(_tienda, programasActualizacion),
                         ),
                         const SizedBox(height: 28),
                         _buildInCompany(context),
@@ -195,7 +253,7 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
   Widget _buildSeccion({
     required String titulo,
     required String? descripcion,
-    required List<GraphqlProgram> programas,
+    required List<(GraphqlProgram, bool)> programas,
   }) {
     if (programas.isEmpty) return const SizedBox.shrink();
     return Column(
@@ -218,7 +276,7 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
           ),
         ],
         const SizedBox(height: 12),
-        ...programas.map((p) => _ProgramRow(program: p)),
+        ...programas.map((p) => _ProgramRow(program: p.$1, enTienda: p.$2)),
       ],
     );
   }
@@ -419,7 +477,10 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
 class _ProgramRow extends StatelessWidget {
   final GraphqlProgram program;
 
-  const _ProgramRow({required this.program});
+  /// Sin producto en la tienda no se sabe el precio: se invita a verlo en LSO.
+  final bool enTienda;
+
+  const _ProgramRow({required this.program, required this.enTienda});
 
   Future<void> _abrirEnLso(BuildContext context) async {
     final enlace = program.url;
@@ -478,7 +539,7 @@ class _ProgramRow extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    program.precioConMoneda ?? 'Cotización',
+                    enTienda ? (program.precioConMoneda ?? 'Cotización') : 'Ver en LSO',
                     style: GoogleFonts.barlow(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,

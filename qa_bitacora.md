@@ -2,6 +2,24 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-15]: Programas de LSO con la lista nueva del cliente
+- **Alcance:** `screens/programs/programs_screen.dart` y `test/screens/programas_lso_test.dart`.
+  Dos secciones, «PROGRAMAS» (4) y «PROGRAMAS DE ACTUALIZACIÓN» (5), con los títulos y enlaces que
+  entregó el cliente; sale la descripción del doble sello EUDE, que ya no vale para los cuatro. Los
+  títulos y enlaces mandan, no la tienda: en `lso.school/graphql` varios tienen otro nombre, el de
+  consultores no existe como producto y los de actualización comparten la página
+  `/programas-de-actualizacion/`. De la tienda se toman imagen y precio si el producto aparece (por
+  enlace o por título); si no, la tarjeta dice «Ver en LSO». Si la tienda no responde, las nueve
+  tarjetas salen igual, sin imagen ni precio (antes la sección quedaba vacía).
+- **Criterios de QA:**
+  1. LSO muestra «PROGRAMAS» con los cuatro del cliente, en su orden, y «PROGRAMAS DE ACTUALIZACIÓN»
+     con los cinco.
+  2. Cada programa abre su enlace: los cuatro primeros su página; los cinco de actualización,
+     `lso.school/programas-de-actualizacion/`.
+  3. Certificación, Propietarios, Seguros y Juntas muestran precio; los que no están en la tienda,
+     «Ver en LSO».
+  4. Sin conexión a `lso.school`, siguen las nueve tarjetas.
+
 ### [2026-10-15]: Legacy Board: textos de los botones desde el panel
 - **Alcance:** `domain/models/pagina_informativa_model.dart` (tres campos),
   `screens/paginas/pagina_informativa_screen.dart` (`acciones` recibe la página),
