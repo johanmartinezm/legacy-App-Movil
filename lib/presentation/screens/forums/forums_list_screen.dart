@@ -179,16 +179,8 @@ class _ForumCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text(
-                    'Por: ${forum.authorAlias.isNotEmpty ? forum.authorAlias : 'Administración'}',
-                    style: const TextStyle(
-                      color: AppTheme.legacyBlue4,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
                   Row(
                     children: [
                       const Icon(Icons.chat_bubble_outline, size: 16, color: Colors.white54),

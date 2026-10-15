@@ -2,6 +2,13 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-15]: Listado de foros sin «Por:»
+- **Alcance:** `screens/forums/forums_list_screen.dart`. La tarjeta de cada foro ya no muestra
+  «Por: Administración»: los foros los crea siempre el panel. Queda el contador de comentarios.
+- **Criterios de QA:**
+  1. Chats de sinergia: ninguna tarjeta muestra «Por:».
+  2. El contador de comentarios sigue a la derecha de cada tarjeta.
+
 ### [2026-10-14]: «Mi credencial»: un evento pasado sin asistencia dice que ya pasó
 - **Alcance:** `screens/profile/mi_credencial_screen.dart` y su test. Si el evento terminó y no hay
   asistencia registrada, la tarjeta muestra «Este evento ya pasó» en lugar del QR, del enlace o de
