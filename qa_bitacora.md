@@ -2,6 +2,20 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-15]: Programas de LSO: imágenes recuperadas y precio de los variables
+- **Alcance:** `screens/programs/programs_screen.dart` (`armarProgramas`),
+  `data/services/graphql_service.dart` y `test/screens/programas_lso_test.dart`. Con la lista nueva,
+  Propietarios y Certificación perdían la imagen: el producto de su enlace no tiene imagen en la
+  tienda, y el del mismo programa con el título del cliente sí. Ahora la imagen sale del producto del
+  enlace o, si no tiene, del que coincide por título; precio y enlace siguen siendo los del enlace.
+  Consultores recupera imagen y precio igual. Además la consulta pide el precio de los
+  `VariableProduct`: Propietarios mostraba «Cotización» aunque la tienda publica «$630 - $2.100».
+- **Criterios de QA:**
+  1. LSO: Propietarios, Certificación, Consultores, Seguros, Juntas y Riesgo cambiario muestran
+     imagen.
+  2. Propietarios muestra «USD $630 - $2.100».
+  3. Gestión Patrimonial y Valoración, Conflictos y Board Branding siguen con el icono y «Ver en LSO».
+
 ### [2026-10-15]: Programas de LSO con la lista nueva del cliente
 - **Alcance:** `screens/programs/programs_screen.dart` y `test/screens/programas_lso_test.dart`.
   Dos secciones, «PROGRAMAS» (4) y «PROGRAMAS DE ACTUALIZACIÓN» (5), con los títulos y enlaces que

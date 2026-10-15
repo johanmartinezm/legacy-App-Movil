@@ -64,6 +64,30 @@ void main() {
     expect(filas.skip(1).every((f) => !f.$2), isTrue);
   });
 
+  test('sin imagen en el producto del enlace, la toma del que tiene su título', () {
+    final conDosProductos = [
+      GraphqlProgram(
+        id: 'enlace',
+        name: 'Propietarios y Familias Empresarias',
+        url: 'https://lso.school/programas/propietarios-y-familias-empresarias/',
+        price: '1200',
+      ),
+      GraphqlProgram(
+        id: 'titulo',
+        name: 'Programa de Formación para Familias Empresarias y Propietarios',
+        url: 'https://lso.school/programas/otro-enlace/',
+        imageUrl: 'https://lso.school/familias.webp',
+        price: '999',
+      ),
+    ];
+    final (prop, enTienda) = armarProgramas(conDosProductos, programasPrincipales)[0];
+    expect(prop.imageUrl, 'https://lso.school/familias.webp');
+    // El precio y el enlace siguen siendo los del enlace del cliente.
+    expect(prop.price, '1200');
+    expect(prop.url, 'https://lso.school/programas/propietarios-y-familias-empresarias/');
+    expect(enTienda, isTrue);
+  });
+
   test('si la tienda no responde, siguen todas las tarjetas', () {
     expect(armarProgramas(const [], programasPrincipales), hasLength(4));
     expect(armarProgramas(const [], programasActualizacion), hasLength(5));

@@ -25,6 +25,13 @@ class GraphqlService {
               price
               regularPrice
             }
+            # Los programas con varias modalidades son VariableProduct y
+            # traen un rango («$630 - $2.100»). Sin esto salían como
+            # «Cotización» aunque la tienda publique el precio.
+            ... on VariableProduct {
+              price
+              regularPrice
+            }
             productCategories {
               nodes {
                 name

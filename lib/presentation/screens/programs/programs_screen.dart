@@ -70,36 +70,51 @@ String _normalizar(String texto) {
 /// de actualización no identifica a ningún producto, así que esos se buscan
 /// solo por título.
 ///
+/// La imagen se busca aparte: varios productos de los enlaces del cliente
+/// («Propietarios y Familias Empresarias», «Certificación en Gobierno
+/// Corporativo») no tienen imagen en la tienda, y el mismo programa con el
+/// título del cliente sí. Sin esto, perdían la imagen que tenían antes.
+///
 /// Devuelve también si cada uno está en la tienda: sin producto no hay precio
 /// que mostrar, y «Cotización» diría algo que no se sabe.
 List<(GraphqlProgram, bool)> armarProgramas(
   List<GraphqlProgram> tienda,
   List<ProgramaLso> lista,
 ) {
-  GraphqlProgram? buscar(ProgramaLso p) {
+  GraphqlProgram? porEnlace(ProgramaLso p) {
     final enlace = _normalizar(p.enlace);
-    final titulo = _normalizar(p.titulo);
+    if (enlace == _normalizar(_paginaActualizacion)) return null;
     for (final t in tienda) {
-      if (enlace != _normalizar(_paginaActualizacion) && _normalizar(t.url ?? '') == enlace) {
-        return t;
-      }
+      if (_normalizar(t.url ?? '') == enlace) return t;
     }
+    return null;
+  }
+
+  GraphqlProgram? porTitulo(ProgramaLso p) {
+    final titulo = _normalizar(p.titulo);
     for (final t in tienda) {
       if (_normalizar(t.name) == titulo) return t;
     }
     return null;
   }
 
+  bool conImagen(GraphqlProgram? t) => (t?.imageUrl ?? '').isNotEmpty;
+
   return [
     for (final p in lista)
       () {
-        final producto = buscar(p);
+        final delEnlace = porEnlace(p);
+        final delTitulo = porTitulo(p);
+        final producto = delEnlace ?? delTitulo;
+        final imagen = conImagen(delEnlace)
+            ? delEnlace!.imageUrl
+            : (conImagen(delTitulo) ? delTitulo!.imageUrl : null);
         return (
           GraphqlProgram(
             id: producto?.id ?? p.enlace,
             name: p.titulo,
             url: p.enlace,
-            imageUrl: producto?.imageUrl,
+            imageUrl: imagen,
             price: producto?.price,
           ),
           producto != null,
