@@ -68,7 +68,7 @@ void main() {
     });
 
     test('un enlace normal', () {
-      const entrada = '<a href="https://legacy.intelyclick.com">Legacy</a>';
+      const entrada = '<a href="https://app.legacynetworkco.com">Legacy</a>';
       expect(sanitizarHtml(entrada), entrada);
     });
 

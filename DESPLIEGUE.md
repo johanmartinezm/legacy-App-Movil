@@ -23,7 +23,7 @@ cp assets/config/config.json.develop assets/config/config.json   # trabajar en l
 cp assets/config/config.json.prod    assets/config/config.json   # volver a producción
 ```
 
-El archivo por defecto **ya apunta a producción** (`https://app.legacynetworkco.com`, desde el 2026-10-02; antes `legacy.intelyclick.com`). Un build de
+El archivo por defecto **ya apunta a producción** (`https://app.legacynetworkco.com`, desde el 2026-10-02; antes el servidor anterior). Un build de
 pruebas con esta configuración escribe en la base de datos real.
 
 `ConfigService` resuelve la URL por plataforma: `10.0.2.2` en el emulador Android, `localhost` en
@@ -438,13 +438,13 @@ cerrada de 14 días de Play, que **no aplica** por ser cuenta de Organización.
 
 Salida: `build/web/`.
 
-**Hoy no hay ningún host publicando este artefacto.** En `legacy.intelyclick.com` la raíz la sirve
+**Hoy no hay ningún host publicando este artefacto.** En `app.legacynetworkco.com` la raíz la sirve
 el panel Angular (`legacy_frontend`). Si se quiere publicar la app web hay que decidir primero
 dónde: subdominio propio o una ruta enrutada en HAProxy, con su contenedor nginx.
 
 Ten en cuenta que la web usa `localhost` como API salvo que `config.json` diga otra cosa, y que el
 backend **ya no acepta cualquier origen**: `main.go` filtra con `origenPermitido`, que solo deja pasar
-`https://legacy.intelyclick.com` y cualquier `localhost` (comprobado contra producción el 2026-08-26).
+`https://app.legacynetworkco.com` y cualquier `localhost` (comprobado contra producción el 2026-08-26).
 Si la app web se publica en otro dominio, hay que añadirlo a `origenesDeConfianza` o el navegador
 bloqueará todas las llamadas.
 
