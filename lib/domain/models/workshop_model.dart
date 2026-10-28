@@ -3,6 +3,7 @@ class WorkshopModel {
   final String eventId;
   final String eventTitle;
   final String name;
+  final String description;
   final String room;
   final String speaker;
   final String? imageUrl;
@@ -14,6 +15,7 @@ class WorkshopModel {
     required this.eventId,
     required this.eventTitle,
     required this.name,
+    this.description = '',
     required this.room,
     required this.speaker,
     this.imageUrl,
@@ -31,15 +33,20 @@ class WorkshopModel {
       eventId: json['eventId'] ?? eventId,
       eventTitle: json['eventTitle'] ?? eventTitle,
       name: json['name'] ?? '',
+      description: json['description'] ?? '',
       room: json['room'] ?? '',
       speaker: json['speaker'] ?? '',
       imageUrl: json['imageUrl'],
+      // A diferencia de las fechas del evento (columnas `date`, sin hora), las
+      // del taller son instantes con zona: el backend manda «09:00-05:00».
+      // DateTime.parse los deja en UTC, y sin toLocal() el cronograma pintaba
+      // «14:00» para un taller de las nueve de la mañana.
       startDateTime: DateTime.parse(
         json['startDateTime'] ?? DateTime.now().toIso8601String(),
-      ),
+      ).toLocal(),
       endDateTime: DateTime.parse(
         json['endDateTime'] ?? DateTime.now().toIso8601String(),
-      ),
+      ).toLocal(),
     );
   }
 
@@ -49,6 +56,7 @@ class WorkshopModel {
       'eventId': eventId,
       'eventTitle': eventTitle,
       'name': name,
+      'description': description,
       'room': room,
       'speaker': speaker,
       'imageUrl': imageUrl,

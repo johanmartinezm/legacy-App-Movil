@@ -6,6 +6,7 @@ import '../../widgets/eventos/event_action_button.dart';
 import '../../widgets/eventos/event_survey_button.dart';
 import '../../widgets/boton_volver.dart';
 import 'package:legacy_app/config/theme/app_theme.dart';
+import 'cronograma_screen.dart';
 
 class EventPurchaseDetailScreen extends StatelessWidget {
   final EventModel event;
@@ -228,6 +229,15 @@ class EventPurchaseDetailScreen extends StatelessWidget {
                             ),
                           ),
                         ),
+                      // El cronograma existía desde el commit inicial, pero
+                      // ninguna pantalla lo abría: los talleres no se veían en
+                      // la app, «Mi agenda» no tenía de dónde llenarse y no
+                      // había forma de calificar un taller. Conectado el
+                      // 2026-10-28.
+                      if (event.workshops.isNotEmpty) ...[
+                        const SizedBox(height: 20),
+                        _buildBotonCronograma(context),
+                      ],
                       const SizedBox(height: 10),
                     ],
                   ),
@@ -249,6 +259,33 @@ class EventPurchaseDetailScreen extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBotonCronograma(BuildContext context) {
+    final n = event.workshops.length;
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => CronogramaScreen(event: event)),
+        ),
+        icon: const Icon(Icons.view_agenda_outlined, size: 18),
+        label: Text(
+          n == 1 ? 'VER CRONOGRAMA · 1 TALLER' : 'VER CRONOGRAMA · $n TALLERES',
+          style: GoogleFonts.barlow(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.8,
+          ),
+        ),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.white,
+          side: const BorderSide(color: Color(0xFF00F2FE), width: 1),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
     );

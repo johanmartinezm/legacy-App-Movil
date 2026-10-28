@@ -334,6 +334,17 @@ class _WorkshopItem extends StatelessWidget {
                         ),
                       ],
                     ),
+                    if (workshop.description.trim().isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        workshop.description.trim(),
+                        style: TextStyle(
+                          color: Colors.grey[800],
+                          fontSize: 13,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 12),
                     Align(
                       alignment: Alignment.centerRight,
