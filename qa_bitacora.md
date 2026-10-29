@@ -23,6 +23,8 @@ Entrada de trabajo para validación de App Móvil.
   5. Calificar un taller terminado → «¡Gracias por calificar…!». Repetir → «ya calificaste este
      taller».
   6. «Mi agenda» aplica la misma regla en sus tarjetas.
+  7. Si el servidor rechaza la calificación («ya calificaste este taller»), el diálogo se cierra y
+     el motivo sale abajo; si falla la conexión, sigue abierto para reintentar.
 
 ### [2026-10-15]: Versión 1.0.1 (27) y sus notas
 - **Alcance:** `pubspec.yaml` (`1.0.0+26` → `1.0.1+27`) y

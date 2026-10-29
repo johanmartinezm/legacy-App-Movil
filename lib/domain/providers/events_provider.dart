@@ -156,6 +156,11 @@ class EventsProvider extends ChangeNotifier {
         comment: comment,
         token: token,
       );
+    } on MotivoDelServidor catch (e) {
+      // Rechazo definitivo («ya calificaste este taller»): reintentar no
+      // cambia nada, así que se propaga para que el diálogo se cierre.
+      _errorMessage = e.mensaje;
+      rethrow;
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
       debugPrint('Error submitting rating: $e');

@@ -150,14 +150,15 @@ void main() {
     );
     final provider = EventsProvider(eventService: EventService(client: client));
 
-    final ok = await provider.submitWorkshopRating(
-      workshopId: 'ws-1',
-      rating: 4,
-      comment: '',
-      token: 't',
+    await expectLater(
+      provider.submitWorkshopRating(
+        workshopId: 'ws-1',
+        rating: 4,
+        comment: '',
+        token: 't',
+      ),
+      throwsA(isA<MotivoDelServidor>()),
     );
-
-    expect(ok, isFalse);
     expect(provider.errorMessage, 'ya calificaste este taller');
   });
 

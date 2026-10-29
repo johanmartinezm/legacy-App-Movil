@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../config/theme/app_theme.dart';
 import '../../../domain/providers/events_provider.dart';
 import '../../../domain/providers/auth_provider.dart';
+import '../../../data/services/event_service.dart' show MotivoDelServidor;
 import 'package:provider/provider.dart';
 
 class RatingDialog extends StatefulWidget {
@@ -68,7 +69,23 @@ class _RatingDialogState extends State<RatingDialog> {
           );
         }
       }
+    } on MotivoDelServidor catch (e) {
+      // El servidor ya dijo que no («ya calificaste este taller», «podrás
+      // calificarlo cuando termine»): dejar el diálogo abierto invitaba a
+      // reintentar algo que no va a cambiar. Se cierra y se explica.
+      if (mounted) {
+        final messenger = ScaffoldMessenger.of(context);
+        Navigator.of(context).pop(false);
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(e.mensaje),
+            backgroundColor: Colors.orange[800],
+          ),
+        );
+      }
     } catch (e) {
+      // Fallo de conexión u otro imprevisto: el diálogo sigue abierto, con
+      // las estrellas y el comentario, para poder reintentar.
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
