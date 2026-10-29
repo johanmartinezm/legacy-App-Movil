@@ -23,6 +23,10 @@ class WorkshopModel {
     required this.endDateTime,
   });
 
+  /// Solo se califica un taller que ya terminó: el backend rechaza el resto
+  /// desde el 2026-10-28, y antes la app ofrecía el botón siempre.
+  bool get terminado => endDateTime.isBefore(DateTime.now());
+
   factory WorkshopModel.fromJson(
     Map<String, dynamic> json, {
     String eventId = '',

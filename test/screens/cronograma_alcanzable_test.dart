@@ -104,6 +104,63 @@ void main() {
     expect(find.text('Preparar el relevo generacional.'), findsOneWidget);
   });
 
+  // Fechas relativas a hoy: con fechas fijas, el taller «futuro» dejaría de
+  // serlo con el paso de los días y la prueba fallaría sola.
+  Map<String, dynamic> tallerQueTermina(Duration desdeAhora) {
+    final fin = DateTime.now().add(desdeAhora);
+    return Map<String, dynamic>.from(taller)
+      ..['startDateTime'] = fin
+          .subtract(const Duration(hours: 1))
+          .toUtc()
+          .toIso8601String()
+      ..['endDateTime'] = fin.toUtc().toIso8601String();
+  }
+
+  Future<void> abrirCronograma(WidgetTester tester, EventModel event) async {
+    await montar(tester, event);
+    await tester.tap(find.textContaining('VER CRONOGRAMA'));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('Taller que no ha terminado: no se ofrece calificar', (
+    tester,
+  ) async {
+    await abrirCronograma(
+      tester,
+      evento(talleres: [tallerQueTermina(const Duration(days: 30))]),
+    );
+
+    expect(find.text('Calificar experiencia'), findsNothing);
+    expect(find.text('Podrás calificarlo al terminar'), findsOneWidget);
+  });
+
+  testWidgets('Taller terminado: se ofrece calificar', (tester) async {
+    await abrirCronograma(
+      tester,
+      evento(talleres: [tallerQueTermina(const Duration(days: -30))]),
+    );
+
+    expect(find.text('Calificar experiencia'), findsOneWidget);
+    expect(find.text('Podrás calificarlo al terminar'), findsNothing);
+  });
+
+  test('Calificar dos veces muestra el motivo del servidor', () async {
+    final client = MockClient(
+      (_) async => http.Response('ya calificaste este taller', 409),
+    );
+    final provider = EventsProvider(eventService: EventService(client: client));
+
+    final ok = await provider.submitWorkshopRating(
+      workshopId: 'ws-1',
+      rating: 4,
+      comment: '',
+      token: 't',
+    );
+
+    expect(ok, isFalse);
+    expect(provider.errorMessage, 'ya calificaste este taller');
+  });
+
   test('La hora del taller se lee en la hora local, no en UTC', () {
     final w = WorkshopModel.fromJson(taller);
     final esperado = DateTime.parse('2026-11-19T11:00:00-05:00').toLocal();

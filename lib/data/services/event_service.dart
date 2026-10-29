@@ -120,7 +120,21 @@ class EventService {
         body: jsonEncode({'rating': rating.toInt(), 'comment': comment}),
       );
 
-      return response.statusCode == 201 || response.statusCode == 200;
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return true;
+      }
+      // 409 «ya calificaste este taller», 422 «podrás calificarlo cuando
+      // termine»: el backend explica el motivo en español y se muestra tal
+      // cual. Antes cualquier rechazo salía como un «Error» sin más.
+      final motivo = response.body.trim();
+      if (response.statusCode >= 400 &&
+          response.statusCode < 500 &&
+          motivo.isNotEmpty) {
+        throw MotivoDelServidor(motivo);
+      }
+      return false;
+    } on MotivoDelServidor {
+      rethrow;
     } catch (e) {
       throw Exception('Error de conexión: $e');
     }
@@ -147,11 +161,11 @@ class EventService {
         final body = response.body.trim();
         if (body.isEmpty || body == 'null') return [];
         final List<dynamic> data = jsonDecode(body);
-        return data
-            .map((json) => RegistrationModel.fromJson(json))
-            .toList();
+        return data.map((json) => RegistrationModel.fromJson(json)).toList();
       }
-      throw Exception('Error al cargar tus inscripciones (${response.statusCode})');
+      throw Exception(
+        'Error al cargar tus inscripciones (${response.statusCode})',
+      );
     } catch (e) {
       throw Exception('Error de conexión: $e');
     }
@@ -191,7 +205,10 @@ class EventService {
     if (response.statusCode == 201 || response.statusCode == 200) {
       return EventSurveyModel.fromJson(jsonDecode(response.body));
     }
-    throw EventSurveyException.fromStatusCode(response.statusCode, response.body);
+    throw EventSurveyException.fromStatusCode(
+      response.statusCode,
+      response.body,
+    );
   }
 
   /// Devuelve la encuesta ya enviada, o `null` si el usuario todavía no ha
@@ -225,7 +242,10 @@ class EventService {
       if (response.body.trim().isEmpty) return null;
       return EventSurveyModel.fromJson(jsonDecode(response.body));
     }
-    throw EventSurveyException.fromStatusCode(response.statusCode, response.body);
+    throw EventSurveyException.fromStatusCode(
+      response.statusCode,
+      response.body,
+    );
   }
 
   Future<List<dynamic>> getAgenda(String token) async {
@@ -288,4 +308,13 @@ class EventService {
       throw Exception('Error de conexión: $e');
     }
   }
+}
+
+/// Rechazo del servidor con un motivo pensado para mostrarse al usuario.
+class MotivoDelServidor implements Exception {
+  final String mensaje;
+  const MotivoDelServidor(this.mensaje);
+
+  @override
+  String toString() => mensaje;
 }

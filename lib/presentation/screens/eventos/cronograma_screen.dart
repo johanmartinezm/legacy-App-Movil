@@ -8,6 +8,13 @@ import '../../../domain/providers/events_provider.dart';
 import '../../../domain/providers/auth_provider.dart';
 import '../../../config/theme/app_theme.dart';
 import '../../widgets/eventos/rating_dialog.dart';
+import '../../widgets/boton_volver.dart';
+
+// Mismos tonos que el detalle del evento, desde donde se llega aquí. Hasta el
+// 2026-10-28 la pantalla iba en blanco con el tema por defecto, y el nombre del
+// taller salía en blanco sobre blanco.
+const _cian = Color(0xFF00F2FE);
+const _textoSecundario = Color(0xFF9FB2C2);
 
 class CronogramaScreen extends StatelessWidget {
   final EventModel event;
@@ -33,68 +40,100 @@ class CronogramaScreen extends StatelessWidget {
     return DefaultTabController(
       length: dates.isEmpty ? 1 : dates.length,
       child: Scaffold(
-        backgroundColor: Colors.grey[50],
+        backgroundColor: AppTheme.legacyBlue1,
         appBar: AppBar(
-          title: Text(
-            'Cronograma: ${event.title}',
-            style: GoogleFonts.barlow(fontWeight: FontWeight.bold),
-          ),
           backgroundColor: AppTheme.legacyBlue1,
-          foregroundColor: Colors.white,
+          elevation: 0,
+          leading: const BotonVolver(),
+          centerTitle: true,
+          title: Text(
+            'Cronograma',
+            style: GoogleFonts.barlow(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              letterSpacing: 0.5,
+            ),
+          ),
           bottom: dates.isEmpty
               ? null
               : TabBar(
                   isScrollable: true,
-                  labelColor: Colors.white, // Color de la pestaña seleccionada
-                  unselectedLabelColor: Colors.white.withValues(
-                    alpha: 0.7,
-                  ), // Color de las no seleccionadas
-                  indicatorColor: Colors.white, // Color de la línea de abajo
+                  tabAlignment: TabAlignment.start,
+                  labelColor: _cian,
+                  unselectedLabelColor: _textoSecundario,
+                  indicatorColor: _cian,
+                  dividerColor: AppTheme.legacyBlue2,
+                  labelStyle: GoogleFonts.barlow(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  unselectedLabelStyle: GoogleFonts.barlow(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
                   tabs: dates.map((date) {
                     final DateTime dt = DateTime.parse(date);
                     return Tab(text: DateFormat('EEE, d MMM', 'es').format(dt));
                   }).toList(),
                 ),
         ),
-        body: dates.isEmpty
-            ? const Center(
-                child: Text('No hay talleres programados para este evento.'),
-              )
-            : TabBarView(
-                children: dates.map((date) {
-                  final workshops = workshopsByDate[date]!;
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: RadialGradient(
+              center: Alignment(0.8, -0.8),
+              radius: 1.5,
+              colors: [
+                AppTheme.legacyBlue2,
+                AppTheme.legacyBlue2,
+                AppTheme.legacyBlue1,
+              ],
+              stops: [0.0, 0.3, 1.0],
+            ),
+          ),
+          child: dates.isEmpty
+              ? Center(
+                  child: Text(
+                    'No hay talleres programados para este evento.',
+                    style: GoogleFonts.questrial(color: _textoSecundario),
+                  ),
+                )
+              : TabBarView(
+                  children: dates.map((date) {
+                    final workshops = workshopsByDate[date]!;
 
-                  // Group workshops by time within this date
-                  final Map<String, List<WorkshopModel>> workshopsByTime = {};
-                  for (var w in workshops) {
-                    final startTime = DateFormat(
-                      'HH:mm',
-                    ).format(w.startDateTime);
-                    final endTime = DateFormat('HH:mm').format(w.endDateTime);
-                    final timeKey = '$startTime - $endTime';
-                    if (!workshopsByTime.containsKey(timeKey)) {
-                      workshopsByTime[timeKey] = [];
+                    // Group workshops by time within this date
+                    final Map<String, List<WorkshopModel>> workshopsByTime = {};
+                    for (var w in workshops) {
+                      final startTime = DateFormat(
+                        'HH:mm',
+                      ).format(w.startDateTime);
+                      final endTime = DateFormat('HH:mm').format(w.endDateTime);
+                      final timeKey = '$startTime - $endTime';
+                      if (!workshopsByTime.containsKey(timeKey)) {
+                        workshopsByTime[timeKey] = [];
+                      }
+                      workshopsByTime[timeKey]!.add(w);
                     }
-                    workshopsByTime[timeKey]!.add(w);
-                  }
 
-                  final List<String> times = workshopsByTime.keys.toList()
-                    ..sort();
+                    final List<String> times = workshopsByTime.keys.toList()
+                      ..sort();
 
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: times.length,
-                    itemBuilder: (context, index) {
-                      final time = times[index];
-                      final concurrentWorkshops = workshopsByTime[time]!;
-                      return _TimeSlotGroup(
-                        time: time,
-                        workshops: concurrentWorkshops,
-                      );
-                    },
-                  );
-                }).toList(),
-              ),
+                    return ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+                      itemCount: times.length,
+                      itemBuilder: (context, index) {
+                        final time = times[index];
+                        final concurrentWorkshops = workshopsByTime[time]!;
+                        return _TimeSlotGroup(
+                          time: time,
+                          workshops: concurrentWorkshops,
+                        );
+                      },
+                    );
+                  }).toList(),
+                ),
+        ),
       ),
     );
   }
@@ -113,28 +152,36 @@ class _TimeSlotGroup extends StatelessWidget {
       children: [
         Row(
           children: [
+            // Igual que la etiqueta «REGISTRO ABIERTO» del detalle.
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: AppTheme.legacyBlue1,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: _cian.withValues(alpha: 0.5),
+                  width: 1,
+                ),
+                color: _cian.withValues(alpha: 0.05),
               ),
               child: Text(
                 time,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: GoogleFonts.barlow(
+                  color: _cian,
                   fontWeight: FontWeight.bold,
-                  fontSize: 14,
+                  fontSize: 13,
+                  letterSpacing: 0.8,
                 ),
               ),
             ),
             const SizedBox(width: 8),
-            const Expanded(child: Divider()),
+            const Expanded(
+              child: Divider(color: AppTheme.legacyBlue2, thickness: 0.5),
+            ),
           ],
         ),
         const SizedBox(height: 12),
         Padding(
-          padding: const EdgeInsets.only(left: 12),
+          padding: EdgeInsets.zero,
           child: LayoutBuilder(
             builder: (context, constraints) {
               // If there are multiple workshops, show them in columns
@@ -183,17 +230,14 @@ class _WorkshopItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
+      // Como la ficha técnica del detalle del evento.
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.legacySurface.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(
+          color: AppTheme.legacyBlue2.withValues(alpha: 0.4),
+          width: 1,
+        ),
       ),
       child: IntrinsicHeight(
         child: Row(
@@ -201,7 +245,7 @@ class _WorkshopItem extends StatelessWidget {
             Container(
               width: 4,
               decoration: const BoxDecoration(
-                color: AppTheme.legacyBlue3,
+                color: AppTheme.legacyActive,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(12),
                   bottomLeft: Radius.circular(12),
@@ -221,8 +265,10 @@ class _WorkshopItem extends StatelessWidget {
                           child: Text(
                             workshop.name,
                             style: GoogleFonts.barlow(
-                              fontSize: 16,
+                              fontSize: 17,
                               fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              height: 1.2,
                             ),
                           ),
                         ),
@@ -236,9 +282,7 @@ class _WorkshopItem extends StatelessWidget {
                                 isInAgenda
                                     ? Icons.bookmark
                                     : Icons.bookmark_add_outlined,
-                                color: isInAgenda
-                                    ? AppTheme.legacyBlue1
-                                    : Colors.grey,
+                                color: isInAgenda ? _cian : _textoSecundario,
                                 size: 20,
                               ),
                               onPressed: () {
@@ -307,30 +351,19 @@ class _WorkshopItem extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Row(
+                    // Wrap y no Row: con un expositor de nombre largo la
+                    // fila se desbordaba.
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 6,
                       children: [
-                        const Icon(
-                          Icons.location_on,
-                          size: 14,
-                          color: Colors.red,
+                        _Dato(
+                          icono: Icons.place_outlined,
+                          texto: workshop.room,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          workshop.room,
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 13,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        const Icon(Icons.person, size: 14, color: Colors.grey),
-                        const SizedBox(width: 4),
-                        Text(
-                          workshop.speaker,
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 13,
-                          ),
+                        _Dato(
+                          icono: Icons.person_outline,
+                          texto: workshop.speaker,
                         ),
                       ],
                     ),
@@ -338,38 +371,48 @@ class _WorkshopItem extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(
                         workshop.description.trim(),
-                        style: TextStyle(
-                          color: Colors.grey[800],
-                          fontSize: 13,
-                          height: 1.4,
+                        style: GoogleFonts.questrial(
+                          color: AppTheme.legacyWhite.withValues(alpha: 0.9),
+                          fontSize: 14,
+                          height: 1.5,
                         ),
                       ),
                     ],
                     const SizedBox(height: 12),
                     Align(
                       alignment: Alignment.centerRight,
-                      child: TextButton.icon(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => RatingDialog(
-                              itemName: workshop.name,
-                              itemId: workshop.id,
+                      child: !workshop.terminado
+                          ? Text(
+                              'Podrás calificarlo al terminar',
+                              style: GoogleFonts.barlow(
+                                color: _textoSecundario,
+                                fontSize: 12,
+                              ),
+                            )
+                          : TextButton.icon(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => RatingDialog(
+                                    itemName: workshop.name,
+                                    itemId: workshop.id,
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.star_outline, size: 16),
+                              label: const Text(
+                                'Calificar experiencia',
+                                style: TextStyle(fontSize: 12),
+                              ),
+                              style: TextButton.styleFrom(
+                                foregroundColor: _cian,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
                             ),
-                          );
-                        },
-                        icon: const Icon(Icons.star_outline, size: 16),
-                        label: const Text(
-                          'Calificar experiencia',
-                          style: TextStyle(fontSize: 12),
-                        ),
-                        style: TextButton.styleFrom(
-                          foregroundColor: AppTheme.legacyBlue1,
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                      ),
                     ),
                   ],
                 ),
@@ -378,6 +421,33 @@ class _WorkshopItem extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _Dato extends StatelessWidget {
+  final IconData icono;
+  final String texto;
+
+  const _Dato({required this.icono, required this.texto});
+
+  @override
+  Widget build(BuildContext context) {
+    if (texto.trim().isEmpty) return const SizedBox.shrink();
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icono, size: 15, color: _textoSecundario),
+        const SizedBox(width: 5),
+        Text(
+          texto,
+          style: GoogleFonts.barlow(
+            color: _textoSecundario,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }

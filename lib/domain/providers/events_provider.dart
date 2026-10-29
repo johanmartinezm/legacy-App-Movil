@@ -147,6 +147,8 @@ class EventsProvider extends ChangeNotifier {
     required String comment,
     required String token,
   }) async {
+    // Sin esto, un fallo sin motivo mostraría el error de otra operación.
+    _errorMessage = null;
     try {
       return await _eventService.submitWorkshopRating(
         workshopId: workshopId,

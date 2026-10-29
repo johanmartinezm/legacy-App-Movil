@@ -2,6 +2,28 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-28]: Cronograma de talleres alcanzable, con los colores de la app
+- **Alcance:** `event_purchase_detail_screen.dart` (botón «VER CRONOGRAMA · N TALLERES» si el evento
+  tiene talleres), `cronograma_screen.dart` (antes ninguna pantalla lo abría; ahora usa el fondo, las
+  tarjetas y los acentos cian del detalle del evento, y muestra la descripción del taller),
+  `workshop_model.dart` (descripción, hora local en vez de UTC, `terminado`), `agenda_screen.dart`,
+  `rating_dialog.dart`, `event_service.dart` y `events_provider.dart` (calificar solo un taller
+  terminado; el motivo del rechazo del servidor se muestra tal cual). Tests en
+  `cronograma_alcanzable_test.dart`. Necesita el backend de la rama `feature/talleres-aparte`
+  desplegado. Viaja con la próxima versión publicada; sin publicar.
+- **Criterios de QA:**
+  1. En el detalle de un evento con talleres aparece «VER CRONOGRAMA · N TALLERES»; en uno sin
+     talleres, no.
+  2. El cronograma tiene una pestaña por día y los horarios en hora de Colombia: un taller de las
+     9:00 sale como «09:00», no «14:00» (comprobado en el teléfono).
+  3. Fondo azul oscuro, tarjetas como la ficha del evento, nombre del taller legible en blanco
+     (comprobado en el teléfono).
+  4. Un taller que no ha terminado muestra «Podrás calificarlo al terminar» en vez del botón; uno
+     terminado muestra «Calificar experiencia».
+  5. Calificar un taller terminado → «¡Gracias por calificar…!». Repetir → «ya calificaste este
+     taller».
+  6. «Mi agenda» aplica la misma regla en sus tarjetas.
+
 ### [2026-10-15]: Versión 1.0.1 (27) y sus notas
 - **Alcance:** `pubspec.yaml` (`1.0.0+26` → `1.0.1+27`) y
   `android/fastlane/metadata/android/es-419/changelogs/27.txt` (458 de 500 caracteres; sin él el

@@ -63,13 +63,18 @@ class _RatingDialogState extends State<RatingDialog> {
             ),
           );
         } else {
-          throw Exception('Error al enviar la calificación');
+          throw Exception(
+            eventsProvider.errorMessage ?? 'No se pudo enviar la calificación',
+          );
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
@@ -158,7 +163,10 @@ class _RatingDialogState extends State<RatingDialog> {
                 style: const TextStyle(color: Colors.black87),
                 decoration: InputDecoration(
                   hintText: 'Escribe tus comentarios aquí...',
-                  hintStyle: const TextStyle(color: Colors.black45, fontSize: 14),
+                  hintStyle: const TextStyle(
+                    color: Colors.black45,
+                    fontSize: 14,
+                  ),
                   filled: true,
                   fillColor: Colors.grey[50],
                   border: OutlineInputBorder(

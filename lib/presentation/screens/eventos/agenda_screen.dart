@@ -189,28 +189,37 @@ class AgendaScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            TextButton.icon(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => RatingDialog(
-                                    itemName: workshop.name,
-                                    itemId: workshop.id,
+                            if (!workshop.terminado)
+                              Text(
+                                'Podrás calificarlo al terminar',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              )
+                            else
+                              TextButton.icon(
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => RatingDialog(
+                                      itemName: workshop.name,
+                                      itemId: workshop.id,
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.star_outline, size: 16),
+                                label: const Text(
+                                  'Calificar experiencia',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: AppTheme.legacyBlue1,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
                                   ),
-                                );
-                              },
-                              icon: const Icon(Icons.star_outline, size: 16),
-                              label: const Text(
-                                'Calificar experiencia',
-                                style: TextStyle(fontSize: 12),
-                              ),
-                              style: TextButton.styleFrom(
-                                foregroundColor: AppTheme.legacyBlue1,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
                                 ),
                               ),
-                            ),
                           ],
                         ),
                       ],
