@@ -2,6 +2,17 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-10-28]: Imagen del taller en el cronograma y estrellas completas
+- **Alcance:** `cronograma_screen.dart` (`_ImagenDelTaller`: la imagen que carga el panel, en 12:7
+  arriba de la tarjeta; sin imagen no reserva espacio; si falla, fondo con icono),
+  `rating_dialog.dart` (sin medias estrellas: la base guarda enteros y un 4,5 llegaba como 4) y
+  `event_service.dart` (`round()` en vez de `toInt()`). Tests en `cronograma_alcanzable_test.dart`.
+  Rama `feature/talleres-aparte`, sin publicar.
+- **Criterios de QA:**
+  1. Un taller con imagen la muestra arriba de su tarjeta del cronograma; uno sin imagen, no deja
+     hueco.
+  2. Al calificar, las estrellas se marcan enteras: no se puede elegir 4,5.
+
 ### [2026-10-28]: Cronograma de talleres alcanzable, con los colores de la app
 - **Alcance:** `event_purchase_detail_screen.dart` (botón «VER CRONOGRAMA · N TALLERES» si el evento
   tiene talleres), `cronograma_screen.dart` (antes ninguna pantalla lo abría; ahora usa el fondo, las

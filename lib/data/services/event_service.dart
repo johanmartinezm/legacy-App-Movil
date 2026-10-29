@@ -117,7 +117,8 @@ class EventService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({'rating': rating.toInt(), 'comment': comment}),
+        // round() y no toInt(): un 4,5 no debe convertirse en 4 en silencio.
+        body: jsonEncode({'rating': rating.round(), 'comment': comment}),
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {

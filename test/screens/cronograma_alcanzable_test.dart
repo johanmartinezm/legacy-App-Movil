@@ -144,6 +144,20 @@ void main() {
     expect(find.text('Podrás calificarlo al terminar'), findsNothing);
   });
 
+  testWidgets('Taller sin imagen: la tarjeta no reserva espacio', (
+    tester,
+  ) async {
+    await abrirCronograma(tester, evento(talleres: [taller]));
+    expect(find.byType(Image), findsNothing);
+  });
+
+  testWidgets('Taller con imagen: la tarjeta la pinta', (tester) async {
+    final conImagen = Map<String, dynamic>.from(taller)
+      ..['imageUrl'] = 'https://app.legacynetworkco.com/uploads/taller.jpg';
+    await abrirCronograma(tester, evento(talleres: [conImagen]));
+    expect(find.byType(Image), findsOneWidget);
+  });
+
   test('Calificar dos veces muestra el motivo del servidor', () async {
     final client = MockClient(
       (_) async => http.Response('ya calificaste este taller', 409),

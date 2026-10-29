@@ -161,7 +161,9 @@ class _RatingDialogState extends State<RatingDialog> {
                 initialRating: 0,
                 minRating: 1,
                 direction: Axis.horizontal,
-                allowHalfRating: true,
+                // Estrellas completas: la base guarda un entero de 1 a 5, y con
+                // medias estrellas un 4,5 se enviaba truncado como 4 sin avisar.
+                allowHalfRating: false,
                 itemCount: 5,
                 itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
                 // Sin esto las vacías toman el disabledColor del tema oscuro

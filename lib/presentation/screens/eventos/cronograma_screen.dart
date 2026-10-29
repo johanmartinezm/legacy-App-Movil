@@ -9,6 +9,7 @@ import '../../../domain/providers/auth_provider.dart';
 import '../../../config/theme/app_theme.dart';
 import '../../widgets/eventos/rating_dialog.dart';
 import '../../widgets/boton_volver.dart';
+import '../../../data/config/image_helper.dart';
 
 // Mismos tonos que el detalle del evento, desde donde se llega aquí. Hasta el
 // 2026-10-28 la pantalla iba en blanco con el tema por defecto, y el nombre del
@@ -258,6 +259,7 @@ class _WorkshopItem extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    _ImagenDelTaller(url: workshop.imageUrl),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -448,6 +450,47 @@ class _Dato extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Imagen del taller, si el panel la cargó. Hasta el 2026-10-28 el panel
+/// dejaba subirla pero ninguna pantalla de la app la pintaba.
+///
+/// Va en 12:7, la proporción que recomienda el panel (600 × 350 px). Si falla
+/// la descarga se pinta un fondo con icono, como la cabecera del detalle del
+/// evento, en vez de un hueco vacío.
+class _ImagenDelTaller extends StatelessWidget {
+  final String? url;
+
+  const _ImagenDelTaller({required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    final u = url?.trim() ?? '';
+    if (u.isEmpty || u.contains('placeholder')) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: AspectRatio(
+          aspectRatio: 12 / 7,
+          child: Image.network(
+            ImageHelper.getProxiedImageUrl(u),
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => Container(
+              color: AppTheme.legacyBlue1,
+              child: const Center(
+                child: Icon(
+                  Icons.image_not_supported_outlined,
+                  size: 36,
+                  color: AppTheme.legacyActive,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
