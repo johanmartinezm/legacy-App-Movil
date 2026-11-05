@@ -1,3 +1,4 @@
+
 class GraphqlProgram {
   final String id;
   final String name;
@@ -14,7 +15,7 @@ class GraphqlProgram {
   final String modality;
   final String duration;
   final String type; // Programa, Módulo, Curso
-
+  
   /// Lo que se muestra como precio, con su moneda.
   ///
   /// LSO publica en dólares y su tienda devuelve solo la cifra, sin decir de
@@ -29,6 +30,7 @@ class GraphqlProgram {
     if (crudo == null || crudo.isEmpty) return null;
     return 'USD $crudo';
   }
+
 
   GraphqlProgram({
     required this.id,
@@ -52,16 +54,15 @@ class GraphqlProgram {
 
     // Clean price
     String? cleanPrice = json['price']?.replaceAll('&nbsp;', ' ');
-
+    
     // Determine modality and type from categories
     String modality = 'Virtual';
     String type = 'Curso';
     final nameLower = (json['name'] as String? ?? '').toLowerCase();
 
-    if (json['productCategories'] != null &&
-        json['productCategories']['nodes'] != null) {
+    if (json['productCategories'] != null && json['productCategories']['nodes'] != null) {
       final categories = json['productCategories']['nodes'] as List;
-
+      
       // Modality
       if (categories.any((cat) => cat['slug'] == 'programas-presenciales')) {
         modality = 'Presencial';
@@ -70,9 +71,7 @@ class GraphqlProgram {
       }
 
       // Type classification
-      if (categories.any((cat) => cat['slug'] == 'modulos') ||
-          nameLower.contains('módulo') ||
-          nameLower.contains('modulo')) {
+      if (categories.any((cat) => cat['slug'] == 'modulos') || nameLower.contains('módulo') || nameLower.contains('modulo')) {
         type = 'Módulo';
       } else if (nameLower.contains('programa')) {
         type = 'Programa';

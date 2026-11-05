@@ -36,12 +36,8 @@ class Forum {
       createdByAdmin: json['created_by_admin'] ?? false,
       postCount: json['post_count'] ?? 0,
       authorAlias: json['author_alias'] ?? '',
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'])
-          : DateTime.now(),
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'])
-          : DateTime.now(),
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),
+      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : DateTime.now(),
     );
   }
 
@@ -120,9 +116,7 @@ class ForumPost {
       imageUrl: json['image_url'] ?? '',
       status: json['status'] ?? 'active',
       replyCount: json['reply_count'] ?? 0,
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'])
-          : DateTime.now(),
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),
     );
   }
 }

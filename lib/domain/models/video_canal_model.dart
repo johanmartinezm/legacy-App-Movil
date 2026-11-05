@@ -55,9 +55,7 @@ class VideoDeCanal {
       category: channel,
       isFree: true,
       imageUrl: thumbnailUrl,
-      description: resumen.length > 160
-          ? '${resumen.substring(0, 157)}...'
-          : resumen,
+      description: resumen.length > 160 ? '${resumen.substring(0, 157)}...' : resumen,
       fullContent: description,
       videoUrl: videoUrl,
       date: publishedAt?.toIso8601String().split('T').first,
