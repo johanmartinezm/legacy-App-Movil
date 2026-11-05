@@ -89,7 +89,8 @@ class _ParticipandoScreenState extends State<ParticipandoScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (provider.registrationsError != null && provider.myRegistrations.isEmpty) {
+    if (provider.registrationsError != null &&
+        provider.myRegistrations.isEmpty) {
       return _buildMensaje(
         icono: Icons.cloud_off,
         titulo: 'No se pudieron cargar tus inscripciones',
@@ -107,10 +108,11 @@ class _ParticipandoScreenState extends State<ParticipandoScreen> {
     }
 
     final filtradas = provider.myRegistrations.where((reg) {
-      final coincideBusqueda = reg.eventTitle
-          .toLowerCase()
-          .contains(_busqueda.toLowerCase());
-      final coincideFiltro = _filtro == 'Todos' ||
+      final coincideBusqueda = reg.eventTitle.toLowerCase().contains(
+        _busqueda.toLowerCase(),
+      );
+      final coincideFiltro =
+          _filtro == 'Todos' ||
           (_filtro == 'Virtual' && reg.eventIsVirtual) ||
           (_filtro == 'Presencial' && !reg.eventIsVirtual);
       return coincideBusqueda && coincideFiltro;
@@ -182,13 +184,13 @@ class _ParticipandoScreenState extends State<ParticipandoScreen> {
   }
 
   Widget _buildTituloSeccion(String texto, Color color) => Text(
-        texto,
-        style: GoogleFonts.barlow(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: color,
-        ),
-      );
+    texto,
+    style: GoogleFonts.barlow(
+      fontSize: 18,
+      fontWeight: FontWeight.bold,
+      color: color,
+    ),
+  );
 
   Widget _buildMensaje({
     required IconData icono,
@@ -272,8 +274,9 @@ class _ParticipandoScreenState extends State<ParticipandoScreen> {
           Stack(
             children: [
               ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(15)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(15),
+                ),
                 child: Image.network(
                   ImageHelper.getProxiedImageUrl(reg.eventImageUrl ?? ''),
                   height: 140,
@@ -297,13 +300,17 @@ class _ParticipandoScreenState extends State<ParticipandoScreen> {
                   Colors.black,
                 ),
               ),
-              if (reg.estaPendienteDePago)
+              if (reg.sinAcceso)
                 Positioned(
                   top: 10,
                   left: 10,
                   child: _buildEtiqueta(
-                    'Pendiente de pago',
-                    AppTheme.legacyOrange,
+                    reg.estaRechazada
+                        ? 'Pago no confirmado'
+                        : 'Pendiente de pago',
+                    reg.estaRechazada
+                        ? AppTheme.legacyRed
+                        : AppTheme.legacyOrange,
                     Colors.white,
                   ),
                 ),
@@ -362,7 +369,7 @@ class _ParticipandoScreenState extends State<ParticipandoScreen> {
                 ),
                 // Un evento ya terminado no lleva a ningún acceso, y una
                 // inscripción sin pagar todavía no tiene ni QR ni enlace.
-                if (!pasado && !reg.estaPendienteDePago) ...[
+                if (!pasado && !reg.sinAcceso) ...[
                   const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
@@ -399,18 +406,14 @@ class _ParticipandoScreenState extends State<ParticipandoScreen> {
   }
 
   Widget _buildEtiqueta(String texto, Color fondo, Color color) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: fondo,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Text(
-          texto,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-            color: color,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    decoration: BoxDecoration(
+      color: fondo,
+      borderRadius: BorderRadius.circular(4),
+    ),
+    child: Text(
+      texto,
+      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: color),
+    ),
+  );
 }

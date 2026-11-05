@@ -43,11 +43,19 @@ class Synergy {
       viewsCount: json['views_count'] ?? 0,
       likesCount: json['likes_count'] ?? 0,
       commentsCount: json['comments_count'] ?? 0,
-      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
-      author: json['author'] != null ? SynergyAuthor.fromJson(json['author']) : null,
+      createdAt: DateTime.parse(
+        json['created_at'] ?? DateTime.now().toIso8601String(),
+      ),
+      updatedAt: DateTime.parse(
+        json['updated_at'] ?? DateTime.now().toIso8601String(),
+      ),
+      author: json['author'] != null
+          ? SynergyAuthor.fromJson(json['author'])
+          : null,
       comments: json['comments'] != null
-          ? (json['comments'] as List).map((i) => SynergyComment.fromJson(i)).toList()
+          ? (json['comments'] as List)
+                .map((i) => SynergyComment.fromJson(i))
+                .toList()
           : null,
     );
   }
@@ -107,7 +115,9 @@ class SynergyComment {
       content: json['content'] ?? '',
       parentCommentId: json['parent_comment_id'],
       isExpertFeedback: json['is_expert_feedback'] ?? false,
-      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+        json['created_at'] ?? DateTime.now().toIso8601String(),
+      ),
       user: json['user'] != null ? SynergyAuthor.fromJson(json['user']) : null,
     );
   }

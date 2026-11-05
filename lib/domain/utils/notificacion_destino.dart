@@ -64,10 +64,21 @@ Future<DestinoNovedad> resolverNovedad(
         );
         return DestinoNovedad('/evento', extra: evento);
 
+      // Parte B del plan de workshops: el administrador aprobó el pago (la
+      // credencial ya está lista) o lo rechazó (el detalle del evento deja
+      // volver a reservar). El id es el del evento.
+      case 'inscripcion_aprobada':
+        return const DestinoNovedad('/mi-credencial');
+
+      case 'inscripcion_rechazada':
+        final evento = await (eventService ?? EventService()).getEventDetails(
+          id,
+        );
+        return DestinoNovedad('/evento', extra: evento);
+
       case 'content':
-        final contenido =
-            await (contentService ?? CustomContentService())
-                .getCustomContentById(id);
+        final contenido = await (contentService ?? CustomContentService())
+            .getCustomContentById(id);
         if (contenido == null) return destinoBandeja;
         // El contenido propio y el de WordPress se pintan con las mismas
         // pantallas, y por eso se unifican en ContentItem.

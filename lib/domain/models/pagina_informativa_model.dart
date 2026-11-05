@@ -40,7 +40,9 @@ class PaginaInformativa {
       subtitulo: json['subtitulo']?.toString() ?? '',
       imagenUrl: json['imagen_url']?.toString() ?? '',
       cuerpo: json['cuerpo']?.toString() ?? '',
-      actualizadaEn: DateTime.tryParse(json['actualizada_en']?.toString() ?? ''),
+      actualizadaEn: DateTime.tryParse(
+        json['actualizada_en']?.toString() ?? '',
+      ),
       preguntaAcciones: json['pregunta_acciones']?.toString().trim() ?? '',
       botonPrincipal: json['boton_principal']?.toString().trim() ?? '',
       botonSecundario: json['boton_secundario']?.toString().trim() ?? '',

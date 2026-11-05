@@ -92,10 +92,12 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
 
     // Los que ya pasaron van al final: lo que sirve para entrar hoy es lo de
     // arriba.
-    final vigentes =
-        provider.myRegistrations.where((r) => !r.eventoTerminado).toList();
-    final pasados =
-        provider.myRegistrations.where((r) => r.eventoTerminado).toList();
+    final vigentes = provider.myRegistrations
+        .where((r) => !r.eventoTerminado)
+        .toList();
+    final pasados = provider.myRegistrations
+        .where((r) => r.eventoTerminado)
+        .toList();
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
@@ -175,8 +177,9 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
 
   Widget _buildTarjeta(RegistrationModel reg) {
     final formato = DateFormat('dd/MM/yyyy');
-    final fecha =
-        reg.eventStartDate != null ? formato.format(reg.eventStartDate!) : '';
+    final fecha = reg.eventStartDate != null
+        ? formato.format(reg.eventStartDate!)
+        : '';
 
     return Container(
       key: Key('credencial-${reg.eventId}'),
@@ -203,7 +206,10 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            [fecha, reg.eventLocation].where((v) => v != null && v.isNotEmpty).join(' • '),
+            [
+              fecha,
+              reg.eventLocation,
+            ].where((v) => v != null && v.isNotEmpty).join(' • '),
             style: GoogleFonts.questrial(
               fontSize: 13,
               color: const Color(0xFF9FB2C2),
@@ -254,8 +260,11 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.check_circle_rounded,
-                  color: Colors.greenAccent, size: 18),
+              const Icon(
+                Icons.check_circle_rounded,
+                color: Colors.greenAccent,
+                size: 18,
+              ),
               const SizedBox(width: 6),
               Text(
                 'Asistencia registrada',
@@ -330,10 +339,13 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
     final uri = Uri.tryParse(url);
     // El enlace lo escribe un administrador a mano en el panel: puede venir mal
     // formado o no poder abrirse, y eso no debe tumbar la pantalla.
-    if (uri == null || !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+    if (uri == null ||
+        !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se pudo abrir el enlace de la sesión')),
+        const SnackBar(
+          content: Text('No se pudo abrir el enlace de la sesión'),
+        ),
       );
     }
   }
@@ -349,7 +361,11 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
       ),
       child: Column(
         children: [
-          const Icon(Icons.event_busy_rounded, color: Color(0xFF9FB2C2), size: 28),
+          const Icon(
+            Icons.event_busy_rounded,
+            color: Color(0xFF9FB2C2),
+            size: 28,
+          ),
           const SizedBox(height: 10),
           Text(
             'Este evento ya pasó',
@@ -394,13 +410,21 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
       child: Column(
         children: [
           Icon(
-            pendiente ? Icons.schedule_rounded : Icons.qr_code_2_rounded,
+            reg.estaRechazada
+                ? Icons.error_outline_rounded
+                : (pendiente
+                      ? Icons.schedule_rounded
+                      : Icons.qr_code_2_rounded),
             color: AppTheme.legacyActive,
             size: 28,
           ),
           const SizedBox(height: 10),
           Text(
-            pendiente ? 'Pendiente de pago' : 'Tu código está en camino',
+            reg.estaRechazada
+                ? 'Pago no confirmado'
+                : (pendiente
+                      ? 'Pendiente de pago'
+                      : 'Tu código está en camino'),
             style: GoogleFonts.barlow(
               fontSize: 15,
               fontWeight: FontWeight.bold,
@@ -409,7 +433,9 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            pendiente
+            reg.estaRechazada
+                ? 'No pudimos confirmar tu pago. Puedes volver a reservar desde el evento.'
+                : pendiente
                 ? 'Tu cupo está reservado. Cuando se confirme el pago aparecerá aquí tu código de acceso.'
                 : 'Tu inscripción está confirmada. Tu código de acceso estará disponible antes del evento.',
             textAlign: TextAlign.center,

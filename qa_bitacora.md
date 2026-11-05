@@ -2,6 +2,27 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-05]: Pago por link externo y pago no confirmado (parte B)
+- **Alcance:** `event_action_button.dart` (en un evento de pago con link, «Reservar cupo» elige los
+  workshops, reserva —queda pendiente— y abre el link de pago fuera de la app; la pendiente dice «pago
+  por confirmar» y deja reabrir el link; la rechazada dice «PAGO NO CONFIRMADO» y deja «Reservar de
+  nuevo», o «INSCRIPCIONES CERRADAS» si el evento ya empezó; un evento de pago sin link sigue yendo a la
+  pantalla de CredibanCo), `event_model.dart` (`paymentUrl`), `registration_model.dart` (`rejected`,
+  `sinAcceso`), `notificacion_destino.dart` (push `inscripcion_aprobada` → «Mi credencial»;
+  `inscripcion_rechazada` → el evento), «Participando» y «Mi credencial» (texto y etiqueta de la
+  rechazada). Tests en `pago_por_link_test.dart` y `notificacion_destino_test.dart`. Exige el backend de
+  la misma rama. Rama `feature/talleres-aparte`, **solo en local**.
+- **Criterios de QA** (en local con «[PRUEBA] Masterclass de pago por link», 15 de dic., y `qa-app`):
+  1. «Reservar cupo · preventa» → queda «CUPO RESERVADO · PAGO POR CONFIRMAR» y se abre el link de pago
+     en el navegador.
+  2. «Abrir el link de pago» lo vuelve a abrir.
+  3. Rechazarla desde el panel → en la app, «PAGO NO CONFIRMADO» y «Reservar de nuevo», que vuelve a
+     dejarla pendiente. «Mi credencial» dice «Pago no confirmado» y no muestra código.
+  4. Aprobarla desde el panel → «YA ESTÁS REGISTRADO» y la credencial con su código.
+  5. Con el cupo lleno → «Ya no quedan cupos para este evento», sin abrir el link.
+  6. Con FCM real: el push de aprobación abre «Mi credencial»; el de rechazo, el evento (en local FCM
+     está en modo mock: cubierto por tests).
+
 ### [2026-11-05]: Material de los workshops en el detalle del evento (parte A)
 - **Alcance:** `material_workshops.dart` (nuevo: sección «Material de los workshops» con una tarjeta por
   workshop terminado que tenga material; imagen que se amplía al tocarla, «Descargar» abre

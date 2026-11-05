@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../domain/models/event_model.dart';
 import '../../../domain/models/registration_model.dart';
@@ -65,7 +66,11 @@ class _EventActionButtonState extends State<EventActionButton> {
 
     if (widget.event.isFree) {
       await _reservarGratis(workshopIds);
+    } else if (widget.event.paymentUrl != null) {
+      await _reservarYPagar(workshopIds);
     } else {
+      // Un evento de pago sin link solo puede venir de antes de la parte B:
+      // sigue yendo a la pantalla de CredibanCo, como hasta ahora.
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -74,6 +79,56 @@ class _EventActionButtonState extends State<EventActionButton> {
         ),
       );
     }
+  }
+
+  /// Evento de pago con link externo (parte B del plan de workshops): se
+  /// reserva el cupo —queda pendiente— y se abre el link de pago fuera de la
+  /// app. El equipo confirma el pago y la app avisa cuando se aprueba.
+  Future<void> _reservarYPagar(List<String>? workshopIds) async {
+    final provider = context.read<EventsProvider>();
+    final token = context.read<AuthProvider>().token;
+    if (token == null) return;
+
+    final ok = await provider.registerUserToEvent(
+      widget.event.id,
+      token,
+      workshopIds: workshopIds,
+    );
+    if (!mounted) return;
+    if (!ok) {
+      _avisar(
+        provider.errorMessage ?? 'No pudimos reservar tu cupo',
+        error: true,
+      );
+      return;
+    }
+    _avisar(
+      'Tu cupo quedó reservado. Completa el pago en la página que se abre; '
+      'te avisaremos cuando se confirme.',
+    );
+    await _abrirLinkDePago();
+  }
+
+  Future<void> _abrirLinkDePago() async {
+    final uri = Uri.tryParse(widget.event.paymentUrl ?? '');
+    final ok =
+        uri != null &&
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!ok && mounted) {
+      _avisar(
+        'No pudimos abrir el link de pago. Inténtalo de nuevo.',
+        error: true,
+      );
+    }
+  }
+
+  void _avisar(String texto, {bool error = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(texto),
+        backgroundColor: error ? Colors.red : Colors.green,
+      ),
+    );
   }
 
   Future<void> _reservarGratis(List<String>? workshopIds) async {
@@ -103,8 +158,9 @@ class _EventActionButtonState extends State<EventActionButton> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<EventsProvider>();
-    final RegistrationModel? inscripcion =
-        provider.registrationFor(widget.event.id);
+    final RegistrationModel? inscripcion = provider.registrationFor(
+      widget.event.id,
+    );
 
     // Mientras no se sepa si está inscrito, no se le ofrece reservar un cupo
     // que quizá ya tiene.
@@ -113,6 +169,14 @@ class _EventActionButtonState extends State<EventActionButton> {
         height: 52,
         child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
       );
+    }
+
+    // Rechazada: el pago no se confirmó. Se puede volver a reservar mientras las
+    // inscripciones sigan abiertas (§7.5, decisión 1).
+    if (inscripcion != null && inscripcion.estaRechazada) {
+      return eleccionAbierta(widget.event)
+          ? _buildRechazada(provider.isLoading)
+          : _buildCerradas();
     }
 
     if (inscripcion != null) {
@@ -131,6 +195,62 @@ class _EventActionButtonState extends State<EventActionButton> {
     if (!eleccionAbierta(widget.event)) return _buildCerradas();
 
     return _buildReservar(provider.isLoading);
+  }
+
+  Widget _buildRechazada(bool cargando) {
+    return Column(
+      children: [
+        Container(
+          key: const Key('evento-rechazada'),
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+          decoration: BoxDecoration(
+            color: AppTheme.legacyRed.withValues(alpha: 0.35),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            children: [
+              Text(
+                'PAGO NO CONFIRMADO',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.barlow(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'No pudimos confirmar el pago de tu inscripción. Puedes reservar de nuevo.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.questrial(
+                  fontSize: 12,
+                  color: const Color(0xFF9FB2C2),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: ElevatedButton(
+            key: const Key('evento-reservar-de-nuevo'),
+            onPressed: cargando ? null : _reservar,
+            style: _estiloDorado(),
+            child: Text(
+              'Reservar de nuevo',
+              style: GoogleFonts.barlow(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildCerradas() {
@@ -251,9 +371,7 @@ class _EventActionButtonState extends State<EventActionButton> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            style: TextButton.styleFrom(
-              foregroundColor: AppTheme.legacyActive,
-            ),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.legacyActive),
           ),
         ),
       ],
@@ -274,7 +392,7 @@ class _EventActionButtonState extends State<EventActionButton> {
           child: Column(
             children: [
               Text(
-                'CUPO RESERVADO · PENDIENTE DE PAGO',
+                'CUPO RESERVADO · PAGO POR CONFIRMAR',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.barlow(
                   fontSize: 13,
@@ -285,7 +403,9 @@ class _EventActionButtonState extends State<EventActionButton> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Completa el pago para recibir tu código de acceso.',
+                widget.event.paymentUrl != null
+                    ? 'Cuando el equipo confirme tu pago te avisaremos y verás tu código de acceso.'
+                    : 'Completa el pago para recibir tu código de acceso.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.questrial(
                   fontSize: 12,
@@ -300,15 +420,19 @@ class _EventActionButtonState extends State<EventActionButton> {
           width: double.infinity,
           height: 52,
           child: ElevatedButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => EventPaymentScreen(event: widget.event),
-              ),
-            ),
+            onPressed: widget.event.paymentUrl != null
+                ? _abrirLinkDePago
+                : () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EventPaymentScreen(event: widget.event),
+                    ),
+                  ),
             style: _estiloDorado(),
             child: Text(
-              'Completar pago',
+              widget.event.paymentUrl != null
+                  ? 'Abrir el link de pago'
+                  : 'Completar pago',
               style: GoogleFonts.barlow(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,

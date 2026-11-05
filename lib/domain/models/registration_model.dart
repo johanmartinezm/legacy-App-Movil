@@ -50,13 +50,22 @@ class RegistrationModel {
   static const String estadoConfirmada = 'confirmed';
   static const String estadoPendientePago = 'pending_payment';
 
+  /// El administrador no pudo confirmar el pago (parte B del plan de
+  /// workshops). No da acceso y la persona puede volver a reservar.
+  static const String estadoRechazada = 'rejected';
+
   bool get estaPendienteDePago => registrationStatus == estadoPendientePago;
+  bool get estaRechazada => registrationStatus == estadoRechazada;
+
+  /// Pendiente o rechazada: ni credencial ni enlace, aunque el QR exista desde
+  /// que se reservó. El backend ya los vacía; esto es la segunda barrera.
+  bool get sinAcceso => estaPendienteDePago || estaRechazada;
 
   /// Solo hay credencial que enseñar si está confirmada y trae código.
-  bool get tieneQr => qrData.isNotEmpty && !estaPendienteDePago;
+  bool get tieneQr => qrData.isNotEmpty && !sinAcceso;
 
   /// Solo hay enlace al que entrar si está confirmada y el backend lo mandó.
-  bool get tieneEnlace => accessUrl.isNotEmpty && !estaPendienteDePago;
+  bool get tieneEnlace => accessUrl.isNotEmpty && !sinAcceso;
 
   /// Un evento ya terminado no sirve para entrar a ningún sitio. Se compara
   /// contra el último día, y sin convertir a hora local: el backend serializa
@@ -76,13 +85,16 @@ class RegistrationModel {
       eventId: json['eventId']?.toString() ?? '',
       eventTitle: json['eventTitle']?.toString() ?? 'Evento',
       eventLocation: json['eventLocation'] as String?,
-      eventStartDate: DateTime.tryParse(json['eventStartDate']?.toString() ?? ''),
+      eventStartDate: DateTime.tryParse(
+        json['eventStartDate']?.toString() ?? '',
+      ),
       eventEndDate: DateTime.tryParse(json['eventEndDate']?.toString() ?? ''),
       eventImageUrl: json['eventImageUrl'] as String?,
       paymentStatus: json['paymentStatus']?.toString() ?? '',
       registrationStatus: json['registrationStatus']?.toString() ?? '',
-      registrationDate:
-          DateTime.tryParse(json['registrationDate']?.toString() ?? ''),
+      registrationDate: DateTime.tryParse(
+        json['registrationDate']?.toString() ?? '',
+      ),
       eventIsVirtual: json['eventIsVirtual'] == true,
       qrData: json['qrData']?.toString() ?? '',
       accessUrl: json['accessUrl']?.toString() ?? '',

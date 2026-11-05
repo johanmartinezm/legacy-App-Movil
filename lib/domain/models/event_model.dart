@@ -7,6 +7,7 @@ class EventModel {
   final String title;
   final String category;
   final String date;
+
   /// Fecha de inicio sin formatear, para poder comparar. `date` llega ya
   /// convertida a dd/MM/yyyy y no sirve para ordenar ni para saber si el
   /// evento ya pasó.
@@ -23,12 +24,18 @@ class EventModel {
   final String imageUrl;
   final String description;
   final String? includes;
+
   /// Modelo de trabajo del evento («7 dimensiones DINASTÍA»). Opcional: la
   /// ficha solo pinta la fila si trae texto.
   final String? model;
   final int categoryOrder;
   final int? attendeesCount;
   final List<WorkshopModel> workshops;
+
+  /// Link de pago externo (parte B del plan de workshops). En un evento de
+  /// pago, la app reserva el cupo —queda pendiente— y abre este link; el
+  /// administrador aprueba después desde el panel.
+  final String? paymentUrl;
 
   EventModel({
     required this.id,
@@ -52,6 +59,7 @@ class EventModel {
     this.categoryOrder = 0,
     this.attendeesCount,
     this.workshops = const [],
+    this.paymentUrl,
   });
 
   EventModel copyWith({
@@ -81,6 +89,7 @@ class EventModel {
       categoryOrder: categoryOrder,
       attendeesCount: attendeesCount ?? this.attendeesCount,
       workshops: workshops,
+      paymentUrl: paymentUrl,
     );
   }
 
@@ -129,7 +138,9 @@ class EventModel {
       speaker: json['speaker'],
       priceLabel: (json['isFree'] == true || (json['price'] as num? ?? 0) == 0)
           ? 'GRATIS'
-          : CurrencyFormatter.format((json['price'] as num?)?.toDouble() ?? 0.0),
+          : CurrencyFormatter.format(
+              (json['price'] as num?)?.toDouble() ?? 0.0,
+            ),
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
       isFree: json['isFree'] ?? false,
       buttonText: json['buttonText'] ?? '',
@@ -140,6 +151,9 @@ class EventModel {
       model: json['model'],
       categoryOrder: json['categoryOrder'] ?? 0,
       attendeesCount: json['attendeesCount'],
+      paymentUrl: (json['paymentUrl'] as String?)?.trim().isEmpty ?? true
+          ? null
+          : (json['paymentUrl'] as String).trim(),
       workshops:
           (json['workshops'] as List?)
               ?.map(

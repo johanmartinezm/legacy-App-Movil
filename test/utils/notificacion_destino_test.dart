@@ -64,13 +64,33 @@ CustomContent _contenido(String id, CustomContentType tipo) => CustomContent(
 /// aquí y no a mano porque reproducirlo exige enviar push reales a un teléfono.
 void main() {
   group('lo que el backend manda de verdad', () {
+    // Parte B del plan de workshops: aprobar o rechazar el pago.
+    test('pago aprobado abre la credencial, sin pedir nada', () async {
+      final servicio = _EventosFalsos(falla: true);
+      final destino = await resolverNovedad({
+        'type': 'inscripcion_aprobada',
+        'id': 'ev-7',
+      }, eventService: servicio);
+      expect(destino.ruta, '/mi-credencial');
+      expect(servicio.idPedido, isNull);
+    });
+
+    test('pago rechazado abre el evento para volver a reservar', () async {
+      final destino = await resolverNovedad({
+        'type': 'inscripcion_rechazada',
+        'id': 'ev-7',
+      }, eventService: _EventosFalsos(evento: _evento('ev-7')));
+      expect(destino.ruta, '/evento');
+      expect((destino.extra as EventModel).id, 'ev-7');
+    });
+
     test('un evento abre su detalle con el evento ya resuelto', () async {
       final servicio = _EventosFalsos(evento: _evento('ev-7'));
 
-      final destino = await resolverNovedad(
-        {'type': 'event', 'id': 'ev-7'},
-        eventService: servicio,
-      );
+      final destino = await resolverNovedad({
+        'type': 'event',
+        'id': 'ev-7',
+      }, eventService: servicio);
 
       expect(destino.ruta, '/evento');
       expect(servicio.idPedido, 'ev-7');
@@ -113,7 +133,10 @@ void main() {
 
       // La pantalla recibe el id por la ruta y el nombre por query, que es como
       // está declarada `/individual-chat/:id` en main.dart.
-      expect(destino.ruta, '/individual-chat/conexion-3?title=Juan%20P%C3%A9rez');
+      expect(
+        destino.ruta,
+        '/individual-chat/conexion-3?title=Juan%20P%C3%A9rez',
+      );
       expect(destino.extra, isNull);
     });
 
@@ -127,10 +150,10 @@ void main() {
 
     test('los datos llegan como texto y aun así se leen', () async {
       // FCM entrega el data como Map<String, dynamic> con valores string.
-      final destino = await resolverNovedad(
-        {'type': 'event', 'id': '42'},
-        eventService: _EventosFalsos(evento: _evento('42')),
-      );
+      final destino = await resolverNovedad({
+        'type': 'event',
+        'id': '42',
+      }, eventService: _EventosFalsos(evento: _evento('42')));
 
       expect(destino.ruta, '/evento');
     });
@@ -154,26 +177,26 @@ void main() {
     });
 
     test('si el contenido ya no existe', () async {
-      final destino = await resolverNovedad(
-        {'type': 'content', 'id': 'borrado'},
-        contentService: _ContenidosFalsos(contenido: null),
-      );
+      final destino = await resolverNovedad({
+        'type': 'content',
+        'id': 'borrado',
+      }, contentService: _ContenidosFalsos(contenido: null));
       expect(destino.ruta, '/notifications');
     });
 
     test('si la carga del evento falla', () async {
-      final destino = await resolverNovedad(
-        {'type': 'event', 'id': 'ev-9'},
-        eventService: _EventosFalsos(falla: true),
-      );
+      final destino = await resolverNovedad({
+        'type': 'event',
+        'id': 'ev-9',
+      }, eventService: _EventosFalsos(falla: true));
       expect(destino.ruta, '/notifications');
     });
 
     test('si la carga del contenido falla', () async {
-      final destino = await resolverNovedad(
-        {'type': 'content', 'id': 'c-9'},
-        contentService: _ContenidosFalsos(falla: true),
-      );
+      final destino = await resolverNovedad({
+        'type': 'content',
+        'id': 'c-9',
+      }, contentService: _ContenidosFalsos(falla: true));
       expect(destino.ruta, '/notifications');
     });
   });
