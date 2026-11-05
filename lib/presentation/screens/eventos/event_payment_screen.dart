@@ -17,7 +17,11 @@ import 'package:legacy_app/config/theme/app_theme.dart';
 class EventPaymentScreen extends StatefulWidget {
   final EventModel event;
 
-  const EventPaymentScreen({super.key, required this.event});
+  /// Workshops elegidos en la hoja antes de llegar aquí (§10). Viajan con la
+  /// inscripción, que se crea antes de salir a la pasarela.
+  final List<String>? workshopIds;
+
+  const EventPaymentScreen({super.key, required this.event, this.workshopIds});
 
   @override
   State<EventPaymentScreen> createState() => _EventPaymentScreenState();
@@ -101,6 +105,7 @@ class _EventPaymentScreenState extends State<EventPaymentScreen> {
         participantName: _nombreController.text.trim(),
         participantEmail: _emailController.text.trim(),
         participantPhone: _telefonoController.text.trim(),
+        workshopIds: widget.workshopIds,
       );
       if (!inscrito) {
         throw Exception(

@@ -2,6 +2,33 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-05]: Elegir los workshops al inscribirse (§10 del plan de workshops)
+- **Alcance:** `selector_workshops.dart` (hoja nueva por día y franja, una opción por franja; en solo
+  lectura desde el primer día), `franjas_workshops.dart` (las mismas reglas que el backend: franjas en
+  hora de Colombia, corte a las 00:00 del primer día), `event_action_button.dart` («Reservar cupo» abre
+  la hoja antes de inscribir o de ir al pago; «INSCRIPCIONES CERRADAS» desde el primer día; «Mis
+  workshops» para cambiarlos hasta el día anterior), `event_payment_screen.dart` (recibe la elección),
+  `event_service.dart` (manda `workshops`, `PUT /api/events/{id}/workshops/mine`, y lee el motivo del
+  servidor en texto plano en vez de «Error de conexión: FormatException»), `events_provider.dart`
+  (`elegidosDe`, `elegirMisWorkshops`; se retiran añadir y quitar de la agenda), `cronograma_screen.dart`
+  (sin el botón de agenda; etiqueta «ELEGIDO»; calificar solo lo elegido), `agenda_screen.dart` (sin
+  quitar). «Talleres» pasa a «workshops» en todos los textos de la app. Tests en
+  `elegir_workshops_test.dart` y `franjas_workshops_test.dart`. Rama `feature/talleres-aparte`, **solo en
+  local**; exige el backend de la misma rama.
+- **Criterios de QA** (con `qa-app` y el evento local «[PRUEBA] Workshops por franja», 10 y 11 de dic.):
+  1. «Reservar cupo gratis» abre «Elige tus workshops», agrupado por día y horario. La plenaria, sola en
+     su horario, sale ya marcada; «Continuar» está apagado y dice qué horario falta.
+  2. Elegir uno en cada horario activa «Continuar»; al tocarlo queda inscrito y «Mi agenda» muestra los
+     tres elegidos.
+  3. Cerrar la hoja sin continuar no inscribe.
+  4. Ya inscrito, «Mis workshops · cambiar» abre la hoja con lo elegido; cambiar uno y «Guardar cambios»
+     → «Guardamos tus workshops.» y el cronograma marca el nuevo como «ELEGIDO».
+  5. Un evento que empieza hoy, sin inscripción: «INSCRIPCIONES CERRADAS», sin botón de reservar. Ya
+     inscrito, «Mis workshops» solo muestra lo elegido, sin poder cambiarlo.
+  6. Un evento sin workshops se reserva como antes, sin hoja.
+  7. En un evento pasado con elección, solo se ofrece calificar los workshops elegidos.
+  8. Ningún texto de la app dice «taller».
+
 ### [2026-10-28]: Imagen del taller en el cronograma y estrellas completas
 - **Alcance:** `cronograma_screen.dart` (`_ImagenDelTaller`: la imagen que carga el panel, en 12:7
   arriba de la tarjeta; sin imagen no reserva espacio; si falla, fondo con icono),

@@ -91,7 +91,7 @@ void main() {
   ) async {
     await montar(tester, evento(talleres: [taller]));
 
-    final boton = find.text('VER CRONOGRAMA · 1 TALLER');
+    final boton = find.text('VER CRONOGRAMA · 1 WORKSHOP');
     expect(boton, findsOneWidget);
 
     await tester.tap(boton);

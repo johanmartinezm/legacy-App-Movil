@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../../../domain/models/event_model.dart';
 import '../../../domain/models/workshop_model.dart';
 import '../../../domain/providers/events_provider.dart';
-import '../../../domain/providers/auth_provider.dart';
 import '../../../config/theme/app_theme.dart';
 import '../../widgets/eventos/rating_dialog.dart';
 import '../../widgets/boton_volver.dart';
@@ -95,7 +94,7 @@ class CronogramaScreen extends StatelessWidget {
           child: dates.isEmpty
               ? Center(
                   child: Text(
-                    'No hay talleres programados para este evento.',
+                    'No hay workshops programados para este evento.',
                     style: GoogleFonts.questrial(color: _textoSecundario),
                   ),
                 )
@@ -227,6 +226,15 @@ class _WorkshopItem extends StatelessWidget {
 
   const _WorkshopItem({required this.workshop});
 
+  /// Calificar exige haber elegido el workshop (§10). Si en este evento no se
+  /// eligió ninguno —inscripciones de antes, del panel o de la carga masiva—,
+  /// se califica como siempre. El servidor aplica la misma regla.
+  bool _puedeCalificar(BuildContext context) {
+    final provider = context.watch<EventsProvider>();
+    final elegidos = provider.elegidosDe(workshop.eventId);
+    return elegidos.isEmpty || elegidos.any((w) => w.id == workshop.id);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -274,82 +282,35 @@ class _WorkshopItem extends StatelessWidget {
                             ),
                           ),
                         ),
-                        Consumer2<EventsProvider, AuthProvider>(
-                          builder: (context, provider, auth, child) {
-                            final isInAgenda = provider.isInAgenda(workshop.id);
-                            final token = auth.token;
-
-                            return IconButton(
-                              icon: Icon(
-                                isInAgenda
-                                    ? Icons.bookmark
-                                    : Icons.bookmark_add_outlined,
-                                color: isInAgenda ? _cian : _textoSecundario,
-                                size: 20,
+                        // «Añadir a mi agenda» se retiró el 2026-11-05: la
+                        // agenda son los workshops elegidos al inscribirse, y
+                        // aquí solo se marca cuáles son.
+                        if (context.watch<EventsProvider>().isInAgenda(
+                          workshop.id,
+                        ))
+                          Container(
+                            key: Key('elegido-${workshop.id}'),
+                            margin: const EdgeInsets.only(left: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: _cian.withValues(alpha: 0.5),
                               ),
-                              onPressed: () {
-                                if (token == null) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Debes iniciar sesión para usar la agenda',
-                                      ),
-                                    ),
-                                  );
-                                  return;
-                                }
-
-                                if (isInAgenda) {
-                                  provider
-                                      .removeFromAgenda(workshop.id, token)
-                                      .then((success) {
-                                        if (success && context.mounted) {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                'Eliminado de tu agenda',
-                                              ),
-                                              duration: Duration(seconds: 1),
-                                            ),
-                                          );
-                                        }
-                                      });
-                                } else {
-                                  provider.addToAgenda(workshop, token).then((
-                                    success,
-                                  ) {
-                                    if (success && context.mounted) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Añadido a tu agenda'),
-                                          duration: Duration(seconds: 1),
-                                        ),
-                                      );
-                                    } else if (context.mounted) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Error al actualizar agenda',
-                                          ),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
-                                    }
-                                  });
-                                }
-                              },
-                              tooltip: isInAgenda
-                                  ? 'Quitar de mi agenda'
-                                  : 'Añadir a mi agenda',
-                            );
-                          },
-                        ),
+                            ),
+                            child: Text(
+                              'ELEGIDO',
+                              style: GoogleFonts.barlow(
+                                color: _cian,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -383,7 +344,9 @@ class _WorkshopItem extends StatelessWidget {
                     const SizedBox(height: 12),
                     Align(
                       alignment: Alignment.centerRight,
-                      child: !workshop.terminado
+                      child: !_puedeCalificar(context)
+                          ? const SizedBox.shrink()
+                          : !workshop.terminado
                           ? Text(
                               'Podrás calificarlo al terminar',
                               style: GoogleFonts.barlow(

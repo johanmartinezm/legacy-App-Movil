@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../domain/providers/events_provider.dart';
-import '../../../domain/providers/auth_provider.dart';
 import '../../../config/theme/app_theme.dart';
 import '../../widgets/eventos/rating_dialog.dart';
 
@@ -14,9 +13,7 @@ class AgendaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final eventsProvider = Provider.of<EventsProvider>(context);
-    final authProvider = Provider.of<AuthProvider>(context);
     final agenda = eventsProvider.agenda;
-    final token = authProvider.token;
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -40,12 +37,12 @@ class AgendaScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   const Text(
-                    'No tienes talleres en tu agenda.',
+                    'No tienes workshops en tu agenda.',
                     style: TextStyle(color: Colors.grey),
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Inscríbete en los cronogramas de los eventos.',
+                    'Al inscribirte a un evento eliges sus workshops.',
                     style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                 ],
@@ -93,33 +90,9 @@ class AgendaScreen extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.bookmark_remove_outlined,
-                                color: Colors.red,
-                              ),
-                              onPressed: () {
-                                if (token != null) {
-                                  eventsProvider
-                                      .removeFromAgenda(workshop.id, token)
-                                      .then((success) {
-                                        if (success && context.mounted) {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                'Eliminado de tu agenda',
-                                              ),
-                                              duration: Duration(seconds: 1),
-                                            ),
-                                          );
-                                        }
-                                      });
-                                }
-                              },
-                              tooltip: 'Quitar de mi agenda',
-                            ),
+                            // Quitar de la agenda se retiró el 2026-11-05: la
+                            // agenda son los workshops elegidos al inscribirse,
+                            // y se cambian desde «Mis workshops» del evento.
                           ],
                         ),
                         const SizedBox(height: 12),
@@ -180,7 +153,7 @@ class AgendaScreen extends StatelessWidget {
                                 ),
                                 SizedBox(width: 4),
                                 Text(
-                                  'En mi lista',
+                                  'Elegido',
                                   style: TextStyle(
                                     color: Colors.green,
                                     fontSize: 12,

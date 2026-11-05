@@ -51,9 +51,10 @@ class ApiConstants {
   static const String myRegistrationsEndpoint = '/api/me/registrations';
 
   static const String getAgendaEndpoint = '/api/events/agenda';
-  static String addToAgendaEndpoint(String id) => '/api/workshops/$id/agenda';
-  static String removeFromAgendaEndpoint(String id) =>
-      '/api/workshops/$id/agenda';
+  // Los workshops elegidos en mi inscripción a un evento (§10). Sustituye a
+  // añadir y quitar de la agenda uno por uno, que se retiró el 2026-11-05.
+  static String misWorkshopsEndpoint(String eventId) =>
+      '/api/events/$eventId/workshops/mine';
 
   // Custom Content
   static const String contentItemsEndpoint = '/api/content/items';

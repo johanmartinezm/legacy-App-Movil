@@ -10,6 +10,7 @@ class EventsProvider extends ChangeNotifier {
 
   List<EventModel> _events = [];
   final List<WorkshopModel> _agenda = [];
+  bool _agendaCargada = false;
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -18,6 +19,10 @@ class EventsProvider extends ChangeNotifier {
 
   List<EventModel> get events => _events;
   List<WorkshopModel> get agenda => _agenda;
+
+  /// Si ya se pidió la agenda alguna vez en esta sesión. La usa el detalle del
+  /// evento para saber qué workshops elegí sin pedirla en cada apertura.
+  bool get agendaCargada => _agendaCargada;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
@@ -57,8 +62,10 @@ class EventsProvider extends ChangeNotifier {
     String? participantName,
     String? participantEmail,
     String? participantPhone,
+    List<String>? workshopIds,
   }) async {
     _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
     try {
       await _eventService.registerToEvent(
@@ -67,6 +74,7 @@ class EventsProvider extends ChangeNotifier {
         participantName: participantName,
         participantEmail: participantEmail,
         participantPhone: participantPhone,
+        workshops: workshopIds,
       );
 
       // Se recargan las inscripciones reales en vez de parchear el evento en
@@ -76,6 +84,11 @@ class EventsProvider extends ChangeNotifier {
       // que al recargar el listado el usuario volvia a ver "Reservar cupo"
       // estando ya inscrito.
       await loadMyRegistrations(token);
+      // Los workshops elegidos son «Mi agenda»: se recarga para que el detalle
+      // y el cronograma los marquen sin esperar a volver al listado.
+      if (workshopIds != null && workshopIds.isNotEmpty) {
+        await loadAgenda(token);
+      }
 
       _isLoading = false;
       notifyListeners();
@@ -101,6 +114,7 @@ class EventsProvider extends ChangeNotifier {
       for (var json in data) {
         _agenda.add(WorkshopModel.fromJson(json));
       }
+      _agendaCargada = true;
     } catch (e) {
       debugPrint('Error loading agenda: $e');
     } finally {
@@ -109,37 +123,39 @@ class EventsProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> addToAgenda(WorkshopModel workshop, String token) async {
+  /// Los workshops que elegí en mi inscripción a ese evento. Vacío si no
+  /// elegí ninguno: las inscripciones de antes del 2026-11-05, las del panel y
+  /// las de la carga masiva no tienen elección.
+  List<WorkshopModel> elegidosDe(String eventId) =>
+      _agenda.where((w) => w.eventId == eventId).toList();
+
+  /// Cambia mis workshops de un evento, hasta el día anterior. Devuelve null si
+  /// salió bien, o el motivo del rechazo para mostrarlo tal cual.
+  Future<String?> elegirMisWorkshops(
+    String eventId,
+    List<String> workshopIds,
+    String token,
+  ) async {
     try {
-      final success = await _eventService.addToAgenda(workshop.id, token);
-      if (success) {
-        if (!_agenda.any((w) => w.id == workshop.id)) {
-          _agenda.add(workshop);
-          notifyListeners();
-        }
-        return true;
-      }
-      return false;
+      final data = await _eventService.elegirMisWorkshops(
+        eventId,
+        workshopIds,
+        token,
+      );
+      _agenda
+        ..clear()
+        ..addAll(data.map((j) => WorkshopModel.fromJson(j)));
+      notifyListeners();
+      return null;
     } catch (e) {
-      debugPrint('Error adding to agenda: $e');
-      return false;
+      return e.toString().replaceAll('Exception: ', '');
     }
   }
 
-  Future<bool> removeFromAgenda(String workshopId, String token) async {
-    try {
-      final success = await _eventService.removeFromAgenda(workshopId, token);
-      if (success) {
-        _agenda.removeWhere((w) => w.id == workshopId);
-        notifyListeners();
-        return true;
-      }
-      return false;
-    } catch (e) {
-      debugPrint('Error removing from agenda: $e');
-      return false;
-    }
-  }
+  // addToAgenda y removeFromAgenda se retiraron el 2026-11-05: la agenda son
+  // los workshops elegidos al inscribirse, y se cambian todos juntos con
+  // elegirMisWorkshops.
+
 
   Future<bool> submitWorkshopRating({
     required String workshopId,

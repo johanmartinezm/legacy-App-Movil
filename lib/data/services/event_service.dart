@@ -54,28 +54,35 @@ class EventService {
   /// Inscribe a quien tiene la sesión abierta. El contacto del participante es
   /// opcional y **no cambia de quién es la entrada** —eso lo fija el token—:
   /// es a quién llamar si no aparece, y puede diferir del perfil.
+  ///
+  /// `workshops` son los ids elegidos, uno por franja (§10 del plan de
+  /// workshops). El servidor rechaza una elección incompleta con un motivo en
+  /// español, que llega como [MotivoDelServidor].
   Future<Map<String, dynamic>> registerToEvent(
     String id,
     String token, {
     String? participantName,
     String? participantEmail,
     String? participantPhone,
+    List<String>? workshops,
   }) async {
     final url = Uri.parse(
       '${ApiConstants.baseUrl}${ApiConstants.registerEventEndpoint(id)}',
     );
 
-    final contacto = <String, dynamic>{
+    final cuerpo = <String, dynamic>{
       if (participantName != null && participantName.isNotEmpty)
         'participant_name': participantName,
       if (participantEmail != null && participantEmail.isNotEmpty)
         'participant_email': participantEmail,
       if (participantPhone != null && participantPhone.isNotEmpty)
         'participant_phone': participantPhone,
+      if (workshops != null && workshops.isNotEmpty) 'workshops': workshops,
     };
 
+    final http.Response response;
     try {
-      final response = await _client.post(
+      response = await _client.post(
         url,
         headers: {
           'Content-Type': 'application/json',
@@ -83,18 +90,54 @@ class EventService {
         },
         // Sin datos no se manda cuerpo: el backend solo lo lee si llega
         // Content-Type JSON, y un objeto vacío no aporta nada.
-        body: contacto.isEmpty ? null : jsonEncode(contacto),
+        body: cuerpo.isEmpty ? null : jsonEncode(cuerpo),
       );
-
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        final errorBody = jsonDecode(response.body);
-        throw Exception(errorBody['message'] ?? 'Error al matricularse');
-      }
     } catch (e) {
       throw Exception('Error de conexión: $e');
     }
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    // Antes esto se leía como JSON dentro del mismo try, y el backend responde
+    // en texto plano: el usuario veía «Error de conexión: FormatException» en
+    // vez de, por ejemplo, «Falta elegir un workshop el 10/12 de 11:00 a 12:00».
+    throw MotivoDelServidor(
+      motivoDeRespuesta(response.body, 'No pudimos reservar tu cupo'),
+    );
+  }
+
+  /// Cambia los workshops elegidos en la inscripción a un evento. Solo hasta el
+  /// día anterior; desde el primer día el servidor responde 409. Devuelve la
+  /// agenda nueva, con los workshops elegidos de todos los eventos.
+  Future<List<dynamic>> elegirMisWorkshops(
+    String eventId,
+    List<String> workshops,
+    String token,
+  ) async {
+    final url = Uri.parse(
+      '${ApiConstants.baseUrl}${ApiConstants.misWorkshopsEndpoint(eventId)}',
+    );
+    final http.Response response;
+    try {
+      response = await _client.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({'workshops': workshops}),
+      );
+    } catch (e) {
+      throw Exception('Error de conexión: $e');
+    }
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as List<dynamic>;
+    }
+    throw MotivoDelServidor(
+      motivoDeRespuesta(response.body, 'No pudimos guardar tus workshops'),
+    );
   }
 
   // getRegistration se retiró: era un alias de registerToEvent, es decir, un
@@ -272,43 +315,22 @@ class EventService {
     }
   }
 
-  Future<bool> addToAgenda(String workshopId, String token) async {
-    final url = Uri.parse(
-      '${ApiConstants.baseUrl}${ApiConstants.addToAgendaEndpoint(workshopId)}',
-    );
-    try {
-      final response = await _client.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+  // addToAgenda y removeFromAgenda se retiraron el 2026-11-05: «Mi agenda» ya
+  // no es una lista aparte, son los workshops elegidos al inscribirse.
+}
 
-      return response.statusCode == 201 || response.statusCode == 200;
-    } catch (e) {
-      throw Exception('Error de conexión: $e');
+/// El texto que el servidor da como motivo. El backend responde en texto plano
+/// (`http.Error`), pero se acepta también un JSON con `message` o `error`.
+String motivoDeRespuesta(String cuerpo, String porDefecto) {
+  var texto = cuerpo.trim();
+  try {
+    final json = jsonDecode(texto);
+    if (json is Map) {
+      texto = (json['message'] ?? json['error'] ?? '').toString().trim();
     }
-  }
-
-  Future<bool> removeFromAgenda(String workshopId, String token) async {
-    final url = Uri.parse(
-      '${ApiConstants.baseUrl}${ApiConstants.removeFromAgendaEndpoint(workshopId)}',
-    );
-    try {
-      final response = await _client.delete(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      return response.statusCode == 204 || response.statusCode == 200;
-    } catch (e) {
-      throw Exception('Error de conexión: $e');
-    }
-  }
+  } catch (_) {}
+  if (texto.isEmpty) return porDefecto;
+  return texto[0].toUpperCase() + texto.substring(1);
 }
 
 /// Rechazo del servidor con un motivo pensado para mostrarse al usuario.

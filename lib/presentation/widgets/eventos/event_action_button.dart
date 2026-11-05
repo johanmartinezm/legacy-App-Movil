@@ -7,7 +7,9 @@ import '../../../domain/models/event_model.dart';
 import '../../../domain/models/registration_model.dart';
 import '../../../domain/providers/auth_provider.dart';
 import '../../../domain/providers/events_provider.dart';
+import '../../../domain/utils/franjas_workshops.dart';
 import '../../screens/eventos/event_payment_screen.dart';
+import 'selector_workshops.dart';
 import 'package:legacy_app/config/theme/app_theme.dart';
 
 /// Botón de acción del detalle de un evento: reservar, o el estado de la
@@ -39,16 +41,51 @@ class _EventActionButtonState extends State<EventActionButton> {
     final token = context.read<AuthProvider>().token;
     if (token == null) return;
     final provider = context.read<EventsProvider>();
+    // La agenda son los workshops elegidos: sin ella, «Mis workshops» abriría
+    // la hoja sin marcar nada.
+    if (widget.event.workshops.isNotEmpty && !provider.agendaCargada) {
+      await provider.loadAgenda(token);
+    }
     if (provider.registrationsLoaded) return;
     await provider.loadMyRegistrations(token);
   }
 
-  Future<void> _reservarGratis() async {
+  /// «Reservar cupo»: primero se eligen los workshops, uno por franja, y luego
+  /// se termina la inscripción (gratuito) o se pasa al pago (§10 del plan de
+  /// workshops). Cerrar la hoja sin continuar no inscribe a nadie.
+  Future<void> _reservar() async {
+    List<String>? workshopIds;
+    if (widget.event.workshops.isNotEmpty) {
+      workshopIds = await elegirWorkshops(
+        context,
+        workshops: widget.event.workshops,
+      );
+      if (workshopIds == null || !mounted) return;
+    }
+
+    if (widget.event.isFree) {
+      await _reservarGratis(workshopIds);
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) =>
+              EventPaymentScreen(event: widget.event, workshopIds: workshopIds),
+        ),
+      );
+    }
+  }
+
+  Future<void> _reservarGratis(List<String>? workshopIds) async {
     final provider = context.read<EventsProvider>();
     final token = context.read<AuthProvider>().token;
     if (token == null) return;
 
-    final ok = await provider.registerUserToEvent(widget.event.id, token);
+    final ok = await provider.registerUserToEvent(
+      widget.event.id,
+      token,
+      workshopIds: workshopIds,
+    );
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -79,12 +116,99 @@ class _EventActionButtonState extends State<EventActionButton> {
     }
 
     if (inscripcion != null) {
-      return inscripcion.estaPendienteDePago
-          ? _buildPendientePago()
-          : _buildYaInscrito();
+      return Column(
+        children: [
+          inscripcion.estaPendienteDePago
+              ? _buildPendientePago()
+              : _buildYaInscrito(),
+          if (widget.event.workshops.isNotEmpty) _buildMisWorkshops(provider),
+        ],
+      );
     }
 
+    // Desde las 00:00 del primer día la app ya no inscribe: es el mismo corte
+    // que la elección de workshops, y el servidor lo rechaza igual.
+    if (!eleccionAbierta(widget.event)) return _buildCerradas();
+
     return _buildReservar(provider.isLoading);
+  }
+
+  Widget _buildCerradas() {
+    return Container(
+      key: const Key('evento-inscripciones-cerradas'),
+      width: double.infinity,
+      height: 52,
+      decoration: BoxDecoration(
+        color: const Color(0xFF1B3156),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Center(
+        child: Text(
+          'INSCRIPCIONES CERRADAS',
+          style: GoogleFonts.barlow(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: const Color(0xFF9FB2C2),
+            letterSpacing: 1.0,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Ver o cambiar los workshops elegidos. Hasta el día anterior se pueden
+  /// cambiar; desde el primer día solo se ven.
+  Widget _buildMisWorkshops(EventsProvider provider) {
+    final elegidos = provider.elegidosDe(widget.event.id);
+    final abierta = eleccionAbierta(widget.event);
+    if (!abierta && elegidos.isEmpty) return const SizedBox.shrink();
+
+    final texto = elegidos.isEmpty
+        ? 'Elegir mis workshops'
+        : (abierta ? 'Mis workshops · cambiar' : 'Mis workshops');
+
+    return SizedBox(
+      width: double.infinity,
+      height: 46,
+      child: TextButton.icon(
+        key: const Key('evento-mis-workshops'),
+        onPressed: () => _misWorkshops(abierta),
+        icon: const Icon(Icons.event_note_outlined, size: 18),
+        label: Text(
+          texto,
+          style: GoogleFonts.barlow(fontSize: 15, fontWeight: FontWeight.bold),
+        ),
+        style: TextButton.styleFrom(foregroundColor: AppTheme.legacyActive),
+      ),
+    );
+  }
+
+  Future<void> _misWorkshops(bool abierta) async {
+    final provider = context.read<EventsProvider>();
+    final token = context.read<AuthProvider>().token;
+    if (token == null) return;
+
+    final ids = await elegirWorkshops(
+      context,
+      workshops: widget.event.workshops,
+      elegidos: provider.elegidosDe(widget.event.id).map((w) => w.id).toSet(),
+      textoBoton: 'Guardar cambios',
+      soloLectura: !abierta,
+    );
+    if (ids == null || !mounted) return;
+
+    final motivo = await provider.elegirMisWorkshops(
+      widget.event.id,
+      ids,
+      token,
+    );
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(motivo ?? 'Guardamos tus workshops.'),
+        backgroundColor: motivo == null ? Colors.green : Colors.red,
+      ),
+    );
   }
 
   Widget _buildYaInscrito() {
@@ -203,20 +327,7 @@ class _EventActionButtonState extends State<EventActionButton> {
       height: 52,
       child: ElevatedButton(
         key: const Key('evento-reservar'),
-        onPressed: cargando
-            ? null
-            : () {
-                if (gratis) {
-                  _reservarGratis();
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => EventPaymentScreen(event: widget.event),
-                    ),
-                  );
-                }
-              },
+        onPressed: cargando ? null : _reservar,
         style: _estiloDorado(),
         child: cargando
             ? const CircularProgressIndicator(color: Color(0xFF162540))

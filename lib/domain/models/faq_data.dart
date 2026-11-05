@@ -90,8 +90,9 @@ const List<SeccionFaq> seccionesFaq = [
     ),
     PreguntaFrecuente(
       '¿Puedo armar mi propia agenda?',
-      'En los eventos con varios talleres puedes elegir a cuáles asistir y verlos juntos en Mi '
-          'agenda. También puedes quitar los que ya no te interesen.',
+      'En los eventos con workshops, al inscribirte eliges uno en cada horario y los ves juntos en '
+          'Mi agenda. Puedes cambiarlos desde el evento hasta el día anterior; desde el primer día '
+          'del evento ya no se pueden cambiar.',
     ),
     PreguntaFrecuente(
       '¿Puedo inscribir a otra persona?',
@@ -100,7 +101,7 @@ const List<SeccionFaq> seccionesFaq = [
     ),
     PreguntaFrecuente(
       '¿Qué pasa con las encuestas?',
-      'Después de un evento puedes calificar cada taller y responder una encuesta general. Las '
+      'Después de un evento puedes calificar cada workshop al que asististe y responder una encuesta general. Las '
           'respuestas ayudan a preparar los siguientes y solo las ve el equipo organizador.',
     ),
   ]),

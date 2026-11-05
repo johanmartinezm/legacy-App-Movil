@@ -274,7 +274,7 @@ class EventPurchaseDetailScreen extends StatelessWidget {
         ),
         icon: const Icon(Icons.view_agenda_outlined, size: 18),
         label: Text(
-          n == 1 ? 'VER CRONOGRAMA · 1 TALLER' : 'VER CRONOGRAMA · $n TALLERES',
+          n == 1 ? 'VER CRONOGRAMA · 1 WORKSHOP' : 'VER CRONOGRAMA · $n WORKSHOPS',
           style: GoogleFonts.barlow(
             fontSize: 14,
             fontWeight: FontWeight.bold,
