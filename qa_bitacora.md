@@ -2,6 +2,24 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-05]: Material de los workshops en el detalle del evento (parte A)
+- **Alcance:** `material_workshops.dart` (nuevo: sección «Material de los workshops» con una tarjeta por
+  workshop terminado que tenga material; imagen que se amplía al tocarla, «Descargar» abre
+  `/api/documents/<nombre>` fuera de la app, video de YouTube dentro con `youtube_player_flutter` y de
+  Vimeo fuera), `workshop_model.dart` (`MaterialWorkshop`, leído de `material`),
+  `event_purchase_detail_screen.dart` (la sección va bajo el botón del cronograma). Tests en
+  `material_workshops_test.dart`. Exige el backend de la misma rama. Rama `feature/talleres-aparte`,
+  **solo en local**.
+- **Criterios de QA** (en local, Summit de prueba: «[PRUEBA] Comunicación entre generaciones» del 26-10
+  tiene un PDF y un video de YouTube cargados):
+  1. En el detalle del evento aparece «Material de los workshops» con ese workshop; los que no han
+     terminado o no tienen material no salen.
+  2. «Descargar» muestra el nombre y el tamaño del archivo y lo abre en el navegador.
+  3. «Ver video» reproduce el de YouTube dentro de la app; uno de Vimeo dice «Ver video en Vimeo · Se
+     abre fuera de la app».
+  4. Con imagen cargada, tocarla la amplía; tocar de nuevo la cierra.
+  5. Un evento sin material terminado no muestra la sección.
+
 ### [2026-11-05]: Elegir los workshops al inscribirse (§10 del plan de workshops)
 - **Alcance:** `selector_workshops.dart` (hoja nueva por día y franja, una opción por franja; en solo
   lectura desde el primer día), `franjas_workshops.dart` (las mismas reglas que el backend: franjas en

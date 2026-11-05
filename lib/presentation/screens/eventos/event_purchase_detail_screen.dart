@@ -7,6 +7,7 @@ import '../../widgets/eventos/event_survey_button.dart';
 import '../../widgets/boton_volver.dart';
 import 'package:legacy_app/config/theme/app_theme.dart';
 import 'cronograma_screen.dart';
+import '../../widgets/eventos/material_workshops.dart';
 
 class EventPurchaseDetailScreen extends StatelessWidget {
   final EventModel event;
@@ -238,6 +239,9 @@ class EventPurchaseDetailScreen extends StatelessWidget {
                         const SizedBox(height: 20),
                         _buildBotonCronograma(context),
                       ],
+                      // Material de los workshops ya terminados (parte A del
+                      // plan de workshops). Si no hay ninguno, no ocupa nada.
+                      MaterialWorkshops(event: event),
                       const SizedBox(height: 10),
                     ],
                   ),
