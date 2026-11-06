@@ -2,6 +2,36 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-06]: «Mi agenda» con el estilo de la app
+- **Alcance:** `agenda_screen.dart` (rehecha: fondo oscuro, cabecera con el botón redondo como «Mi
+  credencial», workshops agrupados por evento —próximos primero, pasados al final— con tarjetas como
+  las del cronograma, día, horario, sala y expositor; «Calificar experiencia» en cian solo en los
+  terminados; deslizar recarga; botón «Mi credencial» con el estilo del de la agenda en Eventos).
+  Antes era clara, con AppBar de Material, y el evento y «Calificar» casi no se leían. Test nuevo
+  `test/screens/agenda_screen_test.dart`. Rama `feature/talleres-aparte`, **solo en local**.
+- **Criterios de QA** (con `qa-app` en local):
+  1. Eventos → botón del calendario: «Mi agenda» con fondo oscuro y el título del evento como
+     encabezado de cada grupo.
+  2. «[PRUEBA] Evento terminado» muestra Comunicación y Gobierno, con «Calificar experiencia» legible.
+  3. Un evento futuro con workshops elegidos sale antes que los pasados y dice «Podrás calificarlo al
+     terminar».
+  4. Sin workshops elegidos: «No tienes workshops en tu agenda.» sobre fondo oscuro.
+
+### [2026-11-06]: El listado de eventos avisa si no pudo cargar y deja reintentar
+- **Alcance:** `events_provider.dart` (`eventsError`, propio del listado, separado de `errorMessage`
+  que usan la inscripción y la calificación), `eventos_screen.dart` (aviso «No pudimos cargar los
+  eventos» con «Reintentar»; deslizar hacia abajo recarga eventos, inscripciones y agenda; cambiar de
+  pestaña tras un fallo vuelve a intentarlo). Tests en `eventos_screen_test.dart`. Rama
+  `feature/talleres-aparte`, **solo en local**.
+  Antes, sin red, «Próximos» decía «No hay eventos disponibles en esta sección», «Mis registros» decía
+  «Aún no te has registrado» a quien sí lo estaba, y solo se arreglaba cerrando la app.
+- **Criterios de QA:**
+  1. Con el backend apagado (o sin red), abrir Eventos: aviso de error con «Reintentar», no «No hay
+     eventos».
+  2. «Mis registros» en ese estado muestra el mismo aviso, no «Aún no te has registrado».
+  3. Volver a encender el backend y tocar «Reintentar», deslizar hacia abajo o cambiar de pestaña: los
+     eventos aparecen sin reiniciar la app.
+
 ### [2026-11-05]: Pago por link externo y pago no confirmado (parte B)
 - **Alcance:** `event_action_button.dart` (en un evento de pago con link, «Reservar cupo» elige los
   workshops, reserva —queda pendiente— y abre el link de pago fuera de la app; la pendiente dice «pago

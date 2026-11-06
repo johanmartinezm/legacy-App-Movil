@@ -83,9 +83,14 @@ void main() {
     await ConfigService.initialize();
   });
 
+  /// Con [sinRed], las primeras llamadas a `/events` fallan como sin conexión
+  /// hasta que se pone a false: así se prueba el reintento.
+  bool sinRed = false;
+
   Future<void> montarPantalla(WidgetTester tester) async {
     final client = MockClient((request) async {
       if (request.url.path.endsWith('/events')) {
+        if (sinRed) throw http.ClientException('Connection refused');
         return http.Response(respuestaEventos, 200);
       }
       // «Mis registros» sale de las inscripciones del usuario, no del evento.
@@ -120,6 +125,53 @@ void main() {
     await tester.pump();
     await tester.pumpAndSettle();
   }
+
+  tearDown(() => sinRed = false);
+
+  // Visto el 2026-11-06 al perder la red: el listado decía «No hay eventos
+  // disponibles» y no había forma de reintentar sin reiniciar la app.
+  testWidgets('Sin red dice que no pudo cargar y Reintentar los trae', (
+    tester,
+  ) async {
+    sinRed = true;
+    await montarPantalla(tester);
+
+    expect(find.textContaining('No pudimos cargar los eventos'), findsOneWidget);
+    expect(find.text('No hay eventos disponibles en esta sección.'), findsNothing);
+
+    sinRed = false;
+    await tester.tap(find.byKey(const Key('eventos-reintentar')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('LEGACY SUMMIT 2026'), findsOneWidget);
+    expect(find.byKey(const Key('eventos-reintentar')), findsNothing);
+  });
+
+  testWidgets('Sin red, Mis registros no dice que no estás inscrito', (
+    tester,
+  ) async {
+    sinRed = true;
+    await montarPantalla(tester);
+    await tester.tap(find.text('Mis registros'));
+    await tester.pumpAndSettle();
+
+    // Sigue sin red: aviso de error, no «Aún no te has registrado».
+    expect(find.text('Aún no te has registrado a ningún evento.'), findsNothing);
+    expect(find.byKey(const Key('eventos-reintentar')), findsOneWidget);
+  });
+
+  testWidgets('Cambiar de pestaña tras un fallo vuelve a intentarlo', (
+    tester,
+  ) async {
+    sinRed = true;
+    await montarPantalla(tester);
+
+    sinRed = false;
+    await tester.tap(find.text('Pasados'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Coffee & Networking: CDMX 2026'), findsOneWidget);
+  });
 
   testWidgets('Próximos muestra solo los eventos por venir', (tester) async {
     await montarPantalla(tester);

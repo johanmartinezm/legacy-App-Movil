@@ -139,19 +139,35 @@ class _EventosScreenState extends State<EventosScreen> {
             const SizedBox(height: 12),
 
             // Main Content Area
+            // Deslizar hacia abajo recarga, también desde el aviso de vacío
+            // o de error: por eso los dos van dentro de algo desplazable.
             Expanded(
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
-                  : filteredEvents.isEmpty
-                      ? _buildEmptyState()
-                      : ListView.builder(
-                          physics: const BouncingScrollPhysics(),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          itemCount: filteredEvents.length,
-                          itemBuilder: (context, index) {
-                            return _buildCompactEventCard(context, filteredEvents[index]);
-                          },
-                        ),
+                  : RefreshIndicator(
+                      onRefresh: _recargar,
+                      color: AppTheme.legacyActive,
+                      child: filteredEvents.isEmpty
+                          ? LayoutBuilder(
+                              builder: (context, constraints) => SingleChildScrollView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                                  child: _buildEmptyState(),
+                                ),
+                              ),
+                            )
+                          : ListView.builder(
+                              physics: const AlwaysScrollableScrollPhysics(
+                                parent: BouncingScrollPhysics(),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              itemCount: filteredEvents.length,
+                              itemBuilder: (context, index) {
+                                return _buildCompactEventCard(context, filteredEvents[index]);
+                              },
+                            ),
+                    ),
             ),
           ],
         ),
@@ -354,10 +370,14 @@ class _EventosScreenState extends State<EventosScreen> {
         });
         // Se recargan al entrar: pueden haber cambiado desde otra pantalla
         // (una inscripción nueva, un pago confirmado).
+        final provider = context.read<EventsProvider>();
         if (tabValue == EventTab.misRegistros) {
           final token = context.read<AuthProvider>().token;
-          if (token != null) context.read<EventsProvider>().loadMyRegistrations(token);
+          if (token != null) provider.loadMyRegistrations(token);
         }
+        // Si la última carga falló (sin red), cambiar de pestaña vuelve a
+        // intentarlo en vez de dejar la lista vacía hasta reiniciar la app.
+        if (provider.eventsError != null) provider.loadEvents();
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -384,7 +404,30 @@ class _EventosScreenState extends State<EventosScreen> {
     );
   }
 
+  /// Vuelve a pedir los eventos y, con sesión, las inscripciones y la agenda.
+  Future<void> _recargar() async {
+    final provider = context.read<EventsProvider>();
+    final token = context.read<AuthProvider>().token;
+    await Future.wait([
+      provider.loadEvents(),
+      if (token != null) provider.loadMyRegistrations(token),
+      if (token != null) provider.loadAgenda(token),
+    ]);
+  }
+
   Widget _buildEmptyState() {
+    final provider = context.read<EventsProvider>();
+    // Un fallo de carga no es una sección vacía: se dice y se ofrece reintentar.
+    final fallo = provider.eventsError != null ||
+        (_selectedTab == EventTab.misRegistros && provider.registrationsError != null);
+    if (fallo) {
+      return _buildErrorState(
+        _selectedTab == EventTab.misRegistros
+            ? 'No pudimos cargar tus registros. Revisa tu conexión e inténtalo de nuevo.'
+            : 'No pudimos cargar los eventos. Revisa tu conexión e inténtalo de nuevo.',
+      );
+    }
+
     String msg = 'No hay eventos disponibles en esta sección.';
     if (_hasActiveFilters) {
       // Sin esto, un filtro que no encaja se confunde con una sección vacía.
@@ -392,9 +435,7 @@ class _EventosScreenState extends State<EventosScreen> {
     } else if (_selectedTab == EventTab.pasados) {
       msg = 'Todavía no hay eventos finalizados.';
     } else if (_selectedTab == EventTab.misRegistros) {
-      msg = context.read<EventsProvider>().registrationsError != null
-          ? 'No pudimos cargar tus registros. Inténtalo de nuevo.'
-          : 'Aún no te has registrado a ningún evento.';
+      msg = 'Aún no te has registrado a ningún evento.';
     }
     return Center(
       child: Padding(
@@ -424,6 +465,45 @@ class _EventosScreenState extends State<EventosScreen> {
                 ),
               ),
             ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(String msg) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.wifi_off_rounded, color: Color(0xFF9FB2C2), size: 36),
+            const SizedBox(height: 12),
+            Text(
+              msg,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.questrial(
+                fontSize: 14,
+                color: const Color(0xFF9FB2C2),
+              ),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              key: const Key('eventos-reintentar'),
+              onPressed: _recargar,
+              icon: const Icon(Icons.refresh, size: 18),
+              label: Text(
+                'Reintentar',
+                style: GoogleFonts.barlow(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppTheme.legacyActive,
+                side: const BorderSide(color: AppTheme.legacyActive),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              ),
+            ),
           ],
         ),
       ),

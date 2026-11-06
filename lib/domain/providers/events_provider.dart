@@ -40,15 +40,24 @@ class EventsProvider extends ChangeNotifier {
     }
   }
 
+  /// Por qué falló la última carga del listado, o null si salió bien. Va aparte
+  /// de [errorMessage], que también lo usan la inscripción y la calificación:
+  /// sin esto el listado no sabía que había fallado y decía «No hay eventos
+  /// disponibles», y al quedarse vacío «Mis registros» decía «Aún no te has
+  /// registrado» a quien sí lo estaba (visto el 2026-11-06 al perder la red).
+  String? _eventsError;
+  String? get eventsError => _eventsError;
+
   Future<void> loadEvents() async {
     _isLoading = true;
-    _errorMessage = null;
+    _eventsError = null;
     notifyListeners();
 
     try {
       _events = await _eventService.getEvents();
     } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      // Se conserva la lista anterior: si ya había eventos, siguen a la vista.
+      _eventsError = e.toString().replaceAll('Exception: ', '');
       debugPrint('Error loading events: $e');
     } finally {
       _isLoading = false;
