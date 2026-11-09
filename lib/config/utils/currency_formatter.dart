@@ -1,29 +1,23 @@
 import 'package:intl/intl.dart';
 
-/// Formatea los importes de los eventos, que **se cobran en dólares**
-/// —confirmado por el cliente el 2026-08-20—.
+/// Formatea los importes de los eventos, que **son en pesos colombianos**
+/// desde el 2026-11-09 (pedido del usuario). Del 2026-08-20 hasta esa fecha
+/// eran en dólares y se mostraban con «USD» delante.
 ///
-/// Hasta esa fecha usaba `NumberFormat.currency` con locale `es_CO` y símbolo
-/// `$`, así que un evento de 499 dólares se veía como «499 $»: la cifra sin
-/// decir de qué moneda, con formato colombiano y junto a contenido en pesos.
-/// Un summit a 499 pesos son doce centavos de dólar, y nada en la pantalla
-/// permitía distinguirlo.
-///
-/// La moneda va **delante** —«USD $499»—, igual que en los programas de LSO
-/// (`GraphqlProgram.precioConMoneda`), para que siga leyéndose si la cifra
-/// queda justa de sitio. Las dos superficies con precio de la app dicen la
-/// moneda de la misma forma.
+/// La moneda va siempre escrita y **delante** —«COP $150.000»—: con un «$»
+/// suelto no se sabe de qué moneda es la cifra, y en la app conviven precios
+/// en pesos con los de LSO, que son en dólares.
 class CurrencyFormatter {
-  /// Ejemplos: `0` → `GRATIS`; `499` → `USD $499`; `150000` → `USD $150.000`.
+  /// Ejemplos: `0` → `GRATIS`; `499` → `COP $499`; `150000` → `COP $150.000`.
   static String format(double amount) {
     if (amount == 0) return 'GRATIS';
 
-    // Agrupación de miles con punto, como se escribe en Colombia y en la
-    // tienda de LSO. Sin decimales: los precios son importes redondos.
+    // Agrupación de miles con punto, como se escribe en Colombia. Sin
+    // decimales: los pesos no usan centavos.
     final miles = NumberFormat.decimalPattern('es_CO')
       ..maximumFractionDigits = 0;
 
-    return 'USD \$${miles.format(amount)}';
+    return 'COP \$${miles.format(amount)}';
   }
 
   /// Alias for clarify what we are formatting

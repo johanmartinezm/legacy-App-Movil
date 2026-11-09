@@ -2,6 +2,17 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-09]: Los precios de los eventos, en pesos colombianos
+- **Alcance:** `currency_formatter.dart` («COP $180.000» en lugar de «USD $120») y su test. Lo usan la
+  tarjeta del listado, el detalle y la pantalla de pago. **LSO no cambia**: programas y libros siguen en
+  «USD», porque su tienda publica en dólares (decisión del usuario del mismo día). Rama
+  `feature/talleres-aparte`, **solo en local**.
+- **Criterios de QA** (con `qa-app` en local):
+  1. Eventos → Próximos: «[PRUEBA] Desayuno | Gestión Patrimonial…» dice «COP $180.000».
+  2. «[PRUEBA] Masterclass de pago por link» dice «COP $120».
+  3. Un programa de LSO sigue diciendo «USD».
+  4. Un evento gratuito sigue diciendo «GRATIS», sin moneda.
+
 ### [2026-11-09]: El PDF se abre con su nombre, y «Próximos» y «Mi credencial» van por fecha
 - **Alcance:** `material_workshops.dart` (`urlDeDescarga` con el nombre original al final; necesita
   la ruta nueva del backend de la misma rama), `event_filters.dart` («Próximos» por fecha de inicio;
