@@ -6,6 +6,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../domain/models/registration_model.dart';
+import '../../../domain/utils/event_filters.dart';
 import '../../../domain/providers/auth_provider.dart';
 import '../../../domain/providers/events_provider.dart';
 import '../../widgets/boton_volver.dart';
@@ -91,13 +92,10 @@ class _MiCredencialScreenState extends State<MiCredencialScreen> {
     }
 
     // Los que ya pasaron van al final: lo que sirve para entrar hoy es lo de
-    // arriba.
-    final vigentes = provider.myRegistrations
-        .where((r) => !r.eventoTerminado)
-        .toList();
-    final pasados = provider.myRegistrations
-        .where((r) => r.eventoTerminado)
-        .toList();
+    // arriba, empezando por el más cercano.
+    final enOrden = credencialesEnOrden(provider.myRegistrations);
+    final vigentes = enOrden.vigentes;
+    final pasados = enOrden.pasadas;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),

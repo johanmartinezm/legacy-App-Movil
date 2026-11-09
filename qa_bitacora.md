@@ -2,6 +2,21 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-09]: El PDF se abre con su nombre, y «Próximos» y «Mi credencial» van por fecha
+- **Alcance:** `material_workshops.dart` (`urlDeDescarga` con el nombre original al final; necesita
+  la ruta nueva del backend de la misma rama), `event_filters.dart` («Próximos» por fecha de inicio;
+  `credencialesEnOrden`), `mi_credencial_screen.dart`. Tests en `material_workshops_test.dart` y
+  `event_filters_test.dart`. Hallazgos 5 y 6 del recorrido del 09-11. Rama `feature/talleres-aparte`,
+  **solo en local**.
+  Antes el visor mostraba «c7812220-ef19-…»; «Próximos» agrupaba por categoría (una masterclass del
+  12-nov salía detrás de todos los Summit); y «Mi credencial» ordenaba por fecha de inscripción.
+- **Criterios de QA** (con `qa-app` en local):
+  1. Material de «Comunicación entre generaciones» → «Descargar»: el visor titula «Guía del
+     workshop.pdf».
+  2. Eventos → Próximos: el primero es el más cercano (la masterclass del 12-nov), sin importar la
+     categoría.
+  3. Mi credencial: el Summit del 18-nov arriba, luego los de diciembre en orden.
+
 ### [2026-11-09]: «Tu calificación» en vez de calificar otra vez, y «Mis registros» sin rechazadas
 - **Alcance:** widget nuevo `calificar_workshop.dart` (lo usan `cronograma_screen.dart` y
   `agenda_screen.dart`), `events_provider.dart` (`cargarMisCalificaciones`, `calificacionDe`; se

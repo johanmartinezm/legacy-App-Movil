@@ -79,10 +79,48 @@ void main() {
     );
   });
 
+  test('Mi credencial: vigentes del más cercano, pasadas del más reciente', () {
+    String dia(int dentroDe) {
+      final d = DateTime.now().toUtc().add(Duration(days: dentroDe));
+      return '${d.toIso8601String().substring(0, 10)}T00:00:00Z';
+    }
+
+    RegistrationModel reg(String id, int dentroDe) => RegistrationModel.fromJson({
+          'id': id,
+          'eventId': id,
+          'eventTitle': id,
+          'eventStartDate': dia(dentroDe),
+          'paymentStatus': 'free',
+          'registrationStatus': 'confirmed',
+          'qrData': 'QR-$id',
+        });
+
+    // Por fecha de inscripción, como las devuelve el backend.
+    final r = credencialesEnOrden([
+      reg('diciembre', 36),
+      reg('octubre', -20),
+      reg('summit', 9),
+      reg('septiembre', -60),
+    ]);
+    expect(r.vigentes.map((x) => x.id), ['summit', 'diciembre']);
+    expect(r.pasadas.map((x) => x.id), ['octubre', 'septiembre']);
+  });
+
   group('eventsForTab', () {
     test('próximos deja fuera los terminados', () {
       final r = eventsForTab(todos, EventTab.proximos);
       expect(r.map((e) => e.id), ['1']);
+    });
+
+    test('próximos va del más cercano al más lejano, sin agrupar por categoría', () {
+      final hoy = DateTime.now();
+      // Como llegan del backend: primero todos los Summit, luego la masterclass.
+      final r = eventsForTab([
+        _evento(id: 'summit-lejos', title: 'S2', category: 'Summit', fecha: hoy.add(const Duration(days: 30))),
+        _evento(id: 'summit-cerca', title: 'S1', category: 'Summit', fecha: hoy.add(const Duration(days: 9))),
+        _evento(id: 'masterclass', title: 'M', category: 'Masterclass', fecha: hoy.add(const Duration(days: 3))),
+      ], EventTab.proximos);
+      expect(r.map((e) => e.id), ['masterclass', 'summit-cerca', 'summit-lejos']);
     });
 
     test('pasados devuelve el histórico, más reciente primero', () {

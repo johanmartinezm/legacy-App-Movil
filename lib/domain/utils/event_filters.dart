@@ -30,6 +30,30 @@ Set<String> eventosInscritos(List<RegistrationModel> inscripciones) => {
     if (!r.estaRechazada) r.eventId,
 };
 
+/// «Mi credencial»: primero lo que sirve para entrar, del evento más cercano al
+/// más lejano; después lo que ya pasó, del más reciente al más antiguo. El
+/// backend las devuelve por fecha de inscripción, la más reciente primero: el
+/// Summit de la semana que viene quedaba debajo de un evento de diciembre en el
+/// que la persona se inscribió después (visto el 2026-11-09).
+({List<RegistrationModel> vigentes, List<RegistrationModel> pasadas})
+credencialesEnOrden(List<RegistrationModel> inscripciones) {
+  int porInicio(RegistrationModel a, RegistrationModel b) {
+    final DateTime? fa = a.eventStartDate;
+    final DateTime? fb = b.eventStartDate;
+    if (fa == null && fb == null) return 0;
+    if (fa == null) return 1;
+    if (fb == null) return -1;
+    return fa.compareTo(fb);
+  }
+
+  return (
+    vigentes: inscripciones.where((r) => !r.eventoTerminado).toList()
+      ..sort(porInicio),
+    pasadas: inscripciones.where((r) => r.eventoTerminado).toList()
+      ..sort((a, b) => porInicio(b, a)),
+  );
+}
+
 /// Eventos que corresponden a una pestaña, ya ordenados.
 ///
 /// [inscritos] son los ids de los eventos en los que el usuario tiene
@@ -45,7 +69,19 @@ List<EventModel> eventsForTab(
 }) {
   switch (tab) {
     case EventTab.proximos:
-      return events.where((e) => !e.isPast).toList();
+      // Del más cercano al más lejano. El backend los devuelve agrupados por
+      // el orden de la categoría y después por fecha, así que hasta el
+      // 2026-11-09 una masterclass del día 12 salía detrás de todos los Summit
+      // del mes. Los que llegan sin fecha, al final.
+      return events.where((e) => !e.isPast).toList()
+        ..sort((a, b) {
+          final DateTime? fa = a.startDate;
+          final DateTime? fb = b.startDate;
+          if (fa == null && fb == null) return 0;
+          if (fa == null) return 1;
+          if (fb == null) return -1;
+          return fa.compareTo(fb);
+        });
     case EventTab.pasados:
       // El backend los devuelve por categoría y start_date ascendente. En el
       // histórico interesa lo más reciente primero.

@@ -109,7 +109,10 @@ class _TarjetaMaterial extends StatelessWidget {
               icono: Icons.download_outlined,
               texto: 'Descargar',
               detalle: _detalleArchivo(),
-              alTocar: () => _abrirFuera(context, urlDeDescarga(m.fileName)),
+              alTocar: () => _abrirFuera(
+                context,
+                urlDeDescarga(m.fileName, original: m.fileOriginalName),
+              ),
             ),
           ],
           if (m.videoUrl.isNotEmpty) ...[
@@ -151,8 +154,17 @@ class _TarjetaMaterial extends StatelessWidget {
 }
 
 /// Dirección de descarga del archivo del material.
-String urlDeDescarga(String fileName) =>
-    '${ApiConstants.baseUrl}/api/documents/${Uri.encodeComponent(fileName)}';
+///
+/// Con [original] («Guía del workshop.pdf») al final: los visores de PDF
+/// titulan con el último tramo de la URL, y con el nombre del servidor
+/// mostraban «c7812220-ef19-…» (visto el 2026-11-09). El backend ignora ese
+/// tramo para buscar el archivo y lo usa como nombre de la descarga.
+String urlDeDescarga(String fileName, {String original = ''}) {
+  final base =
+      '${ApiConstants.baseUrl}/api/documents/${Uri.encodeComponent(fileName)}';
+  final visible = original.trim();
+  return visible.isEmpty ? base : '$base/${Uri.encodeComponent(visible)}';
+}
 
 Future<void> _abrirFuera(BuildContext context, String url) async {
   final uri = Uri.tryParse(url);

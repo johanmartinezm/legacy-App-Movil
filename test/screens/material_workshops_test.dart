@@ -118,6 +118,17 @@ void main() {
     );
   });
 
+  test('con el nombre original, va al final para que el visor lo muestre', () {
+    expect(
+      urlDeDescarga('uuid_Gu-a-final.pdf', original: 'Guía final.pdf'),
+      endsWith('/api/documents/uuid_Gu-a-final.pdf/Gu%C3%ADa%20final.pdf'),
+    );
+    expect(
+      urlDeDescarga('uuid_x.pdf', original: '  '),
+      endsWith('/api/documents/uuid_x.pdf'),
+    );
+  });
+
   test('el material se lee del JSON y vacío es «no hay»', () {
     final w = WorkshopModel.fromJson(ws('a', '09:00', '10:00', completo));
     expect(w.material.esYoutube, isTrue);
