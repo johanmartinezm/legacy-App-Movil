@@ -1,0 +1,6 @@
+• Eventos: elija sus workshops al inscribirse, uno por horario, y cámbielos hasta el día anterior.
+• Material de los workshops: imagen, documento y video, disponibles al terminar cada uno.
+• Califique los workshops a los que asistió y vea su calificación.
+• Eventos de pago con enlace de pago y confirmación del equipo.
+• Precios en pesos colombianos y eventos ordenados por fecha.
+• Mejoras de diseño y correcciones.
