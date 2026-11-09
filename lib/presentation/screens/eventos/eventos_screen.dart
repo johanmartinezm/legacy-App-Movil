@@ -91,7 +91,7 @@ class _EventosScreenState extends State<EventosScreen> {
     // registrado» a quien sí lo está.
     final isLoading = eventsProvider.isLoading ||
         (enMisRegistros && !eventsProvider.registrationsLoaded && eventsProvider.loadingRegistrations);
-    final inscritos = {for (final r in eventsProvider.myRegistrations) r.eventId};
+    final inscritos = eventosInscritos(eventsProvider.myRegistrations);
 
     final List<EventModel> tabEvents = eventsForTab(events, _selectedTab, inscritos: inscritos);
     final List<String> categories = categoriesOf(tabEvents);

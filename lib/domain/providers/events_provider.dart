@@ -165,6 +165,40 @@ class EventsProvider extends ChangeNotifier {
   // los workshops elegidos al inscribirse, y se cambian todos juntos con
   // elegirMisWorkshops.
 
+  /// Mis calificaciones de workshops, `workshopId → estrellas`. Se piden por
+  /// evento la primera vez que se pinta uno de sus workshops. Hasta el
+  /// 2026-11-09 la app no las conocía: ofrecía «Calificar experiencia» en un
+  /// workshop ya calificado y solo al enviar decía «ya calificaste».
+  final Map<String, int> _misCalificaciones = {};
+  final Set<String> _calificacionesPedidas = {};
+  // Este provider sobrevive al cierre de sesión: si cambia la cuenta, lo de la
+  // anterior no vale.
+  String? _tokenDeCalificaciones;
+
+  int? calificacionDe(String workshopId) => _misCalificaciones[workshopId];
+
+  Future<void> cargarMisCalificaciones(String eventId, String token) async {
+    if (token != _tokenDeCalificaciones) {
+      _misCalificaciones.clear();
+      _calificacionesPedidas.clear();
+      _tokenDeCalificaciones = token;
+    }
+    if (!_calificacionesPedidas.add(eventId)) return;
+    try {
+      final deEsteEvento = await _eventService.getMyWorkshopRatings(
+        eventId: eventId,
+        token: token,
+      );
+      if (token != _tokenDeCalificaciones) return;
+      _misCalificaciones.addAll(deEsteEvento);
+      notifyListeners();
+    } catch (e) {
+      // Sin ellas se ofrece calificar como antes, y el servidor sigue
+      // rechazando la segunda. La próxima vez se vuelve a pedir.
+      _calificacionesPedidas.remove(eventId);
+      debugPrint('Error loading my workshop ratings: $e');
+    }
+  }
 
   Future<bool> submitWorkshopRating({
     required String workshopId,
@@ -175,12 +209,17 @@ class EventsProvider extends ChangeNotifier {
     // Sin esto, un fallo sin motivo mostraría el error de otra operación.
     _errorMessage = null;
     try {
-      return await _eventService.submitWorkshopRating(
+      final ok = await _eventService.submitWorkshopRating(
         workshopId: workshopId,
         rating: rating,
         comment: comment,
         token: token,
       );
+      if (ok && token == _tokenDeCalificaciones) {
+        _misCalificaciones[workshopId] = rating.round();
+        notifyListeners();
+      }
+      return ok;
     } on MotivoDelServidor catch (e) {
       // Rechazo definitivo («ya calificaste este taller»): reintentar no
       // cambia nada, así que se propaga para que el diálogo se cierre.

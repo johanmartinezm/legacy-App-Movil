@@ -44,6 +44,8 @@ class ApiConstants {
   static String eventSurveyEndpoint(String id) => '/api/events/$id/survey';
   static String myEventSurveyEndpoint(String id) =>
       '/api/events/$id/survey/me';
+  static String myWorkshopRatingsEndpoint(String eventId) =>
+      '/api/events/$eventId/workshop-ratings/me';
 
   // Todos los eventos en los que el usuario está inscrito, cada uno con su QR.
   // Alimenta la pantalla "Mi credencial". Cuelga de /api/me y no de /api/events

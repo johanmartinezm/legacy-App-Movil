@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:legacy_app/domain/models/event_model.dart';
+import 'package:legacy_app/domain/models/registration_model.dart';
 import 'package:legacy_app/domain/utils/event_filters.dart';
 
 String _iso(DateTime d) =>
@@ -56,6 +57,27 @@ void main() {
     speaker: 'Ana Gómez',
   );
   final todos = [summit, coffee, masterclass];
+
+  test('Mis registros deja fuera las rechazadas y conserva las pendientes', () {
+    RegistrationModel reg(String evento, String estado) =>
+        RegistrationModel.fromJson({
+          'id': 'reg-$evento',
+          'eventId': evento,
+          'eventTitle': evento,
+          'paymentStatus': 'pending',
+          'registrationStatus': estado,
+          'qrData': '',
+        });
+
+    expect(
+      eventosInscritos([
+        reg('confirmado', 'confirmed'),
+        reg('pendiente', 'pending_payment'),
+        reg('rechazado', 'rejected'),
+      ]),
+      {'confirmado', 'pendiente'},
+    );
+  });
 
   group('eventsForTab', () {
     test('próximos deja fuera los terminados', () {

@@ -8,9 +8,8 @@ import '../../../domain/models/workshop_model.dart';
 import '../../../domain/providers/auth_provider.dart';
 import '../../../domain/providers/events_provider.dart';
 import '../../widgets/boton_volver.dart';
-import '../../widgets/eventos/rating_dialog.dart';
+import '../../widgets/eventos/calificar_workshop.dart';
 
-const _cian = Color(0xFF00F2FE);
 const _textoSecundario = Color(0xFF9FB2C2);
 
 /// «Mi agenda»: los workshops que elegí al inscribirme, agrupados por evento.
@@ -270,28 +269,7 @@ class _TarjetaAgenda extends StatelessWidget {
                                 fontSize: 12,
                               ),
                             )
-                          : TextButton.icon(
-                              onPressed: () => showDialog(
-                                context: context,
-                                builder: (context) => RatingDialog(
-                                  itemName: workshop.name,
-                                  itemId: workshop.id,
-                                ),
-                              ),
-                              icon: const Icon(Icons.star_outline, size: 16),
-                              label: const Text(
-                                'Calificar experiencia',
-                                style: TextStyle(fontSize: 12),
-                              ),
-                              style: TextButton.styleFrom(
-                                foregroundColor: _cian,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                ),
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                            ),
+                          : CalificarWorkshop(workshop: workshop),
                     ),
                   ],
                 ),

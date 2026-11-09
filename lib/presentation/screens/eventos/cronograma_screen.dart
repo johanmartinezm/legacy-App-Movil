@@ -6,7 +6,7 @@ import '../../../domain/models/event_model.dart';
 import '../../../domain/models/workshop_model.dart';
 import '../../../domain/providers/events_provider.dart';
 import '../../../config/theme/app_theme.dart';
-import '../../widgets/eventos/rating_dialog.dart';
+import '../../widgets/eventos/calificar_workshop.dart';
 import '../../widgets/boton_volver.dart';
 import '../../../data/config/image_helper.dart';
 
@@ -354,30 +354,7 @@ class _WorkshopItem extends StatelessWidget {
                                 fontSize: 12,
                               ),
                             )
-                          : TextButton.icon(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => RatingDialog(
-                                    itemName: workshop.name,
-                                    itemId: workshop.id,
-                                  ),
-                                );
-                              },
-                              icon: const Icon(Icons.star_outline, size: 16),
-                              label: const Text(
-                                'Calificar experiencia',
-                                style: TextStyle(fontSize: 12),
-                              ),
-                              style: TextButton.styleFrom(
-                                foregroundColor: _cian,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                ),
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                            ),
+                          : CalificarWorkshop(workshop: workshop),
                     ),
                   ],
                 ),

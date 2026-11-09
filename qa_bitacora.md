@@ -2,6 +2,24 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-09]: «Tu calificación» en vez de calificar otra vez, y «Mis registros» sin rechazadas
+- **Alcance:** widget nuevo `calificar_workshop.dart` (lo usan `cronograma_screen.dart` y
+  `agenda_screen.dart`), `events_provider.dart` (`cargarMisCalificaciones`, `calificacionDe`; se
+  descartan si cambia el token), `event_service.dart` y `api_constants.dart` (ruta nueva del backend
+  `GET /api/events/{id}/workshop-ratings/me`), `event_filters.dart` (`eventosInscritos`),
+  `eventos_screen.dart`. Tests `calificar_workshop_test.dart` y `event_filters_test.dart`. Hallazgos 3 y
+  4 del recorrido del 09-11. Rama `feature/talleres-aparte`, **solo en local**; necesita el backend de
+  la misma rama (sin él, se ofrece calificar como antes).
+  Antes, un workshop ya calificado seguía ofreciendo «Calificar experiencia» y solo al enviar decía «ya
+  calificaste»; y una inscripción rechazada seguía apareciendo en «Mis registros».
+- **Criterios de QA** (con `qa-app` en local):
+  1. Cronograma de «[PRUEBA] Evento terminado»: Comunicación dice «Tu calificación» con 4 estrellas,
+     sin botón.
+  2. Calificar un workshop elegido y sin calificar: al enviar, la tarjeta pasa sola a «Tu calificación».
+  3. «Mi agenda» muestra lo mismo que el cronograma.
+  4. Con la inscripción a «[PRUEBA] Masterclass de pago por link» rechazada, el evento no sale en «Mis
+     registros»; pendiente o confirmada, sí.
+
 ### [2026-11-09]: El rechazo de un pago se ve en el detalle, y la etiqueta sigue al evento
 - **Alcance:** `event_action_button.dart` (las inscripciones se recargan cada vez que se abre el
   detalle, no solo la primera de la sesión), `franjas_workshops.dart` (`etiquetaDelEvento`),

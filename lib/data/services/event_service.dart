@@ -184,6 +184,34 @@ class EventService {
     }
   }
 
+  /// Lo que el usuario ya calificó de los workshops de un evento, como
+  /// `workshopId → estrellas`. Sirve para no ofrecerle calificar otra vez.
+  Future<Map<String, int>> getMyWorkshopRatings({
+    required String eventId,
+    required String token,
+  }) async {
+    final url = Uri.parse(
+      '${ApiConstants.baseUrl}${ApiConstants.myWorkshopRatingsEndpoint(eventId)}',
+    );
+    final response = await _client.get(
+      url,
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Error al leer tus calificaciones (${response.statusCode})',
+      );
+    }
+    final body = response.body.trim();
+    if (body.isEmpty || body == 'null') return {};
+    final List<dynamic> data = jsonDecode(body);
+    return {
+      for (final r in data)
+        if (r is Map && r['workshopId'] is String && r['rating'] is num)
+          r['workshopId'] as String: (r['rating'] as num).toInt(),
+    };
+  }
+
   /// Todos los eventos en los que el usuario está inscrito, con su QR.
   ///
   /// Sustituye al apaño de pedir el QR llamando a `registerToEvent`, que usaba

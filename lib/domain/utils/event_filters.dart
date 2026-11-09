@@ -8,6 +8,7 @@
 library;
 
 import '../models/event_model.dart';
+import '../models/registration_model.dart';
 import 'busqueda_global.dart' show normalizar;
 
 /// Pestañas del listado.
@@ -19,6 +20,15 @@ class EventTab {
 
 /// Valor del filtro de categoría cuando no se filtra por ninguna.
 const String kTodasLasCategorias = 'todas';
+
+/// Los eventos que cuentan para «Mis registros». Una inscripción **rechazada**
+/// no: el pago no se confirmó y el cupo se liberó (hasta el 2026-11-09 seguía
+/// saliendo). La pendiente sí, porque tiene el cupo reservado y desde el detalle
+/// se vuelve a abrir el link de pago.
+Set<String> eventosInscritos(List<RegistrationModel> inscripciones) => {
+  for (final r in inscripciones)
+    if (!r.estaRechazada) r.eventId,
+};
 
 /// Eventos que corresponden a una pestaña, ya ordenados.
 ///
