@@ -80,6 +80,29 @@ bool eleccionAbierta(EventModel evento, {DateTime? ahora}) {
   return _dia(ahora ?? DateTime.now()).compareTo(primerDia) < 0;
 }
 
+/// Fecha de una columna `date` del evento (medianoche UTC) como día.
+String _diaDeFecha(DateTime fecha) {
+  final u = fecha.toUtc();
+  return '${u.year.toString().padLeft(4, '0')}-'
+      '${u.month.toString().padLeft(2, '0')}-'
+      '${u.day.toString().padLeft(2, '0')}';
+}
+
+/// La etiqueta del detalle del evento. Hasta el 2026-11-09 dependía solo de si
+/// era gratuito, así que un evento ya terminado seguía diciendo «REGISTRO
+/// ABIERTO». Ahora sigue el mismo corte que [eleccionAbierta]: desde el primer
+/// día la app no inscribe, y pasado el último día el evento terminó (lo mismo
+/// que dice «FINALIZADO» en el listado).
+String etiquetaDelEvento(EventModel evento, {DateTime? ahora}) {
+  final hoy = _dia(ahora ?? DateTime.now());
+  final ultimo = evento.endDate ?? evento.startDate;
+  if (ultimo != null && _diaDeFecha(ultimo).compareTo(hoy) < 0) {
+    return 'FINALIZADO';
+  }
+  if (!eleccionAbierta(evento, ahora: ahora)) return 'EN CURSO';
+  return evento.isFree ? 'REGISTRO ABIERTO' : 'PREVENTA ABIERTA';
+}
+
 /// Qué falta en una elección, o null si vale. Es el mismo texto que daría el
 /// servidor, para que la app pueda decirlo sin hacer la llamada.
 String? motivoEleccionIncompleta(

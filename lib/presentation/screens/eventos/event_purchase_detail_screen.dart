@@ -8,6 +8,7 @@ import '../../widgets/boton_volver.dart';
 import 'package:legacy_app/config/theme/app_theme.dart';
 import 'cronograma_screen.dart';
 import '../../widgets/eventos/material_workshops.dart';
+import 'package:legacy_app/domain/utils/franjas_workshops.dart';
 
 class EventPurchaseDetailScreen extends StatelessWidget {
   final EventModel event;
@@ -16,8 +17,7 @@ class EventPurchaseDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Determine the badge text based on event details
-    final String badgeText = event.isFree ? 'REGISTRO ABIERTO' : 'PREVENTA ABIERTA';
+    final String badgeText = etiquetaDelEvento(event);
 
     final esSummit = event.category.toLowerCase() == 'summit';
     final speaker = event.speaker?.trim() ?? '';

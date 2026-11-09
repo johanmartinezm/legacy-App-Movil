@@ -47,7 +47,11 @@ class _EventActionButtonState extends State<EventActionButton> {
     if (widget.event.workshops.isNotEmpty && !provider.agendaCargada) {
       await provider.loadAgenda(token);
     }
-    if (provider.registrationsLoaded) return;
+    // Se recargan siempre, no solo la primera vez: el estado cambia desde el
+    // panel (aprobar o rechazar un pago) y el aviso de rechazo abre justo esta
+    // pantalla. Hasta el 2026-11-09 se cargaban una vez por sesión y, tras el
+    // rechazo, el detalle seguía diciendo «pago por confirmar». Mientras
+    // llegan se ve el último estado conocido, no un indicador de carga.
     await provider.loadMyRegistrations(token);
   }
 

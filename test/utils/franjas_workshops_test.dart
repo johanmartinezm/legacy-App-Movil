@@ -65,6 +65,47 @@ void main() {
     );
   });
 
+  test('la etiqueta del detalle sigue el corte del evento', () {
+    final gratis = eventoDel('2026-12-10');
+    final dePago = EventModel.fromJson({
+      'id': 'ev-2',
+      'title': 'De pago',
+      'date': '2026-12-10T00:00:00Z',
+      'end_date': '2026-12-11T00:00:00Z',
+      'isFree': false,
+      'price': 120,
+    });
+    DateTime a(String t) => DateTime.parse(t);
+
+    expect(
+      etiquetaDelEvento(gratis, ahora: a('2026-12-09T23:59:00-05:00')),
+      'REGISTRO ABIERTO',
+    );
+    expect(
+      etiquetaDelEvento(dePago, ahora: a('2026-12-09T23:59:00-05:00')),
+      'PREVENTA ABIERTA',
+    );
+    // Desde las 00:00 del primer día la app ya no inscribe.
+    expect(
+      etiquetaDelEvento(dePago, ahora: a('2026-12-10T00:00:00-05:00')),
+      'EN CURSO',
+    );
+    // El último día sigue en curso hasta medianoche.
+    expect(
+      etiquetaDelEvento(dePago, ahora: a('2026-12-11T23:59:00-05:00')),
+      'EN CURSO',
+    );
+    expect(
+      etiquetaDelEvento(dePago, ahora: a('2026-12-12T00:00:00-05:00')),
+      'FINALIZADO',
+    );
+    // Sin fecha de fin, el último día es el primero.
+    expect(
+      etiquetaDelEvento(gratis, ahora: a('2026-12-11T08:00:00-05:00')),
+      'FINALIZADO',
+    );
+  });
+
   test('dice qué franja falta', () {
     final franjas = calcularFranjas([
       ws('a', '2026-12-10T09:00:00', '2026-12-10T10:00:00'),

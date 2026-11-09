@@ -2,6 +2,22 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-09]: El rechazo de un pago se ve en el detalle, y la etiqueta sigue al evento
+- **Alcance:** `event_action_button.dart` (las inscripciones se recargan cada vez que se abre el
+  detalle, no solo la primera de la sesión), `franjas_workshops.dart` (`etiquetaDelEvento`),
+  `event_purchase_detail_screen.dart` (la usa). Tests en `pago_por_link_test.dart` y
+  `franjas_workshops_test.dart`. Hallazgos 1 y 2 del recorrido a mano del 09-11 (§13 del plan de
+  workshops). Rama `feature/talleres-aparte`, **solo en local**.
+  Antes, tras rechazar un pago desde el panel, el aviso abría el detalle y seguía diciendo «pago por
+  confirmar» hasta reiniciar la app; y un evento terminado seguía diciendo «REGISTRO ABIERTO».
+- **Criterios de QA** (con `qa-app` en local):
+  1. Reservar «[PRUEBA] Masterclass de pago por link», volver al listado, rechazar la inscripción en
+     el panel y abrir de nuevo el detalle: «PAGO NO CONFIRMADO» con «Reservar de nuevo», sin cerrar
+     la app.
+  2. «[PRUEBA] Evento terminado»: la etiqueta dice «FINALIZADO».
+  3. Un evento que empezó hoy o sigue en curso: «EN CURSO».
+  4. Un evento futuro: «REGISTRO ABIERTO» si es gratuito, «PREVENTA ABIERTA» si es de pago.
+
 ### [2026-11-06]: «Mi agenda» con el estilo de la app
 - **Alcance:** `agenda_screen.dart` (rehecha: fondo oscuro, cabecera con el botón redondo como «Mi
   credencial», workshops agrupados por evento —próximos primero, pasados al final— con tarjetas como

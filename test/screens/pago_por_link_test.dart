@@ -180,6 +180,48 @@ void main() {
     expect(abiertos, [link]);
   });
 
+  testWidgets(
+    'rechazada desde el panel con la sesión ya cargada: el detalle la ve',
+    (tester) async {
+      // Lo que pasa al tocar el aviso de rechazo: las inscripciones ya se
+      // habían cargado como pendientes y el detalle se abre sin reiniciar la
+      // app. Hasta el 2026-11-09 no se recargaban y seguía «por confirmar».
+      var estado = 'pending_payment';
+      final client = MockClient((request) async {
+        if (request.url.path.contains('/registrations')) {
+          return http.Response(jsonEncode([inscripcion(estado)]), 200);
+        }
+        return http.Response('[]', 200);
+      });
+      final provider = EventsProvider(
+        eventService: EventService(client: client),
+      );
+      await provider.loadMyRegistrations('token-de-prueba');
+      expect(provider.registrationsLoaded, isTrue);
+
+      estado = 'rejected';
+      tester.view.physicalSize = const Size(1200, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<AuthProvider>(create: (_) => _AuthFake()),
+            ChangeNotifierProvider<EventsProvider>.value(value: provider),
+          ],
+          child: MaterialApp(
+            home: Scaffold(body: EventActionButton(event: evento())),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pumpAndSettle();
+
+      expect(find.text('PAGO NO CONFIRMADO'), findsOneWidget);
+      expect(find.text('CUPO RESERVADO · PAGO POR CONFIRMAR'), findsNothing);
+    },
+  );
+
   testWidgets('rechazada con el evento ya empezado: inscripciones cerradas', (
     tester,
   ) async {
