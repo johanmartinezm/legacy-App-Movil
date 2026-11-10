@@ -12,6 +12,7 @@ import 'package:legacy_app/presentation/widgets/common/legacy_logo.dart';
 import '../../../data/services/secciones_inicio_service.dart';
 import 'widgets/fondo_con_imagen.dart';
 import 'package:legacy_app/config/theme/app_theme.dart';
+import 'package:legacy_app/presentation/widgets/foto_de_perfil.dart';
 
 class HomeContentScreen extends StatefulWidget {
   /// Se inyecta en las pruebas; en la app se crea el de verdad.
@@ -246,19 +247,22 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
               const SizedBox(width: 16),
               GestureDetector(
                 onTap: () => context.go('/profile'),
-                child: Container(
-                  width: 29,
-                  height: 29,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color(0xFF8AC6FB),
-                      width: 1.5,
-                    ),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF306C9E), Color(0xFF183D6B)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                child: FotoDePerfil(
+                  tamano: 29,
+                  sinFoto: Container(
+                    width: 29,
+                    height: 29,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color(0xFF8AC6FB),
+                        width: 1.5,
+                      ),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF306C9E), Color(0xFF183D6B)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
                   ),
                 ),

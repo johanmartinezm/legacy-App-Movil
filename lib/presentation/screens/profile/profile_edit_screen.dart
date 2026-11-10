@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../../domain/providers/auth_provider.dart';
+import '../../../domain/utils/perfil_desplegables.dart';
 import '../../../data/services/auth_service.dart';
 import '../../../config/theme/app_theme.dart';
 import '../../../data/config/image_helper.dart';
@@ -40,7 +41,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   // Las dos listas viven aquí y no dentro del `build` porque hay que comprobar
   // contra ellas lo que llega del perfil: un valor guardado que no esté en la
   // lista revienta el desplegable de Material.
+  //
+  // Las tres empiezan por `sinEspecificar`: sin esa opción, una cuenta sin
+  // generación o sector arrancaba en «Segunda» / «Otro» y se guardaba así.
+  // Ver `domain/utils/perfil_desplegables.dart`.
   static const List<String> _opcionesDeGeneracion = [
+    sinEspecificar,
     'Primera (Fundador)',
     'Segunda',
     'Tercera',
@@ -48,6 +54,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     'Quinta o más',
   ];
   static const List<String> _opcionesDeSector = [
+    sinEspecificar,
     'Agroindustria',
     'Comercio',
     'Construcción',
@@ -57,20 +64,22 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     'Tecnología',
     'Otro',
   ];
-
-  String _selectedGeneration = 'Segunda';
-  String _selectedSector = 'Tecnología';
-
-  /// Lo que se muestra cuando la cuenta no tiene sexo registrado. Al guardar
-  /// viaja como cadena vacia, no con este texto.
-  static const String _sexoSinEspecificar = 'Sin especificar';
   static const List<String> _opcionesDeSexo = [
-    _sexoSinEspecificar,
+    sinEspecificar,
     'Femenino',
     'Masculino',
     'Otro',
   ];
-  String _selectedSexo = _sexoSinEspecificar;
+
+  String _selectedGeneration = sinEspecificar;
+  String _selectedSector = sinEspecificar;
+  String _selectedSexo = sinEspecificar;
+
+  /// Lo que trae el perfil, tal cual, y qué desplegables tocó la persona.
+  /// Solo viaja al guardar el que se tocó: los demás se quedan como estaban
+  /// en la base, aunque su valor no quepa en la lista.
+  final Map<String, String> _desplegablesGuardados = {};
+  final Set<String> _desplegablesTocados = {};
   String _photoUrl = '';
 
   bool _isEditing = false;
@@ -108,34 +117,28 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         _aliasController.text = data['alias'] ?? '';
         _companyController.text = data['company_name'] ?? '';
         _jobTitleController.text = data['job_title'] ?? '';
-        // Handle dropdowns or defaults.
-        //
-        // Los dos se comprueban contra su lista antes de asignarlos: un valor
-        // guardado que no esté en ella revienta el desplegable, y por la base
-        // pueden pasar valores escritos desde el panel o traídos por la carga
-        // masiva.
+        // Los desplegables: se guarda lo que trae la base y se muestra lo que
+        // cabe en la lista. Un valor fuera de ella —escrito desde el panel o
+        // traído por la carga masiva— se ve como «Sin especificar» pero NO se
+        // pisa al guardar, porque solo viaja el desplegable que se toque.
+        // El sector va en `industry` (`domain/user.go`), no en `sector`.
         final generacion = (data['generation'] ?? '').toString();
-        _selectedGeneration = _opcionesDeGeneracion.contains(generacion)
-            ? generacion
-            : 'Segunda';
-
-        // **El sector no se cargaba en absoluto**, y eso era la mitad peor del
-        // fallo: el desplegable arrancaba siempre en 'Tecnología', así que
-        // guardar el perfil habría pisado el sector real de la persona en
-        // cuanto la otra mitad —mandarlo con la clave correcta— se arreglara.
-        // El campo del backend es `industry` (`domain/user.go`), no `sector`.
         final sector = (data['industry'] ?? '').toString();
-        _selectedSector = _opcionesDeSector.contains(sector)
-            ? sector
-            : 'Otro';
+        final sexo = (data['sexo'] ?? '').toString();
+        _desplegablesGuardados
+          ..clear()
+          ..addAll({
+            'generation': generacion,
+            'industry': sector,
+            'sexo': sexo,
+          });
+        _desplegablesTocados.clear();
+        _selectedGeneration =
+            valorParaDesplegable(generacion, _opcionesDeGeneracion);
+        _selectedSector = valorParaDesplegable(sector, _opcionesDeSector);
+        _selectedSexo = valorParaDesplegable(sexo, _opcionesDeSexo);
         _departamentoController.text = data['departamento'] ?? '';
         _direccionController.text = data['direccion'] ?? '';
-        // Un valor que no este en la lista reventaria el desplegable, y el
-        // importador puede traer cualquier cosa escrita a mano.
-        final sexo = (data['sexo'] ?? '').toString();
-        _selectedSexo = _opcionesDeSexo.contains(sexo) && sexo.isNotEmpty
-            ? sexo
-            : _sexoSinEspecificar;
         _photoUrl = data['profile_image_url'] ?? '';
         _isLoading = false;
       });
@@ -240,7 +243,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
     try {
       final authService = AuthService();
-      final body = {
+      final body = <String, dynamic>{
         'first_name': _firstNameController.text,
         'last_name': _lastNameController.text,
         'email': _emailController.text,
@@ -250,19 +253,27 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         'alias': _aliasController.text,
         'company_name': _companyController.text,
         'job_title': _jobTitleController.text,
-        'generation': _selectedGeneration,
-        // 'industry', no 'sector': el campo del backend se llama `Industry`
-        // (`domain/user.go`) y `performUpdate` vuelca el JSON tal cual sobre el
-        // struct, así que una clave que no coincide **no falla, se ignora**.
-        // Con 'sector' este desplegable no guardó nada durante meses.
-        //
-        // La regla, para los que vengan: comprueba la clave contra la etiqueta
-        // `json:` del backend. No hay error que avise.
-        'industry': _selectedSector,
-        'sexo': _selectedSexo == _sexoSinEspecificar ? '' : _selectedSexo,
         'departamento': _departamentoController.text,
         'direccion': _direccionController.text,
       };
+
+      // Los desplegables solo viajan si se tocaron (ver
+      // `perfil_desplegables.dart`). Las claves son las etiquetas `json:` del
+      // backend —'industry', no 'sector'—: una que no coincide no da error, se
+      // ignora, y así estuvo el sector meses sin guardarse.
+      final elegidos = {
+        'generation': _selectedGeneration,
+        'industry': _selectedSector,
+        'sexo': _selectedSexo,
+      };
+      elegidos.forEach((clave, elegido) {
+        final valor = valorParaGuardar(
+          guardado: _desplegablesGuardados[clave],
+          elegido: elegido,
+          tocado: _desplegablesTocados.contains(clave),
+        );
+        if (valor != null) body[clave] = valor;
+      });
 
       // La foto elegida se sube antes de guardar el resto. Si falla, no se
       // guarda nada: decir «Perfil actualizado» sin la foto era justo el fallo.
@@ -286,6 +297,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       setState(() {
         _isLoading = false;
         _isEditing = false;
+        // Lo que se acaba de mandar pasa a ser lo guardado: un segundo
+        // guardado sin salir de la pantalla compara contra esto.
+        for (final clave in elegidos.keys) {
+          if (body.containsKey(clave)) {
+            _desplegablesGuardados[clave] = body[clave] as String;
+          }
+        }
+        _desplegablesTocados.clear();
         if (fotoNueva != null) {
           _photoUrl = fotoNueva;
           _imageFile = null;
@@ -1089,9 +1108,18 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 }).toList(),
                 onChanged: (newValue) {
                   setState(() {
-                    if (label == 'Generación') _selectedGeneration = newValue!;
-                    if (label == 'Sector') _selectedSector = newValue!;
-                    if (label == 'Sexo') _selectedSexo = newValue!;
+                    if (label == 'Generación') {
+                      _selectedGeneration = newValue!;
+                      _desplegablesTocados.add('generation');
+                    }
+                    if (label == 'Sector') {
+                      _selectedSector = newValue!;
+                      _desplegablesTocados.add('industry');
+                    }
+                    if (label == 'Sexo') {
+                      _selectedSexo = newValue!;
+                      _desplegablesTocados.add('sexo');
+                    }
                   });
                 },
               )

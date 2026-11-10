@@ -2,6 +2,25 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-10]: Guardar el perfil ya no pisa generación, sector ni sexo; la foto se ve en toda la app
+- **Alcance:** `domain/utils/perfil_desplegables.dart` (nuevo), `profile_edit_screen.dart`,
+  `auth_provider.dart` (`fotoPerfil`), `widgets/foto_de_perfil.dart` (nuevo), `profile_screen.dart`,
+  `home_content_screen.dart`, `custom_section_header.dart`. Tests en
+  `test/utils/perfil_desplegables_test.dart` y `test/widgets/foto_de_perfil_test.dart`.
+  Antes, guardar el perfil escribía «Segunda» y «Otro» a quien no tenía generación ni sector, y borraba
+  un sexo que no estuviera en la lista (p. ej. el que trae la carga masiva). Ahora los tres desplegables
+  tienen «Sin especificar» y **solo se manda el que se toca**. La foto, que solo se veía dentro de
+  editar perfil, sale ahora en «Mi perfil», en el círculo de Inicio y en la cabecera de las secciones.
+- **Criterios de QA:**
+  1. Con una cuenta sin generación ni sector: editar perfil → cambiar solo el nombre → guardar. En el
+     panel, la cuenta sigue sin generación ni sector.
+  2. Elegir «Tercera» en Generación y guardar: queda «Tercera». Volver a «Sin especificar» y guardar:
+     queda vacía.
+  3. Con una foto puesta: «Mi perfil» la muestra en el círculo grande, Inicio en el pequeño de arriba
+     a la derecha, y la cabecera de Knowledge o Eventos en el suyo.
+  4. Cambiar la foto y guardar: los tres círculos muestran la nueva sin reiniciar la app.
+  5. Una cuenta sin foto sigue viendo los círculos de siempre.
+
 ### [2026-11-10]: Editar perfil guarda la foto y dice por qué falla
 - **Alcance:** `auth_service.dart` (`uploadProfileImage` nuevo; `updateProfile` lanza
   `PerfilRechazado` con el motivo del backend), `image_helper.dart` (`resolverUrl` para las rutas

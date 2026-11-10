@@ -6,6 +6,7 @@ import '../../domain/providers/auth_provider.dart';
 import '../../config/theme/app_theme.dart';
 import 'boton_volver.dart';
 import 'package:legacy_app/presentation/widgets/common/legacy_logo.dart';
+import 'package:legacy_app/presentation/widgets/foto_de_perfil.dart';
 
 class CustomSectionHeader extends StatelessWidget {
   /// El nombre de la pantalla, bajo el logotipo. Va en mayúsculas, como el
@@ -275,18 +276,23 @@ class CustomSectionHeader extends StatelessWidget {
               // Circular profile avatar
               GestureDetector(
                 onTap: () => context.push('/profile'),
-                child: Container(
-                  width: 34,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                    border: Border.all(color: Colors.white, width: 2),
-                    boxShadow: const [
-                      BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
-                    ],
+                child: FotoDePerfil(
+                  tamano: 34,
+                  colorDelBorde: Colors.white,
+                  anchoDelBorde: 2,
+                  sinFoto: Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      border: Border.all(color: Colors.white, width: 2),
+                      boxShadow: const [
+                        BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
+                      ],
+                    ),
+                    child: const Icon(Icons.person, color: Color(0xFF183D6B), size: 20),
                   ),
-                  child: const Icon(Icons.person, color: Color(0xFF183D6B), size: 20),
                 ),
               ),
             ],

@@ -7,6 +7,7 @@ import '../../widgets/perfil/eliminar_cuenta_dialog.dart';
 import '../../../domain/providers/auth_provider.dart';
 import '../../widgets/boton_volver.dart';
 import 'package:legacy_app/presentation/widgets/common/legacy_logo.dart';
+import 'package:legacy_app/presentation/widgets/foto_de_perfil.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -40,17 +41,20 @@ class ProfileScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Avatar
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF8AC6FB), width: 1.5),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF306C9E), Color(0xFF183D6B)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+              // Avatar: la foto si la hay; si no, el círculo de siempre.
+              FotoDePerfil(
+                tamano: 100,
+                sinFoto: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFF8AC6FB), width: 1.5),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF306C9E), Color(0xFF183D6B)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                   ),
                 ),
               ),

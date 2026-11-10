@@ -79,6 +79,9 @@ class AuthProvider extends ChangeNotifier {
   String? _phone;
   String? _role;
   String? _alias;
+  // Ruta de la foto (`/api/images/...`). No se persiste: llega con cada
+  // fetchProfile, que el arranque ya lanza.
+  String? _fotoPerfil;
 
   /// Cuentas creadas por la carga masiva: su contraseña es el número de
   /// documento, así que la app las lleva a cambiarla antes de dejarlas entrar.
@@ -122,6 +125,7 @@ class AuthProvider extends ChangeNotifier {
     return partes.isEmpty ? null : partes.join(' ');
   }
   String? get alias => _alias;
+  String? get fotoPerfil => _fotoPerfil;
 
   /// Comprueba si un JWT ya caducó, leyendo su claim `exp` sin llamar al
   /// servidor.
@@ -219,6 +223,7 @@ class AuthProvider extends ChangeNotifier {
         await _storage.write(key: 'user_phone', value: _phone);
       }
       _alias = profile['alias'];
+      _fotoPerfil = profile['profile_image_url'];
       if (_alias != null) {
         await _storage.write(key: 'user_alias', value: _alias);
       }
@@ -430,6 +435,7 @@ class AuthProvider extends ChangeNotifier {
       // justo despues del login. Comprobado el 2026-09-04 contra produccion:
       // la cuenta traia alias en /api/me y la app mostraba el dialogo igual.
       _alias = profile['alias'];
+      _fotoPerfil = profile['profile_image_url'];
       _debeCambiarContrasena = profile['debe_cambiar_contrasena'] == true;
       _esPlus = profile['es_plus'] == true;
 
@@ -528,6 +534,7 @@ class AuthProvider extends ChangeNotifier {
     _lastName = null;
     _email = null;
     _phone = null;
+    _fotoPerfil = null;
     await _storage.delete(key: 'auth_token');
     await _storage.delete(key: 'user_email');
     await _storage.delete(key: 'customer_status');
