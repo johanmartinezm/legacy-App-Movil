@@ -3,6 +3,16 @@ import 'dart:io' show SocketException;
 import 'package:http/http.dart' as http;
 import '../config/api_constants.dart';
 
+/// El backend rechazó el cambio de perfil y dijo por qué. `mensaje` está
+/// pensado para enseñarlo tal cual.
+class PerfilRechazado implements Exception {
+  final String mensaje;
+  PerfilRechazado(this.mensaje);
+
+  @override
+  String toString() => mensaje;
+}
+
 class AuthService {
   final http.Client _client;
 
@@ -198,8 +208,13 @@ class AuthService {
   ) async {
     final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.meEndpoint}');
 
+    // El envío y la lectura van separados, como en `changePassword`: con los
+    // dos en el mismo try, el motivo que da el backend —p. ej. «El alias solo
+    // puede contener letras y números…»— acababa envuelto en «Error de
+    // conexión» y la pantalla solo decía «Error al actualizar perfil».
+    final http.Response response;
     try {
-      final response = await _client.put(
+      response = await _client.put(
         url,
         headers: {
           'Content-Type': 'application/json',
@@ -207,20 +222,65 @@ class AuthService {
         },
         body: jsonEncode(userData),
       );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else if (response.statusCode == 409) {
-        throw Exception('alias_in_use');
-      } else {
-        throw Exception('Error al actualizar perfil: ${response.statusCode}');
-      }
     } catch (e) {
-      if (e.toString().contains('alias_in_use')) {
-        rethrow;
-      }
       throw Exception('Error de conexión: $e');
     }
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    if (response.statusCode == 409) {
+      throw Exception('alias_in_use');
+    }
+    throw PerfilRechazado(
+      _mensajeDelServidor(response.body) ??
+          'Error al actualizar perfil (${response.statusCode})',
+    );
+  }
+
+  /// Sube la foto de perfil y devuelve la ruta que se guarda en
+  /// `profile_image_url` (`/api/images/<nombre>`, el mismo formato que deja el
+  /// panel).
+  ///
+  /// Hasta el 2026-11-10 la pantalla de editar perfil dejaba elegir la foto y
+  /// la enseñaba, pero **nunca la subía**: decía «Perfil actualizado» y la foto
+  /// se perdía al salir.
+  Future<String> uploadProfileImage(String token, String filePath) async {
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse('${ApiConstants.baseUrl}${ApiConstants.imageUploadEndpoint}'),
+    );
+    request.headers['Authorization'] = 'Bearer $token';
+    request.files.add(await http.MultipartFile.fromPath('file', filePath));
+
+    final http.Response response;
+    try {
+      response = await http.Response.fromStream(await _client.send(request));
+    } catch (e) {
+      throw Exception('Error de conexión: $e');
+    }
+
+    if (response.statusCode == 200) {
+      final nombre = (jsonDecode(response.body) as Map)['name'];
+      if (nombre is String && nombre.isNotEmpty) {
+        return '/api/images/$nombre';
+      }
+    }
+    throw PerfilRechazado(
+      _mensajeDelServidor(response.body) ?? 'No se pudo subir la foto',
+    );
+  }
+
+  /// El backend responde los errores como `{"message": "..."}`.
+  static String? _mensajeDelServidor(String body) {
+    try {
+      final datos = jsonDecode(body);
+      if (datos is Map && datos['message'] is String) {
+        final mensaje = (datos['message'] as String).trim();
+        return mensaje.isEmpty ? null : mensaje;
+      }
+    } catch (_) {}
+    return null;
   }
 
   Future<void> changePassword(

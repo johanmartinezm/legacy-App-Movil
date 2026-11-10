@@ -264,13 +264,32 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         'direccion': _direccionController.text,
       };
 
+      // La foto elegida se sube antes de guardar el resto. Si falla, no se
+      // guarda nada: decir «Perfil actualizado» sin la foto era justo el fallo.
+      String? fotoNueva;
+      if (_imageFile != null) {
+        fotoNueva = await authService.uploadProfileImage(
+          authProvider.token!,
+          _imageFile!.path,
+        );
+        body['profile_image_url'] = fotoNueva;
+      }
+
       await authService.updateProfile(authProvider.token!, body);
+
+      // El resto de la app (cabeceras, foros, chat) lee nombre y alias del
+      // AuthProvider: sin esto seguían los de antes hasta reiniciar.
+      await authProvider.fetchProfile();
 
       if (!mounted) return;
 
       setState(() {
         _isLoading = false;
         _isEditing = false;
+        if (fotoNueva != null) {
+          _photoUrl = fotoNueva;
+          _imageFile = null;
+        }
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -288,6 +307,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       String message = 'Error al actualizar perfil';
       if (e.toString().contains('alias_in_use')) {
         message = 'El alias ya está en uso. Por favor elige otro.';
+      } else if (e is PerfilRechazado) {
+        // El motivo del backend —alias con tilde o espacios, fecha inválida…—
+        // en vez del genérico, que no dejaba saber qué corregir.
+        message = e.mensaje;
       }
       
       ScaffoldMessenger.of(context).showSnackBar(
@@ -363,7 +386,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                     ? FileImage(_imageFile!) as ImageProvider
                                     : (_photoUrl.isNotEmpty
                                           ? NetworkImage(
-                                              ImageHelper.getProxiedImageUrl(
+                                              ImageHelper.resolverUrl(
                                                   _photoUrl))
                                           : null),
                                 child: (_imageFile == null && _photoUrl.isEmpty)

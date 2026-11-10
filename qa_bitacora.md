@@ -2,6 +2,23 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-10]: Editar perfil guarda la foto y dice por qué falla
+- **Alcance:** `auth_service.dart` (`uploadProfileImage` nuevo; `updateProfile` lanza
+  `PerfilRechazado` con el motivo del backend), `image_helper.dart` (`resolverUrl` para las rutas
+  `/api/images/...`), `profile_edit_screen.dart`. Test en `test/services/perfil_service_test.dart`.
+  Sin cambios en el backend. Tres fallos del mismo flujo: la foto elegida **nunca se subía** (decía
+  «Perfil actualizado» y se perdía); un rechazo del backend —p. ej. alias con tilde o espacios— salía
+  como «Error al actualizar perfil», sin motivo; y nombre y alias no se refrescaban en el resto de la
+  app hasta reiniciar. De paso, la foto guardada no se pintaba en el teléfono: es una ruta relativa.
+- **Criterios de QA:**
+  1. Perfil → editar → cambiar la foto desde la galería → guardar: sale «Perfil actualizado». Al
+     salir y volver a entrar, la foto nueva sigue ahí.
+  2. Una cuenta con foto puesta desde el panel la ve en editar perfil.
+  3. Poner el alias «Samán» y guardar: el aviso rojo dice «El alias solo puede contener letras y
+     números…», no «Error al actualizar perfil».
+  4. Cambiar el nombre y guardar: la cabecera de inicio muestra el nombre nuevo sin reiniciar la app.
+  5. Cambiar solo el cargo y guardar: al volver a entrar, el cargo nuevo sigue guardado.
+
 ### [2026-11-09]: Los precios de los eventos, en pesos colombianos
 - **Alcance:** `currency_formatter.dart` («COP $180.000» en lugar de «USD $120») y su test. Lo usan la
   tarjeta del listado, el detalle y la pantalla de pago. **LSO no cambia**: programas y libros siguen en
