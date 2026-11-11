@@ -15,11 +15,22 @@ class AppBanner extends StatefulWidget {
   final double height;
   final double borderRadius;
 
+  /// En Comunidad el banner es la cabecera de la pantalla, de borde a borde, y
+  /// solo redondea las esquinas de abajo. Dentro de un margen —en Inicio— va
+  /// como tarjeta, con las cuatro redondeadas.
+  final bool tarjeta;
+
+  /// Espacio alrededor, solo si hay algo que mostrar: sin banners activos el
+  /// widget no ocupa nada, tampoco el hueco de separación.
+  final EdgeInsets margen;
+
   const AppBanner({
     super.key,
     this.category = 'home',
     this.height = 220,
     this.borderRadius = 30,
+    this.tarjeta = false,
+    this.margen = EdgeInsets.zero,
   });
 
   @override
@@ -27,6 +38,13 @@ class AppBanner extends StatefulWidget {
 }
 
 class _AppBannerState extends State<AppBanner> {
+  BorderRadius get _esquinas => widget.tarjeta
+      ? BorderRadius.circular(widget.borderRadius)
+      : BorderRadius.only(
+          bottomLeft: Radius.circular(widget.borderRadius),
+          bottomRight: Radius.circular(widget.borderRadius),
+        );
+
   final PageController _pageController = PageController();
   int _currentPage = 0;
   Timer? _timer;
@@ -36,6 +54,7 @@ class _AppBannerState extends State<AppBanner> {
   void initState() {
     super.initState();
     Future.microtask(() {
+      if (!mounted) return;
       context.read<BannerProvider>().loadBanners(widget.category);
     });
     _startAutoSlide();
@@ -110,7 +129,10 @@ class _AppBannerState extends State<AppBanner> {
             : provider.communityBanners;
 
         if (provider.isLoading && banners.isEmpty) {
-          return _buildLoadingPlaceholder();
+          return Padding(
+            padding: widget.margen,
+            child: _buildLoadingPlaceholder(),
+          );
         }
 
         if (banners.isEmpty) {
@@ -120,7 +142,7 @@ class _AppBannerState extends State<AppBanner> {
         // Precargar imágenes para transiciones instantáneas
         _precacheBannerImages(banners);
 
-        return SizedBox(
+        final carrusel = SizedBox(
           height: widget.height,
           child: Stack(
             children: [
@@ -144,10 +166,7 @@ class _AppBannerState extends State<AppBanner> {
                       child: Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(widget.borderRadius),
-                            bottomRight: Radius.circular(widget.borderRadius),
-                          ),
+                          borderRadius: _esquinas,
                         ),
                         clipBehavior: Clip.antiAlias,
                         child: Stack(
@@ -250,6 +269,7 @@ class _AppBannerState extends State<AppBanner> {
             ],
           ),
         );
+        return Padding(padding: widget.margen, child: carrusel);
       },
     );
   }
@@ -257,10 +277,7 @@ class _AppBannerState extends State<AppBanner> {
   Widget _buildLoadingPlaceholder() {
     return SkeletonLoader(
       height: widget.height,
-      borderRadius: BorderRadius.only(
-        bottomLeft: Radius.circular(widget.borderRadius),
-        bottomRight: Radius.circular(widget.borderRadius),
-      ),
+      borderRadius: _esquinas,
     );
   }
 }

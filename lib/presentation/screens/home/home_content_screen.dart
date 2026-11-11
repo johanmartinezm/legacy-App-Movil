@@ -13,6 +13,7 @@ import '../../../data/services/secciones_inicio_service.dart';
 import 'widgets/fondo_con_imagen.dart';
 import 'package:legacy_app/config/theme/app_theme.dart';
 import 'package:legacy_app/presentation/widgets/foto_de_perfil.dart';
+import 'package:legacy_app/presentation/widgets/app_banner.dart';
 
 class HomeContentScreen extends StatefulWidget {
   /// Se inyecta en las pruebas; en la app se crea el de verdad.
@@ -144,6 +145,16 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                         children: [
                           _buildGreetingSection(name, greetSub),
                           const SizedBox(height: 20),
+                          // Los banners con ubicación «Inicio» del panel. Hasta
+                          // el 2026-11-11 no se pintaban en ninguna pantalla:
+                          // solo Comunidad tenía el suyo.
+                          const AppBanner(
+                            category: 'home',
+                            height: 180,
+                            borderRadius: 16,
+                            tarjeta: true,
+                            margen: EdgeInsets.only(bottom: 20),
+                          ),
                           _buildWeeklyHighlightCard(context, role),
                           const SizedBox(height: 28),
                           _buildExploreHeader(context),

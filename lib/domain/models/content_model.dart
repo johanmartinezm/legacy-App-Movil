@@ -28,6 +28,11 @@ class ContentItem {
   final String? externalUrl;
   final bool isLikedByMe;
 
+  /// Los videos llegan como `'video'` (los propios y los de YouTube), pero
+  /// favoritos comparaba con `'Video'` y no le ponía el play a ninguno. Se
+  /// compara sin mayúsculas por si un favorito guardado trae otra forma.
+  bool get esVideo => type.trim().toLowerCase() == 'video';
+
   ContentItem({
     required this.id,
     required this.title,

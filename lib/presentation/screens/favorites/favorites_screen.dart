@@ -94,7 +94,7 @@ class FavoritesScreen extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
               ),
-              child: item.type == 'Video'
+              child: item.esVideo
                   ? const Center(
                       child: Icon(
                         Icons.play_circle_fill,

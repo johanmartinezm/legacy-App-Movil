@@ -2,6 +2,26 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-11]: El play de los videos en Favoritos y los banners de Inicio
+- **Alcance:** `content_model.dart` (`esVideo`, sin distinguir mayúsculas) y `favorites_screen.dart`:
+  comparaba con `'Video'` y los videos llegan como `'video'`, así que ningún favorito llevaba el play.
+  `app_banner.dart` (opciones `tarjeta` y `margen`; comprobación `mounted` antes de cargar) y
+  `home_content_screen.dart`: los banners con ubicación «Inicio» del panel no salían en ninguna
+  pantalla; ahora van entre el saludo y el destacado semanal, como tarjeta. Tests en
+  `test/models/content_item_es_video_test.dart` y `test/screens/imagenes_inicio_test.dart`.
+  Al publicarse, se verán los cinco banners «Inicio» activos en producción el 11-11, entre ellos
+  «Prueba Oscar Garcia» y el del Legacy Local de Bucaramanga del 11-11: revisarlos en el panel antes.
+- **Criterios de QA:**
+  1. Marcar como favorito un video propio y uno de YouTube: en Favoritos los dos llevan el play
+     encima de la miniatura. Un artículo, no.
+  2. Inicio: debajo del saludo aparece el carrusel de banners «Inicio», con las cuatro esquinas
+     redondeadas, y pasa solo cada 5 segundos.
+  3. Tocar un banner con ruta (p. ej. «PROGRAMAS DE FORMACIÓN») abre esa pantalla; uno con link abre
+     el navegador.
+  4. Desactivar en el panel todos los banners «Inicio»: el saludo y el destacado quedan juntos, sin
+     hueco entre ellos.
+  5. Comunidad sigue con su banner de cabecera como antes.
+
 ### [2026-11-11]: Interruptor «Mostrar mi perfil en el directorio» en editar perfil
 - **Alcance:** `profile_edit_screen.dart`: sección nueva «Privacidad» con el interruptor, que lee
   `is_public_profile` de `/api/me` y solo lo envía si se toca, como los desplegables. Necesita el

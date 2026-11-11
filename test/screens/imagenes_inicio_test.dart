@@ -9,6 +9,7 @@ import 'package:legacy_app/data/config/config_service.dart';
 import 'package:legacy_app/data/services/chat_service.dart';
 import 'package:legacy_app/data/services/secciones_inicio_service.dart';
 import 'package:legacy_app/domain/providers/auth_provider.dart';
+import 'package:legacy_app/domain/providers/banner_provider.dart';
 import 'package:legacy_app/domain/providers/chat_provider.dart';
 import 'package:legacy_app/domain/providers/notification_provider.dart';
 import 'package:legacy_app/presentation/screens/home/home_content_screen.dart';
@@ -115,6 +116,11 @@ void main() {
           ),
           ChangeNotifierProvider<ChatProvider>(
             create: (_) => ChatProvider(ChatService('')),
+          ),
+          // El Inicio pinta los banners «home» desde el 2026-11-11. Sin red
+          // en la prueba, el proveedor se queda sin banners y no ocupan nada.
+          ChangeNotifierProvider<BannerProvider>(
+            create: (_) => BannerProvider(),
           ),
         ],
         child: MaterialApp(home: HomeContentScreen(seccionesService: s)),
