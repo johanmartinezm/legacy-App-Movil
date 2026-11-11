@@ -2,6 +2,19 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-11]: Interruptor «Mostrar mi perfil en el directorio» en editar perfil
+- **Alcance:** `profile_edit_screen.dart`: sección nueva «Privacidad» con el interruptor, que lee
+  `is_public_profile` de `/api/me` y solo lo envía si se toca, como los desplegables. Necesita el
+  backend del mismo día para tener efecto en el directorio. F10.12 y F14.1 del plan de pruebas.
+- **Criterios de QA:**
+  1. Perfil → editar: aparece «Privacidad» con el interruptor encendido y «Los demás miembros pueden
+     encontrarte».
+  2. Fuera del modo edición, el interruptor no se puede mover.
+  3. Apagarlo y guardar: el texto dice «No apareces en el directorio de miembros». Al salir y volver,
+     sigue apagado.
+  4. Con otra cuenta, Comunidad → miembros: la primera ya no aparece. Encenderlo de nuevo y vuelve.
+  5. Cambiar solo el cargo y guardar con el interruptor apagado: sigue apagado.
+
 ### [2026-11-10]: Guardar el perfil ya no pisa generación, sector ni sexo; la foto se ve en toda la app
 - **Alcance:** `domain/utils/perfil_desplegables.dart` (nuevo), `profile_edit_screen.dart`,
   `auth_provider.dart` (`fotoPerfil`), `widgets/foto_de_perfil.dart` (nuevo), `profile_screen.dart`,

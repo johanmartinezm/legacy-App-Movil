@@ -82,6 +82,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final Set<String> _desplegablesTocados = {};
   String _photoUrl = '';
 
+  /// Si la persona sale en el directorio de miembros (`is_public_profile`).
+  /// Como los desplegables, solo viaja al guardar si se tocó: así un guardado
+  /// cualquiera no pisa lo que haya en la base.
+  bool _perfilPublico = true;
+  bool _perfilPublicoTocado = false;
+
   bool _isEditing = false;
   bool _isLoading = true;
 
@@ -140,6 +146,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         _departamentoController.text = data['departamento'] ?? '';
         _direccionController.text = data['direccion'] ?? '';
         _photoUrl = data['profile_image_url'] ?? '';
+        // Solo `true` cuenta como público: el directorio del backend filtra
+        // con `IS TRUE`, así que un nulo tampoco sale y aquí se ve apagado.
+        _perfilPublico = data['is_public_profile'] == true;
+        _perfilPublicoTocado = false;
         _isLoading = false;
       });
     } catch (e) {
@@ -274,6 +284,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         );
         if (valor != null) body[clave] = valor;
       });
+      if (_perfilPublicoTocado) body['is_public_profile'] = _perfilPublico;
 
       // La foto elegida se sube antes de guardar el resto. Si falla, no se
       // guarda nada: decir «Perfil actualizado» sin la foto era justo el fallo.
@@ -305,6 +316,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           }
         }
         _desplegablesTocados.clear();
+        _perfilPublicoTocado = false;
         if (fotoNueva != null) {
           _photoUrl = fotoNueva;
           _imageFile = null;
@@ -573,6 +585,42 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                 Icons.category_outlined,
                               ),
                             ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 32),
+
+                        _buildSectionTitle('Privacidad'),
+                        const SizedBox(height: 8),
+                        SwitchListTile(
+                          key: const Key('interruptor_perfil_publico'),
+                          contentPadding: EdgeInsets.zero,
+                          activeThumbColor: AppTheme.legacyBlue2,
+                          value: _perfilPublico,
+                          // Como el resto del formulario, se cambia en modo
+                          // edición y se aplica al pulsar guardar.
+                          onChanged: _isEditing
+                              ? (valor) => setState(() {
+                                    _perfilPublico = valor;
+                                    _perfilPublicoTocado = true;
+                                  })
+                              : null,
+                          title: Text(
+                            'Mostrar mi perfil en el directorio',
+                            style: GoogleFonts.questrial(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          subtitle: Text(
+                            _perfilPublico
+                                ? 'Los demás miembros pueden encontrarte'
+                                : 'No apareces en el directorio de miembros',
+                            style: GoogleFonts.questrial(
+                              fontSize: 14,
+                              color: Colors.black54,
+                            ),
                           ),
                         ),
 
