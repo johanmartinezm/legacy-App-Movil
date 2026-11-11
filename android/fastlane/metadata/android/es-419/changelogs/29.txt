@@ -1,0 +1,6 @@
+• Perfil: la foto que elija ya se guarda y se ve en toda la app.
+• Si un cambio del perfil no se puede guardar, la app le dice por qué.
+• Nuevo en Privacidad: decida si su perfil aparece en el directorio de miembros.
+• Inicio: novedades y anuncios en un carrusel debajo del saludo.
+• Favoritos: los videos se distinguen con el icono de reproducir.
+• Mejoras y correcciones.
