@@ -32,6 +32,15 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
   /// siempre, con su icono y sus textos de la app.
   Map<String, SeccionInicio> _secciones = const {};
 
+  /// El carrusel espera a que respondan las secciones, o fallen: si se pintara
+  /// antes, con el carrusel apagado en el panel se vería un instante —los
+  /// banners salen de la caché— y luego desaparecería.
+  bool _seccionesRespondidas = false;
+
+  bool get _mostrarCarrusel =>
+      _seccionesRespondidas &&
+      (_secciones[slugCarruselInicio]?.visible ?? true);
+
   @override
   void initState() {
     super.initState();
@@ -48,7 +57,11 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
   Future<void> _cargarImagenes() async {
     final secciones =
         await (widget.seccionesService ?? SeccionesInicioService()).secciones();
-    if (mounted && secciones.isNotEmpty) setState(() => _secciones = secciones);
+    if (!mounted) return;
+    setState(() {
+      if (secciones.isNotEmpty) _secciones = secciones;
+      _seccionesRespondidas = true;
+    });
   }
 
   /// Envuelve el contenido de una tarjeta. Con imagen, la foto de fondo con su
@@ -147,14 +160,16 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
                           const SizedBox(height: 20),
                           // Los banners con ubicación «Inicio» del panel. Hasta
                           // el 2026-11-11 no se pintaban en ninguna pantalla:
-                          // solo Comunidad tenía el suyo.
-                          const AppBanner(
-                            category: 'home',
-                            height: 180,
-                            borderRadius: 16,
-                            tarjeta: true,
-                            margen: EdgeInsets.only(bottom: 20),
-                          ),
+                          // solo Comunidad tenía el suyo. El panel puede apagar
+                          // el carrusel entero (página de Banners).
+                          if (_mostrarCarrusel)
+                            const AppBanner(
+                              category: 'home',
+                              height: 180,
+                              borderRadius: 16,
+                              tarjeta: true,
+                              margen: EdgeInsets.only(bottom: 20),
+                            ),
                           _buildWeeklyHighlightCard(context, role),
                           const SizedBox(height: 28),
                           _buildExploreHeader(context),
@@ -719,7 +734,8 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           habilitada: esPlus,
           slug: 'chats-sinergia',
           titulo: 'Chats de sinergia',
-          texto: 'Chats de sinergia entre pares: hay 4 chats para hablar de temas de Empresa, Patrimonio, Familia y otros entre miembros de otras familias empresarias.',
+          texto:
+              'Chats de sinergia entre pares: hay 4 chats para hablar de temas de Empresa, Patrimonio, Familia y otros entre miembros de otras familias empresarias.',
           icono: Icons.forum_outlined,
           ruta: '/forums',
         ),
@@ -730,7 +746,8 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           habilitada: esPlus,
           slug: 'miembros',
           titulo: 'Legacy Board',
-          texto: 'Red de gobierno corporativo que conecta a familias empresarias y empresas que necesitan crear o fortalecer sus órganos de gobierno (juntas directivas, consejos de familia, directorios, advisory boards y comités) con profesionales que quieren servir en ellos.',
+          texto:
+              'Red de gobierno corporativo que conecta a familias empresarias y empresas que necesitan crear o fortalecer sus órganos de gobierno (juntas directivas, consejos de familia, directorios, advisory boards y comités) con profesionales que quieren servir en ellos.',
           icono: Icons.dashboard_outlined,
           ruta: '/legacy-board',
           margin: const EdgeInsets.only(top: 8),
@@ -741,7 +758,8 @@ class _HomeContentScreenState extends State<HomeContentScreen> {
           habilitada: esPlus,
           slug: 'beneficios',
           titulo: 'Beneficios',
-          texto: 'Son descuentos y servicios especiales de aliados o de Legacy Network.',
+          texto:
+              'Son descuentos y servicios especiales de aliados o de Legacy Network.',
           icono: Icons.card_giftcard_outlined,
           ruta: '/beneficios',
           margin: const EdgeInsets.only(top: 8),

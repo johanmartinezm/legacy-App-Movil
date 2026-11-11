@@ -13,6 +13,7 @@ import 'package:legacy_app/domain/providers/banner_provider.dart';
 import 'package:legacy_app/domain/providers/chat_provider.dart';
 import 'package:legacy_app/domain/providers/notification_provider.dart';
 import 'package:legacy_app/presentation/screens/home/home_content_screen.dart';
+import 'package:legacy_app/presentation/widgets/app_banner.dart';
 import 'package:provider/provider.dart';
 
 /// Las tarjetas del Inicio toman su imagen, su título y su texto de
@@ -84,6 +85,27 @@ void main() {
       expect(r['eventos']!.imagenUrl, 'https://x/e.jpg');
       expect(r['eventos']!.titulo, isNull);
       expect(r['eventos']!.texto, isNull);
+    });
+
+    test('el carrusel apagado en el panel llega aunque no tenga nada más', () async {
+      final r = await servicio(
+        () => http.Response(
+          jsonEncode([
+            {'slug': 'carrusel-inicio', 'imagen_url': '', 'titulo': '', 'texto': '', 'visible': false},
+            {'slug': 'eventos', 'imagen_url': '', 'titulo': '', 'texto': '', 'visible': true},
+          ]),
+          200,
+        ),
+      ).secciones();
+
+      expect(r[slugCarruselInicio]?.visible, isFalse);
+      // Visible y sin nada cambiado: como siempre, no se devuelve.
+      expect(r.containsKey('eventos'), isFalse);
+    });
+
+    test('un backend que no manda visible deja todo visible', () async {
+      final r = await servicio(() => secciones({'eventos': 'https://x.test/e.jpg'})).secciones();
+      expect(r['eventos']?.visible, isTrue);
     });
 
     test('un error del backend no rompe nada: mapa vacío', () async {
@@ -215,6 +237,28 @@ void main() {
     expect(find.text('Beneficios'), findsOneWidget);
     // Ningún candado: las tres abiertas.
     expect(find.byIcon(Icons.lock_outline), findsNothing);
+  });
+
+  testWidgets('El carrusel apagado en el panel no se monta en el Inicio', (tester) async {
+    await montar(
+      tester,
+      servicio(
+        () => http.Response(
+          jsonEncode([
+            {'slug': 'carrusel-inicio', 'imagen_url': '', 'titulo': '', 'texto': '', 'visible': false},
+          ]),
+          200,
+        ),
+      ),
+    );
+
+    expect(find.byType(AppBanner), findsNothing);
+  });
+
+  testWidgets('Sin la fila del carrusel, el Inicio lo monta', (tester) async {
+    await montar(tester, servicio(() => secciones(const {})));
+
+    expect(find.byType(AppBanner), findsOneWidget);
   });
 
   testWidgets('Sin backend, el Inicio se ve como siempre', (tester) async {

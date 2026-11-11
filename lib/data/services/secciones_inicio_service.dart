@@ -12,8 +12,22 @@ class SeccionInicio {
   final String? titulo;
   final String? texto;
 
-  const SeccionInicio({this.imagenUrl, this.titulo, this.texto});
+  /// Si la app muestra la sección. Hoy solo cuenta para `carrusel-inicio`, el
+  /// carrusel de banners del Inicio, que se apaga desde la página de Banners
+  /// del panel. Un backend anterior no lo manda: cuenta como visible.
+  final bool visible;
+
+  const SeccionInicio({
+    this.imagenUrl,
+    this.titulo,
+    this.texto,
+    this.visible = true,
+  });
 }
+
+/// La fila del carrusel de banners del Inicio
+/// (`Backend/scripts/20261111_carrusel_inicio_visible.sql`).
+const slugCarruselInicio = 'carrusel-inicio';
 
 /// Imagen, título y texto de las tarjetas del Inicio, que se cambian desde el
 /// panel.
@@ -28,12 +42,14 @@ class SeccionesInicioService {
 
   /// El cliente se inyecta para poder sustituirlo en las pruebas.
   SeccionesInicioService({http.Client? client})
-      : _client = client ?? http.Client();
+    : _client = client ?? http.Client();
 
   Future<Map<String, SeccionInicio>> secciones() async {
     try {
       final url = Uri.parse('$_baseUrl${ApiConstants.seccionesInicioEndpoint}');
-      final response = await _client.get(url).timeout(const Duration(seconds: 10));
+      final response = await _client
+          .get(url)
+          .timeout(const Duration(seconds: 10));
       if (response.statusCode != 200) return const {};
 
       final data = json.decode(utf8.decode(response.bodyBytes));
@@ -49,10 +65,12 @@ class SeccionesInicioService {
           imagenUrl: _noVacio(s['imagen_url']),
           titulo: _noVacio(s['titulo']),
           texto: _noVacio(s['texto']),
+          visible: s['visible'] != false,
         );
         if (seccion.imagenUrl != null ||
             seccion.titulo != null ||
-            seccion.texto != null) {
+            seccion.texto != null ||
+            !seccion.visible) {
           secciones[slug] = seccion;
         }
       }

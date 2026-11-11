@@ -2,6 +2,16 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-11]: El Inicio respeta el interruptor del carrusel del panel
+- **Alcance:** `secciones_inicio_service.dart` (`visible`, `slugCarruselInicio`) y
+  `home_content_screen.dart`: el carrusel solo se monta cuando han respondido las secciones y la fila
+  `carrusel-inicio` no está apagada; esperar evita que se vea un instante y desaparezca. Tests en
+  `test/screens/imagenes_inicio_test.dart`. Con un backend anterior, el carrusel se muestra.
+- **Criterios de QA:**
+  1. Con el carrusel encendido en el panel, el Inicio lo muestra bajo el saludo.
+  2. Apagarlo en el panel, cerrar la app del todo y abrirla: el Inicio no lo muestra, sin parpadeo.
+  3. Encenderlo de nuevo y volver a abrir la app: el carrusel vuelve.
+
 ### [2026-11-11]: El play de los videos en Favoritos y los banners de Inicio
 - **Alcance:** `content_model.dart` (`esVideo`, sin distinguir mayúsculas) y `favorites_screen.dart`:
   comparaba con `'Video'` y los videos llegan como `'video'`, así que ningún favorito llevaba el play.
