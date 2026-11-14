@@ -2,6 +2,23 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-13]: El correo recordado sobrevive al cierre de sesión y el login usa el gestor de contraseñas
+- **Alcance:** `domain/providers/auth_provider.dart` (`_borrarDatosPersistidos` conserva `user_email`
+  salvo al desmarcar «Recordarme» o borrar la cuenta; `logout` pasa por él y ahora borra también
+  `user_alias`; `fetchProfile` solo copia el perfil al teléfono si la sesión está guardada) y
+  `presentation/screens/login_screen.dart` (`AutofillGroup`, `autofillHints` y
+  `TextInput.finishAutofillContext()` tras un acceso bueno). Test `test/providers/correo_recordado_test.dart`.
+  Va con el backend `a903973` (sesión de 30 días), pero no depende de él.
+- **Criterios de QA:**
+  1. Entrar con «Recordarme» marcado y cerrar sesión: el login muestra el correo y la casilla marcada.
+  2. Entrar con «Recordarme» desmarcado, pasar por el Inicio y cerrar sesión: el correo no aparece.
+  3. Android: al entrar, el teléfono ofrece guardar la contraseña en Google; tras cerrar sesión, al tocar
+     el campo de correo propone la cuenta guardada y rellena los dos campos.
+  4. iOS: la barra del teclado ofrece las contraseñas del Llavero (con la llave). El aviso de «¿Guardar
+     contraseña?» necesita Associated Domains, que todavía no está configurado.
+  5. Borrar la cuenta: el login queda vacío.
+  6. Actualizar la app (instalar encima): sigue la sesión y el correo.
+
 ### [2026-11-11]: El Inicio respeta el interruptor del carrusel del panel
 - **Alcance:** `secciones_inicio_service.dart` (`visible`, `slugCarruselInicio`) y
   `home_content_screen.dart`: el carrusel solo se monta cuando han respondido las secciones y la fila

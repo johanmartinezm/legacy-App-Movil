@@ -208,6 +208,22 @@ class AuthProvider extends ChangeNotifier {
       _lastName = profile['last_name'];
       _email = profile['email'];
       _phone = profile['phone'];
+      _alias = profile['alias'];
+      _fotoPerfil = profile['profile_image_url'];
+      // No se guarda en el almacenamiento seguro a propósito: es un estado del
+      // servidor y quedarse con una copia vieja significaría o encerrar a quien
+      // ya cambió la contraseña, o dejar pasar a quien no.
+      _debeCambiarContrasena = profile['debe_cambiar_contrasena'] == true;
+      _esPlus = profile['es_plus'] == true;
+
+      // Solo se copia al teléfono si la sesión está guardada («Recordarme» o
+      // acceso social). Hasta el 2026-11-13 se escribía siempre, y como el
+      // Inicio llama aquí al entrar, desmarcar «Recordarme» no llegaba a olvidar
+      // el correo: volvía a aparecer en el formulario.
+      if (await _storage.read(key: 'auth_token') == null) {
+        notifyListeners();
+        return;
+      }
       await _storage.write(key: 'customer_status', value: _customerStatus);
       await _storage.write(key: 'user_id', value: _userID);
       if (_firstName != null) {
@@ -222,16 +238,9 @@ class AuthProvider extends ChangeNotifier {
       if (_phone != null && _phone!.isNotEmpty) {
         await _storage.write(key: 'user_phone', value: _phone);
       }
-      _alias = profile['alias'];
-      _fotoPerfil = profile['profile_image_url'];
       if (_alias != null) {
         await _storage.write(key: 'user_alias', value: _alias);
       }
-      // No se guarda en el almacenamiento seguro a propósito: es un estado del
-      // servidor y quedarse con una copia vieja significaría o encerrar a quien
-      // ya cambió la contraseña, o dejar pasar a quien no.
-      _debeCambiarContrasena = profile['debe_cambiar_contrasena'] == true;
-      _esPlus = profile['es_plus'] == true;
       notifyListeners();
     } catch (e) {
       debugPrint('Error fetching profile: $e');
@@ -251,12 +260,19 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Borra del dispositivo todo lo que identifica la sesión. Se usa al cerrar
-  /// sesión y cuando el usuario entra **sin** marcar "Recordarme": en ese caso
-  /// la sesión vive solo en memoria y no debe sobrevivir a cerrar la app.
-  Future<void> _borrarDatosPersistidos() async {
+  /// sesión, cuando la sesión guardada caduca y cuando el usuario entra **sin**
+  /// marcar "Recordarme": en ese caso la sesión vive solo en memoria y no debe
+  /// sobrevivir a cerrar la app.
+  ///
+  /// El correo (`user_email`) se conserva salvo con [olvidarCorreo]: es lo que
+  /// rellena el formulario de entrada con «Recordarme» marcado. Hasta el
+  /// 2026-11-13 se borraba también al cerrar sesión y al caducar el token, así
+  /// que justo cuando había que volver a entrar el formulario aparecía vacío.
+  /// Solo se olvida cuando el usuario desmarca «Recordarme» o borra la cuenta.
+  Future<void> _borrarDatosPersistidos({bool olvidarCorreo = false}) async {
+    if (olvidarCorreo) await _storage.delete(key: 'user_email');
     const claves = [
       'auth_token',
-      'user_email',
       'customer_status',
       'user_id',
       'first_name',
@@ -458,7 +474,7 @@ class AuthProvider extends ChangeNotifier {
         }
       } else {
         _email = email;
-        await _borrarDatosPersistidos();
+        await _borrarDatosPersistidos(olvidarCorreo: true);
       }
 
       _isLoading = false;
@@ -523,6 +539,7 @@ class AuthProvider extends ChangeNotifier {
 
     await _authService.deleteAccount(token);
     await logout();
+    await _storage.delete(key: 'user_email');
   }
 
   Future<void> logout() async {
@@ -535,14 +552,8 @@ class AuthProvider extends ChangeNotifier {
     _email = null;
     _phone = null;
     _fotoPerfil = null;
-    await _storage.delete(key: 'auth_token');
-    await _storage.delete(key: 'user_email');
-    await _storage.delete(key: 'customer_status');
-    await _storage.delete(key: 'user_id');
-    await _storage.delete(key: 'first_name');
-    await _storage.delete(key: 'last_name');
-    await _storage.delete(key: 'user_phone');
-    await _storage.delete(key: 'user_role');
+    // Conserva el correo recordado: el formulario de entrada lo rellena.
+    await _borrarDatosPersistidos();
     notifyListeners();
   }
 

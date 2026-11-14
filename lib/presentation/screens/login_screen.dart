@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -105,437 +106,466 @@ class _LoginScreenState extends State<LoginScreen> {
                 horizontal: 24.0,
                 vertical: 16.0,
               ),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(height: compacto ? 8 : 20),
-                    // Version vertical del logo oficial, en blanco sobre el
-                    // fondo azul. Lleva el logotipo incorporado, asi que no se
-                    // vuelve a escribir el nombre de la marca debajo.
-                    Align(
-                      alignment: Alignment.center,
-                      child: LegacyLogo(
-                        variante: LegacyLogoVariante.vertical,
-                        height: compacto ? 96 : 140,
-                      ),
-                    ),
-                    SizedBox(height: compacto ? 12 : 20),
-                    Text(
-                      'El futuro de su legado se construye hoy',
-                      style: GoogleFonts.questrial(
-                        fontSize: 14,
-                        color: Colors.white70,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: compacto ? 20 : 36),
-
-                    // --- Form Fields ---
-                    Text(
-                      'Email',
-                      style: GoogleFonts.questrial(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white.withValues(alpha: 0.9),
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      style: const TextStyle(color: Colors.white),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor ingresa tu email';
-                        }
-                        if (!value.contains('@')) {
-                          return 'Email inválido';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'nombre@empresa.com',
-                        contentPadding: const EdgeInsets.all(16),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    Text(
-                      'Contraseña',
-                      style: GoogleFonts.questrial(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white.withValues(alpha: 0.9),
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: !_isPasswordVisible,
-                      style: const TextStyle(color: Colors.white),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor ingresa tu contraseña';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        hintText: '••••••••',
-                        contentPadding: const EdgeInsets.all(16),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _isPasswordVisible
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: Colors.white38,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _isPasswordVisible = !_isPasswordVisible;
-                            });
-                          },
+              // AutofillGroup + autofillHints conectan el formulario con el
+              // gestor de contraseñas del teléfono (Google en Android,
+              // Llaveros en iOS): ofrece guardar el correo y la contraseña al
+              // entrar y los rellena después, aunque se cierre sesión o se
+              // reinstale la app. La app no guarda la contraseña por su cuenta.
+              child: AutofillGroup(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(height: compacto ? 8 : 20),
+                      // Version vertical del logo oficial, en blanco sobre el
+                      // fondo azul. Lleva el logotipo incorporado, asi que no se
+                      // vuelve a escribir el nombre de la marca debajo.
+                      Align(
+                        alignment: Alignment.center,
+                        child: LegacyLogo(
+                          variante: LegacyLogoVariante.vertical,
+                          height: compacto ? 96 : 140,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
+                      SizedBox(height: compacto ? 12 : 20),
+                      Text(
+                        'El futuro de su legado se construye hoy',
+                        style: GoogleFonts.questrial(
+                          fontSize: 14,
+                          color: Colors.white70,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: compacto ? 20 : 36),
 
-                    // --- Remember Me & Forgot Password Row ---
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Un solo punto que alterna el estado. Antes había un
-                        // GestureDetector envolviendo al Checkbox y ambos
-                        // cambiaban `_rememberMe`, de modo que el
-                        // comportamiento dependía de si el dedo caía sobre la
-                        // casilla o sobre el texto.
-                        InkWell(
-                          key: const Key('login-recordarme'),
-                          onTap: () =>
-                              setState(() => _rememberMe = !_rememberMe),
-                          borderRadius: BorderRadius.circular(6),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 6),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: IgnorePointer(
-                                    child: Checkbox(
-                                      value: _rememberMe,
-                                      onChanged: (_) {},
-                                      // Sin colores explícitos, la casilla
-                                      // quedaba casi invisible sobre el fondo
-                                      // oscuro de esta pantalla.
-                                      side: const BorderSide(
-                                        color: Colors.white70,
-                                        width: 1.5,
-                                      ),
-                                      activeColor: AppTheme.legacyActive,
-                                      checkColor: const Color(0xFF162540),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Recordarme',
-                                  style: GoogleFonts.questrial(
-                                    color: Colors.white70,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ],
+                      // --- Form Fields ---
+                      Text(
+                        'Email',
+                        style: GoogleFonts.questrial(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white.withValues(alpha: 0.9),
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        autofillHints: const [
+                          AutofillHints.username,
+                          AutofillHints.email,
+                        ],
+                        textInputAction: TextInputAction.next,
+                        style: const TextStyle(color: Colors.white),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor ingresa tu email';
+                          }
+                          if (!value.contains('@')) {
+                            return 'Email inválido';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'nombre@empresa.com',
+                          contentPadding: const EdgeInsets.all(16),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      Text(
+                        'Contraseña',
+                        style: GoogleFonts.questrial(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white.withValues(alpha: 0.9),
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: !_isPasswordVisible,
+                        autofillHints: const [AutofillHints.password],
+                        style: const TextStyle(color: Colors.white),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor ingresa tu contraseña';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          hintText: '••••••••',
+                          contentPadding: const EdgeInsets.all(16),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Colors.white38,
                             ),
+                            onPressed: () {
+                              setState(() {
+                                _isPasswordVisible = !_isPasswordVisible;
+                              });
+                            },
                           ),
                         ),
-                        TextButton(
-                          onPressed: () => context.push('/forgot-password'),
-                          style: TextButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            minimumSize: const Size(0, 0),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          child: Text(
-                            '¿Olvidó su contraseña?',
-                            style: GoogleFonts.questrial(
-                              color: AppTheme.legacyBlue4,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: compacto ? 16 : 28),
+                      ),
+                      const SizedBox(height: 20),
 
-                    // --- Login Button ---
-                    Consumer<AuthProvider>(
-                      builder: (context, authProvider, child) {
-                        return Column(
-                          children: [
-                            if (authProvider.errorMessage != null &&
-                                authProvider.errorMessage !=
-                                    'email_not_verified')
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 16.0),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 10,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: Colors.red.withValues(alpha: 0.3),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.error_outline,
-                                        color: Colors.red,
-                                        size: 20,
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Text(
-                                          authProvider.errorMessage!,
-                                          style: const TextStyle(
-                                            color: Colors.red,
-                                            fontSize: 13,
+                      // --- Remember Me & Forgot Password Row ---
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Un solo punto que alterna el estado. Antes había un
+                          // GestureDetector envolviendo al Checkbox y ambos
+                          // cambiaban `_rememberMe`, de modo que el
+                          // comportamiento dependía de si el dedo caía sobre la
+                          // casilla o sobre el texto.
+                          InkWell(
+                            key: const Key('login-recordarme'),
+                            onTap: () =>
+                                setState(() => _rememberMe = !_rememberMe),
+                            borderRadius: BorderRadius.circular(6),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(
+                                    height: 24,
+                                    width: 24,
+                                    child: IgnorePointer(
+                                      child: Checkbox(
+                                        value: _rememberMe,
+                                        onChanged: (_) {},
+                                        // Sin colores explícitos, la casilla
+                                        // quedaba casi invisible sobre el fondo
+                                        // oscuro de esta pantalla.
+                                        side: const BorderSide(
+                                          color: Colors.white70,
+                                          width: 1.5,
+                                        ),
+                                        activeColor: AppTheme.legacyActive,
+                                        checkColor: const Color(0xFF162540),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            4,
                                           ),
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                ),
-                              ),
-                            Container(
-                              width: double.infinity,
-                              height: 52,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFF306C9E),
-                                    Color(0xFF183D6B),
-                                  ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                ),
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.08),
-                                ),
-                              ),
-                              child: ElevatedButton(
-                                onPressed:
-                                    (authProvider.isLoading ||
-                                        _isPreparingContent)
-                                    ? null
-                                    : () async {
-                                        if (_formKey.currentState!.validate()) {
-                                          final success = await authProvider
-                                              .login(
-                                                _emailController.text,
-                                                _passwordController.text,
-                                                rememberMe: _rememberMe,
-                                              );
-
-                                          if (success && context.mounted) {
-                                            setState(
-                                              () => _isPreparingContent = true,
-                                            );
-
-                                            // Preload banners
-                                            await context
-                                                .read<BannerProvider>()
-                                                .precacheAllBanners(context);
-
-                                            if (context.mounted) {
-                                              context.go('/home');
-                                            }
-                                          } else if (!success &&
-                                              context.mounted) {
-                                            if (authProvider.errorMessage ==
-                                                'email_not_verified') {
-                                              showDialog(
-                                                context: context,
-                                                builder: (context) => AlertDialog(
-                                                  title: const Text(
-                                                    'Correo no verificado',
-                                                  ),
-                                                  content: const Text(
-                                                    'Para iniciar sesión, primero debes verificar tu cuenta. ¿Deseas que te reenviemos el correo de verificación?',
-                                                  ),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () =>
-                                                          Navigator.pop(
-                                                            context,
-                                                          ),
-                                                      child: const Text(
-                                                        'Cancelar',
-                                                      ),
-                                                    ),
-                                                    TextButton(
-                                                      onPressed: () async {
-                                                        Navigator.pop(context);
-                                                        final resent =
-                                                            await authProvider
-                                                                .resendVerificationEmail(
-                                                                  _emailController
-                                                                      .text,
-                                                                );
-                                                        if (context.mounted) {
-                                                          ScaffoldMessenger.of(
-                                                            context,
-                                                          ).showSnackBar(
-                                                            SnackBar(
-                                                              content: Text(
-                                                                resent
-                                                                    ? 'Correo reenviado exitosamente'
-                                                                    : 'Error al reenviar el correo',
-                                                              ),
-                                                              backgroundColor:
-                                                                  resent
-                                                                  ? Colors.green
-                                                                  : Colors.red,
-                                                            ),
-                                                          );
-                                                        }
-                                                      },
-                                                      child: const Text(
-                                                        'Reenviar correo',
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              );
-                                            }
-                                          }
-                                        }
-                                      },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                  shadowColor: Colors.transparent,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Recordarme',
+                                    style: GoogleFonts.questrial(
+                                      color: Colors.white70,
+                                      fontSize: 13,
+                                    ),
                                   ),
-                                ),
-                                child:
-                                    (authProvider.isLoading ||
-                                        _isPreparingContent)
-                                    ? const SizedBox(
-                                        height: 20,
-                                        width: 20,
-                                        child: CircularProgressIndicator(
-                                          color: Colors.white,
-                                          strokeWidth: 2,
-                                        ),
-                                      )
-                                    : Text(
-                                        'Iniciar sesión',
-                                        style: GoogleFonts.barlow(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                          color: Colors.white,
+                                ],
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => context.push('/forgot-password'),
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              minimumSize: const Size(0, 0),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: Text(
+                              '¿Olvidó su contraseña?',
+                              style: GoogleFonts.questrial(
+                                color: AppTheme.legacyBlue4,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: compacto ? 16 : 28),
+
+                      // --- Login Button ---
+                      Consumer<AuthProvider>(
+                        builder: (context, authProvider, child) {
+                          return Column(
+                            children: [
+                              if (authProvider.errorMessage != null &&
+                                  authProvider.errorMessage !=
+                                      'email_not_verified')
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 16.0),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 10,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Colors.red.withValues(
+                                          alpha: 0.3,
                                         ),
                                       ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.error_outline,
+                                          color: Colors.red,
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            authProvider.errorMessage!,
+                                            style: const TextStyle(
+                                              color: Colors.red,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              Container(
+                                width: double.infinity,
+                                height: 52,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFF306C9E),
+                                      Color(0xFF183D6B),
+                                    ],
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                  ),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.08),
+                                  ),
+                                ),
+                                child: ElevatedButton(
+                                  onPressed:
+                                      (authProvider.isLoading ||
+                                          _isPreparingContent)
+                                      ? null
+                                      : () async {
+                                          if (_formKey.currentState!
+                                              .validate()) {
+                                            final success = await authProvider
+                                                .login(
+                                                  _emailController.text,
+                                                  _passwordController.text,
+                                                  rememberMe: _rememberMe,
+                                                );
+
+                                            if (success && context.mounted) {
+                                              // Cierra el formulario de cara al
+                                              // gestor de contraseñas: es lo que
+                                              // hace que ofrezca guardarlas. Solo
+                                              // tras un acceso bueno, para no
+                                              // guardar una contraseña errónea.
+                                              TextInput.finishAutofillContext();
+                                              setState(
+                                                () =>
+                                                    _isPreparingContent = true,
+                                              );
+
+                                              // Preload banners
+                                              await context
+                                                  .read<BannerProvider>()
+                                                  .precacheAllBanners(context);
+
+                                              if (context.mounted) {
+                                                context.go('/home');
+                                              }
+                                            } else if (!success &&
+                                                context.mounted) {
+                                              if (authProvider.errorMessage ==
+                                                  'email_not_verified') {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) => AlertDialog(
+                                                    title: const Text(
+                                                      'Correo no verificado',
+                                                    ),
+                                                    content: const Text(
+                                                      'Para iniciar sesión, primero debes verificar tu cuenta. ¿Deseas que te reenviemos el correo de verificación?',
+                                                    ),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () =>
+                                                            Navigator.pop(
+                                                              context,
+                                                            ),
+                                                        child: const Text(
+                                                          'Cancelar',
+                                                        ),
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: () async {
+                                                          Navigator.pop(
+                                                            context,
+                                                          );
+                                                          final resent =
+                                                              await authProvider
+                                                                  .resendVerificationEmail(
+                                                                    _emailController
+                                                                        .text,
+                                                                  );
+                                                          if (context.mounted) {
+                                                            ScaffoldMessenger.of(
+                                                              context,
+                                                            ).showSnackBar(
+                                                              SnackBar(
+                                                                content: Text(
+                                                                  resent
+                                                                      ? 'Correo reenviado exitosamente'
+                                                                      : 'Error al reenviar el correo',
+                                                                ),
+                                                                backgroundColor:
+                                                                    resent
+                                                                    ? Colors
+                                                                          .green
+                                                                    : Colors
+                                                                          .red,
+                                                              ),
+                                                            );
+                                                          }
+                                                        },
+                                                        child: const Text(
+                                                          'Reenviar correo',
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              }
+                                            }
+                                          }
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.transparent,
+                                    shadowColor: Colors.transparent,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child:
+                                      (authProvider.isLoading ||
+                                          _isPreparingContent)
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : Text(
+                                          'Iniciar sesión',
+                                          style: GoogleFonts.barlow(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                      SizedBox(height: compacto ? 14 : 24),
+                      const Divider(color: Colors.white10),
+                      SizedBox(height: compacto ? 14 : 20),
+
+                      // --- Google / Apple login buttons layout ---
+                      //
+                      // Apple primero y a todo el ancho. La guía pide que el botón
+                      // de Sign in with Apple no quede por debajo de las otras
+                      // opciones de acceso, y a media fila su rótulo —«Iniciar
+                      // sesión con Apple»— no cabe sin recortarse.
+                      //
+                      // Apple solo donde funciona. En Android, Sign in with Apple
+                      // exige un Service ID y una URL de retorno web que no están
+                      // configurados, así que el botón solo llevaba a un error.
+                      // Apple lo exige en iOS —directriz 4.8, por ofrecer
+                      // Google—, no en las demás plataformas.
+                      if (BotonAppleNativo.disponible) ...[
+                        BotonAppleNativo(
+                          onPressed: () => _handleSocialLogin('apple'),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                      SizedBox(
+                        width: double.infinity,
+                        child: Container(
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.02),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white12),
+                          ),
+                          child: InkWell(
+                            onTap: () => _handleSocialLogin('google'),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Center(
+                              child: Text(
+                                'Continuar con Google',
+                                style: GoogleFonts.barlow(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                ),
                               ),
                             ),
-                          ],
-                        );
-                      },
-                    ),
-                    SizedBox(height: compacto ? 14 : 24),
-                    const Divider(color: Colors.white10),
-                    SizedBox(height: compacto ? 14 : 20),
-
-                    // --- Google / Apple login buttons layout ---
-                    //
-                    // Apple primero y a todo el ancho. La guía pide que el botón
-                    // de Sign in with Apple no quede por debajo de las otras
-                    // opciones de acceso, y a media fila su rótulo —«Iniciar
-                    // sesión con Apple»— no cabe sin recortarse.
-                    //
-                    // Apple solo donde funciona. En Android, Sign in with Apple
-                    // exige un Service ID y una URL de retorno web que no están
-                    // configurados, así que el botón solo llevaba a un error.
-                    // Apple lo exige en iOS —directriz 4.8, por ofrecer
-                    // Google—, no en las demás plataformas.
-                    if (BotonAppleNativo.disponible) ...[
-                      BotonAppleNativo(
-                        onPressed: () => _handleSocialLogin('apple'),
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                    SizedBox(
-                      width: double.infinity,
-                      child: Container(
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.02),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.white12),
-                        ),
-                        child: InkWell(
-                          onTap: () => _handleSocialLogin('google'),
-                          borderRadius: BorderRadius.circular(12),
-                          child: Center(
-                            child: Text(
-                              'Continuar con Google',
-                              style: GoogleFonts.barlow(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 15,
-                              ),
-                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 28),
+                      const SizedBox(height: 28),
 
-                    // --- Footer Register ---
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Text(
-                          '¿No tiene cuenta? ',
-                          style: GoogleFonts.questrial(
-                            color: Colors.white70,
-                            fontSize: 13,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () => context.push('/legal-notice'),
-                          style: TextButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            minimumSize: const Size(0, 0),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          child: Text(
-                            'Regístrese gratis',
+                      // --- Footer Register ---
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Text(
+                            '¿No tiene cuenta? ',
                             style: GoogleFonts.questrial(
-                              color: AppTheme.legacyBlue4,
-                              fontWeight: FontWeight.bold,
+                              color: Colors.white70,
                               fontSize: 13,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                  ],
+                          TextButton(
+                            onPressed: () => context.push('/legal-notice'),
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              minimumSize: const Size(0, 0),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: Text(
+                              'Regístrese gratis',
+                              style: GoogleFonts.questrial(
+                                color: AppTheme.legacyBlue4,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
                 ),
               ),
             ),
