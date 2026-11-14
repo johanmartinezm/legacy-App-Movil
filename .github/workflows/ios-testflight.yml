@@ -261,7 +261,7 @@ jobs:
           unzip -q "$RUTA_IPA" -d "$REVISION"
           codesign -d --entitlements - --xml "$REVISION"/Payload/*.app > "$REVISION/entitlements.plist"
           cat "$REVISION/entitlements.plist"; echo
-          for clave in com.apple.developer.applesignin aps-environment; do
+          for clave in com.apple.developer.applesignin aps-environment com.apple.developer.associated-domains; do
             if ! grep -q "$clave" "$REVISION/entitlements.plist"; then
               echo "::error::El .ipa se firmo sin el entitlement $clave"
               exit 1

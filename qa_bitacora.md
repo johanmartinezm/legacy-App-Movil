@@ -2,6 +2,18 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-13]: Associated Domains en iOS para el gestor de contraseñas
+- **Alcance:** `ios/Runner/Runner.entitlements` y `RunnerDebug.entitlements`
+  (`com.apple.developer.associated-domains` = `webcredentials:app.legacynetworkco.com`) y
+  `.github/workflows/ios-testflight.yml` (el `.ipa` falla si sale sin ese entitlement). Necesita la
+  capability en el App ID y los perfiles «Legacy App Store CI» y «Legacy Ad Hoc QA» regenerados y
+  cargados en los secretos; sin eso el export falla. El archivo del dominio lo sirve el panel.
+- **Criterios de QA:**
+  1. El workflow de iOS termina y su paso de exportar lista `associated-domains` en los entitlements.
+  2. En un iPhone, entrar con correo y contraseña: iOS ofrece guardar la contraseña en el Llavero.
+  3. Cerrar sesión y tocar el campo de correo: la barra del teclado propone la cuenta guardada para
+     app.legacynetworkco.com y rellena los dos campos.
+
 ### [2026-11-13]: El correo recordado sobrevive al cierre de sesión y el login usa el gestor de contraseñas
 - **Alcance:** `domain/providers/auth_provider.dart` (`_borrarDatosPersistidos` conserva `user_email`
   salvo al desmarcar «Recordarme» o borrar la cuenta; `logout` pasa por él y ahora borra también

@@ -20,5 +20,16 @@
 	<array>
 		<string>Default</string>
 	</array>
+	<!-- Associated Domains (webcredentials): enlaza la app con el dominio
+	     para que iOS ofrezca guardar la contrasena del login en el Llavero y la
+	     rellene despues. El dominio publica el archivo que lo autoriza en
+	     /.well-known/apple-app-site-association (Sitio-Administrativo/public).
+	     Requiere la capability Associated Domains en el App ID y perfiles
+	     regenerados despues de activarla: con un perfil viejo, exportArchive
+	     falla porque el perfil no incluye este entitlement. 2026-11-13. -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>webcredentials:app.legacynetworkco.com</string>
+	</array>
 </dict>
 </plist>
