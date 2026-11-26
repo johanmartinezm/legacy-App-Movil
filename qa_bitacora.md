@@ -2,6 +2,21 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-25]: Legacy Board: Comunidad abre la página y los botones son solo para Legacy+
+- **Alcance:** `lib/presentation/screens/comunidad/comunidad_screen.dart` (el botón Legacy Board abre
+  `/legacy-board`; se retira el diálogo de los dos contactos), `lib/presentation/widgets/botones_legacy_board.dart`
+  (los botones solo con el plus; «Quiero ser parte» abre el Formulario A) y su prueba. Se borran
+  `lib/data/services/board_service.dart` y `assets/data/board_contacts.json`, que solo usaba el
+  diálogo. «Quiero buscar» sigue yendo a Contáctenos hasta que exista el Formulario B (fase 4). El
+  backend conserva `/api/board/contact` para las versiones ya publicadas.
+- **Criterios de QA:**
+  1. Comunidad → Legacy Board abre la página informativa de Legacy Board, no un diálogo.
+  2. Con un usuario Legacy+, la página trae «¿Cómo quiere participar?» y los dos botones.
+  3. «Quiero ser parte» abre «Postulación como consejero» (o el estado, si ya la envió).
+  4. «Quiero buscar» abre Contáctenos con el asunto «Legacy Board: quiero buscar consejeros».
+  5. Con un usuario sin el plus, la página sale sin la pregunta y sin botones.
+  6. La fila Legacy Board del Inicio sigue con candado para quien no tiene el plus.
+
 ### [2026-11-25]: Formulario A de Legacy Board (postulación del consejero)
 - **Alcance:** `lib/presentation/screens/legacy_board/formulario_board_screen.dart` (el motor: una
   sección por paso, validación, envío, confirmación y estado) y `campo_board_widget.dart` (un widget

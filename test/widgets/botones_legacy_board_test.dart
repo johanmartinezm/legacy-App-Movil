@@ -7,12 +7,22 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:legacy_app/data/services/paginas_service.dart';
+import 'package:legacy_app/domain/providers/auth_provider.dart';
 import 'package:legacy_app/presentation/screens/contacto/contacto_screen.dart';
 import 'package:legacy_app/presentation/screens/paginas/pagina_informativa_screen.dart';
 import 'package:legacy_app/presentation/widgets/botones_legacy_board.dart';
+import 'package:provider/provider.dart';
 
-/// Legacy Board lleva al pie dos botones que abren Contáctenos con el asunto
-/// ya escrito, mientras no existan los formularios A y B.
+/// Legacy Board lleva al pie dos botones, solo para quien tiene el plus:
+/// «Quiero ser parte» abre el Formulario A y «Quiero buscar» abre Contáctenos
+/// con el asunto escrito, mientras no exista el Formulario B.
+class _Auth extends AuthProvider {
+  final bool plus;
+  _Auth(this.plus);
+  @override
+  bool get esPlus => plus;
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);
@@ -28,6 +38,10 @@ void main() {
               servicio: PaginasService(client: client),
               acciones: BotonesLegacyBoard.desdePagina,
             ),
+          ),
+          GoRoute(
+            path: '/legacy-board/formulario/:clave',
+            builder: (context, state) => Scaffold(body: Text('formulario=${state.pathParameters['clave']}')),
           ),
           // Contáctenos de mentira: solo enseña el asunto que le llega, que
           // es lo que main.dart pasa a ContactoScreen.
@@ -50,11 +64,14 @@ void main() {
             200,
           ));
 
-  Future<void> montar(WidgetTester tester, MockClient client) async {
+  Future<void> montar(WidgetTester tester, MockClient client, {bool plus = true}) async {
     tester.view.physicalSize = const Size(1080, 3000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(MaterialApp.router(routerConfig: router(client)));
+    await tester.pumpWidget(ChangeNotifierProvider<AuthProvider>(
+      create: (_) => _Auth(plus),
+      child: MaterialApp.router(routerConfig: router(client)),
+    ));
     await tester.pumpAndSettle();
   }
 
@@ -84,18 +101,19 @@ void main() {
     expect(find.text('Quiero buscar'), findsOneWidget);
   });
 
-  testWidgets('con otro texto, el asunto no cambia', (tester) async {
+  testWidgets('sin el plus la página es solo informativa', (tester) async {
+    await montar(tester, pagina(), plus: false);
+    expect(find.text('Contenido.'), findsOneWidget);
+    expect(find.text('¿Cómo quiere participar?'), findsNothing);
+    expect(find.byKey(const Key('legacy-board-ser-parte')), findsNothing);
+    expect(find.byKey(const Key('legacy-board-buscar')), findsNothing);
+  });
+
+  testWidgets('«Quiero ser parte» abre el Formulario A, con cualquier texto', (tester) async {
     await montar(tester, pagina({'boton_principal': 'Postularme'}));
     await tester.tap(find.byKey(const Key('legacy-board-ser-parte')));
     await tester.pumpAndSettle();
-    expect(find.text('asunto=${BotonesLegacyBoard.asuntoSerParte}'), findsOneWidget);
-  });
-
-  testWidgets('«Quiero ser parte» abre Contáctenos con su asunto', (tester) async {
-    await montar(tester, pagina());
-    await tester.tap(find.byKey(const Key('legacy-board-ser-parte')));
-    await tester.pumpAndSettle();
-    expect(find.text('asunto=${BotonesLegacyBoard.asuntoSerParte}'), findsOneWidget);
+    expect(find.text('formulario=A'), findsOneWidget);
   });
 
   testWidgets('«Quiero buscar» abre Contáctenos con su asunto', (tester) async {
