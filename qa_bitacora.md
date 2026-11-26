@@ -2,6 +2,30 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-25]: Formulario A de Legacy Board (postulación del consejero)
+- **Alcance:** `lib/presentation/screens/legacy_board/formulario_board_screen.dart` (el motor: una
+  sección por paso, validación, envío, confirmación y estado) y `campo_board_widget.dart` (un widget
+  por tipo de campo), `lib/data/services/board_formularios_service.dart`,
+  `lib/domain/utils/validacion_formulario_board.dart`, la constante en `api_constants.dart` y la ruta
+  `/legacy-board/formulario/:clave` en `main.dart`. El formulario no vive en la app: lo manda el
+  backend con sus opciones, así que un texto o una opción nueva no exigen otra versión. Todavía no hay
+  botón que lleve aquí (fase 3 bis): se entra por la ruta.
+- **Criterios de QA:** (con un usuario marcado Legacy+ en el panel)
+  1. Abrir `/legacy-board/formulario/A`: sale «Postulación como consejero», «Paso 1 de 5», y vienen
+     llenos el nombre, el correo, el teléfono y la foto del perfil.
+  2. Con un usuario sin el plus sale «Solo para usuarios Legacy+» y no hay formulario.
+  3. Tocar «Siguiente» con obligatorios vacíos: quedan en rojo con «Este campo es obligatorio» y el
+     aviso no tapa el botón.
+  4. «País de residencia» no ofrece «Remoto»; en el paso 5, «Regiones» sí.
+  5. En el paso 3 están el texto de programas de formación, con la pregunta completa encima de la caja
+     (no cortada), y debajo «Áreas que cubrieron esos programas» con las áreas de expertise.
+  6. Marcar «No aplica» en los órganos desmarca los demás; marcar otro desmarca «No aplica».
+  7. Un LinkedIn de otro dominio se marca al pasar de paso; «Anterior» conserva lo escrito.
+  8. Sin aceptar los términos no se envía. Al enviar sale «Recibimos tu postulación» con «En
+     revisión».
+  9. Volver a abrir el formulario muestra «Ya enviaste este formulario» con su estado, sin campos.
+  10. Salir a medio llenar pregunta «¿Salir sin enviar?».
+
 ### [2026-11-13]: Associated Domains en iOS para el gestor de contraseñas
 - **Alcance:** `ios/Runner/Runner.entitlements` y `RunnerDebug.entitlements`
   (`com.apple.developer.associated-domains` = `webcredentials:app.legacynetworkco.com`) y

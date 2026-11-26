@@ -23,6 +23,8 @@ class ApiConstants {
   static const String asesoriaUnidadesEndpoint = '/api/asesoria/unidades';
   static const String legacyPlusItemsEndpoint = '/api/legacy-plus/items';
   static const String beneficiosEndpoint = '/api/beneficios';
+  // Formularios de Legacy Board (A: consejero; B: empresario). Solo Legacy+.
+  static String boardFormularioEndpoint(String clave) => '/api/board/formularios/$clave';
 
   static const String meEndpoint = '/api/me';
   static const String changePasswordEndpoint = '/api/me/change-password';

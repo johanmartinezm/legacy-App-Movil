@@ -29,6 +29,7 @@ import 'presentation/screens/legal_notice_screen.dart';
 import 'presentation/screens/contacto/contacto_screen.dart';
 import 'presentation/screens/paginas/pagina_informativa_screen.dart';
 import 'presentation/widgets/botones_legacy_board.dart';
+import 'presentation/screens/legacy_board/formulario_board_screen.dart';
 import 'presentation/screens/diagnosticos/diagnosticos_screen.dart';
 import 'presentation/screens/beneficios/beneficios_screen.dart';
 import 'presentation/screens/profile/cambiar_contrasena_screen.dart';
@@ -421,6 +422,14 @@ class _MyAppWrapperState extends State<MyAppWrapper> {
                 slug: 'legacy-board',
                 tituloProvisional: 'Legacy Board',
                 acciones: BotonesLegacyBoard.desdePagina,
+              ),
+            ),
+            // Formularios de Legacy Board (A: consejero; B: empresario). La
+            // configuración la manda el backend; solo usuarios Legacy+.
+            GoRoute(
+              path: '/legacy-board/formulario/:clave',
+              builder: (context, state) => FormularioBoardScreen(
+                clave: (state.pathParameters['clave'] ?? 'A').toUpperCase(),
               ),
             ),
             // Diagnósticos (tarjeta del Inicio, 2026-10-13): dos enlaces externos.
