@@ -27,8 +27,15 @@ class FormularioBoardScreen extends StatefulWidget {
 }
 
 class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
-  late final BoardFormulariosService _servicio = widget.servicio ?? BoardFormulariosService();
+  late final BoardFormulariosService _servicio =
+      widget.servicio ?? BoardFormulariosService();
   final _scroll = ScrollController();
+
+  /// Una llave por campo para poder llevar la vista al primero con error: en
+  /// el teléfono, los campos en rojo suelen quedar por debajo del borde y la
+  /// persona solo veía el aviso, sin saber cuál corregir (visto el 2026-11-25).
+  final Map<String, GlobalKey> _llaves = {};
+  GlobalKey _llave(String clave) => _llaves.putIfAbsent(clave, GlobalKey.new);
 
   FormularioBoard? _formulario;
   bool _cargando = true;
@@ -84,7 +91,8 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _errorCarga = 'No se pudo abrir el formulario. Revisa tu conexión e inténtalo de nuevo.';
+        _errorCarga =
+            'No se pudo abrir el formulario. Revisa tu conexión e inténtalo de nuevo.';
         _cargando = false;
       });
     }
@@ -97,7 +105,9 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
       'nombre': auth.fullName,
       'correo': auth.email,
       'telefono': auth.phone,
-      'foto': (auth.fotoPerfil ?? '').startsWith('/api/images/') ? auth.fotoPerfil : null,
+      'foto': (auth.fotoPerfil ?? '').startsWith('/api/images/')
+          ? auth.fotoPerfil
+          : null,
     };
     for (final s in f.secciones) {
       for (final c in s.campos) {
@@ -115,7 +125,8 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
       _tocado = true;
       // El error se va en cuanto se corrige; no se vuelve a evaluar hasta el
       // siguiente «Siguiente», para no regañar mientras se escribe.
-      if (_errores.containsKey(campo.clave) && validarCampoBoard(campo, valor) == null) {
+      if (_errores.containsKey(campo.clave) &&
+          validarCampoBoard(campo, valor) == null) {
         _errores.remove(campo.clave);
       }
     });
@@ -139,11 +150,31 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
     if (_scroll.hasClients) _scroll.jumpTo(0);
   }
 
+  /// Después de pintar, lleva la vista al primer campo con error del paso.
+  void _mostrarPrimerError() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _formulario == null) return;
+      for (final c in _formulario!.secciones[_paso].campos) {
+        if (!_errores.containsKey(c.clave)) continue;
+        final contexto = _llaves[c.clave]?.currentContext;
+        if (contexto != null) {
+          Scrollable.ensureVisible(
+            contexto,
+            alignment: 0.1,
+            duration: const Duration(milliseconds: 300),
+          );
+        }
+        return;
+      }
+    });
+  }
+
   void _siguiente() {
     final ok = _validarPaso(_paso);
     setState(() {});
     if (!ok) {
       _avisar('Revisa los campos marcados en rojo.');
+      _mostrarPrimerError();
       return;
     }
     _irA(_paso + 1);
@@ -157,6 +188,7 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
         setState(() {});
         _irA(i);
         _avisar('Revisa los campos marcados en rojo.');
+        _mostrarPrimerError();
         return;
       }
     }
@@ -191,6 +223,7 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
       if (seccion >= 0) {
         setState(() => _errores[e.campo!] = e.mensaje);
         _irA(seccion);
+        _mostrarPrimerError();
       } else if (e.campo == 'acepta_terminos') {
         setState(() => _errorTerminos = e.mensaje);
       }
@@ -203,7 +236,9 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
       if (!mounted) return;
       setState(() => _enviando = false);
       // Las respuestas siguen ahí: perderlas sería lo peor de un fallo de red.
-      _avisar('No se pudo enviar. Revisa tu conexión e inténtalo de nuevo; tus respuestas se conservan.');
+      _avisar(
+        'No se pudo enviar. Revisa tu conexión e inténtalo de nuevo; tus respuestas se conservan.',
+      );
     }
   }
 
@@ -212,15 +247,19 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
   void _avisar(String texto) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(
-        content: Text(texto),
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.fromLTRB(16, 0, 16, 88),
-      ));
+      ..showSnackBar(
+        SnackBar(
+          content: Text(texto),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 88),
+        ),
+      );
   }
 
   Future<void> _salir() async {
-    if (!_tocado || _enviado != null || (_formulario?.envioActual != null && !_nuevo)) {
+    if (!_tocado ||
+        _enviado != null ||
+        (_formulario?.envioActual != null && !_nuevo)) {
       volverAtras(context, destino: '/legacy-board');
       return;
     }
@@ -230,17 +269,24 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
         title: const Text('¿Salir sin enviar?'),
         content: const Text('Se perderán las respuestas que llevas.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogo, false), child: const Text('Seguir llenando')),
-          TextButton(onPressed: () => Navigator.pop(dialogo, true), child: const Text('Salir')),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogo, false),
+            child: const Text('Seguir llenando'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogo, true),
+            child: const Text('Salir'),
+          ),
         ],
       ),
     );
-    if (salir == true && mounted) volverAtras(context, destino: '/legacy-board');
+    if (salir == true && mounted) {
+      volverAtras(context, destino: '/legacy-board');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final f = _formulario;
     return PopScope(
       canPop: !_tocado || _enviado != null,
       onPopInvokedWithResult: (didPop, _) {
@@ -248,7 +294,10 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(f?.titulo ?? 'Legacy Board'),
+          // El nombre del formulario no cabe en la barra de un teléfono
+          // («Postulación como conseje…»): la barra dice Legacy Board y el
+          // nombre va en el cuerpo, encima del paso.
+          title: const Text('Legacy Board'),
           leading: BotonVolver(onTap: _salir),
         ),
         body: SafeArea(child: _cuerpo(context)),
@@ -259,17 +308,33 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
   Widget _cuerpo(BuildContext context) {
     if (_cargando) return const Center(child: CircularProgressIndicator());
     if (_soloPlus) {
-      return _mensaje(context, Icons.lock_outline, 'Solo para usuarios Legacy+',
-          'Este formulario se habilita a los usuarios Legacy+. Si crees que deberías tenerlo, escríbenos desde Contáctenos.');
+      return _mensaje(
+        context,
+        Icons.lock_outline,
+        'Solo para usuarios Legacy+',
+        'Este formulario se habilita a los usuarios Legacy+. Si crees que deberías tenerlo, escríbenos desde Contáctenos.',
+      );
     }
     if (_errorCarga != null) {
-      return _mensaje(context, Icons.wifi_off_outlined, 'No se pudo cargar', _errorCarga!, reintentar: true);
+      return _mensaje(
+        context,
+        Icons.wifi_off_outlined,
+        'No se pudo cargar',
+        _errorCarga!,
+        reintentar: true,
+      );
     }
     final f = _formulario!;
     if (_enviado != null) {
-      return _mensaje(context, Icons.mark_email_read_outlined, '¡Enviado!',
-          f.textoConfirmacion.isEmpty ? 'Recibimos tu formulario.' : f.textoConfirmacion,
-          envio: _enviado);
+      return _mensaje(
+        context,
+        Icons.mark_email_read_outlined,
+        '¡Enviado!',
+        f.textoConfirmacion.isEmpty
+            ? 'Recibimos tu formulario.'
+            : f.textoConfirmacion,
+        envio: _enviado,
+      );
     }
     final actual = f.envioActual;
     // Con uno pendiente, o en un formulario que no admite otro (el A), solo
@@ -282,8 +347,15 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
     return _pasoActual(context, f);
   }
 
-  Widget _mensaje(BuildContext context, IconData icono, String titulo, String texto,
-      {bool reintentar = false, EnvioBoard? envio, bool otraVez = false}) {
+  Widget _mensaje(
+    BuildContext context,
+    IconData icono,
+    String titulo,
+    String texto, {
+    bool reintentar = false,
+    EnvioBoard? envio,
+    bool otraVez = false,
+  }) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -292,14 +364,22 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
           const SizedBox(height: 32),
           Icon(icono, size: 72, color: Theme.of(context).colorScheme.primary),
           const SizedBox(height: 24),
-          Text(titulo,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+          Text(
+            titulo,
+            textAlign: TextAlign.center,
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 12),
           Text(texto, textAlign: TextAlign.center),
-          if (envio != null) ...[const SizedBox(height: 24), Center(child: _chipEstado(context, envio.estado))],
+          if (envio != null) ...[
+            const SizedBox(height: 24),
+            Center(child: _chipEstado(context, envio.estado)),
+          ],
           const SizedBox(height: 32),
-          if (reintentar) FilledButton(onPressed: _cargar, child: const Text('Reintentar')),
+          if (reintentar)
+            FilledButton(onPressed: _cargar, child: const Text('Reintentar')),
           if (otraVez) ...[
             FilledButton(
               key: const Key('board-nueva-solicitud'),
@@ -312,18 +392,30 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
             const SizedBox(height: 8),
           ],
           if (!reintentar && !otraVez)
-            FilledButton(onPressed: () => volverAtras(context, destino: '/legacy-board'), child: const Text('Volver')),
+            FilledButton(
+              onPressed: () => volverAtras(context, destino: '/legacy-board'),
+              child: const Text('Volver'),
+            ),
           if (otraVez)
-            OutlinedButton(onPressed: () => volverAtras(context, destino: '/legacy-board'), child: const Text('Volver')),
+            OutlinedButton(
+              onPressed: () => volverAtras(context, destino: '/legacy-board'),
+              child: const Text('Volver'),
+            ),
         ],
       ),
     );
   }
 
   static const _textosEstado = {
-    'pendiente': ('En revisión', 'El comité de curaduría está revisando tu envío. Te avisaremos de su decisión.'),
+    'pendiente': (
+      'En revisión',
+      'El comité de curaduría está revisando tu envío. Te avisaremos de su decisión.',
+    ),
     'aprobada': ('Aprobada', 'El comité aprobó tu envío.'),
-    'rechazada': ('No aprobada', 'El comité revisó tu envío y esta vez no fue aprobado.'),
+    'rechazada': (
+      'No aprobada',
+      'El comité revisó tu envío y esta vez no fue aprobado.',
+    ),
   };
 
   Widget _chipEstado(BuildContext context, String estado) {
@@ -338,8 +430,8 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
         estado == 'aprobada'
             ? Icons.check_circle_outline
             : estado == 'rechazada'
-                ? Icons.cancel_outlined
-                : Icons.hourglass_top,
+            ? Icons.cancel_outlined
+            : Icons.hourglass_top,
         color: color,
       ),
       label: Text(_textosEstado[estado]?.$1 ?? estado),
@@ -347,13 +439,21 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
     );
   }
 
-  Widget _estado(BuildContext context, EnvioBoard envio, {bool puedeOtro = false}) {
+  Widget _estado(
+    BuildContext context,
+    EnvioBoard envio, {
+    bool puedeOtro = false,
+  }) {
     final fecha = envio.creadoEn;
-    final enviado = fecha == null ? '' : ' el ${fecha.day}/${fecha.month}/${fecha.year}';
+    final enviado = fecha == null
+        ? ''
+        : ' el ${fecha.day}/${fecha.month}/${fecha.year}';
     return _mensaje(
       context,
       Icons.assignment_turned_in_outlined,
-      puedeOtro ? 'Tu última solicitud$enviado' : 'Ya enviaste este formulario$enviado',
+      puedeOtro
+          ? 'Tu última solicitud$enviado'
+          : 'Ya enviaste este formulario$enviado',
       _textosEstado[envio.estado]?.$2 ?? '',
       envio: envio,
       otraVez: puedeOtro,
@@ -380,21 +480,38 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
                   Text(f.descripcion, style: tema.textTheme.bodyMedium),
                   const SizedBox(height: 20),
                 ],
-                Text('Paso ${_paso + 1} de $total', style: tema.textTheme.labelLarge),
+                Text(
+                  f.titulo,
+                  style: tema.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(seccion.titulo,
-                    style: tema.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                Text(
+                  'Paso ${_paso + 1} de $total',
+                  style: tema.textTheme.labelLarge,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  seccion.titulo,
+                  style: tema.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 20),
                 for (final campo in seccion.campos) ...[
-                  CampoBoardWidget(
-                    // La clave incluye el paso para que, al volver a la sección,
-                    // cada campo arranque con el valor guardado.
-                    key: ValueKey('${_paso}_${campo.clave}'),
-                    campo: campo,
-                    valor: _valores[campo.clave],
-                    error: _errores[campo.clave],
-                    onChanged: (v) => _cambiar(campo, v),
-                    subirFoto: (ruta) => _servicio.subirFoto(_token, ruta),
+                  KeyedSubtree(
+                    key: _llave(campo.clave),
+                    child: CampoBoardWidget(
+                      // La clave incluye el paso para que, al volver a la sección,
+                      // cada campo arranque con el valor guardado.
+                      key: ValueKey('${_paso}_${campo.clave}'),
+                      campo: campo,
+                      valor: _valores[campo.clave],
+                      error: _errores[campo.clave],
+                      onChanged: (v) => _cambiar(campo, v),
+                      subirFoto: (ruta) => _servicio.subirFoto(_token, ruta),
+                    ),
                   ),
                   const SizedBox(height: 20),
                 ],
@@ -404,12 +521,17 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
                     value: _aceptaTerminos,
                     contentPadding: EdgeInsets.zero,
                     controlAffinity: ListTileControlAffinity.leading,
-                    title: Text(f.textoTerminos.isEmpty
-                        ? 'Acepto los términos y el tratamiento de mis datos personales.'
-                        : f.textoTerminos),
+                    title: Text(
+                      f.textoTerminos.isEmpty
+                          ? 'Acepto los términos y el tratamiento de mis datos personales.'
+                          : f.textoTerminos,
+                    ),
                     subtitle: _errorTerminos == null
                         ? null
-                        : Text(_errorTerminos!, style: TextStyle(color: tema.colorScheme.error)),
+                        : Text(
+                            _errorTerminos!,
+                            style: TextStyle(color: tema.colorScheme.error),
+                          ),
                     onChanged: (v) => setState(() {
                       _aceptaTerminos = v ?? false;
                       _tocado = true;
@@ -437,7 +559,11 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
                   key: const Key('board-siguiente'),
                   onPressed: _enviando ? null : (ultimo ? _enviar : _siguiente),
                   child: _enviando
-                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
                       : Text(ultimo ? 'Enviar' : 'Siguiente'),
                 ),
               ),

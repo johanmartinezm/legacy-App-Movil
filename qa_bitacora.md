@@ -2,6 +2,19 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-25]: Formularios de Legacy Board: ajustes vistos en el teléfono
+- **Alcance:** `lib/presentation/screens/legacy_board/formulario_board_screen.dart`. Probado en el
+  Huawei: el título del formulario se cortaba en la barra («Postulación como conseje…») y, al pulsar
+  «Siguiente» con errores, los campos en rojo quedaban fuera de la pantalla y solo se veía el aviso. La
+  barra dice ahora «Legacy Board» y el nombre del formulario va en el cuerpo, encima de «Paso N de 5»; y
+  con un error la vista se desplaza sola hasta el primer campo en rojo (también cuando el error viene
+  del servidor o del envío final).
+- **Criterios de QA:**
+  1. En el teléfono, la barra del formulario dice «Legacy Board» y debajo se lee entero «Postulación
+     como consejero» (o «Solicitud de consejero»).
+  2. En el paso 1, pulsar «Siguiente» con «País de residencia» vacío: la pantalla baja sola hasta ese
+     campo, que se ve en rojo.
+
 ### [2026-11-25]: Formulario B de Legacy Board (solicitud del empresario)
 - **Alcance:** `lib/presentation/widgets/botones_legacy_board.dart` («Quiero buscar» abre
   `/legacy-board/formulario/B` en vez de Contáctenos), `lib/data/services/board_formularios_service.dart`
