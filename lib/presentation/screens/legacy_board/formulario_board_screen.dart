@@ -44,6 +44,9 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
   bool _tocado = false;
   EnvioBoard? _enviado;
 
+  /// La persona eligió empezar una solicitud nueva tras una ya decidida.
+  bool _nuevo = false;
+
   @override
   void initState() {
     super.initState();
@@ -217,7 +220,7 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
   }
 
   Future<void> _salir() async {
-    if (!_tocado || _enviado != null || _formulario?.envioActual != null) {
+    if (!_tocado || _enviado != null || (_formulario?.envioActual != null && !_nuevo)) {
       volverAtras(context, destino: '/legacy-board');
       return;
     }
@@ -268,12 +271,19 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
           f.textoConfirmacion.isEmpty ? 'Recibimos tu formulario.' : f.textoConfirmacion,
           envio: _enviado);
     }
-    if (f.envioActual != null) return _estado(context, f.envioActual!);
+    final actual = f.envioActual;
+    // Con uno pendiente, o en un formulario que no admite otro (el A), solo
+    // se ve el estado. Con uno ya decidido del B, el estado y la opción de
+    // empezar otra solicitud.
+    if (actual != null && !_nuevo) {
+      final puedeOtro = f.permiteNuevo && actual.estado != 'pendiente';
+      return _estado(context, actual, puedeOtro: puedeOtro);
+    }
     return _pasoActual(context, f);
   }
 
   Widget _mensaje(BuildContext context, IconData icono, String titulo, String texto,
-      {bool reintentar = false, EnvioBoard? envio}) {
+      {bool reintentar = false, EnvioBoard? envio, bool otraVez = false}) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -290,8 +300,21 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
           if (envio != null) ...[const SizedBox(height: 24), Center(child: _chipEstado(context, envio.estado))],
           const SizedBox(height: 32),
           if (reintentar) FilledButton(onPressed: _cargar, child: const Text('Reintentar')),
-          if (!reintentar)
+          if (otraVez) ...[
+            FilledButton(
+              key: const Key('board-nueva-solicitud'),
+              onPressed: () => setState(() {
+                _nuevo = true;
+                _paso = 0;
+              }),
+              child: const Text('Hacer una nueva solicitud'),
+            ),
+            const SizedBox(height: 8),
+          ],
+          if (!reintentar && !otraVez)
             FilledButton(onPressed: () => volverAtras(context, destino: '/legacy-board'), child: const Text('Volver')),
+          if (otraVez)
+            OutlinedButton(onPressed: () => volverAtras(context, destino: '/legacy-board'), child: const Text('Volver')),
         ],
       ),
     );
@@ -324,15 +347,16 @@ class _FormularioBoardScreenState extends State<FormularioBoardScreen> {
     );
   }
 
-  Widget _estado(BuildContext context, EnvioBoard envio) {
+  Widget _estado(BuildContext context, EnvioBoard envio, {bool puedeOtro = false}) {
     final fecha = envio.creadoEn;
     final enviado = fecha == null ? '' : ' el ${fecha.day}/${fecha.month}/${fecha.year}';
     return _mensaje(
       context,
       Icons.assignment_turned_in_outlined,
-      'Ya enviaste este formulario$enviado',
+      puedeOtro ? 'Tu última solicitud$enviado' : 'Ya enviaste este formulario$enviado',
       _textosEstado[envio.estado]?.$2 ?? '',
       envio: envio,
+      otraVez: puedeOtro,
     );
   }
 

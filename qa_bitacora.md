@@ -2,6 +2,20 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-25]: Formulario B de Legacy Board (solicitud del empresario)
+- **Alcance:** `lib/presentation/widgets/botones_legacy_board.dart` («Quiero buscar» abre
+  `/legacy-board/formulario/B` en vez de Contáctenos), `lib/data/services/board_formularios_service.dart`
+  (`permiteNuevo`) y `lib/presentation/screens/legacy_board/formulario_board_screen.dart`: con una
+  solicitud ya decidida, muestra su estado y «Hacer una nueva solicitud»; con una pendiente, solo el
+  estado. El formulario lo manda el backend.
+- **Criterios de QA:** (usuario Legacy+)
+  1. Comunidad → Legacy Board → «Quiero buscar» abre «Solicitud de consejero», paso 1 de 5, con
+     nombre, correo y teléfono del perfil.
+  2. Enviarla muestra la confirmación con «En revisión»; volver a abrirla muestra solo el estado.
+  3. Cuando el comité la decide, la pantalla dice «Tu última solicitud…» con el estado y el botón
+     «Hacer una nueva solicitud», que abre el formulario vacío en el paso 1.
+  4. Salir a medio llenar esa solicitud nueva pregunta «¿Salir sin enviar?».
+
 ### [2026-11-25]: La notificación de Legacy Board abre el formulario
 - **Alcance:** `lib/domain/utils/notificacion_destino.dart` y su prueba. El backend manda
   `{type: board_envio, id: A}` cuando el comité aprueba o rechaza un formulario; al tocarla, la app abre

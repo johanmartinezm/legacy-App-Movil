@@ -17,12 +17,11 @@ import '../../domain/providers/auth_provider.dart';
 ///
 /// - «Quiero ser parte» abre el Formulario A, la postulación del consejero
 ///   (desde el 2026-11-25).
-/// - «Quiero buscar» sigue abriendo Contáctenos con el asunto escrito, como
-///   desde el 2026-10-13, hasta que exista el Formulario B (fase 4 del plan).
+/// - «Quiero buscar» abre el Formulario B, la solicitud del empresario (desde
+///   el 2026-11-25; antes abría Contáctenos con un asunto escrito).
 ///
-/// Los textos (pregunta y botones) los edita el panel desde el 2026-10-15; el
-/// asunto no, porque es como el equipo reconoce los mensajes. Un texto vacío
-/// pinta el de siempre.
+/// Los textos (pregunta y botones) los edita el panel desde el 2026-10-15. Un
+/// texto vacío pinta el de siempre.
 class BotonesLegacyBoard extends StatelessWidget {
   final String pregunta;
   final String textoSerParte;
@@ -44,7 +43,8 @@ class BotonesLegacyBoard extends StatelessWidget {
 
   /// Ruta del Formulario A (postulación del consejero).
   static const rutaSerParte = '/legacy-board/formulario/A';
-  static const asuntoBuscar = 'Legacy Board: quiero buscar consejeros';
+  /// Ruta del Formulario B (solicitud del empresario).
+  static const rutaBuscar = '/legacy-board/formulario/B';
 
   static const preguntaPorDefecto = '¿Cómo quiere participar?';
   static const serPartePorDefecto = 'Quiero ser parte';
@@ -52,10 +52,6 @@ class BotonesLegacyBoard extends StatelessWidget {
 
   static String _o(String texto, String porDefecto) =>
       texto.trim().isEmpty ? porDefecto : texto.trim();
-
-  void _contactar(BuildContext context, String asunto) {
-    context.push(Uri(path: '/contacto', queryParameters: {'asunto': asunto}).toString());
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +86,7 @@ class BotonesLegacyBoard extends StatelessWidget {
         const SizedBox(height: 12),
         OutlinedButton.icon(
           key: const Key('legacy-board-buscar'),
-          onPressed: () => _contactar(context, asuntoBuscar),
+          onPressed: () => context.push(rutaBuscar),
           icon: const Icon(Icons.person_search_outlined),
           label: Text(_o(textoBuscar, buscarPorDefecto), style: estiloTexto),
           style: OutlinedButton.styleFrom(

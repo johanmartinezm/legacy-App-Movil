@@ -14,8 +14,7 @@ import 'package:legacy_app/presentation/widgets/botones_legacy_board.dart';
 import 'package:provider/provider.dart';
 
 /// Legacy Board lleva al pie dos botones, solo para quien tiene el plus:
-/// «Quiero ser parte» abre el Formulario A y «Quiero buscar» abre Contáctenos
-/// con el asunto escrito, mientras no exista el Formulario B.
+/// «Quiero ser parte» abre el Formulario A y «Quiero buscar» el B.
 class _Auth extends AuthProvider {
   final bool plus;
   _Auth(this.plus);
@@ -116,11 +115,11 @@ void main() {
     expect(find.text('formulario=A'), findsOneWidget);
   });
 
-  testWidgets('«Quiero buscar» abre Contáctenos con su asunto', (tester) async {
+  testWidgets('«Quiero buscar» abre el Formulario B', (tester) async {
     await montar(tester, pagina());
     await tester.tap(find.byKey(const Key('legacy-board-buscar')));
     await tester.pumpAndSettle();
-    expect(find.text('asunto=${BotonesLegacyBoard.asuntoBuscar}'), findsOneWidget);
+    expect(find.text('formulario=B'), findsOneWidget);
   });
 
   testWidgets('Contáctenos abre con el asunto ya escrito', (tester) async {
@@ -128,11 +127,11 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(const MaterialApp(
-      home: ContactoScreen(asuntoInicial: BotonesLegacyBoard.asuntoBuscar),
+      home: ContactoScreen(asuntoInicial: 'Legacy Board: quiero buscar consejeros'),
     ));
     await tester.pump();
     expect(
-      find.widgetWithText(TextFormField, BotonesLegacyBoard.asuntoBuscar),
+      find.widgetWithText(TextFormField, 'Legacy Board: quiero buscar consejeros'),
       findsOneWidget,
     );
   });

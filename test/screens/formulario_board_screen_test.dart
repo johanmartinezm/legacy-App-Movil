@@ -21,8 +21,9 @@ void main() {
     await ConfigService.initialize();
   });
 
-  Map<String, dynamic> formulario({Map<String, dynamic>? envio}) => {
+  Map<String, dynamic> formulario({Map<String, dynamic>? envio, bool permiteNuevo = false}) => {
         'clave': 'A',
+        'permite_nuevo': permiteNuevo,
         'titulo': 'Postulación como consejero',
         'descripcion': 'Cuéntanos tu trayectoria.',
         'texto_terminos': 'Acepto los términos.',
@@ -144,6 +145,36 @@ void main() {
     });
     expect(find.text('Recibimos tu postulación.'), findsOneWidget);
     expect(find.text('En revisión'), findsOneWidget);
+  });
+
+  testWidgets('con una solicitud ya decidida del B, deja empezar otra', (tester) async {
+    await montar(
+      tester,
+      MockClient((_) async => json(
+            formulario(
+              envio: {'id': 'b1', 'formulario': 'B', 'estado': 'rechazada', 'creado_en': '2026-11-20T10:00:00Z'},
+              permiteNuevo: true,
+            ),
+            200,
+          )),
+    );
+    expect(find.textContaining('Tu última solicitud'), findsOneWidget);
+    expect(find.text('No aprobada'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('board-nueva-solicitud')));
+    await tester.pumpAndSettle();
+    expect(find.text('Paso 1 de 2'), findsOneWidget);
+  });
+
+  testWidgets('con una solicitud pendiente del B, solo se ve el estado', (tester) async {
+    await montar(
+      tester,
+      MockClient((_) async => json(
+            formulario(envio: {'id': 'b1', 'formulario': 'B', 'estado': 'pendiente'}, permiteNuevo: true),
+            200,
+          )),
+    );
+    expect(find.text('En revisión'), findsOneWidget);
+    expect(find.byKey(const Key('board-nueva-solicitud')), findsNothing);
   });
 
   testWidgets('si el backend rechaza un campo, vuelve a su sección y lo marca', (tester) async {

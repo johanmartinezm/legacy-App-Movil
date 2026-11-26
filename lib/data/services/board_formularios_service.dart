@@ -138,8 +138,12 @@ class FormularioBoard {
   final String textoTerminos;
   final String textoConfirmacion;
 
-  /// El envío que ya existe (el A enviado o el B pendiente). Si viene, la
-  /// pantalla muestra su estado en vez del formulario.
+  /// Se puede enviar otro cuando el último ya tiene decisión: el B (varias
+  /// solicitudes en el tiempo), no el A (una postulación por persona).
+  final bool permiteNuevo;
+
+  /// El último envío, en cualquier estado. Si está pendiente, o el formulario
+  /// no permite otro, la pantalla muestra solo su estado.
   final EnvioBoard? envioActual;
 
   const FormularioBoard({
@@ -149,6 +153,7 @@ class FormularioBoard {
     this.secciones = const [],
     this.textoTerminos = '',
     this.textoConfirmacion = '',
+    this.permiteNuevo = false,
     this.envioActual,
   });
 
@@ -162,6 +167,7 @@ class FormularioBoard {
         ],
         textoTerminos: json['texto_terminos'] as String? ?? '',
         textoConfirmacion: json['texto_confirmacion'] as String? ?? '',
+        permiteNuevo: json['permite_nuevo'] == true,
         envioActual: json['envio_actual'] is Map<String, dynamic>
             ? EnvioBoard.fromJson(json['envio_actual'] as Map<String, dynamic>)
             : null,
