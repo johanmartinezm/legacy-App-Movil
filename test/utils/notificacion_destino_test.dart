@@ -200,4 +200,18 @@ void main() {
       expect(destino.ruta, '/notifications');
     });
   });
+
+  group('Legacy Board', () {
+    test('la decisión del comité abre el formulario, que muestra el estado', () async {
+      final destino = await resolverNovedad({'type': 'board_envio', 'id': 'a'});
+      expect(destino.ruta, '/legacy-board/formulario/A');
+    });
+
+    test('un id que no es una letra no arma otra ruta', () async {
+      for (final id in ['../evento', 'AB', '1']) {
+        final destino = await resolverNovedad({'type': 'board_envio', 'id': id});
+        expect(destino.ruta, '/notifications', reason: id);
+      }
+    });
+  });
 }

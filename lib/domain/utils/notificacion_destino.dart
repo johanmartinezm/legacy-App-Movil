@@ -21,7 +21,8 @@ const destinoBandeja = DestinoNovedad('/notifications');
 /// `{"type": "content", "id": ...}` al publicar contenido
 /// (`handler/http/avisos.go`), y `{"type": "chat", "id": id de la conexión,
 /// "title": quién escribe}` al llegar un mensaje
-/// (`core/services/chat_avisos.go`). La app los recibía y los ignoraba: tocar
+/// (`core/services/chat_avisos.go`), y `{"type": "board_envio", "id": "A"}`
+/// cuando el comité decide sobre un formulario de Legacy Board. La app los recibía y los ignoraba: tocar
 /// cualquier notificación abría la bandeja, no la novedad.
 ///
 /// **Hay que resolver el objeto antes de navegar.** Las pantallas de detalle
@@ -75,6 +76,15 @@ Future<DestinoNovedad> resolverNovedad(
           id,
         );
         return DestinoNovedad('/evento', extra: evento);
+
+      // Legacy Board: el comité aprobó o rechazó un formulario
+      // (`core/services/board_bandeja_service.go`). El id es el formulario
+      // («A» o «B»), y su pantalla muestra el estado del envío. Solo admite
+      // letras para que la notificación no pueda armar otra ruta.
+      case 'board_envio':
+        final clave = id.toUpperCase();
+        if (!RegExp(r'^[A-Z]$').hasMatch(clave)) return destinoBandeja;
+        return DestinoNovedad('/legacy-board/formulario/$clave');
 
       case 'content':
         final contenido = await (contentService ?? CustomContentService())

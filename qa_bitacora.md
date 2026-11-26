@@ -2,6 +2,16 @@
 
 Entrada de trabajo para validación de App Móvil.
 
+### [2026-11-25]: La notificación de Legacy Board abre el formulario
+- **Alcance:** `lib/domain/utils/notificacion_destino.dart` y su prueba. El backend manda
+  `{type: board_envio, id: A}` cuando el comité aprueba o rechaza un formulario; al tocarla, la app abre
+  `/legacy-board/formulario/A`, que muestra el estado. Un `id` que no sea una sola letra lleva a la
+  bandeja de notificaciones.
+- **Criterios de QA:**
+  1. Con la postulación enviada, aprobarla o rechazarla desde el panel: llega una notificación
+     «Legacy Board» (con FCM real; en local solo se registra).
+  2. Tocarla abre «Postulación como consejero» con el estado nuevo, sin el motivo del rechazo.
+
 ### [2026-11-25]: Legacy Board: Comunidad abre la página y los botones son solo para Legacy+
 - **Alcance:** `lib/presentation/screens/comunidad/comunidad_screen.dart` (el botón Legacy Board abre
   `/legacy-board`; se retira el diálogo de los dos contactos), `lib/presentation/widgets/botones_legacy_board.dart`
